@@ -53,11 +53,14 @@ Commands in `parsec` that parse a string into a list (e.g., `many digit`) and
 reversed by `hsep` that takes a list of Doc types and makes a new Doc.
 
 What is this Doc things? Apart from the beauty of `wl-pprint-text`, it is also
-highly performant. The `wl` is a reference to Wadley and Leijen, the authors of
-the paper on a high-performance, combinator-based pretty printer.
+highly performant. The `wl` is a reference to Wadler [1] and Leijen [2], the
+authors of the paper on a high-performance, combinator-based pretty printer.
 
 `wl-pprint-text` is a translation of `wl-pprint` from using String to using
 Text, for greater performance.
+
+[1] Wadler, Philip. "A prettier printer." The Fun of Programming, Cornerstones of Computing (2003): 223-243.
+[2] Leijen, Daan. "PPrint, a prettier printer." (2006).
 
 ## `megaparsec`
 
