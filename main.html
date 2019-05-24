@@ -451,16 +451,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_cross_language_abstractions_are_poor">1.4. Cross-language abstractions are poor</a></li>
 </ul>
 </li>
-<li><a href="#_what_is_morloc">2. What is Morloc?</a></li>
+<li><a href="#_what_is_morloc">2. What is <code>morloc</code>?</a></li>
 <li><a href="#_pieces">3. Pieces</a></li>
-<li><a href="#_morloc_workflow">4. Morloc workflow</a></li>
+<li><a href="#_morloc_workflow">4. <code>morloc</code> workflow</a></li>
 </ul>
 </li>
 <li><a href="#_theory">Theory</a>
 <ul class="sectlevel1">
 <li><a href="#_build_system">5. Build system</a>
 <ul class="sectlevel2">
-<li><a href="#_how_to_make_a_morloc_module">5.1. How to make a Morloc module</a></li>
+<li><a href="#_how_to_make_a_morloc_module">5.1. How to make a <code>morloc</code> module</a></li>
 </ul>
 </li>
 <li><a href="#_forms_of_data_and_the_grim_model">6. Forms of data and the GRIM model</a>
@@ -490,7 +490,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#_function_signatures_and_more_stuff">12.1. Function signatures and more stuff</a></li>
 <li><a href="#_components_of_the_semantic_system">12.2. Components of the semantic system</a></li>
-<li><a href="#_how_morloc_uses_knowledge">12.3. How Morloc uses knowledge</a></li>
+<li><a href="#_how_morloc_uses_knowledge">12.3. How <code>morloc</code> uses knowledge</a></li>
 <li><a href="#_why_do_we_need_type_systems">12.4. Why do we need type systems?</a></li>
 </ul>
 </li>
@@ -507,20 +507,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_implementation">Implementation</a>
 <ul class="sectlevel1">
-<li><a href="#_implementation_2">14. Implementation</a>
+<li><a href="#_the_semantic_type_system_2">14. The Semantic Type System</a>
 <ul class="sectlevel2">
-<li><a href="#_the_semantic_type_system_2">14.1. The Semantic Type System</a></li>
-<li><a href="#_architecture">14.2. Architecture</a></li>
-<li><a href="#_performance_optimizations_and_high_performance_computing">14.3. Performance Optimizations and High-Performance Computing</a></li>
+<li><a href="#_function_type_signatures_with_constraints">14.1. Function type signatures with constraints</a></li>
+<li><a href="#_data_signatures_with_constraints">14.2. Data signatures with constraints</a></li>
+<li><a href="#_ontologies_of_types">14.3. Ontologies of types</a></li>
+<li><a href="#_mapping_from_abstract_morloc_type_to_concrete_language_specific_type">14.4. Mapping from abstract <code>morloc</code> type to concrete, language-specific type</a></li>
 </ul>
 </li>
-<li><a href="#_tech_tree">15. Tech Tree</a>
+<li><a href="#_architecture">15. Architecture</a></li>
+<li><a href="#_performance_optimizations_and_high_performance_computing">16. Performance Optimizations and High-Performance Computing</a></li>
+<li><a href="#_tech_tree">17. Tech Tree</a>
 <ul class="sectlevel2">
-<li><a href="#_docopt">15.1. <code>docopt</code></a></li>
-<li><a href="#_hsparql">15.2. <code>hsparql</code></a></li>
-<li><a href="#_rdf4h">15.3. <code>rdf4h</code></a></li>
-<li><a href="#_wl_pprint_text">15.4. <code>wl-pprint-text</code></a></li>
-<li><a href="#_megaparsec">15.5. <code>megaparsec</code></a></li>
+<li><a href="#_docopt">17.1. <code>docopt</code></a></li>
+<li><a href="#_hsparql">17.2. <code>hsparql</code></a></li>
+<li><a href="#_rdf4h">17.3. <code>rdf4h</code></a></li>
+<li><a href="#_wl_pprint_text">17.4. <code>wl-pprint-text</code></a></li>
+<li><a href="#_megaparsec">17.5. <code>megaparsec</code></a></li>
 </ul>
 </li>
 </ul>
@@ -534,6 +537,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+This document is cobbled together from loose informal notes, fragments of a
+stuffy academic paper, and purple prose from an NSF grant. Much of what is
+written here has not yet been implemented. What has been implemented is likely
+to be radically redone in the near future.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Morloc is a framework that allows interoperability between functions across
 languages, multi-language libraries and package managers, and encoding of
@@ -542,22 +560,6 @@ build a community portal for curating a universal library. Any public functions
 in this library can be used in any Morloc script. They may also be imported
 into specific languages and used.</p>
 </div>
-<div class="paragraph">
-<p>We accomplish this by providing</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>a framework for passing rich data between languages</p>
-</li>
-<li>
-<p>a common library across languages</p>
-</li>
-<li>
-<p>a common meta-programming language</p>
-</li>
-</ol>
-</div>
 </div>
 </div>
 <h1 id="_introduction" class="sect0">Introduction</h1>
@@ -565,31 +567,17 @@ into specific languages and used.</p>
 <h2 id="_motivation">1. Motivation</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The computer programming world is divided into insular communities centered
-around specific programming languages. A function written in one language
-cannot generally be used in another, this leads to costly reimplementation of
-whole libraries. Further, there is also no general, inter-language method for
-finding a function that performs a specific role. These problems slow the
-development of analytic pipelines and hinder collaboration between communities.</p>
-</div>
-<div class="paragraph">
-<p>The reason we are developing Morloc is to address these primary pain points:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>programming is tedious</p>
-</li>
-<li>
-<p>functions cannot be used across languages</p>
-</li>
-<li>
-<p>functions are not searchable</p>
-</li>
-<li>
-<p>cross-language abstractions are poor</p>
-</li>
-</ol>
+<p><code>morloc</code> is designed to unify computational communities. Existing solutions are
+only partial fixes and can create isolated islands of interoperability,
+restricting the languages and functions researchers use. <code>morloc</code> is designed to
+give programmers absolute autonomy while preserving interoperability through
+its powerful type system. The type system is the contract between the
+programmer and the machine, the mediator of interoperability between languages,
+and the indexing system for a new universal library, built and curated online
+for (and by) programmers and researchers in all domains. Our vision is for a
+free universal library that makes all computational tools and knowledge about
+their use available to everyone.  <code>morloc</code> will reduce both duplicated work and
+"abandonware", and increase modularity and searchability of functions.</p>
 </div>
 <div class="sect2">
 <h3 id="_programming_is_tedious">1.1. Programming is tedious</h3>
@@ -602,7 +590,7 @@ They are thought good only for the reasons death is thought good.</p>
 </div>
 <div class="paragraph">
 <p>Any work that is not part of the end. I distinguish here between the "means"
-and the "ends". The "means" are tedious. The Morloc composer should not have to
+and the "ends". The "means" are tedious. The <code>morloc</code> composer should not have to
 deal with them. Rather, they describe the ends. They describe the input data.
 They describe the serious of transformations that may be done upon it. Then the
 compiler builds the program. And the composer interacts with it however they
@@ -676,15 +664,15 @@ or use our tools.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_what_is_morloc">2. What is Morloc?</h2>
+<h2 id="_what_is_morloc">2. What is <code>morloc</code>?</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Morloc is a highly minimal, functional programming language with a semantic
+<p><code>morloc</code> is a highly minimal, functional programming language with a semantic
 type system and a very special compiler. The language exclusively relies on
 functions cannibalized from other languages. The transfer of data between the
-constituent functions is entirely automated such that the Morloc programmer
+constituent functions is entirely automated such that the <code>morloc</code> programmer
 needn&#8217;t know where the function came from. Likewise, the programmer who writes
-the function needn&#8217;t know that their function will be consumed by Morloc; they
+the function needn&#8217;t know that their function will be consumed by <code>morloc</code>; they
 are free to write in completely idiomatic prose, without boilerplate.</p>
 </div>
 <div class="paragraph">
@@ -692,7 +680,7 @@ are free to write in completely idiomatic prose, without boilerplate.</p>
 Ontologies. The types, and the relationships between them, are specified in an
 ontology. Every function is given a signature that describes the inputs and
 outputs of the function and also lists any constraints. This function signature
-and the type ontology are the two pieces of information shared between Morloc
+and the type ontology are the two pieces of information shared between <code>morloc</code>
 programmer and function writer. The type ontology and the function signatures
 are the axioms of a logical system. The code written by the programmer compiles
 to a list of logical statements. The program is correct if the whole system is
@@ -723,7 +711,7 @@ cast as Number).</p>
 between any two types, the compiler can find it (e.g. Internet &#8594; LaunchCodes)
 and build a logically correct program. While the function signatures are highly
 expressive, they do not specify what actually happens inside the function.
-Functions in Morloc are black boxes. The function signatures are premises of
+Functions in <code>morloc</code> are black boxes. The function signatures are premises of
 the system. However, functions are types and they also can be annotated with
 additional semantic information.</p>
 </div>
@@ -732,7 +720,7 @@ additional semantic information.</p>
 convert data between languages. Concrete, language-specific types would map to
 instances of the type classes. A given language may have 0 or more instances
 for a given type (e.g. the C types 'float' and 'double' might both be instances
-of the Morloc type 'Real'). The compiler would sometimes need a hint from the
+of the <code>morloc</code> type 'Real'). The compiler would sometimes need a hint from the
 programmer about which instance to use.</p>
 </div>
 <div class="paragraph">
@@ -769,7 +757,7 @@ nexus to integrate them.</p>
 </div>
 <div class="paragraph">
 <div class="title">Environment</div>
-<p>Morloc is intended to allow tools and languages to be interoperable. The user
+<p><code>morloc</code> is intended to allow tools and languages to be interoperable. The user
 should be able to import a function from any language and expect it to run. For
 this to work, the compiler needs to have the languages and tools installed. The
 user should not have to install all this.  Instead, they work through Docker.
@@ -791,7 +779,7 @@ all functions.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_morloc_workflow">4. Morloc workflow</h2>
+<h2 id="_morloc_workflow">4. <code>morloc</code> workflow</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="#fig:overview">The figure below</a> outlines the 6 levels of the <code>morloc</code>
@@ -846,7 +834,7 @@ automated reasoning.</p>
 <li>
 <p>The <strong>integration</strong> level. All the libraries can be queried using powerful
 semantic query languages, such as SPARQL. Functions can be imported into
-Morloc scripts and composed into new programs. These new programs can then be
+<code>morloc</code> scripts and composed into new programs. These new programs can then be
 uploaded to <code>morlocIO</code> or built into new programs. Programs can be type
 checked and the deep knowledge the type signatures provide, along with access
 to the <code>morlocIO</code> knowledgebase and any local knowledgebases, will allow
@@ -876,16 +864,16 @@ generated Shiny app), or imported into MorlocStudio.</p>
 <h2 id="_build_system">5. Build system</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Internally, Morloc follows a model similar to Pandoc. Pandoc can convert
+<p>Internally, <code>morloc</code> follows a model similar to Pandoc. Pandoc can convert
 between markup formats (for example HTML, Markdown, LaTeX, and Word). All data
 is stored internally as an abstract syntax tree. To add a new markup format,
 a programmer only needs to add a Reader and Writer that converts the new markup
 format to and from Pandoc&#8217;s internal format.</p>
 </div>
 <div class="paragraph">
-<p>From the Morloc users perspective, a module is a set of Morloc functions that
-can be used in a Morloc program. Each function in the module has a type. But
-the actual implementation, which is hidden from the Morloc user, is a bit
+<p>From the <code>morloc</code> users perspective, a module is a set of <code>morloc</code> functions that
+can be used in a <code>morloc</code> program. Each function in the module has a type. But
+the actual implementation, which is hidden from the <code>morloc</code> user, is a bit
 tricky. There are a couple very different cases:</p>
 </div>
 <div class="paragraph">
@@ -894,8 +882,8 @@ tricky. There are a couple very different cases:</p>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>a Morloc script. In this case, we are importing selected compositions
-written in Morloc. These Morloc imports are nodes on a tree.</p>
+<p>a <code>morloc</code> script. In this case, we are importing selected compositions
+written in <code>morloc</code>. These <code>morloc</code> imports are nodes on a tree.</p>
 </li>
 <li>
 <p>a single function in language X that uses only core features from X. No
@@ -904,7 +892,7 @@ function will work on any version of the language.</p>
 </li>
 <li>
 <p>a collection of functions in X and imports from X libraries. No version
-info. In this case, the Morloc compiler needs to find and install the
+info. In this case, the <code>morloc</code> compiler needs to find and install the
 required libraries. It is assumed that the functions will work with an
 version of the language or libraries.</p>
 </li>
@@ -918,7 +906,7 @@ highest version in the range.</p>
 </ol>
 </div>
 <div class="sect2">
-<h3 id="_how_to_make_a_morloc_module">5.1. How to make a Morloc module</h3>
+<h3 id="_how_to_make_a_morloc_module">5.1. How to make a <code>morloc</code> module</h3>
 <div class="imageblock">
 <div class="content">
 <img src="images/linear-algebra-module.png" alt="linear algebra module">
@@ -946,10 +934,10 @@ highest version in the range.</p>
 <p>U  - User interface data</p>
 </li>
 <li>
-<p>I  - Internal Morloc data</p>
+<p>I  - Internal <code>morloc</code> data</p>
 </li>
 <li>
-<p>T  - Typed Morloc data</p>
+<p>T  - Typed <code>morloc</code> data</p>
 </li>
 <li>
 <p>S  - Standard formats</p>
@@ -1214,9 +1202,9 @@ different.</p>
 <h2 id="_graph_rules">8. Graph rules</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>A Morloc program and all imported modules and ontologies, needs to be encoded
+<p>A <code>morloc</code> program and all imported modules and ontologies, needs to be encoded
 as a RDF triple store. Here I will work out the rules for how elements of
-a Morloc script should be translated into RDF.</p>
+a <code>morloc</code> script should be translated into RDF.</p>
 </div>
 <div class="paragraph">
 <p>The system needs to define the</p>
@@ -1277,11 +1265,11 @@ m1(x, y) =
 <h2 id="_modules">10. Modules</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>How is new code wrapped and given to Morloc?</p>
+<p>How is new code wrapped and given to <code>morloc</code>?</p>
 </div>
 <div class="paragraph">
 <p>Everything goes into RDF. That is the inviolate rule. But triples are an
-awkward way to write data for a human, so we offer Morloc script. So, where do
+awkward way to write data for a human, so we offer <code>morloc</code> script. So, where do
 module details, such as author info and such, go?</p>
 </div>
 <div class="paragraph">
@@ -1290,7 +1278,7 @@ contents of a folder as a morloc module.</p>
 </div>
 <div class="paragraph">
 <p>The downside, is that that ties the config file to a specific format, YAML, and
-to a single file. Better to use a folder where all Morloc related info is
+to a single file. Better to use a folder where all <code>morloc</code> related info is
 witten. This could be sugar forms (e.g. anything that is not RDF). Or it could
 be local mods, whatever. This would be a little like the Python convention of
 having a <code><em>python</em></code> folder.</p>
@@ -1435,7 +1423,7 @@ any (supported) language and they can be linked together. The functions do
 not have to write their results to STDOUT or read their input from it.</p>
 </div>
 <div class="paragraph">
-<p>Morloc</p>
+<p>Examples: <code>morloc</code></p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -1474,27 +1462,27 @@ interact through usually through a REST interface with intermediate
 serialization/deserialization steps.</p>
 </div>
 <div class="paragraph">
-<p>Morloc is not a microservice oriented system. The only immediate similarity to
+<p><code>morloc</code> is not a microservice oriented system. The only immediate similarity to
 microservices is that calls between functions of different languages will pass
-data (barring future optimizations) through a serialization step. The Morloc
+data (barring future optimizations) through a serialization step. The <code>morloc</code>
 compiler though builds all functions together, integrating them, where
 possible, into single programs. Thus functions within languages are communicate
 directly, not through an interface.</p>
 </div>
 <div class="paragraph">
 <p>There is a further, less direct, association with microservices, though. Any
-Morloc program, or composition of programs, can be transformed into
-a microservice. This would be a fairly straightforward step, since Morloc
+<code>morloc</code> program, or composition of programs, can be transformed into
+a microservice. This would be a fairly straightforward step, since <code>morloc</code>
 already knows how to serialize the inputs and output of any function. Thus,
-Morloc will provide microservice deployment of any pipeline.</p>
+<code>morloc</code> will provide microservice deployment of any pipeline.</p>
 </div>
 <div class="paragraph">
-<p>Any Morloc pipeline will be able to trivially incorporate a Morloc
+<p>Any <code>morloc</code> pipeline will be able to trivially incorporate a <code>morloc</code>
 microservice. The company can provide cloud hosting of these microservices. The
 code in the microservices could be proprietary. The advantage of hosting on
-Morloc is that, since the code is already on Morloc, the hosting can be
+<code>morloc</code> is that, since the code is already on <code>morloc</code>, the hosting can be
 accomplished with little more than a single click. Then any changes made to the
-code that is tested and benchmarked on Morloc, can be automatically propagated
+code that is tested and benchmarked on <code>morloc</code>, can be automatically propagated
 to the microservice.</p>
 </div>
 <div class="paragraph">
@@ -1646,7 +1634,7 @@ a dedicated language, send it to the user.</p>
 <p>MPS - meta programming system (jetbrains).</p>
 </div>
 <div class="paragraph">
-<p>Morloc is similar in that I want to encode domain knowledge in the language
+<p><code>morloc</code> is similar in that I want to encode domain knowledge in the language
 itself.</p>
 </div>
 </div>
@@ -1654,7 +1642,7 @@ itself.</p>
 <h4 id="_concept_programming">11.3.4. Concept programming</h4>
 <div class="paragraph">
 <p>There are a lot of neat ideas written in the wikipedia article on Concept
-programming. The goals of concept programming and my goals for Morloc align
+programming. The goals of concept programming and my goals for <code>morloc</code> align
 well.</p>
 </div>
 <div class="paragraph">
@@ -1700,7 +1688,7 @@ wrappers around foreign functions when they need them.</p>
 </ol>
 </div>
 <div class="paragraph">
-<p>In Morloc, programmers have to agree upon a common type system. In conventional
+<p>In <code>morloc</code>, programmers have to agree upon a common type system. In conventional
 workflow systems, programmers have to agree upon file specs, error
 transmission, log handling, etc. Imagine a two function pipeline: 1) <code>clean</code>:
 an R script that downloads data from an online source and cleans it into a form
@@ -1725,10 +1713,10 @@ been extensively explored (Hannemann 2002).</p>
 </div>
 <div class="paragraph">
 <p>In the following sections I will summarize the main classes of
-languages/programs that are related to Morloc.</p>
+languages/programs that are related to <code>morloc</code>.</p>
 </div>
 <div class="paragraph">
-<p>Morloc goes further, in that nothing meaningful can be written in Morloc
+<p><code>morloc</code> goes further, in that nothing meaningful can be written in <code>morloc</code>
 without accessing foreign languages. And no language is given special status.</p>
 </div>
 <div class="paragraph">
@@ -1752,7 +1740,7 @@ and generally cannot modify them.</p>
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Morloc</th>
+<th class="tableblock halign-left valign-top"><code>morloc</code></th>
 <th class="tableblock halign-left valign-top">GWFM</th>
 <th class="tableblock halign-left valign-top">Shell</th>
 <th class="tableblock halign-left valign-top">Make*</th>
@@ -1871,7 +1859,7 @@ or add validators without local modification of the code?.</p>
 </li>
 <li>
 <p><strong>Control syntax</strong>: Origin of control structures (e.g. conditionals,
-loops). In Morloc these are in user space (or core libraries). GWFM vary,
+loops). In <code>morloc</code> these are in user space (or core libraries). GWFM vary,
 many have no conditionals or loops. Make derivatives have conditionals but
 no loops.</p>
 </li>
@@ -1892,16 +1880,16 @@ components (Achermann 2001). The components in Piccola are considered black
 boxes. They argue that OOP is good for building components but bad at reusing
 them, because the components become overly specialized and the interfaces
 overly complex, such that scripting with them requires deep understanding of
-their implementation. Morloc follows the same model of scripts and components.
+their implementation. <code>morloc</code> follows the same model of scripts and components.
 The components in Picolla are general objects, characterized by an API. The
-components can be anything. In Morloc the components are functions. They can be
+components can be anything. In <code>morloc</code> the components are functions. They can be
 used in exactly one way, which is specified by their type signature.</p>
 </div>
 <div class="paragraph">
-<p>The work most similar to Morloc is perhaps the language Cuneiform (brandt
+<p>The work most similar to <code>morloc</code> is perhaps the language Cuneiform (brandt
 2015), which is a workflow language designed for high-performance and implicit
 parallelism. Cuneiform allows multiple languages and is uses explicit types.
-Morloc differs in its emphasis on automating IO code and type conversions
+<code>morloc</code> differs in its emphasis on automating IO code and type conversions
 between languages.</p>
 </div>
 </div>
@@ -1930,7 +1918,7 @@ producing new files and managing file dependencies. Make is often used in
 scientific analysis (e.g. (Askren 2016)). A few variants of Make designed for
 scientific analysis include Snakemake (Koster 2012)} and Drake
 (github.com/Factual/drake). The dependency graphs automatically built by Make
-are isomorphic to the pull-based workflows of Morloc. But Make (and its
+are isomorphic to the pull-based workflows of <code>morloc</code>. But Make (and its
 variants) provide no type safety or language integration. Drake does allow
 recipes to be written in many languages, but by design data can passed between
 recipes only through the files they create.</p>
@@ -1951,7 +1939,7 @@ and scripters are members of different communities.  Those who use the
 components are not generally the ones who write them (or could write them).</p>
 </div>
 <div class="paragraph">
-<p>In contrast, Morloc is a metaprogramming language for creating pure code.</p>
+<p>In contrast, <code>morloc</code> is a metaprogramming language for creating pure code.</p>
 </div>
 </div>
 </div>
@@ -2056,26 +2044,26 @@ Pipeline Pilot, KNIME</p>
 <h2 id="_the_semantic_type_system">12. The semantic type system</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The fundamental innovation of Morloc is the merger of knowledge engineering,
+<p>The fundamental innovation of <code>morloc</code> is the merger of knowledge engineering,
 type system design, and functional programming to create a powerful new
 programming paradigm. The foundation of this new paradigm is the concept of a
 universal semantic type system, where all information about the data and
 functions are stored using ontologies as knowledge representation systems.
-Morloc uses ontologies for three distinct purposes: 1) as a language-agnostic
+<code>morloc</code> uses ontologies for three distinct purposes: 1) as a language-agnostic
 type system, 2) to power automatic programming through encoded domain knowledge
 and 3) to describe data, functions, and systems. These purposes will be
 detailed in the following paragraphs.</p>
 </div>
 <div class="paragraph">
 <p><strong>First</strong>, the ontologies are the foundation of the universal type system. Like
-other strong type systems, the Morloc type system will prevent many bugs at
+other strong type systems, the <code>morloc</code> type system will prevent many bugs at
 compile time. It goes beyond most languages by also allowing specification of
 constraints on values (e.g. input x must be greater than input y). These
 constraints can be used in static analysis of program correctness or to
 generate runtime assertions. They effectively replace in-code assertion
 statements and informal English descriptions of behavior with concise,
 language-agnostic mathematical statements about the function. Since the type
-system is language-agnostic, Morloc provides a common language for programmers
+system is language-agnostic, <code>morloc</code> provides a common language for programmers
 and domain scientists to discuss the operation and assumptions of functions.
 This system is a necessary requirement for the vision of building a universal
 library.</p>
@@ -2112,7 +2100,7 @@ documentation that is inaccessible to machines. By unifying programming
 languages and tools under a common type system, search engines can be designed
 to find and compare functions by their roles and input/output types. The common
 type system will also allow machines, and emergent AIs, to reason about
-Morloc’s tools.</p>
+<code>morloc</code>’s tools.</p>
 </div>
 <div class="paragraph">
 <p>By lifting this entire system into a community portal, an environment is
@@ -2120,7 +2108,7 @@ created that allows both humans and machines to participate in curating and
 building a collective description of the world (the data type system), a set of
 tools to operate on it (the function library), and knowledge about how to use
 the tools (the function type system). The global ontologies further offer
-endless potential for Morloc extensions that improve pipeline documentation,
+endless potential for <code>morloc</code> extensions that improve pipeline documentation,
 automation, optimization, accessibility, and reproducibility.</p>
 </div>
 <div class="sect2">
@@ -2166,7 +2154,7 @@ cast as Number).</p>
 between languages. Concrete, language-specific types would map to instances of
 the type classes. A given language may have 0 or more instances for a given
 type (e.g. the C types <code>float</code> and <code>double</code> might both be instances of the
-Morloc type <code>Real</code>). The compiler would sometimes need a hint from the
+<code>morloc</code> type <code>Real</code>). The compiler would sometimes need a hint from the
 programmer about which instance to use.</p>
 </div>
 <div class="paragraph">
@@ -2204,7 +2192,7 @@ inheritance.  Although having an entire rule system describing how the types
 relate to eachother is probably more powerful than simple inheritance.</p>
 </div>
 <div class="paragraph">
-<p>There are three components to the semantic side of Morloc. The 1) knowledge
+<p>There are three components to the semantic side of <code>morloc</code>. The 1) knowledge
 representation language (KR), 2) the query language (QL), 3) the rule language
 (RL) and 4) an inference engine (IE).</p>
 </div>
@@ -2221,7 +2209,7 @@ graph database systems. Or for that matter, using bespoke data structures.</p>
 <p>OWL2 is based on a formal logic system, Description Logics (DL). It is good for
 describing the relations between types and what properties types have. The
 types and the type constraints (corresponding to Haskell typeclasses) are
-rules. Morloc code can be translated into a list of facts. If the facts are
+rules. <code>morloc</code> code can be translated into a list of facts. If the facts are
 consistent, the type checker passes. This will allow highly expressive types.</p>
 </div>
 <div class="paragraph">
@@ -2296,7 +2284,7 @@ many user customizations will occur.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_how_morloc_uses_knowledge">12.3. How Morloc uses knowledge</h3>
+<h3 id="_how_morloc_uses_knowledge">12.3. How <code>morloc</code> uses knowledge</h3>
 <div class="sect3">
 <h4 id="_static_type_checking">12.3.1. Static type checking</h4>
 <div class="paragraph">
@@ -2339,7 +2327,7 @@ ontology on theory. We should prove that everything works, if possible.</p>
 <div class="title">Invariants/runtime dependencies</div>
 <p>These includes dependencies between sub-units of a type (e.g. arguments in a
 functional signature or members of a tuple). It is probably not practical to
-have true, compile-time checked, dependent types in Morloc, since functions are
+have true, compile-time checked, dependent types in <code>morloc</code>, since functions are
 black boxes. So these dependencies will be probably be checked at runtime
 (unless compiled without checking). In the future, at least in some cases, we
 will be able to statically analyze the invariants.</p>
@@ -2674,7 +2662,7 @@ library builders can require all functions be pure.</p>
 want to only work on the <code>morloc</code> "plane of totality".</p>
 </div>
 <div class="paragraph">
-<p>Perhaps what we need is a strict subset of Morloc. Well, there will be layers.
+<p>Perhaps what we need is a strict subset of <code>morloc</code>. Well, there will be layers.
 And functions will be ascend through the levels of quality, from unverified to
 proven. Though quality is not a one-dimensional trait. There is</p>
 </div>
@@ -2763,7 +2751,7 @@ input and output.</p>
 <div class="paragraph">
 <p>We could infer the output type, then attempt to cast it to the expected output
 type. For example, suppose we have a function that returns a list of integers
-if the list is longer than 1 and a single integer otherwise. Morloc could
+if the list is longer than 1 and a single integer otherwise. <code>morloc</code> could
 generate a code in the manifold that checks the type of the output function,
 then casts it as needed.</p>
 </div>
@@ -2843,7 +2831,7 @@ might be:</p>
 (making the robot move).</p>
 </div>
 <div class="paragraph">
-<p>In old Morloc, I have support for <code>Void</code> types, which roughly indicate IO. So
+<p>In old <code>morloc</code>, I have support for <code>Void</code> types, which roughly indicate IO. So
 we could couple two function:</p>
 </div>
 <div class="listingblock">
@@ -2866,7 +2854,7 @@ moveRobot :: Vector -&gt; !MoveRobot</code></pre>
 <div class="paragraph">
 <p>Now of course, in Haskell we would solve this with an IO monad. Do we want
 monads? But we really can&#8217;t pretend to be pure, since the functions are black
-boxes. And even if we could be pure, would we want to be? Morloc needs to allow
+boxes. And even if we could be pure, would we want to be? <code>morloc</code> needs to allow
 effects. Otherwise Haskell would be about the only major language it could
 support.</p>
 </div>
@@ -2877,15 +2865,14 @@ support.</p>
 </div>
 </div>
 <h1 id="_implementation" class="sect0">Implementation</h1>
-<div class="sect1">
-<h2 id="_implementation_2">14. Implementation</h2>
-<div class="sectionbody">
+<div class="openblock partintro">
+<div class="content">
 <div class="paragraph">
-<p>Morloc is an ontology-based workflow framework that uses a code-generating
+<p><code>morloc</code> is an ontology-based workflow framework that uses a code-generating
 compiler to integrate components. While the entire system is quite unique, the
 components are built on well-established technology.  The system can be divided
 into the five layers as show in Fig 5. Work related to the semantic, workflow,
-and interoperability layers, where the key technical innovations of Morloc
+and interoperability layers, where the key technical innovations of <code>morloc</code>
 occur, is discussed below.</p>
 </div>
 <div class="paragraph">
@@ -2898,9 +2885,9 @@ bioinformatics operations, data types and identifiers.7 Lamprecht, et al. used
 this ontology as a guiding logic for automatic workflow composition program
 where the components of the workflow were web services with inputs and outputs
 described by EDAM data types.8 Ontologies have also been studied as a tool for
-managing databases of functions.9 Morloc will make heavy use of existing
+managing databases of functions.9 <code>morloc</code> will make heavy use of existing
 ontology tools and, where possible, reuse or adapt existing domain ontologies.
-Morloc also will allow constraints to be placed on types, including functions.
+<code>morloc</code> also will allow constraints to be placed on types, including functions.
 This has been explored extensively, for example in the dependently typed
 language Idris.10</p>
 </div>
@@ -2928,30 +2915,30 @@ functions of different languages. Interfaces between languages, which allow
 calls to foreign languages with little overhead, have been developed for
 specific pairs of languages, usually from a high-level language (e.g. Python)
 to a high-performance compiled language (usually C) or for select groups of
-languages (e.g. GraalVM). The planned Morloc implementation will take a more
+languages (e.g. GraalVM). The planned <code>morloc</code> implementation will take a more
 general approach to interoperability: serialize the output of the first
 function into a language-agnostic format and then deserialize this in the
-second function. The serialization format for the Morloc prototype will be the
+second function. The serialization format for the <code>morloc</code> prototype will be the
 web standard JSON. In the future, we will explore faster industrial systems,
 such as Google’s Protocol Buffers.</p>
 </div>
-<div class="sect2">
-<h3 id="_the_semantic_type_system_2">14.1. The Semantic Type System</h3>
-<div class="paragraph">
-<p>One key innovation in this proposal is the novel semantic type system that will
-form the core of the new Morloc prototype. The system is founded on description
-logic, which is widely used across disciplines to organize knowledge into
-ontologies, which are directed graphs describing relationships between
-concepts. In this section, we will introduce 1) function type signatures, 2)
-data signatures, 3) ontologies of types, and 4) how abstract Morloc types are
-converted into concrete language-specific types. The proposed semantic type
-system has not yet been fully implemented and the syntax and semantics of all
-examples are tentative.</p>
 </div>
-<div class="sect3">
-<h4 id="_function_type_signatures_with_constraints">14.1.1. Function type signatures with constraints</h4>
+</div>
+<div class="sect1">
+<h2 id="_the_semantic_type_system_2">14. The Semantic Type System</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Here is an example of a Morloc type signature:</p>
+<p>The semantic type system is the foundation of <code>morloc</code>. The system is based on
+description logic, which is widely used across disciplines to organize
+knowledge into ontologies, which are directed graphs describing relationships
+between concepts. In this section, we will introduce 1) function type
+signatures, 2) data signatures, 3) ontologies of types, and 4) how abstract
+<code>morloc</code> types are converted into concrete language-specific types.</p>
+</div>
+<div class="sect2">
+<h3 id="_function_type_signatures_with_constraints">14.1. Function type signatures with constraints</h3>
+<div class="paragraph">
+<p>Here is an example of a <code>morloc</code> type signature:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2973,8 +2960,8 @@ elements sampled is greater than the length of the input vector, the output
 vector will have the same length as the input vector.</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_data_signatures_with_constraints">14.1.2. Data signatures with constraints</h4>
+<div class="sect2">
+<h3 id="_data_signatures_with_constraints">14.2. Data signatures with constraints</h3>
 <div class="paragraph">
 <p>Non-function types may also have constraints, for example, counting number
 could be defined as:</p>
@@ -2992,71 +2979,66 @@ across a pipeline and 2) using these constraints to automate testing of
 functions.</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_ontologies_of_types">14.1.3. Ontologies of types</h4>
+<div class="sect2">
+<h3 id="_ontologies_of_types">14.3. Ontologies of types</h3>
 <div class="paragraph">
-<p>The Morloc type system is intended to powerfully describe concrete ideas.
+<p>The <code>morloc</code> type system is intended to powerfully describe concrete ideas.
 Knowledge representation systems, specifically ontologies, are the most natural
-system for this purpose. Morloc will support adding arbitrary relations to
+system for this purpose. <code>morloc</code> will support adding arbitrary relations to
 types. Support for special handling for specific relations may be
-built into the Morloc compiler or added as extensions. We have not chosen a
+built into the <code>morloc</code> compiler or added as extensions. We have not chosen a
 syntax for expressing semantic relations. One option would be to use an
 existing W3C standard, such as Turtle format. Alternatively, we could develop
-our own syntax. The Morloc compiler will convert a Morloc script into a list of
+our own syntax. The <code>morloc</code> compiler will convert a <code>morloc</code> script into a list of
 logical statements (an RDF triple store). Typechecking will involve proving the
 consistency of the resulting logical system.</p>
 </div>
 <div class="paragraph">
 <p>The relations between types will be used to encode domain specific handling
-into the Morloc type system. For example, a programmer may state that Meter and
+into the <code>morloc</code> type system. For example, a programmer may state that Meter and
 Centimeter are both Length and that they can be interconverted. The function
 performing the interconversion will have the signature Meter&#8594;Centimeter and
 the role convert. If a function that expects the type Meter is
 passed data of type Centimeter, an appropriate conversion will be automatically
-performed. See case study Fig. 6 for a more complex example.</p>
+performed.</p>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_mapping_from_abstract_morloc_type_to_concrete_language_specific_type">14.4. Mapping from abstract <code>morloc</code> type to concrete, language-specific type</h3>
 <div class="paragraph">
-<p>The relations may also be used to express inheritance relationships between
-types. We will explore the details of inheritance in Morloc during Phase 1,
-including the important questions of whether to support multiple inheritance
-and how to handle property inheritance. Certainly, some properties cannot be
-inherited, such as alias, while others must be inherited, such as
-has_constraint.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_mapping_from_abstract_morloc_type_to_concrete_language_specific_type">14.1.4. Mapping from abstract Morloc type to concrete, language-specific type</h4>
-<div class="paragraph">
-<p>Mapping from general Morloc types, like Integer or [Integer] (a list of
-integers) to concrete types in specific languages is one of the key challenges
-we are addressing in this proposal. For a given general type, there may be many
-possible concrete instances in every language (see Fig 5). To convert between
-concrete instances, the data must first be resolved into a nested structure of
-primitive values, clearing away language-specific features. This structure can
-then be unambiguously serialized into JSON, a nested language-agnostic data
-format. Next the JSON intermediate form is deserialized into a nested structure
-of primitive values in language 2. Finally, this structure is cast into a
-language-specific concrete instance. The casting steps will not always be
-needed and there will often be reasonable defaults. The wrappers Morloc
-generates around the pure functions will handle casting operations.</p>
+<p>Mapping from general <code>morloc</code> types, like Integer or [Integer] (a list of
+integers) to concrete types in specific languages is one of the basic functions
+of the <code>morloc</code> compiler. For a given general type, there may be many possible
+concrete instances in every language (see <a href="#serialization">the figure below</a>).
+To convert between concrete instances, the data must first be resolved into a
+nested structure of primitive values, clearing away language-specific features.
+This structure can then be unambiguously serialized into JSON, a nested
+language-agnostic data format.  Next the JSON intermediate form is deserialized
+into a nested structure of primitive values in language 2. Finally, this
+structure is cast into a language-specific concrete instance. The casting steps
+will not always be needed and there will often be reasonable defaults. The
+wrappers <code>morloc</code> generates around the pure functions will handle casting
+operations.</p>
 </div>
 <div class="paragraph">
 <p>Specifying cast functions will be most important for object oriented languages.
 In these cases, the primitive nested structure will hold all the information
 needed to build the required object, and the cast function will pass the
 appropriate data to the class constructor. We will explore object handling as
-we implement support for C++.</p>
+we implement support for <code>C++</code>.</p>
 </div>
-<div class="paragraph">
+<div id="serialzation" class="paragraph">
 <p><span class="image"><img src="images/serialization.png" alt="serialization"></span></p>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_architecture">14.2. Architecture</h3>
+</div>
+<div class="sect1">
+<h2 id="_architecture">15. Architecture</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>The Morloc architecture can divided into 5 layers. The input layer handles the
-conversion of input source code into Morloc packages. It extracts any Morloc
+<p>The <code>morloc</code> architecture can divided into 5 layers. The input layer handles the
+conversion of input source code into <code>morloc</code> packages. It extracts any <code>morloc</code>
 metadata that is encoded in the source code. This metadata includes the
 language-specific type information that may be needed when casting complex
 types between languages. The metadata would be stored within the comments above
@@ -3070,12 +3052,12 @@ type checking workflows. The workflow layer takes the raw functions and
 workflow graph and generates an executable and user interface. The distribution
 layer involves the database that stores all the functions and ontologies and
 the algorithms used for accessing them. The user layer includes all the ways in
-which a user interacts with Morloc.</p>
+which a user interacts with <code>morloc</code>.</p>
 </div>
 <div class="paragraph">
-<p>The language grammar specification template is a vital piece of the Morloc
+<p>The language grammar specification template is a vital piece of the <code>morloc</code>
 architecture that will allow support for new languages to be added without
-having to modify the core compiler. The Morloc code generator needs to know
+having to modify the core compiler. The <code>morloc</code> code generator needs to know
 enough of the language grammar to generate wrappers. For example, it needs to
 know the syntax for a function call given a list of arguments. In the input
 layer, the source code preprocessor needs to know how metadata are encoded in
@@ -3085,12 +3067,14 @@ prototypes, but they will need to be formalized and generalized in order to
 realize our goal of easily adding support for almost any language.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_performance_optimizations_and_high_performance_computing">14.3. Performance Optimizations and High-Performance Computing</h3>
+</div>
+<div class="sect1">
+<h2 id="_performance_optimizations_and_high_performance_computing">16. Performance Optimizations and High-Performance Computing</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Since Morloc is built for data science, performance is a top priority. There
+<p>Since <code>morloc</code> is built for data science, performance is a top priority. There
 are two main performance concerns: serialization and runtime transitions. In
-the most naive implementation of the Morloc compiler, every function would be
+the most naive implementation of the <code>morloc</code> compiler, every function would be
 an independent script and every function call would require starting up the
 runtime (for non-compiled languages) and a serialization/deserialization step.
 An obvious optimization, and one that is already implemented in the current
@@ -3105,18 +3089,18 @@ removed for some interpreted languages by using a server/client interface (e.g.
 RServe for R).</p>
 </div>
 <div class="paragraph">
-<p>Beyond inter-language and serialization optimizations, lifting Morloc workflows
+<p>Beyond inter-language and serialization optimizations, lifting <code>morloc</code> workflows
 into high-performance computing frameworks is essential to scaling. One option
-we will investigate in phase 1 is building Common Workflow Language (CWL)
-specifications for workflows during the compilation process. This would open
-the whole suite of CWL compatible tools and frameworks to Morloc workflows. One
-such framework is Arvados (<a href="https://arvados.org/" class="bare">https://arvados.org/</a>), which could be leveraged to
-allow Morloc workflows to run on local HPC clusters or in the cloud.</p>
+is building Common Workflow Language (CWL) specifications for workflows during
+the compilation process. This would open the whole suite of CWL compatible
+tools and frameworks to <code>morloc</code> workflows. One such framework is Arvados
+(<a href="https://arvados.org/" class="bare">https://arvados.org/</a>), which could be leveraged to allow <code>morloc</code> workflows to
+run on local HPC clusters or in the cloud.</p>
 </div>
 <div class="paragraph">
 <p>In the long-term, we anticipate that one of the most powerful features of
-Morloc will be its ability to automatically generate optimal solutions from
-simple components. The Morloc compiler is given source code for each component,
+<code>morloc</code> will be its ability to automatically generate optimal solutions from
+simple components. The <code>morloc</code> compiler is given source code for each component,
 semantic knowledge about how the components work, and a vast knowledge base
 including past performance for all components both individually and when
 integrated into workflows. The only limit on the optimization of the compiled
@@ -3126,24 +3110,23 @@ we make available to it.</p>
 <div class="paragraph">
 <p>Given the current acceleration of machine intelligence, we believe the best and
 most lasting frameworks will be those that make knowledge and tools available
-to the machine. This is exactly what we hope to achieve with Morloc: to unify
+to the machine. This is exactly what we hope to achieve with <code>morloc</code>: to unify
 access to programmatic tools and create an elegant system for encoding
 knowledge about their operation.</p>
 </div>
 </div>
 </div>
-</div>
 <div class="sect1">
-<h2 id="_tech_tree">15. Tech Tree</h2>
+<h2 id="_tech_tree">17. Tech Tree</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The purpose of this document is to describe the underlying Haskell packages
-that are used in Morloc. It is not intended to act as a replacement for the
+that are used in <code>morloc</code>. It is not intended to act as a replacement for the
 documentation of the packages themselves, but rather describes how they are
-used within the Morloc context and why they were chosen.</p>
+used within the <code>morloc</code> context and why they were chosen.</p>
 </div>
 <div class="sect2">
-<h3 id="_docopt">15.1. <code>docopt</code></h3>
+<h3 id="_docopt">17.1. <code>docopt</code></h3>
 <div class="paragraph">
 <p>The <code>docopt</code> package is the Haskell implementation of the wider
 ["docopt"](docopt.org) paradigm. The idea is that usage statements are
@@ -3167,12 +3150,12 @@ Options:
 <p>This string serves as both the usage statement that is printed when help is
 needed (e.g., <code>morloc -h</code>) and the specification of the supported command line
 arguments that can be called. The Haskell code in <code>Main.hs</code> determines the
-behavior of Morloc when these options are used, but does not have to deal with
+behavior of <code>morloc</code> when these options are used, but does not have to deal with
 formatting or argument parsing.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_hsparql">15.2. <code>hsparql</code></h3>
+<h3 id="_hsparql">17.2. <code>hsparql</code></h3>
 <div class="paragraph">
 <p><code>hsparql</code> is a DSL for making SPARQL queries from Haskell. In the past I wrote
 raw SPARQL code since I considered the use of a DSL unnecessary, since SPARQL
@@ -3183,14 +3166,14 @@ verbose, but also more reliable.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_rdf4h">15.3. <code>rdf4h</code></h3>
+<h3 id="_rdf4h">17.3. <code>rdf4h</code></h3>
 <div class="paragraph">
 <p><code>rdf4h</code> is a Relational Data Format (RDF) handling package designed by Rob Stewart (the
 same person is maintains the <code>hsparql</code>).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wl_pprint_text">15.4. <code>wl-pprint-text</code></h3>
+<h3 id="_wl_pprint_text">17.4. <code>wl-pprint-text</code></h3>
 <div class="paragraph">
 <p>Parsers such as <code>parsec</code> and <code>megaparsec</code> take strings and turn them into
 structures. The dreadfully named <code>wl-pprint-text</code> does the reverse. There is
@@ -3210,7 +3193,7 @@ Text, for greater performance.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_megaparsec">15.5. <code>megaparsec</code></h3>
+<h3 id="_megaparsec">17.5. <code>megaparsec</code></h3>
 <div class="paragraph">
 <p><code>megaparsec</code> is an industrial strength alternative to <code>parsec</code>.</p>
 </div>
@@ -3244,16 +3227,16 @@ may be added.</p>
 <div class="paragraph">
 <div class="title">Programmer versus composer</div>
 <p>Where I say <code>programmer</code>, I mean the one who writes the functions in a
-non-Morloc language. Where I say <code>composer</code>, I mean the person who writes
-Morloc code (or more generally, any pure scripting language).</p>
+non-<code>morloc</code> language. Where I say <code>composer</code>, I mean the person who writes
+<code>morloc</code> code (or more generally, any pure scripting language).</p>
 </div>
 <div class="paragraph">
 <div class="title">Double-blind</div>
-<p>Morloc is designed to allow a double-blind relation between composers and
+<p><code>morloc</code> is designed to allow a double-blind relation between composers and
 programmers.</p>
 </div>
 <div class="paragraph">
-<p>The blind programmer doesn&#8217;t how their code is being used by Morloc. They write
+<p>The blind programmer doesn&#8217;t how their code is being used by <code>morloc</code>. They write
 as they like using the data types that make sense for their problem. They only
 know the general function type signature, which contains nothing specific to
 their language.</p>
@@ -3283,10 +3266,10 @@ A <strong>trans</strong> connection is between two different languages.</p>
 <div class="paragraph">
 <p><strong>cis</strong> connections are completely idiomatic. They compile to something like
 <code>foo(bar())</code> in the target language. They can use language-specific features
-(like laziness). They can also use types that are not supported by Morloc. No
+(like laziness). They can also use types that are not supported by <code>morloc</code>. No
 types even need to be specified for them. However, this allows
 language-inflexibility, where two nodes become coupled such that they have to
-be in the same language. This goes against the Morloc philosophy of double
+be in the same language. This goes against the <code>morloc</code> philosophy of double
 blindness, where neither programer or composer needs to know about the other.</p>
 </div>
 <div class="paragraph">
@@ -3305,7 +3288,7 @@ on language specific features.</p>
 <div class="paragraph">
 <div class="title">Functions of nodes</div>
 <p>This is a composition that is indistinguishable from a normal node, with the
-exception that its language cannot be set (since it is in Morloc). This allows
+exception that its language cannot be set (since it is in <code>morloc</code>). This allows
 hiding of the particular nodes used inside. It also allows inputs to be freely
 distributed inside the internal composition.</p>
 </div>
@@ -3395,14 +3378,14 @@ could reasonably be added. For example, time and space runtime properties.</p>
 <div class="paragraph">
 <p>In languages like Haskell (or other ML variants), type signatures are optional.
 Though these languages are statically typed, explicit signatures are not
-necessary since the type can be inferred from the code. However, in Morloc the
+necessary since the type can be inferred from the code. However, in <code>morloc</code> the
 code is inside foreign languages, and thus are black boxes. This makes type
 inference impossible in general. So explicit types are required (except in
 non-strict <strong>cis</strong> calls).</p>
 </div>
 <div class="paragraph">
 <div class="title">Type system</div>
-<p>The type system is under development. It is the core of the Morloc ecosystem,
+<p>The type system is under development. It is the core of the <code>morloc</code> ecosystem,
 but so far is modeled heavily after the Haskell system. I want type classes so
 that I can specify the properties of a type. However, I also want to be able to
 layer on "soft" types. Whereas the "hard" types would be formally checked at
@@ -3428,7 +3411,7 @@ configuration scripts.</p>
 </div>
 <div class="paragraph">
 <div class="title">Parameter type</div>
-<p>This is experimental. Currently, in old Morloc, parameters are expressed freely
+<p>This is experimental. Currently, in old <code>morloc</code>, parameters are expressed freely
 without compile time checking. But this is pretty loose and highly language
 dependent. The parameter typing allows tighter control of the functions and may
 be used to provide automated documentation of parameters.</p>
@@ -3456,7 +3439,7 @@ numbers, strings.</p>
 <div class="paragraph">
 <div class="title">Workflow Intermediate Language</div>
 <p>This is a simple language designed to be easy to parse by a machine. It
-contains all the information needed to build the Morloc executable, but is
+contains all the information needed to build the <code>morloc</code> executable, but is
 abstracted away from the particular syntax used for specification.</p>
 </div>
 <div class="paragraph">
@@ -3465,7 +3448,7 @@ abstracted away from the particular syntax used for specification.</p>
 have type <code>Void</code>. Functions with a void input are <strong>wells</strong>, they produce data,
 but take nothing from other nodes. Functions that have a void output, take data
 and do something with it, passing nothing on. Since functions are black boxes
-in Morloc, there is no guarantee that a function without a void in its type
+in <code>morloc</code>, there is no guarantee that a function without a void in its type
 signature doesn&#8217;t interact impurely with the system.</p>
 </div>
 </div>
@@ -3518,14 +3501,14 @@ extensible programs.</p>
 <p>Data analysis workflows often are multilingual, have many inputs, and require
 rigorous quality control and report generation. While the functions from which
 they are built may be simple and elegant, the whole quickly becomes more
-bloated than sum of the parts. We present a new workflow language, Morloc,
+bloated than sum of the parts. We present a new workflow language, <code>morloc</code>,
 which composes workflows from typed functions exapted from supported languages.
 The programmer specifies function types and connectivity, while the compiler
-generates all boilerplate for interfacing between languages. Morloc allows
+generates all boilerplate for interfacing between languages. <code>morloc</code> allows
 a layered development strategy. Where the abstract workflow and function types
 are specified first. These may remain unchanged as functions are subsequently
 defined, assertions on inputs added, and probes attached. We provide early
-evidence of Morloc’s potential to simplify development of data analysis
+evidence of <code>morloc</code>’s potential to simplify development of data analysis
 workflows, enable easy extension and validation, and seamlessly link between
 languages in a single workflow.</p>
 </div>
@@ -3559,7 +3542,7 @@ programs which cover the same functionality.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-05-24 14:27:22 -0500
+Last updated 2019-05-24 15:02:08 -0500
 </div>
 </div>
 <style>
