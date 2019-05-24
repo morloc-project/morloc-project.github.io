@@ -1,0 +1,3464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.9">
+<title>Morloc Technical Manual</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment @import statement to use as custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section{display:block}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite::before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+:not(pre)>code.nobreak{word-wrap:normal}
+:not(pre)>code.nowrap{white-space:nowrap}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details>summary:first-of-type{cursor:pointer;display:list-item;outline:none;margin-bottom:.75em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class="highlight"],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos{border-right:1px solid currentColor;opacity:.35;padding-right:.5em}
+pre.pygments .lineno{border-right:1px solid currentColor;opacity:.35;display:inline-block;margin-right:.75em}
+pre.pygments .lineno::before{content:"";margin-right:-.125em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin:0 0 1.25em;padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
+table.tableblock{max-width:100%;border-collapse:separate}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+td.tableblock>.content>:last-child.sidebarblock{margin-bottom:0}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd),table.stripes-even tr:nth-of-type(even),table.stripes-hover tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{display:-ms-flexbox;display:-webkit-box;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media print,amzn-kf8{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>Morloc Technical Manual</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel0">
+<li><a href="#_introduction">Introduction</a>
+<ul class="sectlevel1">
+<li><a href="#_motivation">1. Motivation</a>
+<ul class="sectlevel2">
+<li><a href="#_programming_is_tedious">1.1. Programming is tedious</a></li>
+<li><a href="#_functions_cannot_be_used_across_languages">1.2. Functions cannot be used across languages</a></li>
+<li><a href="#_functions_are_not_searchable">1.3. Functions are not searchable</a></li>
+<li><a href="#_cross_language_abstractions_are_poor">1.4. Cross-language abstractions are poor</a></li>
+</ul>
+</li>
+<li><a href="#_what_is_morloc">2. What is Morloc?</a></li>
+<li><a href="#_pieces">3. Pieces</a></li>
+<li><a href="#_morloc_workflow">4. Morloc workflow</a></li>
+</ul>
+</li>
+<li><a href="#_theory">Theory</a>
+<ul class="sectlevel1">
+<li><a href="#_architecture">5. Architecture</a></li>
+<li><a href="#_build_system">6. Build system</a>
+<ul class="sectlevel2">
+<li><a href="#_how_to_make_a_morloc_module">6.1. How to make a Morloc module</a></li>
+</ul>
+</li>
+<li><a href="#_forms_of_data_and_the_grim_model">7. Forms of data and the GRIM model</a>
+<ul class="sectlevel2">
+<li><a href="#_general_g">7.1. General (G)</a></li>
+<li><a href="#_resources">7.2. Resources &#174;</a></li>
+<li><a href="#_ideal_i">7.3. Ideal (I)</a></li>
+<li><a href="#_machine_m">7.4. Machine (M)</a></li>
+</ul>
+</li>
+<li><a href="#_functions_may_have_roles">8. Functions may have roles</a></li>
+<li><a href="#_graph_rules">9. Graph rules</a></li>
+<li><a href="#_manifold_templates_and_code_generation">10. Manifold templates and code generation</a></li>
+<li><a href="#_modules">11. Modules</a></li>
+<li><a href="#_related_work">12. Related work</a>
+<ul class="sectlevel2">
+<li><a href="#_related_systems">12.1. Related systems</a></li>
+<li><a href="#_specification_languages">12.2. Specification languages</a></li>
+<li><a href="#_language_orientations">12.3. Language orientations</a></li>
+<li><a href="#_multi_language_type_systems_schemas_data_serialization_systems">12.4. Multi-language type systems (schemas) / data serialization systems</a></li>
+<li><a href="#_related_work_2">12.5. Related work</a></li>
+<li><a href="#_summary_of_related_work">12.6. Summary of related work</a></li>
+<li><a href="#_workflow_theory_and_other">12.7. Workflow theory (and other)</a></li>
+</ul>
+</li>
+<li><a href="#_the_semantic_type_system">13. The semantic type system</a>
+<ul class="sectlevel2">
+<li><a href="#_function_signatures_and_more_stuff">13.1. Function signatures and more stuff</a></li>
+<li><a href="#_related_work_and_approach">13.2. Related work and approach</a></li>
+<li><a href="#_notes">13.3. Notes</a></li>
+</ul>
+</li>
+<li><a href="#_unsettled_issues">14. Unsettled issues</a>
+<ul class="sectlevel2">
+<li><a href="#_support_for_lazy_evaluation">14.1. Support for lazy evaluation</a></li>
+<li><a href="#_purity_totallity_and_planes">14.2. Purity, totallity and planes</a></li>
+<li><a href="#_polymorphism">14.3. Polymorphism</a></li>
+<li><a href="#_handling_effects">14.4. Handling effects</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_implementation">Implementation</a>
+<ul class="sectlevel1">
+<li><a href="#_tech_tree">15. Tech Tree</a>
+<ul class="sectlevel2">
+<li><a href="#_docopt">15.1. <code>docopt</code></a></li>
+<li><a href="#_hsparql">15.2. <code>hsparql</code></a></li>
+<li><a href="#_rdf4h">15.3. <code>rdf4h</code></a></li>
+<li><a href="#_wl_pprint_text">15.4. <code>wl-pprint-text</code></a></li>
+<li><a href="#_megaparsec">15.5. <code>megaparsec</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_glossary">Glossary</a></li>
+<li><a href="#_loc">Appendix A: LOC</a></li>
+<li><a href="#_loc_old_version_of_morloc">16. LOC (old version of Morloc)</a></li>
+<li><a href="#_references">References</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Morloc is a framework that allows interoperability between functions across
+languages, multi-language libraries and package managers, and encoding of
+domain specific behavior into the type system. Based on this framework, we will
+build a community portal for curating a universal library. Any public functions
+in this library can be used in any Morloc script. They may also be imported
+into specific languages and used.</p>
+</div>
+<div class="paragraph">
+<p>We accomplish this by providing</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>a framework for passing rich data between languages</p>
+</li>
+<li>
+<p>a common library across languages</p>
+</li>
+<li>
+<p>a common meta-programming language</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<h1 id="_introduction" class="sect0">Introduction</h1>
+<div class="sect1">
+<h2 id="_motivation">1. Motivation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The computer programming world is divided into insular communities centered
+around specific programming languages. A function written in one language
+cannot generally be used in another, this leads to costly reimplementation of
+whole libraries. Further, there is also no general, inter-language method for
+finding a function that performs a specific role. These problems slow the
+development of analytic pipelines and hinder collaboration between communities.</p>
+</div>
+<div class="paragraph">
+<p>The reason we are developing Morloc is to address these primary pain points:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>programming is tedious</p>
+</li>
+<li>
+<p>functions cannot be used across languages</p>
+</li>
+<li>
+<p>functions are not searchable</p>
+</li>
+<li>
+<p>cross-language abstractions are poor</p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="_programming_is_tedious">1.1. Programming is tedious</h3>
+<div class="paragraph">
+<p>While documentation, testing, checking, and package and system design are
+seen as the tenants of "good programming", these are all "evils". They are
+evil because they contribute nothing intrinsically to the purpose of
+programming, which is either to ask a question and get an answer or to
+animate a process. They are thought good only for the reasons death is
+thought good.</p>
+</div>
+<div class="paragraph">
+<p>Any work that is not part of the end. I distinguish here between the
+"means" and the "ends". The "means" are tedious. The Morloc composer
+should not have to deal with them. Rather, they describe the ends. They
+describe the input data. They describe the serious of transformations that
+may be done upon it. Then the compiler builds the program. And the
+composer interacts with it however they like.</p>
+</div>
+<div class="paragraph">
+<p>From the programmer&#8217;s point of view, "tedious work" is anything that is
+not part of the transformation from inputs to outputs. Checking the
+inputs, testing and benchmarking, internal infrastructure, package
+infrastructure, most documentation, writing input and output, handling
+caching, handling runtime environment, handling parallelism.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_functions_cannot_be_used_across_languages">1.2. Functions cannot be used across languages</h3>
+<div class="paragraph">
+<p>A second problem is the complexity of using functions across languages.
+This problem is especially vexing for high-turnover analyses, where there
+is a constant flow of wildly different problems, requiring tools from
+dozens of fields, and reading data in all manner of forms and formats. One
+solution is to program pipelines where each function is wrapped as an
+executable and then called from a master language. This is the approach
+taken by Galaxy and the whole Make-family of rule-based languages. However,
+this suffers from bloated code.</p>
+</div>
+<div class="paragraph">
+<p>Inter-language interfacing can require some of the most tedious coding
+imaginable. Let&#8217;s say we have two functions, f and g, from two different
+languages. To connect them we have to 1) write a wrapper around f that
+converts the output of f to a language-agnostic file that g understands
+(e.g. csv, JSON, XML), 2) write a wrapper around g that tries to open this
+file (with read error handling), 3) convert the raw binary data into the
+internal form g needs, 4) write code to assert the input to g is correct,
+and 5) inform the master program of any failure. The programmers of f and
+of g have to agree on two conventions: a common intermediate formats and
+a way to pass error. This approach is so tedious and error prone that
+sensible people avoid multi-language systems.</p>
+</div>
+<div class="paragraph">
+<p>This barrier between languages causes languages communities to become
+highly insular. Every problem has to be reimplemented in every language.
+For example, we have Bioperl, Biopython, Bioconductor &#174;, Biojava, etc.
+Also this places new languages, with few libraries, at a disadvantage, and
+thus slows the evolution of programming.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_functions_are_not_searchable">1.3. Functions are not searchable</h3>
+<div class="paragraph">
+<p>The final problem is that searching for functions is annoyingly difficult.
+Within in a specific strongly-typed language, you may be able to search by
+function signature. Within dynamic languages you are limited to text
+searches against the documentation or unchecked, hand-written type
+annotations. Searching for functions across languages is an unsolved (and
+usually unasked) question. The best we can do is query Google and hope the
+terms are written in the documentation.</p>
+</div>
+<div class="paragraph">
+<p>While all of this is tedious for humans, it is all but impossible for
+machines. We have written trillions of lines of code and millions of
+functions, but only humans can use them. We have built elaborate systems
+for searching data, powerful algorithms for reasoning on data,
+specifications and formats for passing data, but for functions we have
+nothing. Machines cannot reason about or use our tools.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cross_language_abstractions_are_poor">1.4. Cross-language abstractions are poor</h3>
+
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_is_morloc">2. What is Morloc?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Morloc is a highly minimal, functional programming language with a semantic
+type system and a very special compiler. The language exclusively relies on
+functions cannibalized from other languages. The transfer of data between the
+constituent functions is entirely automated such that the Morloc programmer
+needn&#8217;t know where the function came from. Likewise, the programmer who writes
+the function needn&#8217;t know that their function will be consumed by Morloc; they
+are free to write in completely idiomatic prose, without boilerplate.</p>
+</div>
+<div class="paragraph">
+<p>The semantic type system is what makes this possible. Think semantic web.
+Ontologies. The types, and the relationships between them, are specified in an
+ontology. Every function is given a signature that describes the inputs and
+outputs of the function and also lists any constraints. This function signature
+and the type ontology are the two pieces of information shared between Morloc
+programmer and function writer. The type ontology and the function signatures
+are the axioms of a logical system. The code written by the programmer compiles
+to a list of logical statements. The program is correct if the whole system is
+logically consistent.</p>
+</div>
+<div class="paragraph">
+<p>Logic programming is old. Very old. But over the last few decades it has gone
+out of fashion. With the rise of the semantic web, that is beginning to change.
+Logic machines are beginning to challenge deep learning as a path to general
+intelligence (see Doug Lenat).</p>
+</div>
+<div class="paragraph">
+<p>A semantic type system would allow expression of relations between types.
+A possible relation might be, "There exists Filename openable as Text". Then if
+you pass a Filename to a function expecting Text, the compiler can infer that
+Filename is convertable, with possible failure, to Text. It can then search
+a database for a suitable function, and if the function is found, insert it
+between Filename and Text. By importing different sets of relations, the
+strictness of a program can be finely tuned. Behavior that is hard-coded in
+most languages, becomes easily customizable. If you want your pipeline to
+automatically try to resolve type conflicts by converting a String to a Number
+(as is done dynamically in Perl), you just have to add the relation that Number
+can be cast as a String (the reasoner can then infer that some String can be
+cast as Number).</p>
+</div>
+<div class="paragraph">
+<p>The compiler&#8217;s logical inference can go further. In principle, if a path exists
+between any two types, the compiler can find it (e.g. Internet &#8594; LaunchCodes)
+and build a logically correct program. While the function signatures are highly
+expressive, they do not specify what actually happens inside the function.
+Functions in Morloc are black boxes. The function signatures are premises of
+the system. However, functions are types and they also can be annotated with
+additional semantic information.</p>
+</div>
+<div class="paragraph">
+<p>The semantic type system gives all the information the compiler needs to
+convert data between languages. Concrete, language-specific types would map to
+instances of the type classes. A given language may have 0 or more instances
+for a given type (e.g. the C types 'float' and 'double' might both be instances
+of the Morloc type 'Real'). The compiler would sometimes need a hint from the
+programmer about which instance to use.</p>
+</div>
+<div class="paragraph">
+<p>Semantic types offer many additional possibilities. Sets of inter-convertible
+types could be specified (e.g. {Meter, Foot, Angstrom} or sequence alignment
+formats {ClustalW, Stockholm}). Types could be given attributes, such as
+<code>has_length</code> which could be automatically used in descriptive statistics. The
+semantic type system could, I think, emulate the typeclasses of Haskell, e.g.
+"Monoid" or "Traversable". Types could be associated with metadata, such as
+statistical generative models.</p>
+</div>
+<div class="paragraph">
+<p>Speaking of statistical generative models, most types should have one. If we
+can simulate data for all inputs to a function, then we can automatically test
+the function, generate sample data, and build simulation-based performance
+models. Given performance models, the compiler can reason about the performance
+of the overall system, allowing estimation of runtime given inputs and smart
+optimizations.</p>
+</div>
+<div class="paragraph">
+<p>Overall, I want to give the compiler what it needs so that it can reason about
+the code and automate away the tedium of programming.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_pieces">3. Pieces</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<div class="title">Compiler</div>
+<p>given an ontology, database of typed functions, and an application, it
+generates code to allow the functions to talk across languages and builds a
+nexus to integrate them.</p>
+</div>
+<div class="paragraph">
+<div class="title">Environment</div>
+<p>Morloc is intended to allow tools and languages to be interoperable. The user
+should be able to import a function from any language and expect it to run. For
+this to work, the compiler needs to have the languages and tools installed. The
+user should not have to install all this.  Instead, they work through Docker.
+Inside the Docker image, everything they need is present. When a new program is
+installed, the code is sent to the docker image, everything is built in there
+and run in there. The local executable is an API to the docker image. Or
+something. I seriously need to prototype this.</p>
+</div>
+<div class="paragraph">
+<div class="title">Semantic type system (STS)</div>
+<p>a language for ascribing sufficient semantic information to data and functions
+that an AI can automate every sort of tedious work.</p>
+</div>
+<div class="paragraph">
+<div class="title">Packager</div>
+<p>A knowledge-base describing the relations between all data types and storing
+all functions.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_morloc_workflow">4. Morloc workflow</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="#fig:overview">The figure below</a> outlines the 6 levels of the <code>morloc</code>
+workflow.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Most of this framework is not yet implemented. For now, <code>morloc</code> can be run
+only as a simple fuctional programming language that imports functions from a
+few languages and generates an executable. A rough syntax for expressing types
+is supported, but full type checking is not.
+</td>
+</tr>
+</table>
+</div>
+<div id="fig:overview" class="paragraph">
+<p><span class="image"><img src="images/overview.svg" alt="overview"></span></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The <strong>creation</strong> level. The programmer creates their functions just as they
+would without <code>morloc</code>. New functions and libraries can be written using
+idiomatic syntax. The code is maintained in the programmer&#8217;s favorite version
+control platform (e.g. github) and maintained following whatever conventions
+are standard for the given language. That is, the programmer does usually not
+need to change anything in order to integrate with <code>morloc</code>.</p>
+</li>
+<li>
+<p>The <strong>semantic</strong> level. Each function in the library is given a type
+annotation (perhaps automatically). The type annotation may be as simple as
+<code>Int &#8594; Int</code>, just like a C prototype. Simple type signatures like this may be
+inferred automatically from the source code if the guest language is typed.
+Far more expressive types can also be used.</p>
+</li>
+<li>
+<p>The <strong>curation</strong> level. Once types are assigned to the functions, they can be
+uploaded to the <code>morlocIO</code> repository. Here they can be benchmarked against
+related functions (even across languages), documented, discussed, and
+organized into rich modules. Entire workflows, compositions of many <code>morloc</code>
+functions, can be uploaded as well (see next level). Stats for how functions
+are used can be maintained. They can be plugged into cross-language test
+suites. Functions and libraries that are reliable will gain "stars". Community
+knowledge about how these functions are used will be collected to allow deeper
+automated reasoning.</p>
+</li>
+<li>
+<p>The <strong>integration</strong> level. All the libraries can be queried using powerful
+semantic query languages, such as SPARQL. Functions can be imported into
+Morloc scripts and composed into new programs. These new programs can then be
+uploaded to <code>morlocIO</code> or built into new programs. Programs can be type
+checked and the deep knowledge the type signatures provide, along with access
+to the <code>morlocIO</code> knowledgebase and any local knowledgebases, will allow
+powerful inference of optimal parameters, function choice, runtime modeling,
+or inference of the optimal sequence of functions to achieve a given end.</p>
+</li>
+<li>
+<p>The <strong>build</strong> level. Workflows can be compiled into local executables,
+graphical user interface wrappers, or scalable workflows (e.g. using the
+Common Workflow Language). The compiler, armed with a powerful reasoner and
+deep knowledge about the system, can figure out how to integrate the functions
+across languages and embed them in code for handling error, caching data, and
+scaling.</p>
+</li>
+<li>
+<p>The <strong>execution</strong> level. Depending on the build configuration, the resulting
+program may be run locally, uploaded to a cloud computing framework (e.g.
+arvados using CWL), shared with users as a GUI (e.g. an automatically
+generated Shiny app), or imported into MorlocStudio.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<h1 id="_theory" class="sect0">Theory</h1>
+<div class="sect1">
+<h2 id="_architecture">5. Architecture</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>KL, RL, QL</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_build_system">6. Build system</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Internally, Morloc follows a model similar to Pandoc. Pandoc can convert
+between markup formats (for example HTML, Markdown, LaTeX, and Word). All data
+is stored internally as an abstract syntax tree. To add a new markup format,
+a programmer only needs to add a Reader and Writer that converts the new markup
+format to and from Pandoc&#8217;s internal format.</p>
+</div>
+<div class="paragraph">
+<p>From the Morloc users perspective, a module is a set of Morloc functions that
+can be used in a Morloc program. Each function in the module has a type. But
+the actual implementation, which is hidden from the Morloc user, is a bit
+tricky. There are a couple very different cases:</p>
+</div>
+<div class="paragraph">
+<p>the imported module is:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>a Morloc script. In this case, we are importing selected compositions
+written in Morloc. These Morloc imports are nodes on a tree.</p>
+</li>
+<li>
+<p>a single function in language X that uses only core features from X. No
+external libraries are used. No version info given. It is assumed that the
+function will work on any version of the language.</p>
+</li>
+<li>
+<p>a collection of functions in X and imports from X libraries. No version
+info. In this case, the Morloc compiler needs to find and install the
+required libraries. It is assumed that the functions will work with an
+version of the language or libraries.</p>
+</li>
+<li>
+<p>#2 or #3, but with version info given. Install the specific version, or the
+highest version in the range.</p>
+</li>
+<li>
+<p>import a library from X. This is easier than #2-4, see the note below.</p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="_how_to_make_a_morloc_module">6.1. How to make a Morloc module</h3>
+<div class="imageblock">
+<div class="content">
+<img src="images/linear-algebra-module.png" alt="linear algebra module">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_forms_of_data_and_the_grim_model">7. Forms of data and the GRIM model</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>U &lt;-&gt; I &lt;1-n&gt; T &lt;?-?&gt; S
+      |1      |1
+       \1     /1
+        \    /
+          vv
+          C &lt;1-1&gt; L_i &lt;1-1&gt; C_i</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>U  - User interface data</p>
+</li>
+<li>
+<p>I  - Internal Morloc data</p>
+</li>
+<li>
+<p>T  - Typed Morloc data</p>
+</li>
+<li>
+<p>S  - Standard formats</p>
+</li>
+<li>
+<p>C  - Common form</p>
+</li>
+<li>
+<p>Li - Language-specific forms</p>
+</li>
+<li>
+<p>Cu - Language-specific Cache</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>CDF - Common Data Format</p>
+</div>
+<div class="paragraph">
+<p>The semantic type system can be partioned into 4 main groups (GRIM model).</p>
+</div>
+<div class="sect2">
+<h3 id="_general_g">7.1. General (G)</h3>
+<div class="paragraph">
+<p>A structured type that can often map directly to the machine
+type of specific languages, though this may be ambiguous when a given type
+of data can map to multiple language-specific types. G maps uniquely to
+a CDF. This is the lowest level type that generalizes across languages.</p>
+</div>
+<div class="ulist">
+<div class="title">Examples:</div>
+<ul>
+<li>
+<p>Integer</p>
+</li>
+<li>
+<p>ProteinSeq, ProteinStructure</p>
+</li>
+<li>
+<p>Table {col1 : Integer, col2 : String}</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_resources">7.2. Resources &#174;</h3>
+<div class="paragraph">
+<p>Types that describe resources. This may be data outside of the CDF. It may be
+databases.</p>
+</div>
+<div class="ulist">
+<div class="title">Examples:</div>
+<ul>
+<li>
+<p>URL, Filename, Folder</p>
+</li>
+<li>
+<p>SQLDB</p>
+</li>
+<li>
+<p>FastaFile, FastaFile UniProt, FastaFile GeneBank</p>
+</li>
+<li>
+<p>Markdown, Markdown GitHub</p>
+</li>
+<li>
+<p>Music, MP3</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ideal_i">7.3. Ideal (I)</h3>
+<div class="paragraph">
+<p>A high-level idea that often does not contain enough information to
+unambiguously map to a machine type.</p>
+</div>
+<div class="ulist">
+<div class="title">Examples:</div>
+<ul>
+<li>
+<p>Protein</p>
+</li>
+<li>
+<p>Shoe, House</p>
+</li>
+<li>
+<p>Tree</p>
+</li>
+<li>
+<p>Symbol</p>
+</li>
+<li>
+<p>Music</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_machine_m">7.4. Machine (M)</h3>
+<div class="paragraph">
+<p>The data type within a specific language (e.g. AAStringSet or double). The
+Machine type will closely follow type format for the specific language. Part of
+building the binding for a new language is mapping <code>M&#8592;&#8594;G</code>.</p>
+</div>
+<div class="ulist">
+<div class="title">Examples:</div>
+<ul>
+<li>
+<p>&#169; int, double, float, bool</p>
+</li>
+<li>
+<p>&#174; integer, numeric, logical</p>
+</li>
+<li>
+<p>&#174; AAStringSet</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_functions_may_have_roles">8. Functions may have roles</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are a few roles that are builtin to the compiler:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>load - R &#8594; ?G | R &#8594; ?M</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Load an external resource into a general form (i.e. conversion to CDF) or
+a machine type. Loading can fail.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>write - G &#8594; ?R | M &#8594; ?R</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Write to the given resource (generally not to the CDF). Writing can fail.</p>
+</div>
+<div class="ulist">
+<div class="title">Examples:</div>
+<ul>
+<li>
+<p>upload data to a database</p>
+</li>
+<li>
+<p>write a file</p>
+</li>
+<li>
+<p>send an email</p>
+<div class="ulist">
+<ul>
+<li>
+<p>convert - M &#8594; M | M &#8594; G | G &#8594; M</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A reversible conversion from x to y.</p>
+</div>
+<div class="paragraph">
+<p>Examples:
+  <strong> &#174; data.frame &#8594; data.table
+  </strong> (a, b, c) &#8594; (b, c, a)
+  ** Foot &#8594; Meter</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>downcast - M &#8594; M | G &#8594; G | G &#8594; M | R &#8594; R</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Convert one type to another descendent type, possibly irreversible</p>
+</div>
+<div class="paragraph">
+<p>Examples:
+  <strong> FullName &#8594; GivenName &#8201;&#8212;&#8201;both are names
+  </strong> Double &#8594; Integer     &#8201;&#8212;&#8201;both are numbers
+  ** Integer &#8594; String</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>upcast - M &#8594; ?M | G &#8594; ?G | G &#8594; ?M | R &#8594; ?R</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Attempts to upcast, this may fail</p>
+</div>
+<div class="ulist">
+<div class="title">Examples:</div>
+<ul>
+<li>
+<p>String &#8594; ?Integer</p>
+<div class="ulist">
+<ul>
+<li>
+<p>specialize - M &#8594; M | M &#8594; G | G &#8594; M</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Like convert, but may not be reversible, however the data should be the
+same, in some sense. Formally, they share a common ancestor.</p>
+</div>
+<div class="ulist">
+<div class="title">Examples:</div>
+<ul>
+<li>
+<p>(a, b, c) &#8594; (a, b)   &#8201;&#8212;&#8201;both are tuples</p>
+<div class="ulist">
+<ul>
+<li>
+<p>transform - M &#8594; M | M &#8594; G | G &#8594; M</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This role is used when there is one natural transformation between two
+types. But no concept of specialization. The things on both sides are
+different.</p>
+</div>
+<div class="ulist">
+<div class="title">Examples:</div>
+<ul>
+<li>
+<p>Person &#8594; Age</p>
+</li>
+<li>
+<p>Graph &#8594; Size</p>
+</li>
+<li>
+<p>sorting given a comparator</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_graph_rules">9. Graph rules</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A Morloc program and all imported modules and ontologies, needs to be encoded
+as a RDF triple store. Here I will work out the rules for how elements of
+a Morloc script should be translated into RDF.</p>
+</div>
+<div class="paragraph">
+<p>The system needs to define the</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>connectivity of the graph (what functions call what)</p>
+</li>
+<li>
+<p>language-specific type hints</p>
+</li>
+<li>
+<p>type ontology (including the function types)</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Object
+ 1. WUID - workflow unique identifier, used to identify elements, such as nodes
+    in the application graph, that are unique to the workflow.
+ 2. UUID - universally unique identifiers, such as functions or types from Morloc.IO.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_manifold_templates_and_code_generation">10. Manifold templates and code generation</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span># Where x and y are outside arguments coming in as JSON
+# The third argument comes from a downstream argument
+m1(x, y) =
+    @effect1
+    if (isCached) {
+        @effect2
+        x = getCache
+        @effect3
+    } else {
+        @effect4
+        x_ = unpackX(x)
+        y_ = unpackY(y)
+        z_ = m2(y_)
+        assert(constraint1(x_))
+        assert(constraint2(x_, z_))
+        @effect5
+        x = foo(x_, z_)
+        @effect6
+    }
+    @effect7
+    return(x)
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_modules">11. Modules</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>How is new code wrapped and given to Morloc?</p>
+</div>
+<div class="paragraph">
+<p>Everything goes into RDF. That is the inviolate rule. But triples are an
+awkward way to write data for a human, so we offer Morloc script. So, where do
+module details, such as author info and such, go?</p>
+</div>
+<div class="paragraph">
+<p>Maybe a <code>morloc.yaml</code> file. This single file would uniquely identify the
+contents of a folder as a morloc module.</p>
+</div>
+<div class="paragraph">
+<p>The downside, is that that ties the config file to a specific format, YAML, and
+to a single file. Better to use a folder where all Morloc related info is
+witten. This could be sugar forms (e.g. anything that is not RDF). Or it could
+be local mods, whatever. This would be a little like the Python convention of
+having a <code><em>python</em></code> folder.</p>
+</div>
+<div class="paragraph">
+<p>Putting <code><em>morloc</em></code> in a folder automatically turns the contents into a morloc
+module, even if the folder is empty.</p>
+</div>
+<div class="paragraph">
+<p>Since morloc is designed to work with any language, we don&#8217;t want to have loose
+files hanging around in the same folder with the source. So there could be
+a <code><em>source</em></code> folder for holding all non-morloc source code. This code would
+be compiled or loaded by morloc. It would contain whatever is conventional for
+packages in the given language.</p>
+</div>
+<div class="paragraph">
+<p>No, let&#8217;s avoid new conventions. The <code>.loc</code> file has a relative path to any
+source code that is used, so requiring a <code><em>source</em></code> folder is silly. The
+<code><em>morloc</em></code> folder sounds nice, but I would want the top folder in a module to
+contain a README. And if I have a README here, I might as well have the module
+metadata. And I might as well have the loc file. Thus, everything in the
+<em>morloc</em>` folder might as well be moved up to the top folder. Then for
+source, if I have it in a dedicated <code><em>source</em></code> folder, and the name of that
+folder is hardcoded, then I&#8217;ll have to everywhere account for it. Meh, mess.
+So, just a simple package of this form (for module <code>foo</code>):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span> \foo
+   README.md
+   package.yaml
+   main.loc
+   whatever.py</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Where <code>main.loc</code> will identify <code>whatever.py</code> as its source. The <code>package.yaml</code>
+file may identify something other than <code>main.loc</code> as the main morloc file. It
+may refer to something other than the README.md file as module documentation.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_related_work">12. Related work</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are several attributes we can use to separate related languages and platforms:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>cached (C) - many pipeline programs, such as the Make family, only build what is needed.</p>
+</li>
+<li>
+<p>distributed (D) - are the pieces sent to a cluster or parallelized?</p>
+</li>
+<li>
+<p>typed (T) - each node input and output have types, has typechecking</p>
+</li>
+<li>
+<p>language agnostic (A) - any language can be used</p>
+</li>
+<li>
+<p>nodes are: [executables (nE), functions (nF)]</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>generative types - Every type is defined as a generative model, when fully
+parameterized, data can be generated from it, for testing purposes. All
+terminating programs are also generative types given the random models of the
+input types.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Based on these discriminants, we can enumerate the types of possible programs:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>C[D]AnE</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>These tie together many executable scripts. They tend to focus on caching
+so that the same steps are not rerun (e.g. Make). This includes most
+variants of the Make family.</p>
+</div>
+<div class="paragraph">
+<p>They may be distributed. Some are simply parallelized (GNU Make) others are
+designed to run on Hadoop or on a cluster through Slurm. They emphasize
+performance.</p>
+</div>
+<div class="paragraph">
+<p>Examples: Make, Snakemake</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>[CD]TAnE</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>These are typed, language agnostic pipelines. They coordinate executable
+scripts, but annotate them with a type system, such that illegal
+combinations are prevented.</p>
+</div>
+<div class="paragraph">
+<p>Examples: Galaxy</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>[CDT]nF</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>These are simple pipelines for use within a single language. Whether they
+are typed depends on the type system of the host language. They may be
+distributed and cached.</p>
+</div>
+<div class="paragraph">
+<p>Examples: magrittr and rmonad</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>[CD]TAnF</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Here we have pipeline languages that work at the level of the function, but
+that are also language agnostic. That is, any function can be written in
+any (supported) language and they can be linked together. The functions do
+not have to write their results to STDOUT or read their input from it.</p>
+</div>
+<div class="paragraph">
+<p>Morloc</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>[CD]AnF</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This may be an impossible language.</p>
+</div>
+<div class="sect2">
+<h3 id="_related_systems">12.1. Related systems</h3>
+<div class="sect3">
+<h4 id="_serialization_systems">12.1.1. Serialization systems</h4>
+<div class="paragraph">
+<p><code>morloc</code> is not a serialization system. Indeed, any good serialization system
+would be a system that could greatly add to <code>morloc</code>, since serialization will
+often be the limiting step in a <code>morloc</code> workflow&#8217;s performance. On
+serialization system if Google&#8217;s protobuffers
+<a href="http://reasonablypolymorphic.com/blog/protos-are-wrong/" class="bare">http://reasonablypolymorphic.com/blog/protos-are-wrong/</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ibm_knowledge_studio">12.1.2. IBM Knowledge Studio</h4>
+<div class="paragraph">
+<p><a href="https://console.bluemix.net/docs/services/knowledge-studio/typesystem.html">IBM Knowledge Studio</a>
+does pure logic reasoning, Doug Lenat style. Also similar to Palantir.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_microservices">12.1.3. Microservices</h4>
+<div class="paragraph">
+<p>Microservice oriented design builds systems through modular programs that
+interact through usually through a REST interface with intermediate
+serialization/deserialization steps.</p>
+</div>
+<div class="paragraph">
+<p>Morloc is not a microservice oriented system. The only immediate similarity to
+microservices is that calls between functions of different languages will pass
+data (barring future optimizations) through a serialization step. The Morloc
+compiler though builds all functions together, integrating them, where
+possible, into single programs. Thus functions within languages are communicate
+directly, not through an interface.</p>
+</div>
+<div class="paragraph">
+<p>There is a further, less direct, association with microservices, though. Any
+Morloc program, or composition of programs, can be transformed into
+a microservice. This would be a fairly straightforward step, since Morloc
+already knows how to serialize the inputs and output of any function. Thus,
+Morloc will provide microservice deployment of any pipeline.</p>
+</div>
+<div class="paragraph">
+<p>Any Morloc pipeline will be able to trivially incorporate a Morloc
+microservice. The company can provide cloud hosting of these microservices. The
+code in the microservices could be proprietary. The advantage of hosting on
+Morloc is that, since the code is already on Morloc, the hosting can be
+accomplished with little more than a single click. Then any changes made to the
+code that is tested and benchmarked on Morloc, can be automatically propagated
+to the microservice.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://www.oreilly.com/ideas/modules-vs-microservices">modules vs microservices by Sander Mak</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_specification_languages">12.2. Specification languages</h3>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>A specification language is a formal language in computer science that
+describes what a process does, rather than how it does it. They should
+contain no implementation details. They tend to contain a set of data
+values together with a set of functions over those values. The correctness
+of the pipeline is dependent on the correctness of the input output
+behavior.</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; paraphrased from wikipedia
+</div>
+</div>
+<div class="sect3">
+<h4 id="_petri_nets">12.2.1. petri nets</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_assertion_definition_language_adl">12.2.2. Assertion definition language (ADL)</h4>
+<div class="paragraph">
+<p>provides a formal grammar for specifying behaviour using function pre- and
+postconditions to specify the interfaces.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_common_algebraic_specification_language">12.2.3. Common Algebraic Specification Language</h4>
+<div class="paragraph">
+<p>A general-purpose specification language based on first-order logic with induction.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_java_modeling_language">12.2.4. Java Modeling Language</h4>
+<div class="paragraph">
+<p>Design by contract paradigm</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_larch_family">12.2.5. Larch family</h4>
+<div class="paragraph">
+<p>Has one language of abstract data types and a separate interface language for
+each language in which programs are to be written</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_universal_systems_language">12.2.6. Universal Systems Language</h4>
+<div class="paragraph">
+<p>Developed by NASA scientists (Margaret Hamilton) for catching errors before the
+occur [<a href="#hamilton1976higher">1</a>].</p>
+</div>
+<div class="paragraph">
+<p>A system of two maps: the function map (FMap) and the type map (TMap). All
+systems and their relations are defined in terms of these two maps.</p>
+</div>
+<div class="paragraph">
+<p>notes paraphrased from <a href="http://www.htius.com/Articles/r12ham.pdf" class="bare">http://www.htius.com/Articles/r12ham.pdf</a>:</p>
+</div>
+<div class="paragraph">
+<p>Most problems in a programm derive from inconsistencies in the interface.</p>
+</div>
+<div class="paragraph">
+<p>"Through these efforts, we learned that interface errors (dataflow,
+priority, and timing errors from the highest to the lowest levels of
+a system to the finest grain) accounted for approximately 75 percent of all
+errors&#8201;&#8212;&#8201;for example, ambiguous relationships, integration mismatches and
+conflicts, communication and coordination problems&#8201;&#8212;&#8201;a clear indication
+that finding ways to reduce errors in this category was of the highest
+priority"</p>
+</div>
+<div class="paragraph">
+<p>"Although half of the billions of dollars (by today’s standard) spent on the
+life cycle was devoted to simulation, 44 percent of the errors were found by
+manual means, referred to on the project as the Augekugal method
+(eyeballing) or “Nortonizing” (named after the person who perfected this
+technique)"</p>
+</div>
+<div class="paragraph">
+<p>"The interface errors were analyzed in greater detail first because they
+not only accounted for the majority of errors, they also were often the
+most subtle and most difficult to find. Each interface error was placed
+into a category identifying the means to prevent it by way of system
+definition. This process led to a set of axioms forming the basis for a new
+mathematical theory for designing systems that would, among other things,
+eliminate the entire class of interface errors just by the way a system is
+defined"</p>
+</div>
+<div class="paragraph">
+<p>"Implementation- and architecture-independent, USL adheres to the principle
+that everything is relative (one person’s design is another’s
+implementation); the same language can be used seamlessly throughout
+a system’s life cycle to define and integrate all aspects of, and
+viewpoints about, the system and its evolution. The overarching principle
+is that all aspects of a USL universe are related to the real world and
+that the language itself inherently captures this relationship."</p>
+</div>
+<div class="paragraph">
+<p>"USL is semantics-dependent but syntax independent"</p>
+</div>
+<div class="paragraph">
+<p>Recursive reliability</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_language_orientations">12.3. Language orientations</h3>
+<div class="sect3">
+<h4 id="_semantic_oriented_programming">12.3.1. Semantic-oriented programming</h4>
+<div class="paragraph">
+<p>Maxim Kizub, an enigmatic Ukrainian, is the possible coiner of the term
+"semantic programming". He is the creator of SymADE, a Java-based IDE. He has
+not written any papers that I can find. I also cannot find any reference to
+semantic programming in literature. It does, however, show up on Wikipedia.
+The original author of the Wikipedia page is, surprise, Maxim Kizub.</p>
+</div>
+<div class="paragraph">
+<p>So far, the only information I have on him is a few scattered comments and
+bug reports. There is more information available in Ukrainian.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_intentional_programming">12.3.2. Intentional programming</h4>
+<div class="paragraph">
+<p>The goal of intentional programming is to encode exactly the intent of the
+programmer, rather than the operational details.</p>
+</div>
+<div class="paragraph">
+<p>It was first developed by the Microsoft programmer Charles Simonyi, who
+later left Microsoft to found the company Intentional Software. This
+company was subsequently reobsorbed by Microsoft.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_language_oriented_programming">12.3.3. Language-oriented programming</h4>
+<div class="paragraph">
+<p>Create a DSL for every problem. Encode specific domain knowledge in
+a dedicated language, send it to the user.</p>
+</div>
+<div class="paragraph">
+<p>MPS - meta programming system (jetbrains).</p>
+</div>
+<div class="paragraph">
+<p>Morloc is similar in that I want to encode domain knowledge in the language
+itself.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_concept_programming">12.3.4. Concept programming</h4>
+<div class="paragraph">
+<p>There are a lot of neat ideas written in the wikipedia article on Concept
+programming. The goals of concept programming and my goals for Morloc align
+well.</p>
+</div>
+<div class="paragraph">
+<p>See the XL language.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_multi_language_type_systems_schemas_data_serialization_systems">12.4. Multi-language type systems (schemas) / data serialization systems</h3>
+<div class="sect3">
+<h4 id="_microsoft_bond">12.4.1. <a href="https://microsoft.github.io/bond/why_bond.html">Microsoft Bond</a></h4>
+<div class="paragraph">
+<p>There is a Bond schema.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_googles_protocol_buffers_serialization">12.4.2. [Google&#8217;s Protocol buffers]() - serialization</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_apache_thrift_tutorial">12.4.3. <a href="http://thrift.apache.org/">Apache Thrift</a> - <a href="http://thrift.apache.org/tutorial/">tutorial</a></h4>
+
+</div>
+<div class="sect3">
+<h4 id="_apache_avro">12.4.4. [Apache Avro]()</h4>
+<div class="paragraph">
+<p>Also, a little different, but <a href="https://docs.racket-lang.org/quick/index.html">racket</a></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_related_work_2">12.5. Related work</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>nothing - the programming teams choose a language, develop their own
+infrastructure, and write all in one language. They write their own
+wrappers around foreign functions when they need them.</p>
+</li>
+<li>
+<p>Platforms based on curated sets of functions - Galaxy, Taverna</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>In Morloc, programmers have to agree upon a common type system. In conventional
+workflow systems, programmers have to agree upon file specs, error
+transmission, log handling, etc. Imagine a two function pipeline: 1) <code>clean</code>:
+an R script that downloads data from an online source and cleans it into a form
+appropriate for downstream analysis; 2) <code>analyze</code>: a python script that takes
+a table of clean data and performs some analysis on it. These two functions are
+written by people who don&#8217;t know eachother. They are in entirely different
+fields and follow entirely different conventions.</p>
+</div>
+<div class="paragraph">
+<p>The separation between script and component, developed formally in the context
+of composition languages, is a core principle of all workflow approaches
+(Schneider 1999). The script specifies the connectivity of the components, the
+components perform the actual data transforms.</p>
+</div>
+<div class="paragraph">
+<p>There are also many languages and programs designed to meet challenges of
+writing quality scientific workflows (Leipzig 2016}.</p>
+</div>
+<div class="paragraph">
+<p>The general idea of extending a program (workflow) without modifying it has
+been extensively explored (Hannemann 2002).</p>
+</div>
+<div class="paragraph">
+<p>In the following sections I will summarize the main classes of
+languages/programs that are related to Morloc.</p>
+</div>
+<div class="paragraph">
+<p>Morloc goes further, in that nothing meaningful can be written in Morloc
+without accessing foreign languages. And no language is given special status.</p>
+</div>
+<div class="paragraph">
+<p>as has mixed language data types (Einarsson 1986).</p>
+</div>
+<div class="paragraph">
+<p>In the formal composition languages, one programmer writes components and
+another programmer writes scripts. Many of the workflow languages are designed
+for researchers who can&#8217;t program. The components are made by a programmer,
+wrapped manually in an API, and loaded into a GUI. The composer then uses these
+and generally cannot modify them.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. A comparison of features. GWFM refers to Graphical Workflow Managers. <code>Make*</code> refers to the family of Make-like rule-based programs.</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Morloc</th>
+<th class="tableblock halign-left valign-top">GWFM</th>
+<th class="tableblock halign-left valign-top">Shell</th>
+<th class="tableblock halign-left valign-top">Make*</th>
+<th class="tableblock halign-left valign-top">Cuneiform</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Component</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">wrapper</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">executable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">recipe</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">function</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Script</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">composition</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">node graph</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pipeline/ad hoc</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">build graph</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">composition</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Component IO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">builtin</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Foreign call IO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">native</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">wrapper</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">wrapper</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">wrapper</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">native</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Function scope</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">composition</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">component</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">component</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">local</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">component</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Type System</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filetype</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Remote access</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Remote validation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">?</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Control syntax</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">user/library</p></td>
+</tr>
+</tbody>
+</table>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Component: the form of a node in the workflow.</p>
+</li>
+<li>
+<p>recipes: used in the Make languages are a list of instructions. Usually
+these are written in a shell language usually, but Drake supports several
+additional languages.</p>
+</li>
+<li>
+<p>Script: the form of the workflow.</p>
+</li>
+<li>
+<p>Component IO: how is input passed to and from a function:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>idiomatic: implies it is passed as idiomatic data structures in the source language</p>
+</li>
+<li>
+<p>system: implies it is read from files or databases (components cannot
+pass native data structures).</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Foreign call IO:</p>
+</li>
+<li>
+<p>Function scope: xxx.</p>
+</li>
+<li>
+<p><strong>Remote access</strong> and <strong>validation</strong>: Can the language access node values
+or add validators without local modification of the code?.</p>
+</li>
+<li>
+<p><strong>Control syntax</strong>: Origin of control structures (e.g. conditionals,
+loops). In Morloc these are in user space (or core libraries). GWFM vary,
+many have no conditionals or loops. Make derivatives have conditionals but
+no loops.</p>
+</li>
+</ol>
+</div>
+<div class="sect3">
+<h4 id="_formal_compositional_languages">12.5.1. Formal compositional languages</h4>
+<div class="paragraph">
+<p>A powerful abstraction is the separation of a program into components and
+a script (schneider 1999). In the computer science community, this is the
+central concept of component languages, such as Piccola (Achermann 2001).
+Outside this community community, the concept is widespread (though unsung) in
+workflow programs.</p>
+</div>
+<div class="paragraph">
+<p>Piccola is built on a model that cleanly separates the script from the
+components (Achermann 2001). The components in Piccola are considered black
+boxes. They argue that OOP is good for building components but bad at reusing
+them, because the components become overly specialized and the interfaces
+overly complex, such that scripting with them requires deep understanding of
+their implementation. Morloc follows the same model of scripts and components.
+The components in Picolla are general objects, characterized by an API. The
+components can be anything. In Morloc the components are functions. They can be
+used in exactly one way, which is specified by their type signature.</p>
+</div>
+<div class="paragraph">
+<p>The work most similar to Morloc is perhaps the language Cuneiform (brandt
+2015), which is a workflow language designed for high-performance and implicit
+parallelism. Cuneiform allows multiple languages and is uses explicit types.
+Morloc differs in its emphasis on automating IO code and type conversions
+between languages.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_scripting_languages">12.5.2. Scripting languages</h4>
+<div class="paragraph">
+<p>Many scientific workflows are coordinated through scripting languages, usually
+Bash (or a similar shell language). While Bash can be used as a full
+programming language, it is more often used to link components (programs)
+written in other languages. The input and output of these functions must be in
+a common representation (raw data in files or connections to data bases). Thus
+the components handle the IO.</p>
+</div>
+<div class="paragraph">
+<p>There are also specialized scientific scripting languages, for example,
+BigDataScript (Cingolani 2015}, which is optimized for job submission and
+management within a cluster environment.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_rule_based_languages">12.5.3. Rule-based languages</h4>
+<div class="paragraph">
+<p>The most well-known rule-based language is Make. Its was designed for
+coordinating the build of a program. It consists of a set of rules for
+producing new files and managing file dependencies. Make is often used in
+scientific analysis (e.g. (Askren 2016)). A few variants of Make designed for
+scientific analysis include Snakemake (Koster 2012)} and Drake
+(github.com/Factual/drake). The dependency graphs automatically built by Make
+are isomorphic to the pull-based workflows of Morloc. But Make (and its
+variants) provide no type safety or language integration. Drake does allow
+recipes to be written in many languages, but by design data can passed between
+recipes only through the files they create.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_graphical_workflow_managers">12.5.4. Graphical workflow managers</h4>
+<div class="paragraph">
+<p>Galaxy (Hillman 2012), Taverna (Oinn 2004) and other
+workflow managers allow visual composition of functional units and setting of
+parameters. They are designed for the non-programmer, thus the community that
+composes workflows and the community that creates the nodes, are quite
+separate.</p>
+</div>
+<div class="paragraph">
+<p>Thus they are an interesting case of the component model where the composers
+and scripters are members of different communities.  Those who use the
+components are not generally the ones who write them (or could write them).</p>
+</div>
+<div class="paragraph">
+<p>In contrast, Morloc is a metaprogramming language for creating pure code.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_summary_of_related_work">12.6. Summary of related work</h3>
+<div class="paragraph">
+<p>The different approaches to workflows can be classified based on the nature of
+the script, component, coder (writer of components), and composer (writer of
+scripts). In the composition languages, components are objects. In scripting
+languages, components are generally executable programs.  In graphical workflow
+managers components are hard-coded functions wrapped in a graphical widget with
+exposed parameters, inputs and outputs. The differences between approaches is
+summarized in Table xxx</p>
+</div>
+<div class="paragraph">
+<p>They also differ in how data how they grow in complexity, handle IO, and their
+type system.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_workflow_theory_and_other">12.7. Workflow theory (and other)</h3>
+<div class="paragraph">
+<p>TODO: reread the charfi2006aspect paper, look into who cited it</p>
+</div>
+<div class="paragraph">
+<p>TODO: factcheck, 'there are no aspect oriented workflow languages'</p>
+</div>
+<div class="paragraph">
+<p>The idea of adding aspect-oriented elements to a workflow languages has been
+explored in the context of business workflows (Charfi 2006) but has not been
+integrated into a programming language.</p>
+</div>
+<div class="paragraph">
+<p>General workflow languages, for example YAWL (Van 2005). YAWL is based on petri
+nets (Murata 1989), which are a mathematical system for describing networks.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Taverna (Oinn 2004), a graphical program for linking web services. It also
+supports R scripts (which must be wrapped as Rshells) and running
+standalone programs.</p>
+</li>
+<li>
+<p>OMICtools, a database of bioinformatics functions</p>
+</li>
+<li>
+<p>rperl - collections of functions <a href="http://bioinformaticssoftwareandtools.co.in/rperl.php" class="bare">http://bioinformaticssoftwareandtools.co.in/rperl.php</a></p>
+</li>
+<li>
+<p>Galaxy, similar to Taverna</p>
+</li>
+<li>
+<p>Pegasus takes an XML abstract workflow description as input and manages the
+execution environment.</p>
+</li>
+<li>
+<p>BioWMS (Bartocci 2007)</p>
+</li>
+<li>
+<p>Biowep (Romano 2007)</p>
+</li>
+<li>
+<p>Bioworks (Han 2011)</p>
+</li>
+<li>
+<p>Conveyor (Linke 2011)</p>
+</li>
+<li>
+<p>Mobyle (Neron 2009)</p>
+</li>
+<li>
+<p>Ergatis (Orvis 2010)</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Node-based graphical programs: Galaxy, node programming editors in (e.g.  in
+Blender).</p>
+</div>
+<div class="paragraph">
+<p>Rule based bioinformatics workflows (Conery 2005).</p>
+</div>
+<div class="paragraph">
+<p>Modeling bioinformatics workflows with petri-net models (Peleg 2002).</p>
+</div>
+<div class="paragraph">
+<p>Outside of bioinformatics, there is the Kepler system (Ludascher 2006).</p>
+</div>
+<div class="paragraph">
+<p>There are also many specialized workflows. Generally these have a small number
+of 'hard-coded' components.</p>
+</div>
+<div class="paragraph">
+<p>A few more things to look at: Triana, SOMA, SMILA, VisTrails, Discovery Net,
+Pipeline Pilot, KNIME</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_semantic_type_system">13. The semantic type system</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There is a growing appreciation for the importance of types. Conventionally
+dynamic languages, like Python and R, are gaining type systems.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>&gt;&gt;&gt; def foo(x,y):
+&gt;&gt;&gt;     print ((x * 2) + y)
+&gt;&gt;&gt; foo(2,3)
+7
+&gt;&gt;&gt; foo(&quot;a&quot;, &quot;b&quot;)
+&quot;aab&quot;
+&gt;&gt;&gt; foo([1,2,3], [8,9])
+[1,2,3,1,2,3,8,9]
+&gt;&gt;&gt; def commasep(xs):
+&gt;&gt;&gt;     return &#39;, &#39;.join(xs)
+&gt;&gt;&gt; commasep([&quot;asdf&quot;, &quot;df&quot;])
+&#39;asdf, df&#39;
+&gt;&gt;&gt; commasep(&quot;asdf&quot;)
+&#39;a, s, d, f&#39;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The goal of the semantic type system is to describe the relationship
+between general concepts, language-specific constructs, and
+language-independent data formats.</p>
+</div>
+<div class="paragraph">
+<p>The goal of Morloc is to unify all languages under a common type system. This
+will allow all pure functions to be ordered into multi-lingual databases. These
+functions can then be assembled into pipelines with automatic data reading,
+writing, checking, and inter-lingual transer.</p>
+</div>
+<div class="paragraph">
+<p>The type system is the essential core of Morloc. It is the matrix in which all
+other functionallity is nested. It is the interface between Morloc script and
+function database. The types are the contract between functions.</p>
+</div>
+<div class="paragraph">
+<p>Components of a type</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Check at compile time</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Semantic/ontological types - Orthogonal to the base type, is the semantic
+type system. It is an ontology. I will likely base it on OWL. The semantic
+type system expands upon the base type. For example, the base type might be
+<code>Double</code>. But <code>Double</code> really is not very informative. The semantic type
+can specialize this into, for example, <code>Meter</code>, <code>Second</code>, or <code>RadianAngle</code>.
+Relations can be set between semantic types (e.g. <code>is_a Meter Distance</code>).
+Properties can be added to them, to set the range of the value, add
+a distribution, etc.</p>
+</li>
+<li>
+<p>Base type - This will consist of a large subset of the Haskell type system.
+Including algebraic types, type classes (will need to include functions
+which are implemented in each language), and parameterized types. The
+purpose of the base type is to allow rigorous type checking and code reuse
+according to property (e.g. all the functor, monoid, foldable, etc wonders
+of Haskell).</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Check at runtime</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Invariants/runtime dependencies - This includes dependencies between
+sub-units of a type (e.g. arguments in a functional signature or members of
+a tuple). It is probably not practical to have true, compile-time checked,
+dependent types in Morloc, since functions are black boxes. So these
+dependencies will be checked at runtime (unless compiled without checking).</p>
+</li>
+<li>
+<p>Distribution - A random model of the data. All data should be modeled. This
+allows random values to be generated and used in automatic testing. The
+distribution can also be handled in real-time to find outliers and possibly
+pathological behaviour.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Annotation</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Performance expectation - There are two layers to this "type" (we are not
+really in type-world anymore, perhaps). First is a performance contract for
+a function signature, where all implementations of the function must meet
+the specified standards. A second layer is a parameterized function for
+modeling time and space usage. This is closer to an annotation. It can be
+inferred through simulation. A major use of this would be to predict
+runtime requirements from the inputs and system data. A programmer may put
+limits on the time and space of the program and halt if a node is predicted
+to exceed them.</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="_function_signatures_and_more_stuff">13.1. Function signatures and more stuff</h3>
+<div class="paragraph">
+<p>Function signatures are also needed to build the database of functions. I want
+a formal way to search for functions that does not depend on human written
+documentation or function/argument names. I want to search by type. But it
+seems there is currently no good method for this. Within a specific
+strongly-typed language, you may be able to search by function signature (e.g.
+in Haskell&#8217;s Hoogle you can search for <code>[a] &#8594; (a &#8594; b) &#8594; [b]</code>). Within
+dynamic languages you are limited to text searches against the documentation or
+unchecked, hand-written type annotations. But when searching for functions
+across languages, the best you can do is query Google and hope the terms are
+written in the documentation.</p>
+</div>
+<div class="paragraph">
+<p>A possible way to address these problems is to use a semantic type system. That
+is, a type system based on knowledge representation (ontologies). Basing a type
+system on formal logic seems reasonable. The ontology of types and the function
+signatures are the axioms. The code compiles to a list of statements. The
+program is correct if the whole system is logically consistent. Reasoning on
+knowledge bases (descriptive logics) is a rich field. There are good languages
+(such as OWL), good support for databases (SPARQL), and good reasoners (e.g.
+<code>HermiT</code> and <code>Fact++</code>).</p>
+</div>
+<div class="paragraph">
+<p>A semantic type system would allow expression of relations between types.
+A possible relation might be, "There exists Filename openable as Text". Then if
+you pass a Filename to a function expecting Text, the compiler can infer that
+Filename is convertible, with possible failure, to Text. It can then search
+a database for a suitable function, and if the function is found, insert it
+between Filename and Text. By importing different sets of relations, the
+strictness of a program can be finely tuned. Behavior that is hard-coded in
+most languages, becomes easily customizable. If you want your pipeline to
+automatically try to resolve type conflicts by converting a String to a Number
+(as is done dynamically in Perl), you just have to add the relation that Number
+can be cast as a String (the reasoner can then infer that some String can be
+cast as Number).</p>
+</div>
+<div class="paragraph">
+<p>The type would give the compiler all the information it needs to convert data
+between languages. Concrete, language-specific types would map to instances of
+the type classes. A given language may have 0 or more instances for a given
+type (e.g. the C types <code>float</code> and <code>double</code> might both be instances of the
+Morloc type <code>Real</code>). The compiler would sometimes need a hint from the
+programmer about which instance to use.</p>
+</div>
+<div class="paragraph">
+<p>Semantic types offer many additional possibilities. Sets of inter-convertible
+types could be specified (e.g. {<code>Meter</code>, <code>Foot</code>, <code>Angstrom</code>} or sequence
+alignment formats {<code>ClustalW</code>, <code>Stockholm</code>}). Types could be given attributes,
+such as <code>has_length</code> which could be automatically used in descriptive
+statistics. The semantic type system could, I think, emulate the typeclasses of
+Haskell, e.g. <code>Monoid</code> or <code>Traversable</code>. Types could be associated with
+metadata, such as statistical generative models.</p>
+</div>
+<div class="paragraph">
+<p>Speaking of statistical generative models, I think most types should have one.
+If we can simulate data for all inputs to a function, then we can automatically
+test the function, generate sample data, and build simulation-based performance
+models. Given performance models, the compiler can reason about the performance
+of the overall system and can make smart optimizations.</p>
+</div>
+<div class="paragraph">
+<p>Overall, I want to give the compiler what it needs so that it can reason about
+the code and automate away the tedium of programming.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_related_work_and_approach">13.2. Related work and approach</h3>
+<div class="paragraph">
+<p>I originally thought of my semantic type system as a radical departure from
+type theory norms. But it is actually less radical than I originally thought
+(which is good). The use of semantic reasoners to do type checking is mostly an
+implementation difference (using constraint solvers rather than algorithm W)
+[@stuckey2006type]. This concept has been explored extensively and has proven
+not only feasible but superior to bespoke algorithms (at least in regards to
+clarity of debugging info). Allowing types to be terms from a controlled
+vocabulary, an ontology, is perhaps still pretty radical. However, it is
+probably isomorphic to subtyping or some other system with type inheritance.
+Although having an entire rule system describing how the types relate to
+eachother is probably more powerful than simple inheritance.</p>
+</div>
+<div class="paragraph">
+<p>There are three components to the semantic side of Morloc. The 1) knowledge
+representation language (KR), 2) the query language (QL), 3) the rule language
+(RL) and 4) an inference engine (IE).</p>
+</div>
+<div class="paragraph">
+<p>KR will be used to store the AST for all scripts, user system info, package
+descriptions, community info, and everything else. For KR we can use
+RDF/RDFS/OWL. This is a fairly easy choice to make. We will need to decide how
+much of OWL to use. There are alternatives, such as using one of the other
+graph database systems. Or for that matter, using bespoke data structures.</p>
+</div>
+<div class="paragraph">
+<p>A QL allows the user to query the entire system. To find functions that fit
+a problem. To find workflows where functions of interest were used, for example
+to find usage examples. To find subsets of the function space that have certain
+standards for strictness, quality, licensing, etc. The QL needs to be able to
+query the KR. Given our choice of RDF for KR, SPARQL is a pretty natural
+choice. Of course there are a lot of other query languages. But many are
+attached to proprietary systems or have low market penetration.</p>
+</div>
+<div class="paragraph">
+<p>The RL is needed to encode the deep business logic of the system. While many
+types of constraints can be encoded in OWL, it has its limitations. Also, OWL
+constraints are often not as intuitive as the simple rules that can be written
+in, say, Datalog. Here there are many options.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>SPARQL - can be used to impose rules on an ontology.</p>
+</li>
+<li>
+<p>SHACL - this is a W3C specification for a SPARQL based constraint language.</p>
+</li>
+<li>
+<p>SWRL - the Semantic Web Rule Language allows Datalog-based rules to be used
+to impose laws on an OWL database.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The IE is needed to infer missing information. This includes</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>type inference (e.g., finding the concrete instances of generic types).</p>
+</li>
+<li>
+<p>choosing concrete instances for functions when there are multiple choices
+(e.g., which sort function to use).</p>
+</li>
+<li>
+<p>linking functions to their source code</p>
+</li>
+<li>
+<p>etc</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These decisions are complex and will require an RL as well. This is also where
+many user customizations will occur.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_notes">13.3. Notes</h3>
+<div class="paragraph">
+<p>The right way and the fast way.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>semantic type system</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Right Way</strong>: Consider category theory (groups, semigroups, algebras),
+search literature, base the ontology on theory. Prove that everything
+works.</p>
+</li>
+<li>
+<p><strong>Fast Way</strong>: Implement the top-level, less-controversial types. Implement
+deeper ontologies for case studies (e.g. in bioinformatics).</p>
+</li>
+<li>
+<p>Make the type system robust. Equivalent types. Assume graph <code>is_a</code>
+relations rather than trees. This allows multiple hierarchies to coexist.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>base type</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Fast Way</strong>: Follow Haskell conventions. Implement the safe stuff. Use
+the GHC typechecker for handling containers.</p>
+</li>
+<li>
+<p><strong>Right Way</strong>: Learn from Haskell mistakes. Do Prelude right. Use richer
+algebras. Do not use GHC. Do everything through logical inference. Encode
+containers through the knowledge system. The latter transition from the
+"Fast Way" to the "Right Way" here should be mostly in the backend.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Invariants/runtime dependencies</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Fast Way</strong>: Make these annotations, which link to functions that can be
+run in the common language to test data.</p>
+</li>
+<li>
+<p><strong>Right Way</strong>: Find a formal representation of dependencies. Allow the
+reasoner to work on them.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Distribution</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Fast Way</strong>: As with runtime dependencies, add distributions as links to
+generative functions.</p>
+</li>
+<li>
+<p><strong>Right Way</strong>: Find a formal representation for models. Build a statistical
+reasoning machine to work with them. Test consistency between functions
+across the type system. Allow function instances to specialize the
+models.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Performance expectation</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Fast Way</strong>: Add as an informal note in the Annotation</p>
+</li>
+<li>
+<p><strong>Right Way</strong>: Formally express as a mathematical functions of the
+features derived from the inputs (and the input distributions) and
+possibly the architecture. If the distributions for the inputs are
+specified, then inputs can be sampled and the function timed for each
+input set. The resulting data can be fed into a symbolic regression
+machine to infer an analytic solution to the time and space behaviour.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Making all of this work together is a tricky task. The semantic types can be
+used to promote semantic types according to rules, insert conversion functions
+(e.g. Meter to Foot), raise errors on unresolvable conflicts, etc. The
+dependencies, performance, and distribution types all provide information the
+compiler can use to add functions to the graph. Once all this preprocessing and
+checking is done, the base type can be checked at compile-time using GHC, along
+with a Morloc-side check that typeclass functions are implemented where
+expected.</p>
+</div>
+<div class="paragraph">
+<p>The type properties (Haskell typeclasses) describe what can be done to a type.
+For example: Orderable, Foldable, Traversable, Monoid, Semigroup.</p>
+</div>
+<div class="paragraph">
+<p>Machines need to learn how to use tools. The statistical deep learning approach
+gives them data, and then trains a network to recognize patterns. But whether
+this will ever be a substitute for knowledge is uncertain. There are other
+approaches to machine learning. Symbolic regression. Logic. Knowledge
+representation systems allow them to reason and give them common sense. But how
+can they use tools and other resources? How can they find them? They need to be
+able to reason about functions. Deep learning can be used to create predicates
+in a knowledge representation system.</p>
+</div>
+<div class="paragraph">
+<p><code>[Image] &#8594; PhysicalObject &#8594; [Bool]</code>
+<code>[(Image, Bool)] &#8594; ([Image] &#8594; PhysicalObject &#8594; [Bool])</code></p>
+</div>
+<div class="paragraph">
+<p>Functions are premises. The reasoner can prove that the program is correct, but
+the functions are blackboxes, they may not do what their types suggest. The
+functions are premises. If the premises are invalid, then the program is
+invalid.</p>
+</div>
+<div class="paragraph">
+<p>Training data, but for testing. Alternatively, have a generative model.</p>
+</div>
+<div class="paragraph">
+<p>Advantages of a semantic type system.</p>
+</div>
+<div class="paragraph">
+<p>OWL2 is based on a formal logic system, Description Logics (DL). It is good for
+describing the relations between types and what properties types have. The
+types and the type constraints (corresponding to Haskell typeclasses) are
+axioms. Morloc code can be translated into a list of facts. If the facts are
+consistent, the type checker passes. This will allow highly expressive types.
+Strictly supersetting, I believe, the Haskell system (need a proof of this,
+does DL superset Hask?).</p>
+</div>
+<div class="paragraph">
+<p>Individuals are "instances" from the type "classes" (not to be confused with
+typeclasses ala Haskell, which are class properties).</p>
+</div>
+<div class="paragraph">
+<p>OWL as a type system, beyond correctness. Imposing semantic meaning on
+functions. This allows them to be organized and searched in databases.</p>
+</div>
+<div class="paragraph">
+<p>Google is trying to organize all of human knowledge. The semantic web.</p>
+</div>
+<div class="paragraph">
+<p>The base type can be derived from the semantic type and vice versa. The
+semantic type is more specific and contains much information that would never
+go into the base type (and that would not be used in type checking).</p>
+</div>
+<div class="paragraph">
+<p>Ontologies have been springing up all over. Perhaps the largest and most
+developed are the biology ones, but there are many more:
+[physics](<a href="https://www.astro.umd.edu/~eshaya/astro-onto/ontologies/physics.html" class="bare">https://www.astro.umd.edu/~eshaya/astro-onto/ontologies/physics.html</a>),
+[statistics](<a href="http://stato-ontology.org/" class="bare">http://stato-ontology.org/</a>),
+[chemistry](<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2867191/" class="bare">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2867191/</a>).</p>
+</div>
+<div class="sect3">
+<h4 id="_types_by_domain">13.3.1. Types by domain</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>statistics</p>
+<div class="ulist">
+<ul>
+<li>
+<p>John White: [Type Safety and Statistical Computing](<a href="http://www.johnmyleswhite.com/notebook/2016/12/12/type-safety-and-statistical-computing/" class="bare">http://www.johnmyleswhite.com/notebook/2016/12/12/type-safety-and-statistical-computing/</a>)
+A blog entry on types in statistics. Discusses the need to encode
+assumptions in the type system.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_mapping_to_conventional_types">13.3.2. Mapping to conventional types</h4>
+<div class="paragraph">
+<p>A minimal functionallity of ST is to emulate conventional primitive types and
+containers. What information do I need to store about each type?</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Number</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>bounds</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>String</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>encoding</p>
+</li>
+<li>
+<p>length</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Boolean</p>
+</li>
+<li>
+<p>Enum</p>
+</li>
+<li>
+<p>Maybe</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>type</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Syntactically, I will probably use a '?' for Maybe, for example: <code>?Int</code></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>List</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>length</p>
+</li>
+<li>
+<p>element type</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Tuple</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>discrete number of types</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Matrix</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>dimension</p>
+</li>
+<li>
+<p>element type</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Structure</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>list of (name,type) pairs (recursive)</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Table</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>dimension</p>
+</li>
+<li>
+<p>column types</p>
+</li>
+<li>
+<p>? column dependencies</p>
+</li>
+<li>
+<p>? column names</p>
+</li>
+<li>
+<p>? row names</p>
+</li>
+<li>
+<p>? table metadata</p>
+</li>
+<li>
+<p>? column metadata</p>
+</li>
+<li>
+<p>? row metadata</p>
+</li>
+<li>
+<p>? cell metadata</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Parameterized Boolean - this is a odd type, but something important I want
+to express: a boolean with semantic annotation. For example:</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>Filename -&gt; Is Readable
+Image    -&gt; Is Dog
+String   -&gt; Is Integer
+Integer  -&gt; Is Odd
+Audio    -&gt; Is HipHop</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>-- general
+filterImage :: (Image -&gt; Is Thing) -&gt; [Image] -&gt; [Image]
+
+-- more specific
+filterImage :: (Image -&gt; Is Airplane) -&gt; [Image] -&gt; [Image]
+
+-- most specific
+filterImage :: (Image -&gt; Is Boeing747) -&gt; [Image] -&gt; [Image]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These would have the more general types:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>Filename -&gt; Bool
+Image    -&gt; Bool
+String   -&gt; Bool
+Integer  -&gt; Bool
+Audio    -&gt; Bool</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But these lack semantic meaning.</p>
+</div>
+<div class="paragraph">
+<p>'Is' implies an equivalence of some sort. 'Has' implies a <code>has_part</code> relation.
+For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>[Integer] -&gt; Has 45
+Image -&gt; Has Dog</code></pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Parameterized Probability</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>First there is the <code>ChanceOf</code> type</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>FeatureTable -&gt; ChanceOf Win</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_unsettled_issues">14. Unsettled issues</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are many issues that need to be resolved before <code>morloc</code> is ready for
+widespread use.</p>
+</div>
+<div class="sect2">
+<h3 id="_support_for_lazy_evaluation">14.1. Support for lazy evaluation</h3>
+<div class="paragraph">
+<p>Many languages support lazy evaluation, either by default (e.g., Haskell and
+R), by using special syntax (e.g., Python), or using system streaming utilities
+(e.g. pipelines in Bash). <code>morloc</code> should support this as well. Doing so is
+fairly easy for calls within a language, but can and should this be supported
+for calls between languages?</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_purity_totallity_and_planes">14.2. Purity, totallity and planes</h3>
+<div class="paragraph">
+<div class="title">Should functions be pure?  I certainly cannot, and should not, guarantee that</div>
+<p>all functions are pure. One possibility is adding (or inferring) a tag for
+purity. This could potentially be automatically tested by running the function
+within a sandbox or through static evaluation. Then <code>morloc</code> programmers and
+library builders can require all functions be pure.</p>
+</div>
+<div class="paragraph">
+<div class="title">Should functions be total? Again, not in general and again this could be a</div>
+<p>tag. In this case, some users, particularly of the Haskell persuation, might
+want to only work on the <code>morloc</code> "plane of totality".</p>
+</div>
+<div class="paragraph">
+<p>Perhaps what we need is a strict subset of Morloc. Well, there will be layers.
+And functions will be ascend through the levels of quality, from unverified to
+proven. Though quality is not a one-dimensional trait. There is</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>correctness (ranging from unverified to levels of test to proven)</p>
+</li>
+<li>
+<p>asymptotic time and space complexity (ranging from unverified, then through
+a range of equations, bound perhaps by a proven form).</p>
+</li>
+<li>
+<p>there is code quality (which is somewhat subjective, but perhaps with "human vetted" on top)</p>
+</li>
+<li>
+<p>codebase size (remove comments and count the tokens)</p>
+</li>
+<li>
+<p>for some functions, there can be other quality metrics (accuracy, AUC, energy, etc)</p>
+</li>
+<li>
+<p>documentation (which is very subjective)</p>
+</li>
+<li>
+<p>purity (TRUE | FALSE)</p>
+</li>
+<li>
+<p>pairwise suitability to other functions (whatever that means)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_polymorphism">14.3. Polymorphism</h3>
+<div class="paragraph">
+<p>Monolithic tools often do not resolve cleanly into a single type. This is
+especially true of standalone tools. But it is also true of many functions in
+dynamic languages. The problem is that they may have many possible types of
+input and output.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>input type depends on parameters</p>
+</li>
+<li>
+<p>input type depends on input value (ad hoc polymorphism)</p>
+</li>
+<li>
+<p>output type depends on parameters</p>
+</li>
+<li>
+<p>output type depends on input value</p>
+</li>
+<li>
+<p>output type depends on output value</p>
+</li>
+<li>
+<p>cardinality of input depends on parameters</p>
+</li>
+<li>
+<p>and more</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Enumerating all combinations of types would be a naming nightmare.</p>
+</div>
+<div class="paragraph">
+<p>Allowing function overloading reduces this problem somewhat.</p>
+</div>
+<div class="paragraph">
+<p>We could infer the output type, then attempt to cast it to the expected output
+type. For example, suppose we have a function that returns a list of integers
+if the list is longer than 1 and a single integer otherwise. Morloc could
+generate a code in the manifold that checks the type of the output function,
+then casts it as needed.</p>
+</div>
+<div class="paragraph">
+<p>Some of these issues may need to be solved by workarounds in the wrapper (such
+as hard-coding certain parameters or processing the output or input).</p>
+</div>
+<div class="paragraph">
+<p>One way to solve this is to consider the tool&#8217;s function signature as a graph
+of types, rather than a singular entity.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_handling_effects">14.4. Handling effects</h3>
+<div class="paragraph">
+<p>A function maps data from one form to another. Where do effects, like writing
+something to a database, creating a file, showing a plot, or running an
+application fit in?</p>
+</div>
+<div class="paragraph">
+<p>For example, what is the type signature of a histogram function?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; ?</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can delay visualization, keeping things in the pure realm a little longer,
+by converting the vector of numbers to bins:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; [Rectangle]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>While this conveniently decouples the histogram algorithm from the
+visualization, it doesn&#8217;t solve the problem. We still want to make an image.</p>
+</div>
+<div class="paragraph">
+<p>We could allow the effect to run and return the filename</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; Filename</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Though <code>Filename</code> is fairly ad hoc. Is this a PDF? Or a PNG? Perhaps here
+parameterized types would be worthwhile. Where <code>Path PDF</code> implies a filename
+reference to the PDF is being passed (alternatively <code>Bytestream PDF</code>). Or
+perhaps just <code>PDF</code>, where <code>PDF</code> is a complex representation of the PDF vector
+object (see the 700 page reference manual) that will be converted into an
+appropriate data structure (e.g. PDF object) in the target language.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; Path PDF
+histogram :: [Num] -&gt; Bytestream PDF
+histogram :: [Num] -&gt; PDF</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But this still does not capture the fact that a file was created. More clearly,
+imagine a robotic function that calculates a movement vector from the original
+position, moves the robot, and then returns the new position. The signature
+might be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>literallyMove :: Position -&gt; Vector -&gt; Position</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But this does not capture the fact that the function is also causing an effect
+(making the robot move).</p>
+</div>
+<div class="paragraph">
+<p>In old Morloc, I have support for <code>Void</code> types, which roughly indicate IO. So
+we could couple two function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>calculateMove :: Position -&gt; Vector
+moveRobot :: Vector -&gt; Void
+moveRobot $ calculateMove (1.1, 3.4)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perhaps we can leave Void as Void, for the base type, then expound upon it
+semantically. Perhaps with a prefix to indicate effect, e.g.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>-- using &#39;!&#39;, I&#39;d want to think more before settling
+moveRobot :: Vector -&gt; !MoveRobot</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now of course, in Haskell we would solve this with an IO monad. Do we want
+monads? But we really can&#8217;t pretend to be pure, since the functions are black
+boxes. And even if we could be pure, would we want to be? Morloc needs to allow
+effects. Otherwise Haskell would be about the only major language it could
+support.</p>
+</div>
+<div class="paragraph">
+<p>Conclusion: for now I lean towards specialized Void.</p>
+</div>
+</div>
+</div>
+</div>
+<h1 id="_implementation" class="sect0">Implementation</h1>
+<div class="sect1">
+<h2 id="_tech_tree">15. Tech Tree</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The purpose of this document is to describe the underlying Haskell packages
+that are used in Morloc. It is not intended to act as a replacement for the
+documentation of the packages themselves, but rather describes how they are
+used within the Morloc context and why they were chosen.</p>
+</div>
+<div class="sect2">
+<h3 id="_docopt">15.1. <code>docopt</code></h3>
+<div class="paragraph">
+<p>The <code>docopt</code> package is the Haskell implementation of the wider
+["docopt"](docopt.org) paradigm. The idea is that usage statements are
+standardized enough to allow them to be parsed as a language. Thus a usage
+statement, such as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>morloc version 0.16.2
+
+Usage:
+  morloc make [--expression] &lt;script&gt; [--endpoint=&lt;sparql-endpoint&gt;]
+  morloc rdf [--triple] [--expression] &lt;script&gt;
+
+Options:
+  -t, --triple       print RDF graph in triple format, rather than the turtle
+  -e, --expression   read script as string rather than file</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This string serves as both the usage statement that is printed when help is
+needed (e.g., <code>morloc -h</code>) and the specification of the supported command line
+arguments that can be called. The Haskell code in <code>Main.hs</code> determines the
+behavior of Morloc when these options are used, but does not have to deal with
+formatting or argument parsing.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hsparql">15.2. <code>hsparql</code></h3>
+<div class="paragraph">
+<p><code>hsparql</code> is a DSL for making SPARQL queries from Haskell. In the past I wrote
+raw SPARQL code since I considered the use of a DSL unnecessary, since SPARQL
+is so pretty on its own. However, I found the raw SPARQL queries, which
+bypassed the typechecker, were a constant source of errors. I further had no
+options for abstraction and code reuse. So I converted to the DSL. It is more
+verbose, but also more reliable.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rdf4h">15.3. <code>rdf4h</code></h3>
+<div class="paragraph">
+<p><code>rdf4h</code> is a Relational Data Format (RDF) handling package designed by Rob Stewart (the
+same person is maintains the <code>hsparql</code>).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_wl_pprint_text">15.4. <code>wl-pprint-text</code></h3>
+<div class="paragraph">
+<p>Parsers such as <code>parsec</code> and <code>megaparsec</code> take strings and turn them into
+structures. The dreadfully named <code>wl-pprint-text</code> does the reverse. There is
+a beautiful symmetry between the syntax for <code>wl-pprint-text</code> and <code>parsec</code>.
+Commands in <code>parsec</code> that parse a string into a list (e.g., <code>many digit</code>) and
+reversed by <code>hsep</code> that takes a list of Doc types and makes a new Doc.</p>
+</div>
+<div class="paragraph">
+<p>What is this Doc things? Apart from the beauty of <code>wl-pprint-text</code>, it is also
+highly performant. The <code>wl</code> is a reference to Wadler [<a href="#wadler2003prettier">2</a>]
+and Leijen [<a href="#leijen2006pprint">3</a>], the authors of the paper on a
+high-performance, combinator-based pretty printer.</p>
+</div>
+<div class="paragraph">
+<p><code>wl-pprint-text</code> is a translation of <code>wl-pprint</code> from using String to using
+Text, for greater performance.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_megaparsec">15.5. <code>megaparsec</code></h3>
+<div class="paragraph">
+<p><code>megaparsec</code> is an industrial strength alternative to <code>parsec</code>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_glossary">Glossary</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The entries in this glossary mostly define ideas from early in the development
+of <code>morloc</code>. Many of these ideas have been discarded, replaced, or tabled.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<div class="title">Node</div>
+<p>A wrapper around a function or composition of functions. It may carry state and
+effects can be attached to it. For example, arbitrary functions of its output
+can be attached to it (leading to out-of-plane branching). Or conditions can be
+set that must be met before the contained function is run. Or caching functions
+may be added.</p>
+</div>
+<div class="paragraph">
+<div class="title">Programmer versus composer</div>
+<p>Where I say <code>programmer</code>, I mean the one who writes the functions in a
+non-Morloc language. Where I say <code>composer</code>, I mean the person who writes
+Morloc code (or more generally, any pure scripting language).</p>
+</div>
+<div class="paragraph">
+<div class="title">Double-blind</div>
+<p>Morloc is designed to allow a double-blind relation between composers and
+programmers.</p>
+</div>
+<div class="paragraph">
+<p>The blind programmer doesn&#8217;t how their code is being used by Morloc. They write
+as they like using the data types that make sense for their problem. They only
+know the general function type signature, which contains nothing specific to
+their language.</p>
+</div>
+<div class="paragraph">
+<p>The blind composer builds workflows from nodes. They know the type of the nodes
+and, based on documentation, know what they do. But they know nothing about the
+implementation, including the language.</p>
+</div>
+<div class="paragraph">
+<p>A doubly blind system is a system where all programmers and all composers are
+blind. Only the function signatures are known. The signatures play the role of
+an API.</p>
+</div>
+<div class="paragraph">
+<div class="title">Common form</div>
+<p>A data form that is used everywhere between functions, and is independent of
+any particular language. It is a data representation such as JSON, YAML, ASCII
+text, or whatever (the details depend on the implementation and should not
+normally be the concern of either the programmer or composer).</p>
+</div>
+<div class="paragraph">
+<div class="title"><code>cis</code> and <code>trans</code> connections</div>
+<p>A <strong>cis</strong> connection is a call between two functions of the same language.
+A <strong>trans</strong> connection is between two different languages.</p>
+</div>
+<div class="paragraph">
+<p><strong>cis</strong> connections are completely idiomatic. They compile to something like
+<code>foo(bar())</code> in the target language. They can use language-specific features
+(like laziness). They can also use types that are not supported by Morloc. No
+types even need to be specified for them. However, this allows
+language-inflexibility, where two nodes become coupled such that they have to
+be in the same language. This goes against the Morloc philosophy of double
+blindness, where neither programer or composer needs to know about the other.</p>
+</div>
+<div class="paragraph">
+<p><strong>trans</strong> calls are easy to control. The results always pass through the common
+type (barring future optimizations). In a <strong>trans</strong> connection, <code>foo</code> would have
+to make a system call to the program that has <code>bar</code> (optimizations aside). This
+is likely slow. Also the generated code is less concise.</p>
+</div>
+<div class="paragraph">
+<div class="title">Strict versus non-strict mode</div>
+<p>In strict mode, all connections must be <strong>trans</strong>. This provides fine granularity
+of errors, you can know exactly where the failure occurs and handle it in
+a clean uniform way. This also forces double-blindness by preventing reliance
+on language specific features.</p>
+</div>
+<div class="paragraph">
+<div class="title">Functions of nodes</div>
+<p>This is a composition that is indistinguishable from a normal node, with the
+exception that its language cannot be set (since it is in Morloc). This allows
+hiding of the particular nodes used inside. It also allows inputs to be freely
+distributed inside the internal composition.</p>
+</div>
+<div class="paragraph">
+<div class="title">Caching</div>
+<p>The output of node with caching toggled will run exactly once. Any subsequent
+calls to it will receive only the cache result. The caching is persistent.</p>
+</div>
+<div class="paragraph">
+<div class="title">Early and late validator</div>
+<p>Validators come before (early) or after (late) a function is called within
+a node. Validators are themselves nodes. They must be in a layer that inherits
+from the node they validate.</p>
+</div>
+<div class="paragraph">
+<div class="title">Output and input filter</div>
+<p>These filters take the data flowing through an edge, and access it, possibly
+modifying it. They could be used to create log messages. Or they could be used
+to sample from or subset the data flow.</p>
+</div>
+<div class="paragraph">
+<div class="title">Layer</div>
+<p>A layer is an environment where nodes can be composed. They can link only to
+other nodes in the layer and to nodes in any layer their parent layer inherits
+from.</p>
+</div>
+<div class="paragraph">
+<div class="title">Layers define scope.</div>
+<p>Layers are important when adding modifications to a node, for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>A = (foo . bar) x y z
+
+after A :: baz</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Which calls baz on the output of <code>foo . bar</code> after it has take the inputs <code>x</code>,
+<code>y</code>, <code>z</code>.</p>
+</div>
+<div class="paragraph">
+<div class="title">Anonymous layer</div>
+<p>Layers don&#8217;t have to have names. If they do not have names, then nothing can
+inherit from them.</p>
+</div>
+<div class="paragraph">
+<div class="title">Master nodes, slave node, and slave layers</div>
+<p>A master node is a node that takes other nodes as input and uses them
+internally as functions. The slave is the node so used. Masters can pass
+arguments to slaves. They may call a slave many times with different arguments.
+The entire graph of nodes downstream of the slaves, all filters, listeners, and
+anything touching the slave, is wrapped into a slave layer. Nodes in the slave
+layer link to each other or to arguments passed from the master.</p>
+</div>
+<div class="paragraph">
+<p>A new slave layer is generated every time the top slave node is called. Each
+slave layer possesses a globally unique id.</p>
+</div>
+<div class="paragraph">
+<p>Slaves may have slaves. In which case, the unique id of a slave of a slave
+would contain two elements.</p>
+</div>
+<div class="paragraph">
+<div class="title">Import</div>
+<p>Import a set of nodes from a module. These nodes behave exactly as if they were
+defined locally. But nodes that were not exported by the module cannot be
+altered in any way. Naming conflicts result in compile time errors, which can
+be resolved by specifying the namespace (name of the imported module).</p>
+</div>
+<div class="paragraph">
+<div class="title">Module</div>
+<p>A module exports a specific set of nodes and specifies which parameters may be
+set. Node attributes cannot be overridden.</p>
+</div>
+<div class="paragraph">
+<div class="title">Node signature</div>
+<p>The general type signature for the function in the node. It is general, in that
+this signature is language-independent. See <strong>type system</strong> for details.</p>
+</div>
+<div class="paragraph">
+<p>A node signature plays the role of a specification. The signature, along with
+a human language description of what it should do, should be all that is needed
+to implement the function. But there are additional formal constraints that
+could reasonably be added. For example, time and space runtime properties.</p>
+</div>
+<div class="paragraph">
+<p>In languages like Haskell (or other ML variants), type signatures are optional.
+Though these languages are statically typed, explicit signatures are not
+necessary since the type can be inferred from the code. However, in Morloc the
+code is inside foreign languages, and thus are black boxes. This makes type
+inference impossible in general. So explicit types are required (except in
+non-strict <strong>cis</strong> calls).</p>
+</div>
+<div class="paragraph">
+<div class="title">Type system</div>
+<p>The type system is under development. It is the core of the Morloc ecosystem,
+but so far is modeled heavily after the Haskell system. I want type classes so
+that I can specify the properties of a type. However, I also want to be able to
+layer on "soft" types. Whereas the "hard" types would be formally checked at
+compile time, the soft-types would have more runtime use. Or be used to testing
+specification and testing. Or used to generate random instances of the type.
+Soft types would include type dependencies, dependencies between types in
+a function signature, and the distribution of a type.</p>
+</div>
+<div class="paragraph">
+<div class="title">Type random model</div>
+<p>For every type there is a random generative model. These random models may be
+automatically generated. Or they may be specified in detail in the "soft" type.
+They may be simple, such as a uniform distribution between 2e-63 and 2e+63, or
+complex, such as Markov model for generating random English text. The
+generative models are used to test and optimize a workflow.</p>
+</div>
+<div class="paragraph">
+<div class="title">Parameter</div>
+<p>A parameter is an keyword argument to a target language function and the may be
+optional. Not all languages have parameters. R and python do; Haskell doesn&#8217;t.
+UNIX commands do (as <code>-*</code> flags). Parameterization can be modularized into
+configuration scripts.</p>
+</div>
+<div class="paragraph">
+<div class="title">Parameter type</div>
+<p>This is experimental. Currently, in old Morloc, parameters are expressed freely
+without compile time checking. But this is pretty loose and highly language
+dependent. The parameter typing allows tighter control of the functions and may
+be used to provide automated documentation of parameters.</p>
+</div>
+<div class="paragraph">
+<div class="title">Specialization</div>
+<p>Ideally the type signature is all that is needed to generate required IO. But
+often more is needed. Should a table passed to R, for example, be
+a <code>data.frame</code>, a <code>data.table</code>, a list of vectors, a <code>matrix</code>, a <code>tibble</code>, etc.
+Or should a string sent to Haskell be a String, ByteString or Text? In such
+cases, hints must be passed to the compiler. The specialization syntax needs to
+be general enough to allow great flexibility in meeting the needs of wildly
+different languages. Perhaps it can be a YAML block.</p>
+</div>
+<div class="paragraph">
+<p>Providing this information is the responsibility of the programmer, since it is
+language specific. The composer can pass hints to the programmer in the form of
+soft types (such as the distribution of data and time/space complexity).</p>
+</div>
+<div class="paragraph">
+<div class="title">Primitives</div>
+<p>Primitives are terminal values in a workflow that are not modifiable, e.g.
+numbers, strings.</p>
+</div>
+<div class="paragraph">
+<div class="title">Workflow Intermediate Language</div>
+<p>This is a simple language designed to be easy to parse by a machine. It
+contains all the information needed to build the Morloc executable, but is
+abstracted away from the particular syntax used for specification.</p>
+</div>
+<div class="paragraph">
+<div class="title">Void, wells and sinks</div>
+<p>A node that either writes to or reads from something outside the program will
+have type <code>Void</code>. Functions with a void input are <strong>wells</strong>, they produce data,
+but take nothing from other nodes. Functions that have a void output, take data
+and do something with it, passing nothing on. Since functions are black boxes
+in Morloc, there is no guarantee that a function without a void in its type
+signature doesn&#8217;t interact impurely with the system.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_loc">Appendix A: LOC</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>LOC was the first working(ish) version of <code>morloc</code></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_loc_old_version_of_morloc">16. LOC (old version of Morloc)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The core of a computational workflow is a network of data-transforming
+functions. These functions are often simple and elegant, but composing them
+into a full program&#8201;&#8212;&#8201;which involves input/output linking, type conversions,
+error catching and handling, report generation, file management, caching and
+parallelization, etc&#8201;&#8212;&#8201;quickly bloats the code, which slows development and
+complicates modification. Furthermore, workflows are often multi-lingual or
+invoke external programs, and thus require writing tedious linking code. To
+address these issues, we present a new language: LOC.</p>
+</div>
+<div class="paragraph">
+<p>LOC composes functions from other languages (e.g. Bash, R, Python) into
+multi-lingual workflows. A LOC script is partitioned into sections.
+Everything needed to understand the flow of data is written in one
+section. Effects, checks and other details are written in their own
+sections. Adding an effect to a function cannot alter the output of the
+function. Adding a check can only switch the output of a function into
+a failed state. In this way, a programmer can safely query the internal
+data of a program, modify the generated reports, and add or remove checks
+and debugging statements.</p>
+</div>
+<div class="paragraph">
+<p>Another central goal of LOC is to unify languages through a common
+ontology of types. A pure function can be described completely in terms
+what data comes in (input types) and what data comes out (output type). In
+LOC, functions are explicitly typed (as in Haskell). Based on these types,
+the compiler generates any required linking code and checks the high-level
+correctness of the program. Rather than implementing ad hoc linking code,
+the LOC programmer tells the LOC compiler the function signature, and the
+compiler does the rest.</p>
+</div>
+<div class="paragraph">
+<p>Overall, LOC can 1) simplify development, 2) allow easy and safe
+extensions, 3) allow transparent validation, 4) seamlessly link between
+languages and 5) provide a basis for a universal database of functions.
+LOC will be useful in developing readable, flexible, modular and
+extensible programs.</p>
+</div>
+<div class="paragraph">
+<p>Data analysis workflows often are multilingual, have many inputs, and require
+rigorous quality control and report generation. While the functions from which
+they are built may be simple and elegant, the whole quickly becomes more
+bloated than sum of the parts. We present a new workflow language, Morloc,
+which composes workflows from typed functions exapted from supported languages.
+The programmer specifies function types and connectivity, while the compiler
+generates all boilerplate for interfacing between languages. Morloc allows
+a layered development strategy. Where the abstract workflow and function types
+are specified first. These may remain unchanged as functions are subsequently
+defined, assertions on inputs added, and probes attached. We provide early
+evidence of Morloc’s potential to simplify development of data analysis
+workflows, enable easy extension and validation, and seamlessly link between
+languages in a single workflow.</p>
+</div>
+<div class="paragraph">
+<p>This is a much needed ability. Currently there is a massive code duplication
+problem, with libraries and wrappers for libraries and whole classes of
+problems reimplemented in every language. For example, in bioinformatics we
+have Bioperl, Biopython, Bioconductor, BioC, BioHaskell, Biojava, etc.; all
+programs which cover the same functionality.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a id="hamilton1976higher"></a>M. Hamilton &amp; S. Zeldin, Higher order software—A methodology for defining software. <em>IEEE Transactions on Software Engineering</em>, (1976) 9–32.</p>
+</li>
+<li>
+<p><a id="wadler2003prettier"></a>P. Wadler, A prettier printer. <em>The Fun of Programming, Cornerstones of Computing</em>, (2003) 223–243.</p>
+</li>
+<li>
+<p><a id="leijen2006pprint"></a>D. Leijen, PPrint, a prettier printer. (2006).</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2019-05-23 21:07:12 -0500
+</div>
+</div>
+<style>
+pre.pygments .hll { background-color: #ffffcc }
+pre.pygments  { background: #f8f8f8; }
+pre.pygments .tok-c { color: #008800; font-style: italic } /* Comment */
+pre.pygments .tok-err { border: 1px solid #FF0000 } /* Error */
+pre.pygments .tok-k { color: #AA22FF; font-weight: bold } /* Keyword */
+pre.pygments .tok-o { color: #666666 } /* Operator */
+pre.pygments .tok-ch { color: #008800; font-style: italic } /* Comment.Hashbang */
+pre.pygments .tok-cm { color: #008800; font-style: italic } /* Comment.Multiline */
+pre.pygments .tok-cp { color: #008800 } /* Comment.Preproc */
+pre.pygments .tok-cpf { color: #008800; font-style: italic } /* Comment.PreprocFile */
+pre.pygments .tok-c1 { color: #008800; font-style: italic } /* Comment.Single */
+pre.pygments .tok-cs { color: #008800; font-weight: bold } /* Comment.Special */
+pre.pygments .tok-gd { color: #A00000 } /* Generic.Deleted */
+pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
+pre.pygments .tok-gr { color: #FF0000 } /* Generic.Error */
+pre.pygments .tok-gh { color: #000080; font-weight: bold } /* Generic.Heading */
+pre.pygments .tok-gi { color: #00A000 } /* Generic.Inserted */
+pre.pygments .tok-go { color: #888888 } /* Generic.Output */
+pre.pygments .tok-gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
+pre.pygments .tok-gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+pre.pygments .tok-gt { color: #0044DD } /* Generic.Traceback */
+pre.pygments .tok-kc { color: #AA22FF; font-weight: bold } /* Keyword.Constant */
+pre.pygments .tok-kd { color: #AA22FF; font-weight: bold } /* Keyword.Declaration */
+pre.pygments .tok-kn { color: #AA22FF; font-weight: bold } /* Keyword.Namespace */
+pre.pygments .tok-kp { color: #AA22FF } /* Keyword.Pseudo */
+pre.pygments .tok-kr { color: #AA22FF; font-weight: bold } /* Keyword.Reserved */
+pre.pygments .tok-kt { color: #00BB00; font-weight: bold } /* Keyword.Type */
+pre.pygments .tok-m { color: #666666 } /* Literal.Number */
+pre.pygments .tok-s { color: #BB4444 } /* Literal.String */
+pre.pygments .tok-na { color: #BB4444 } /* Name.Attribute */
+pre.pygments .tok-nb { color: #AA22FF } /* Name.Builtin */
+pre.pygments .tok-nc { color: #0000FF } /* Name.Class */
+pre.pygments .tok-no { color: #880000 } /* Name.Constant */
+pre.pygments .tok-nd { color: #AA22FF } /* Name.Decorator */
+pre.pygments .tok-ni { color: #999999; font-weight: bold } /* Name.Entity */
+pre.pygments .tok-ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+pre.pygments .tok-nf { color: #00A000 } /* Name.Function */
+pre.pygments .tok-nl { color: #A0A000 } /* Name.Label */
+pre.pygments .tok-nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+pre.pygments .tok-nt { color: #008000; font-weight: bold } /* Name.Tag */
+pre.pygments .tok-nv { color: #B8860B } /* Name.Variable */
+pre.pygments .tok-ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+pre.pygments .tok-w { color: #bbbbbb } /* Text.Whitespace */
+pre.pygments .tok-mb { color: #666666 } /* Literal.Number.Bin */
+pre.pygments .tok-mf { color: #666666 } /* Literal.Number.Float */
+pre.pygments .tok-mh { color: #666666 } /* Literal.Number.Hex */
+pre.pygments .tok-mi { color: #666666 } /* Literal.Number.Integer */
+pre.pygments .tok-mo { color: #666666 } /* Literal.Number.Oct */
+pre.pygments .tok-sa { color: #BB4444 } /* Literal.String.Affix */
+pre.pygments .tok-sb { color: #BB4444 } /* Literal.String.Backtick */
+pre.pygments .tok-sc { color: #BB4444 } /* Literal.String.Char */
+pre.pygments .tok-dl { color: #BB4444 } /* Literal.String.Delimiter */
+pre.pygments .tok-sd { color: #BB4444; font-style: italic } /* Literal.String.Doc */
+pre.pygments .tok-s2 { color: #BB4444 } /* Literal.String.Double */
+pre.pygments .tok-se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+pre.pygments .tok-sh { color: #BB4444 } /* Literal.String.Heredoc */
+pre.pygments .tok-si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+pre.pygments .tok-sx { color: #008000 } /* Literal.String.Other */
+pre.pygments .tok-sr { color: #BB6688 } /* Literal.String.Regex */
+pre.pygments .tok-s1 { color: #BB4444 } /* Literal.String.Single */
+pre.pygments .tok-ss { color: #B8860B } /* Literal.String.Symbol */
+pre.pygments .tok-bp { color: #AA22FF } /* Name.Builtin.Pseudo */
+pre.pygments .tok-fm { color: #00A000 } /* Name.Function.Magic */
+pre.pygments .tok-vc { color: #B8860B } /* Name.Variable.Class */
+pre.pygments .tok-vg { color: #B8860B } /* Name.Variable.Global */
+pre.pygments .tok-vi { color: #B8860B } /* Name.Variable.Instance */
+pre.pygments .tok-vm { color: #B8860B } /* Name.Variable.Magic */
+pre.pygments .tok-il { color: #666666 } /* Literal.Number.Integer.Long */
+</style>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+</body>
+</html>
