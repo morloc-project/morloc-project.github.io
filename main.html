@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.9">
+<meta name="generator" content="Asciidoctor 2.0.10">
 <title>Morloc Technical Manual</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -240,7 +240,7 @@ table.linenotable td.linenos{border-right:1px solid currentColor;opacity:.35;pad
 pre.pygments .lineno{border-right:1px solid currentColor;opacity:.35;display:inline-block;margin-right:.75em}
 pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock{margin:0 1em 1.25em 1.5em;display:table}
-.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
 .quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
 .quoteblock blockquote{margin:0;padding:0;border:0}
 .quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
@@ -257,7 +257,8 @@ pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
 .quoteblock.abstract{margin:0 1em 1.25em;display:block}
 .quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
-.quoteblock.excerpt,.quoteblock .quoteblock{margin:0 0 1.25em;padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
 .quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
 .quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
 table.tableblock{max-width:100%;border-collapse:separate}
@@ -453,77 +454,78 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_what_is_morloc">2. What is <code>morloc</code>?</a></li>
 <li><a href="#_pieces">3. Pieces</a></li>
-<li><a href="#_morloc_workflow">4. <code>morloc</code> workflow</a></li>
+<li><a href="#_another_phrasing">4. Another phrasing</a></li>
+<li><a href="#_morloc_workflow">5. <code>morloc</code> workflow</a></li>
 </ul>
 </li>
 <li><a href="#_theory">Theory</a>
 <ul class="sectlevel1">
-<li><a href="#_build_system">5. Build system</a>
+<li><a href="#_build_system">6. Build system</a>
 <ul class="sectlevel2">
-<li><a href="#_how_to_make_a_morloc_module">5.1. How to make a <code>morloc</code> module</a></li>
+<li><a href="#_how_to_make_a_morloc_module">6.1. How to make a <code>morloc</code> module</a></li>
 </ul>
 </li>
-<li><a href="#_forms_of_data_and_the_grim_model">6. Forms of data and the GRIM model</a>
+<li><a href="#_forms_of_data_and_the_grim_model">7. Forms of data and the GRIM model</a>
 <ul class="sectlevel2">
-<li><a href="#_general_g">6.1. General (G)</a></li>
-<li><a href="#_resources_r">6.2. Resources (R)</a></li>
-<li><a href="#_ideal_i">6.3. Ideal (I)</a></li>
-<li><a href="#_machine_m">6.4. Machine (M)</a></li>
+<li><a href="#_general_g">7.1. General (G)</a></li>
+<li><a href="#_resources_r">7.2. Resources (R)</a></li>
+<li><a href="#_ideal_i">7.3. Ideal (I)</a></li>
+<li><a href="#_machine_m">7.4. Machine (M)</a></li>
 </ul>
 </li>
-<li><a href="#_functions_may_have_roles">7. Functions may have roles</a></li>
-<li><a href="#_graph_rules">8. Graph rules</a></li>
-<li><a href="#_manifold_templates_and_code_generation">9. Manifold templates and code generation</a></li>
-<li><a href="#_modules">10. Modules</a></li>
-<li><a href="#_related_work">11. Related work</a>
+<li><a href="#_functions_may_have_roles">8. Functions may have roles</a></li>
+<li><a href="#_graph_rules">9. Graph rules</a></li>
+<li><a href="#_manifold_templates_and_code_generation">10. Manifold templates and code generation</a></li>
+<li><a href="#_modules">11. Modules</a></li>
+<li><a href="#_related_work">12. Related work</a>
 <ul class="sectlevel2">
-<li><a href="#_related_systems">11.1. Related systems</a></li>
-<li><a href="#_specification_languages">11.2. Specification languages</a></li>
-<li><a href="#_language_orientations">11.3. Language orientations</a></li>
-<li><a href="#_multi_language_type_systems_schemas_data_serialization_systems">11.4. Multi-language type systems (schemas) / data serialization systems</a></li>
-<li><a href="#_related_work_2">11.5. Related work</a></li>
-<li><a href="#_summary_of_related_work">11.6. Summary of related work</a></li>
-<li><a href="#_workflow_theory_and_other">11.7. Workflow theory (and other)</a></li>
+<li><a href="#_related_systems">12.1. Related systems</a></li>
+<li><a href="#_specification_languages">12.2. Specification languages</a></li>
+<li><a href="#_language_orientations">12.3. Language orientations</a></li>
+<li><a href="#_multi_language_type_systems_schemas_data_serialization_systems">12.4. Multi-language type systems (schemas) / data serialization systems</a></li>
+<li><a href="#_related_work_2">12.5. Related work</a></li>
+<li><a href="#_summary_of_related_work">12.6. Summary of related work</a></li>
+<li><a href="#_workflow_theory_and_other">12.7. Workflow theory (and other)</a></li>
 </ul>
 </li>
-<li><a href="#_the_semantic_type_system">12. The semantic type system</a>
+<li><a href="#_the_semantic_type_system">13. The semantic type system</a>
 <ul class="sectlevel2">
-<li><a href="#_function_signatures_and_more_stuff">12.1. Function signatures and more stuff</a></li>
-<li><a href="#_components_of_the_semantic_system">12.2. Components of the semantic system</a></li>
-<li><a href="#_how_morloc_uses_knowledge">12.3. How <code>morloc</code> uses knowledge</a></li>
-<li><a href="#_why_do_we_need_type_systems">12.4. Why do we need type systems?</a></li>
+<li><a href="#_function_signatures_and_more_stuff">13.1. Function signatures and more stuff</a></li>
+<li><a href="#_components_of_the_semantic_system">13.2. Components of the semantic system</a></li>
+<li><a href="#_how_morloc_uses_knowledge">13.3. How <code>morloc</code> uses knowledge</a></li>
+<li><a href="#_why_do_we_need_type_systems">13.4. Why do we need type systems?</a></li>
 </ul>
 </li>
-<li><a href="#_unsettled_issues">13. Unsettled issues</a>
+<li><a href="#_unsettled_issues">14. Unsettled issues</a>
 <ul class="sectlevel2">
-<li><a href="#_support_for_lazy_evaluation">13.1. Support for lazy evaluation</a></li>
-<li><a href="#_purity_totallity_and_planes">13.2. Purity, totallity and planes</a></li>
-<li><a href="#_handling_ontology_conflicts">13.3. Handling ontology conflicts</a></li>
-<li><a href="#_polymorphism">13.4. Polymorphism</a></li>
-<li><a href="#_handling_effects">13.5. Handling effects</a></li>
+<li><a href="#_support_for_lazy_evaluation">14.1. Support for lazy evaluation</a></li>
+<li><a href="#_purity_totallity_and_planes">14.2. Purity, totallity and planes</a></li>
+<li><a href="#_handling_ontology_conflicts">14.3. Handling ontology conflicts</a></li>
+<li><a href="#_polymorphism">14.4. Polymorphism</a></li>
+<li><a href="#_handling_effects">14.5. Handling effects</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a href="#_implementation">Implementation</a>
 <ul class="sectlevel1">
-<li><a href="#_the_semantic_type_system_2">14. The Semantic Type System</a>
+<li><a href="#_the_semantic_type_system_2">15. The Semantic Type System</a>
 <ul class="sectlevel2">
-<li><a href="#_function_type_signatures_with_constraints">14.1. Function type signatures with constraints</a></li>
-<li><a href="#_data_signatures_with_constraints">14.2. Data signatures with constraints</a></li>
-<li><a href="#_ontologies_of_types">14.3. Ontologies of types</a></li>
-<li><a href="#_mapping_from_abstract_morloc_type_to_concrete_language_specific_type">14.4. Mapping from abstract <code>morloc</code> type to concrete, language-specific type</a></li>
+<li><a href="#_function_type_signatures_with_constraints">15.1. Function type signatures with constraints</a></li>
+<li><a href="#_data_signatures_with_constraints">15.2. Data signatures with constraints</a></li>
+<li><a href="#_ontologies_of_types">15.3. Ontologies of types</a></li>
+<li><a href="#_mapping_from_abstract_morloc_type_to_concrete_language_specific_type">15.4. Mapping from abstract <code>morloc</code> type to concrete, language-specific type</a></li>
 </ul>
 </li>
-<li><a href="#_architecture">15. Architecture</a></li>
-<li><a href="#_performance_optimizations_and_high_performance_computing">16. Performance Optimizations and High-Performance Computing</a></li>
-<li><a href="#_tech_tree">17. Tech Tree</a>
+<li><a href="#_architecture">16. Architecture</a></li>
+<li><a href="#_performance_optimizations_and_high_performance_computing">17. Performance Optimizations and High-Performance Computing</a></li>
+<li><a href="#_tech_tree">18. Tech Tree</a>
 <ul class="sectlevel2">
-<li><a href="#_docopt">17.1. <code>docopt</code></a></li>
-<li><a href="#_hsparql">17.2. <code>hsparql</code></a></li>
-<li><a href="#_rdf4h">17.3. <code>rdf4h</code></a></li>
-<li><a href="#_wl_pprint_text">17.4. <code>wl-pprint-text</code></a></li>
-<li><a href="#_megaparsec">17.5. <code>megaparsec</code></a></li>
+<li><a href="#_docopt">18.1. <code>docopt</code></a></li>
+<li><a href="#_hsparql">18.2. <code>hsparql</code></a></li>
+<li><a href="#_rdf4h">18.3. <code>rdf4h</code></a></li>
+<li><a href="#_wl_pprint_text">18.4. <code>wl-pprint-text</code></a></li>
+<li><a href="#_megaparsec">18.5. <code>megaparsec</code></a></li>
 </ul>
 </li>
 </ul>
@@ -749,6 +751,64 @@ the code and automate away the tedium of programming.</p>
 <div class="sect1">
 <h2 id="_pieces">3. Pieces</h2>
 <div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Parser
+The local parser that generates RDF from whatever flavor of morloc script (or
+MorlocStudio or any other tool) they happen to be using. The output though is
+MAST (MorlocScript Abstract Syntax Tree). MAST needs a formal specification
+that is respected by every parser. There may be a parser-specific ruleset for
+cleaning the generated RDF (which may be influenced by the implementation of
+the parser) into MAST. Alternatively, the parser may create some other output
+that is then converted by whatever means into MAST. Anyway, all that really
+matters that MAST is the final output. The RDF morloc currently generates
+roughly corresponds to MAST (it needs a lot of refinement, though).</p>
+</li>
+<li>
+<p>Semantic Engine (SE)
+Next the MAST is passed through a semantic engine (SE). There will be default
+rulesets for typechecking and inference (light on both counts). The morloc
+script writer may also specify in the script (this is not yet supported) which
+rulesets to use. The SE does type checking and type casting. It further removes
+the temporary data structures used in MAST, thus generating the abstract syntax
+tree that describes the abstract program (VAST, Very Abstract Syntax Tree). It
+is VAST that is stored in MorlocIO.</p>
+</li>
+<li>
+<p>"Linker"
+When a user decides to generate an executable from a morloc program (i.e. a
+VAST file) they need to first merge data from their local system (which is RDF
+also) with the VAST file. Then we can start trying to link functions to
+concrete sources. This is where dependencies are handled. The final output is a
+CAST file (Concrete Abstract Syntax Tree). The CAST file contains all the
+information needed to generate an executable on the local system.</p>
+</li>
+<li>
+<p>Generator
+The final step is to compile the CAST file into an exectuable.  This involves
+generating the nexus file and all required pools.  Alternatively, it may
+involve (as directed by CAST) the generation of Common Workflow Language
+scripts or other possible outputs. The final executable will probably not be
+portable (i.e., it will probably have hard-coded paths to resources).</p>
+</li>
+<li>
+<p>UI
+This fifth piece is the interface to the previous 4 steps. On the command
+line, it is the <code>morloc</code> program. For GUI users, it is <code>MorlocStudio</code> (which
+will probably be built on top of <code>morloc</code>).  This piece handles local
+configurations (i.e. generating the aforementioned RDF description of the local
+system); all IO operations; dependency checking; downloading, uploading and
+managing packages; generating local package templates and checking them; etc
+etc etc.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_another_phrasing">4. Another phrasing</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <div class="title">Compiler</div>
 <p>given an ontology, database of typed functions, and an application, it
@@ -779,7 +839,7 @@ all functions.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_morloc_workflow">4. <code>morloc</code> workflow</h2>
+<h2 id="_morloc_workflow">5. <code>morloc</code> workflow</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="#fig:overview">The figure below</a> outlines the 6 levels of the <code>morloc</code>
@@ -861,7 +921,7 @@ generated Shiny app), or imported into MorlocStudio.</p>
 </div>
 <h1 id="_theory" class="sect0">Theory</h1>
 <div class="sect1">
-<h2 id="_build_system">5. Build system</h2>
+<h2 id="_build_system">6. Build system</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Internally, <code>morloc</code> follows a model similar to Pandoc. Pandoc can convert
@@ -906,7 +966,7 @@ highest version in the range.</p>
 </ol>
 </div>
 <div class="sect2">
-<h3 id="_how_to_make_a_morloc_module">5.1. How to make a <code>morloc</code> module</h3>
+<h3 id="_how_to_make_a_morloc_module">6.1. How to make a <code>morloc</code> module</h3>
 <div class="imageblock">
 <div class="content">
 <img src="images/linear-algebra-module.png" alt="linear algebra module">
@@ -916,7 +976,7 @@ highest version in the range.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_forms_of_data_and_the_grim_model">6. Forms of data and the GRIM model</h2>
+<h2 id="_forms_of_data_and_the_grim_model">7. Forms of data and the GRIM model</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
@@ -960,7 +1020,7 @@ highest version in the range.</p>
 <p>The semantic type system can be partioned into 4 main groups (GRIM model).</p>
 </div>
 <div class="sect2">
-<h3 id="_general_g">6.1. General (G)</h3>
+<h3 id="_general_g">7.1. General (G)</h3>
 <div class="paragraph">
 <p>A structured type that can often map directly to the machine
 type of specific languages, though this may be ambiguous when a given type
@@ -983,7 +1043,7 @@ a CDF. This is the lowest level type that generalizes across languages.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_resources_r">6.2. Resources (R)</h3>
+<h3 id="_resources_r">7.2. Resources (R)</h3>
 <div class="paragraph">
 <p>Types that describe resources. This may be data outside of the CDF. It may be
 databases.</p>
@@ -1010,7 +1070,7 @@ databases.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ideal_i">6.3. Ideal (I)</h3>
+<h3 id="_ideal_i">7.3. Ideal (I)</h3>
 <div class="paragraph">
 <p>A high-level idea that often does not contain enough information to
 unambiguously map to a machine type.</p>
@@ -1037,7 +1097,7 @@ unambiguously map to a machine type.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_machine_m">6.4. Machine (M)</h3>
+<h3 id="_machine_m">7.4. Machine (M)</h3>
 <div class="paragraph">
 <p>The data type within a specific language (e.g. AAStringSet or double). The
 Machine type will closely follow type format for the specific language. Part of
@@ -1061,7 +1121,7 @@ building the binding for a new language is mapping <code>M&#8592;&#8594;G</code>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_functions_may_have_roles">7. Functions may have roles</h2>
+<h2 id="_functions_may_have_roles">8. Functions may have roles</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>There are a few roles that are builtin to the compiler:</p>
@@ -1199,7 +1259,7 @@ different.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_graph_rules">8. Graph rules</h2>
+<h2 id="_graph_rules">9. Graph rules</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>A <code>morloc</code> program and all imported modules and ontologies, needs to be encoded
@@ -1231,7 +1291,7 @@ a <code>morloc</code> script should be translated into RDF.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_manifold_templates_and_code_generation">9. Manifold templates and code generation</h2>
+<h2 id="_manifold_templates_and_code_generation">10. Manifold templates and code generation</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
@@ -1262,7 +1322,7 @@ m1(x, y) =
 </div>
 </div>
 <div class="sect1">
-<h2 id="_modules">10. Modules</h2>
+<h2 id="_modules">11. Modules</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>How is new code wrapped and given to <code>morloc</code>?</p>
@@ -1322,7 +1382,7 @@ may refer to something other than the README.md file as module documentation.</p
 </div>
 </div>
 <div class="sect1">
-<h2 id="_related_work">11. Related work</h2>
+<h2 id="_related_work">12. Related work</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>There are several attributes we can use to separate related languages and platforms:</p>
@@ -1436,9 +1496,9 @@ not have to write their results to STDOUT or read their input from it.</p>
 <p>This may be an impossible language.</p>
 </div>
 <div class="sect2">
-<h3 id="_related_systems">11.1. Related systems</h3>
+<h3 id="_related_systems">12.1. Related systems</h3>
 <div class="sect3">
-<h4 id="_serialization_systems">11.1.1. Serialization systems</h4>
+<h4 id="_serialization_systems">12.1.1. Serialization systems</h4>
 <div class="paragraph">
 <p><code>morloc</code> is not a serialization system. Indeed, any good serialization system
 would be a system that could greatly add to <code>morloc</code>, since serialization will
@@ -1448,14 +1508,14 @@ serialization system if Google&#8217;s protobuffers
 </div>
 </div>
 <div class="sect3">
-<h4 id="_ibm_knowledge_studio">11.1.2. IBM Knowledge Studio</h4>
+<h4 id="_ibm_knowledge_studio">12.1.2. IBM Knowledge Studio</h4>
 <div class="paragraph">
 <p><a href="https://console.bluemix.net/docs/services/knowledge-studio/typesystem.html">IBM Knowledge Studio</a>
 does pure logic reasoning, Doug Lenat style. Also similar to Palantir.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_microservices">11.1.3. Microservices</h4>
+<h4 id="_microservices">12.1.3. Microservices</h4>
 <div class="paragraph">
 <p>Microservice oriented design builds systems through modular programs that
 interact through usually through a REST interface with intermediate
@@ -1491,7 +1551,7 @@ to the microservice.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_specification_languages">11.2. Specification languages</h3>
+<h3 id="_specification_languages">12.2. Specification languages</h3>
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
@@ -1508,37 +1568,37 @@ behavior.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_petri_nets">11.2.1. petri nets</h4>
+<h4 id="_petri_nets">12.2.1. petri nets</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_assertion_definition_language_adl">11.2.2. Assertion definition language (ADL)</h4>
+<h4 id="_assertion_definition_language_adl">12.2.2. Assertion definition language (ADL)</h4>
 <div class="paragraph">
 <p>provides a formal grammar for specifying behaviour using function pre- and
 postconditions to specify the interfaces.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_common_algebraic_specification_language">11.2.3. Common Algebraic Specification Language</h4>
+<h4 id="_common_algebraic_specification_language">12.2.3. Common Algebraic Specification Language</h4>
 <div class="paragraph">
 <p>A general-purpose specification language based on first-order logic with induction.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_java_modeling_language">11.2.4. Java Modeling Language</h4>
+<h4 id="_java_modeling_language">12.2.4. Java Modeling Language</h4>
 <div class="paragraph">
 <p>Design by contract paradigm</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_larch_family">11.2.5. Larch family</h4>
+<h4 id="_larch_family">12.2.5. Larch family</h4>
 <div class="paragraph">
 <p>Has one language of abstract data types and a separate interface language for
 each language in which programs are to be written</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_universal_systems_language">11.2.6. Universal Systems Language</h4>
+<h4 id="_universal_systems_language">12.2.6. Universal Systems Language</h4>
 <div class="paragraph">
 <p>Developed by NASA scientists (Margaret Hamilton) for catching errors before the
 occur [<a href="#hamilton1976higher">1</a>].</p>
@@ -1597,9 +1657,9 @@ that the language itself inherently captures this relationship."</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_language_orientations">11.3. Language orientations</h3>
+<h3 id="_language_orientations">12.3. Language orientations</h3>
 <div class="sect3">
-<h4 id="_semantic_oriented_programming">11.3.1. Semantic-oriented programming</h4>
+<h4 id="_semantic_oriented_programming">12.3.1. Semantic-oriented programming</h4>
 <div class="paragraph">
 <p>Maxim Kizub, an enigmatic Ukrainian, is the possible coiner of the term
 "semantic programming". He is the creator of SymADE, a Java-based IDE. He has
@@ -1613,7 +1673,7 @@ bug reports. There is more information available in Ukrainian.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_intentional_programming">11.3.2. Intentional programming</h4>
+<h4 id="_intentional_programming">12.3.2. Intentional programming</h4>
 <div class="paragraph">
 <p>The goal of intentional programming is to encode exactly the intent of the
 programmer, rather than the operational details.</p>
@@ -1625,7 +1685,7 @@ company was subsequently reobsorbed by Microsoft.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_language_oriented_programming">11.3.3. Language-oriented programming</h4>
+<h4 id="_language_oriented_programming">12.3.3. Language-oriented programming</h4>
 <div class="paragraph">
 <p>Create a DSL for every problem. Encode specific domain knowledge in
 a dedicated language, send it to the user.</p>
@@ -1639,7 +1699,7 @@ itself.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_concept_programming">11.3.4. Concept programming</h4>
+<h4 id="_concept_programming">12.3.4. Concept programming</h4>
 <div class="paragraph">
 <p>There are a lot of neat ideas written in the wikipedia article on Concept
 programming. The goals of concept programming and my goals for <code>morloc</code> align
@@ -1651,30 +1711,30 @@ well.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_multi_language_type_systems_schemas_data_serialization_systems">11.4. Multi-language type systems (schemas) / data serialization systems</h3>
+<h3 id="_multi_language_type_systems_schemas_data_serialization_systems">12.4. Multi-language type systems (schemas) / data serialization systems</h3>
 <div class="sect3">
-<h4 id="_microsoft_bond">11.4.1. <a href="https://microsoft.github.io/bond/why_bond.html">Microsoft Bond</a></h4>
+<h4 id="_microsoft_bond">12.4.1. <a href="https://microsoft.github.io/bond/why_bond.html">Microsoft Bond</a></h4>
 <div class="paragraph">
 <p>There is a Bond schema.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_googles_protocol_buffers_serialization">11.4.2. [Google&#8217;s Protocol buffers]() - serialization</h4>
+<h4 id="_googles_protocol_buffers_serialization">12.4.2. [Google&#8217;s Protocol buffers]() - serialization</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_apache_thrift_tutorial">11.4.3. <a href="http://thrift.apache.org/">Apache Thrift</a> - <a href="http://thrift.apache.org/tutorial/">tutorial</a></h4>
+<h4 id="_apache_thrift_tutorial">12.4.3. <a href="http://thrift.apache.org/">Apache Thrift</a> - <a href="http://thrift.apache.org/tutorial/">tutorial</a></h4>
 
 </div>
 <div class="sect3">
-<h4 id="_apache_avro">11.4.4. [Apache Avro]()</h4>
+<h4 id="_apache_avro">12.4.4. [Apache Avro]()</h4>
 <div class="paragraph">
 <p>Also, a little different, but <a href="https://docs.racket-lang.org/quick/index.html">racket</a></p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_related_work_2">11.5. Related work</h3>
+<h3 id="_related_work_2">12.5. Related work</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1866,7 +1926,7 @@ no loops.</p>
 </ol>
 </div>
 <div class="sect3">
-<h4 id="_formal_compositional_languages">11.5.1. Formal compositional languages</h4>
+<h4 id="_formal_compositional_languages">12.5.1. Formal compositional languages</h4>
 <div class="paragraph">
 <p>A powerful abstraction is the separation of a program into components and
 a script (schneider 1999). In the computer science community, this is the
@@ -1894,7 +1954,7 @@ between languages.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_scripting_languages">11.5.2. Scripting languages</h4>
+<h4 id="_scripting_languages">12.5.2. Scripting languages</h4>
 <div class="paragraph">
 <p>Many scientific workflows are coordinated through scripting languages, usually
 Bash (or a similar shell language). While Bash can be used as a full
@@ -1910,7 +1970,7 @@ management within a cluster environment.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_rule_based_languages">11.5.3. Rule-based languages</h4>
+<h4 id="_rule_based_languages">12.5.3. Rule-based languages</h4>
 <div class="paragraph">
 <p>The most well-known rule-based language is Make. Its was designed for
 coordinating the build of a program. It consists of a set of rules for
@@ -1925,7 +1985,7 @@ recipes only through the files they create.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_graphical_workflow_managers">11.5.4. Graphical workflow managers</h4>
+<h4 id="_graphical_workflow_managers">12.5.4. Graphical workflow managers</h4>
 <div class="paragraph">
 <p>Galaxy (Hillman 2012), Taverna (Oinn 2004) and other
 workflow managers allow visual composition of functional units and setting of
@@ -1944,7 +2004,7 @@ components are not generally the ones who write them (or could write them).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_summary_of_related_work">11.6. Summary of related work</h3>
+<h3 id="_summary_of_related_work">12.6. Summary of related work</h3>
 <div class="paragraph">
 <p>The different approaches to workflows can be classified based on the nature of
 the script, component, coder (writer of components), and composer (writer of
@@ -1960,7 +2020,7 @@ type system.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_workflow_theory_and_other">11.7. Workflow theory (and other)</h3>
+<h3 id="_workflow_theory_and_other">12.7. Workflow theory (and other)</h3>
 <div class="paragraph">
 <p>TODO: reread the charfi2006aspect paper, look into who cited it</p>
 </div>
@@ -2041,7 +2101,7 @@ Pipeline Pilot, KNIME</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_the_semantic_type_system">12. The semantic type system</h2>
+<h2 id="_the_semantic_type_system">13. The semantic type system</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The fundamental innovation of <code>morloc</code> is the merger of knowledge engineering,
@@ -2112,7 +2172,7 @@ endless potential for <code>morloc</code> extensions that improve pipeline docum
 automation, optimization, accessibility, and reproducibility.</p>
 </div>
 <div class="sect2">
-<h3 id="_function_signatures_and_more_stuff">12.1. Function signatures and more stuff</h3>
+<h3 id="_function_signatures_and_more_stuff">13.1. Function signatures and more stuff</h3>
 <div class="paragraph">
 <p>Function signatures are also needed to build the database of functions. I want
 a formal way to search for functions that does not depend on human written
@@ -2179,7 +2239,7 @@ the code and automate away the tedium of programming.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_components_of_the_semantic_system">12.2. Components of the semantic system</h3>
+<h3 id="_components_of_the_semantic_system">13.2. Components of the semantic system</h3>
 <div class="paragraph">
 <p>The use of semantic reasoners for type processing is mostly an implementation
 difference (using constraint solvers rather than algorithm W)
@@ -2197,7 +2257,7 @@ representation language (KR), 2) the query language (QL), 3) the rule language
 (RL) and 4) an inference engine (IE).</p>
 </div>
 <div class="sect3">
-<h4 id="_knowledge_representation_language">12.2.1. Knowledge representation language</h4>
+<h4 id="_knowledge_representation_language">13.2.1. Knowledge representation language</h4>
 <div class="paragraph">
 <p>KR will be used to store the AST for all scripts, user system info, package
 descriptions, community info, and everything else. For KR we can use
@@ -2221,7 +2281,7 @@ premises. If the premises are invalid, then the program is invalid.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_query_language">12.2.2. Query language</h4>
+<h4 id="_query_language">13.2.2. Query language</h4>
 <div class="paragraph">
 <p>A QL allows the user to query the entire system. To find functions that fit
 a problem. To find workflows where functions of interest were used, for example
@@ -2233,7 +2293,7 @@ attached to proprietary systems or have low market penetration.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_rule_language">12.2.3. Rule language</h4>
+<h4 id="_rule_language">13.2.3. Rule language</h4>
 <div class="paragraph">
 <p>The RL is needed to encode the deep business logic of the system. While many
 types of constraints can be encoded in OWL, it has its limitations. Also, OWL
@@ -2256,7 +2316,7 @@ to impose laws on an OWL database.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_inference_engine">12.2.4. Inference engine</h4>
+<h4 id="_inference_engine">13.2.4. Inference engine</h4>
 <div class="paragraph">
 <p>The IE is needed to infer missing information. This includes</p>
 </div>
@@ -2284,9 +2344,9 @@ many user customizations will occur.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_how_morloc_uses_knowledge">12.3. How <code>morloc</code> uses knowledge</h3>
+<h3 id="_how_morloc_uses_knowledge">13.3. How <code>morloc</code> uses knowledge</h3>
 <div class="sect3">
-<h4 id="_static_type_checking">12.3.1. Static type checking</h4>
+<h4 id="_static_type_checking">13.3.1. Static type checking</h4>
 <div class="paragraph">
 <div class="title">Base type</div>
 <p>The base type will consist of a large subset of the Haskell type system.
@@ -2322,7 +2382,7 @@ ontology on theory. We should prove that everything works, if possible.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_runtime_data_validation">12.3.2. Runtime data validation</h4>
+<h4 id="_runtime_data_validation">13.3.2. Runtime data validation</h4>
 <div class="paragraph">
 <div class="title">Invariants/runtime dependencies</div>
 <p>These includes dependencies between sub-units of a type (e.g. arguments in a
@@ -2369,7 +2429,7 @@ the time and space behaviour.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_allowing_machines_to_use_our_tools">12.3.3. Allowing machines to use our tools</h4>
+<h4 id="_allowing_machines_to_use_our_tools">13.3.3. Allowing machines to use our tools</h4>
 <div class="paragraph">
 <p>Machines need to learn how to use tools. The statistical deep learning approach
 gives them data, and then trains a network to recognize patterns. But whether
@@ -2382,14 +2442,14 @@ in a knowledge representation system.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_searching_for_functions">12.3.4. Searching for functions</h4>
+<h4 id="_searching_for_functions">13.3.4. Searching for functions</h4>
 <div class="paragraph">
 <p>Imposing semantic meaning on functions. This allows them to be organized and
 searched in databases.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_types_by_domain">12.3.5. Types by domain</h4>
+<h4 id="_types_by_domain">13.3.5. Types by domain</h4>
 <div class="olist arabic">
 <div class="title">Statistics</div>
 <ol class="arabic">
@@ -2401,7 +2461,7 @@ discusses the need to encode assumptions in the type system</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_mapping_to_conventional_types">12.3.6. Mapping to conventional types</h4>
+<h4 id="_mapping_to_conventional_types">13.3.6. Mapping to conventional types</h4>
 <div class="paragraph">
 <p>A minimal functionallity of ST is to emulate conventional primitive types and
 containers. What information do I need to store about each type?</p>
@@ -2604,7 +2664,7 @@ Image -&gt; Has Dog</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_why_do_we_need_type_systems">12.4. Why do we need type systems?</h3>
+<h3 id="_why_do_we_need_type_systems">13.4. Why do we need type systems?</h3>
 <div class="paragraph">
 <p>There is a growing appreciation for the importance of types. Conventionally
 dynamic languages, like Python and R, are gaining type systems.</p>
@@ -2631,14 +2691,14 @@ dynamic languages, like Python and R, are gaining type systems.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_unsettled_issues">13. Unsettled issues</h2>
+<h2 id="_unsettled_issues">14. Unsettled issues</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>There are many issues that need to be resolved before <code>morloc</code> is ready for
 widespread use.</p>
 </div>
 <div class="sect2">
-<h3 id="_support_for_lazy_evaluation">13.1. Support for lazy evaluation</h3>
+<h3 id="_support_for_lazy_evaluation">14.1. Support for lazy evaluation</h3>
 <div class="paragraph">
 <p>Many languages support lazy evaluation, either by default (e.g., Haskell and
 R), by using special syntax (e.g., Python), or using system streaming utilities
@@ -2648,7 +2708,7 @@ for calls between languages?</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_purity_totallity_and_planes">13.2. Purity, totallity and planes</h3>
+<h3 id="_purity_totallity_and_planes">14.2. Purity, totallity and planes</h3>
 <div class="paragraph">
 <div class="title">Should functions be pure?  I certainly cannot, and should not, guarantee that</div>
 <p>all functions are pure. One possibility is adding (or inferring) a tag for
@@ -2697,7 +2757,7 @@ a range of equations, bound perhaps by a proven form).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_handling_ontology_conflicts">13.3. Handling ontology conflicts</h3>
+<h3 id="_handling_ontology_conflicts">14.3. Handling ontology conflicts</h3>
 <div class="paragraph">
 <p>Should there be one central authority for types, or many systems? We will
 eventually begin studying millions of compositions of functions to learn how
@@ -2710,7 +2770,7 @@ conflicting rules and ontologies to co-exist so long as they do not interact.</p
 </div>
 </div>
 <div class="sect2">
-<h3 id="_polymorphism">13.4. Polymorphism</h3>
+<h3 id="_polymorphism">14.4. Polymorphism</h3>
 <div class="paragraph">
 <p>Monolithic tools often do not resolve cleanly into a single type. This is
 especially true of standalone tools. But it is also true of many functions in
@@ -2765,7 +2825,7 @@ of types, rather than a singular entity.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_handling_effects">13.5. Handling effects</h3>
+<h3 id="_handling_effects">14.5. Handling effects</h3>
 <div class="paragraph">
 <p>A function maps data from one form to another. Where do effects, like writing
 something to a database, creating a file, showing a plot, or running an
@@ -2925,7 +2985,7 @@ such as Google’s Protocol Buffers.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_the_semantic_type_system_2">14. The Semantic Type System</h2>
+<h2 id="_the_semantic_type_system_2">15. The Semantic Type System</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The semantic type system is the foundation of <code>morloc</code>. The system is based on
@@ -2936,7 +2996,7 @@ signatures, 2) data signatures, 3) ontologies of types, and 4) how abstract
 <code>morloc</code> types are converted into concrete language-specific types.</p>
 </div>
 <div class="sect2">
-<h3 id="_function_type_signatures_with_constraints">14.1. Function type signatures with constraints</h3>
+<h3 id="_function_type_signatures_with_constraints">15.1. Function type signatures with constraints</h3>
 <div class="paragraph">
 <p>Here is an example of a <code>morloc</code> type signature:</p>
 </div>
@@ -2961,7 +3021,7 @@ vector will have the same length as the input vector.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_data_signatures_with_constraints">14.2. Data signatures with constraints</h3>
+<h3 id="_data_signatures_with_constraints">15.2. Data signatures with constraints</h3>
 <div class="paragraph">
 <p>Non-function types may also have constraints, for example, counting number
 could be defined as:</p>
@@ -2980,7 +3040,7 @@ functions.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ontologies_of_types">14.3. Ontologies of types</h3>
+<h3 id="_ontologies_of_types">15.3. Ontologies of types</h3>
 <div class="paragraph">
 <p>The <code>morloc</code> type system is intended to powerfully describe concrete ideas.
 Knowledge representation systems, specifically ontologies, are the most natural
@@ -3004,7 +3064,7 @@ performed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_mapping_from_abstract_morloc_type_to_concrete_language_specific_type">14.4. Mapping from abstract <code>morloc</code> type to concrete, language-specific type</h3>
+<h3 id="_mapping_from_abstract_morloc_type_to_concrete_language_specific_type">15.4. Mapping from abstract <code>morloc</code> type to concrete, language-specific type</h3>
 <div class="paragraph">
 <p>Mapping from general <code>morloc</code> types, like Integer or [Integer] (a list of
 integers) to concrete types in specific languages is one of the basic functions
@@ -3034,7 +3094,7 @@ we implement support for <code>C++</code>.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_architecture">15. Architecture</h2>
+<h2 id="_architecture">16. Architecture</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The <code>morloc</code> architecture can divided into 5 layers. The input layer handles the
@@ -3069,7 +3129,7 @@ realize our goal of easily adding support for almost any language.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_performance_optimizations_and_high_performance_computing">16. Performance Optimizations and High-Performance Computing</h2>
+<h2 id="_performance_optimizations_and_high_performance_computing">17. Performance Optimizations and High-Performance Computing</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Since <code>morloc</code> is built for data science, performance is a top priority. There
@@ -3117,7 +3177,7 @@ knowledge about their operation.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_tech_tree">17. Tech Tree</h2>
+<h2 id="_tech_tree">18. Tech Tree</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The purpose of this document is to describe the underlying Haskell packages
@@ -3126,7 +3186,7 @@ documentation of the packages themselves, but rather describes how they are
 used within the <code>morloc</code> context and why they were chosen.</p>
 </div>
 <div class="sect2">
-<h3 id="_docopt">17.1. <code>docopt</code></h3>
+<h3 id="_docopt">18.1. <code>docopt</code></h3>
 <div class="paragraph">
 <p>The <code>docopt</code> package is the Haskell implementation of the wider
 ["docopt"](docopt.org) paradigm. The idea is that usage statements are
@@ -3155,7 +3215,7 @@ formatting or argument parsing.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_hsparql">17.2. <code>hsparql</code></h3>
+<h3 id="_hsparql">18.2. <code>hsparql</code></h3>
 <div class="paragraph">
 <p><code>hsparql</code> is a DSL for making SPARQL queries from Haskell. In the past I wrote
 raw SPARQL code since I considered the use of a DSL unnecessary, since SPARQL
@@ -3166,14 +3226,14 @@ verbose, but also more reliable.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_rdf4h">17.3. <code>rdf4h</code></h3>
+<h3 id="_rdf4h">18.3. <code>rdf4h</code></h3>
 <div class="paragraph">
 <p><code>rdf4h</code> is a Relational Data Format (RDF) handling package designed by Rob Stewart (the
 same person is maintains the <code>hsparql</code>).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wl_pprint_text">17.4. <code>wl-pprint-text</code></h3>
+<h3 id="_wl_pprint_text">18.4. <code>wl-pprint-text</code></h3>
 <div class="paragraph">
 <p>Parsers such as <code>parsec</code> and <code>megaparsec</code> take strings and turn them into
 structures. The dreadfully named <code>wl-pprint-text</code> does the reverse. There is
@@ -3193,7 +3253,7 @@ Text, for greater performance.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_megaparsec">17.5. <code>megaparsec</code></h3>
+<h3 id="_megaparsec">18.5. <code>megaparsec</code></h3>
 <div class="paragraph">
 <p><code>megaparsec</code> is an industrial strength alternative to <code>parsec</code>.</p>
 </div>
@@ -3542,7 +3602,7 @@ programs which cover the same functionality.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-05-24 15:02:08 -0500
+Last updated 2019-05-24 15:05:15 -0500
 </div>
 </div>
 <style>
