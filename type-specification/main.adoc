@@ -54,12 +54,15 @@ many different languages, thus $x$ is multilingual.
 
 [env.equationalign]
 --
-\text{Types} \sep A,B,C\ &:= 1    \sep & \text{unit} \\
-       &|\ \alpha_L               \sep & \text{var in language L} \\
-       &|\ A \rightarrow B        \sep & \text{function} \\
-       &|\ \forall \alpha_L\ . A  \sep & \text{universal quantification over L} \\
-       &|\ \alpha_L\ [A]          \sep & \text{parameterization} \\
+\text{Types} \sep A,B,C\ &:= 1     \sep & \text{unit} \\
+       &|\ \alpha_L                \sep & \text{var in language L} \\
+       &|\ A \rightarrow B         \sep & \text{function} \\
+       &|\ \forall\ \alpha_L\ . A  \sep & \text{universal quantification over L} \\
+       &|\ \alpha_L\ [A]           \sep & \text{parameterization} \\
 --
+
+Every type is associated with either the general language or a concrete
+realization of the general type into a specific language.
 
 |===
 <| $\text{TypeAnnotation} \sep A^{\bullet}, B^{\bullet}, C^{\bullet}\ := A \; L \; \braced{P_i}_{i=0}^m \; \braced{C_i}_{i=0}^n$
@@ -265,17 +268,17 @@ variables pulled out as universal quantifiers.
 .synthesize
 |===
 <| $\expr{\Gamma}{e \Rightarrow A}{\Delta}$ $\quad\quad$ Under input context $\Gamma$, $e$ synthesizes output type $A$, with output context $\Delta$
-^| $\frac{x \notin \text{FV}(\Gamma) \quad \expr{\Gamma,\mark{x}}{e\ \overset{MLang}{\Rightarrow}\ A}{\Delta,\mark{x}, \Theta}}{\expr{\Gamma}{x=e}{\Delta,\ x:\text{Gen}(A)}}$ [blue]+Declaration+
+^| $\frac{\expr{\Gamma, x:A}{e_2\ \Rightarrow\ \\_}{\Delta}}{\expr{\Gamma}{x\ L\ ::\ A\ ;\ e_2}{\Delta}}$ [blue]+Signature+
    $\quad\quad$
-   $\frac{\expr{\Gamma, x:A}{e_2\ \Rightarrow\ \\_}{\Delta}}{\expr{\Gamma}{x\ L\ ::\ A\ ;\ e_2}{\Delta}}$ [blue]+Signature+
-   +
-   +
-^| $\frac{x \notin \text{FV}(\Gamma) \quad \expr{\Gamma[(\text{MLang},A) \leftarrow \vec{A}\], \mark{x}}{e\ \Leftarrow\ A}{\Delta,\mark{x}, \Theta}}{\expr{\Gamma}{x=e}{\Delta}}$ [blue]+DeclarationAnnot+
-   +
-   +
    $\frac{}{\expr{\Gamma}{\text{Source }L\ x}{\Gamma,\ \ea_L}}$ [blue]+Source+
+   +
+   +
+   $\frac{e\ \Rightarrow\ \\_\ \vdash\ \Theta \quad \lbrace x:A\ \|\ (x:A)\ \in\ \Theta \rbrace\ \vdash\ \Theta' \quad \lbrace x:A\ \|\ x\ \in\ xs,\ (x:A) \in \Theta' \rbrace\ \vdash\ \Delta}{\expr{\Gamma}{\text{Import}\ e\ xs}{\Gamma, \Delta}}$ [red]+Import+
+   +
+   +
+   $\frac{x \notin \text{FV}(\Gamma) \quad \expr{\Gamma[x:A\], \mark{x}}{e\ \Leftarrow\ A}{\Delta,\mark{x}, \Theta}}{\expr{\Gamma}{x=e}{\Delta}}$ [blue]+DeclareCheck+
    $\quad\quad$
-   $\frac{e\ \Rightarrow\ \\_\ \vdash\ \Theta \quad \lbrace x:A\ \|\ (x:A)\ \in\ \Theta \rbrace\ \vdash\ \Theta' \quad \lbrace x:A\ \|\ x\ \in\ xs,\ (x:A) \in \Theta' \rbrace\ \vdash\ \Delta}{\expr{\Gamma}{\text{Import}\ e\ xs}{\Gamma, \Delta}}$ [blue]+Import+
+   $\frac{x \notin \text{FV}(\Gamma) \quad \expr{\Gamma,\mark{x}}{e\ \Rightarrow\ A}{\Delta,\mark{x}, \Theta}}{\expr{\Gamma}{x=e}{\Delta,\ x:\text{Gen}(A)}}$ [blue]+DeclareInfer+
 >| $\text{synthesizeToplevel} :: \Gamma \rightarrow e \rightarrow \Delta$
 
 ^| $\frac{L = \text{MLang}}{\expr{\Gamma}{\text{number}\ \Rightarrow\ \text{Num}}{\Gamma}}$ [blue]+Num⇒+
@@ -287,13 +290,13 @@ variables pulled out as universal quantifiers.
    $\frac{L = \text{MLang}}{\expr{\Gamma}{\text{bool} \Rightarrow \text{Bool}}{\Gamma}}$ [blue]+Bool⇒+
    +
    +
-   $\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A}{\Delta_1} \quad \expr{\Delta_1}{x_2 \Leftarrow A}{\Delta_2} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Leftarrow A}{\Delta_n}}{\expr{\Gamma}{[x_1,x_2, ..., x_n\]}{\Delta_n,\ \text{List}\ A}}$ [blue]+List+
+   $\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A}{\Delta_1} \quad \expr{\Delta_1}{x_2 \Leftarrow A}{\Delta_2} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Leftarrow A}{\Delta_n}}{\expr{\Gamma}{[x_1,x_2, ..., x_n\]}{\Delta_n,\ \text{List}\ A}}$ [blue]+List⇒+
    +
    +
-   $\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A_1}{\Delta_1} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Rightarrow A_n}{\Delta_n}}{\expr{\Gamma}{(x_1,x_2,\ ...\ x_n)}{\Delta_n,\ \text{Tuple}\ A_1\ ...\  A_n}}$ [blue]+Tuple+
+   $\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A_1}{\Delta_1} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Rightarrow A_n}{\Delta_n}}{\expr{\Gamma}{(x_1,x_2,\ ...\ x_n)}{\Delta_n,\ \text{Tuple}\ A_1\ ...\  A_n}}$ [blue]+Tuple⇒+
    +
    +
-   $\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A_1}{\Delta_1} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Rightarrow A_n}{\Delta_n}}{\expr{\Gamma}{\lbrace (k_1,x_1),(k_2, x_2),\ ...,\ (k_n, x_n) \rbrace}{\Delta_n,\ \lbrace (k_1, A_1),\ ...,\  (k_n, A_n) \rbrace}}$ [blue]+Record+
+   $\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A_1}{\Delta_1} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Rightarrow A_n}{\Delta_n}}{\expr{\Gamma}{\lbrace (k_1,x_1),(k_2, x_2),\ ...,\ (k_n, x_n) \rbrace}{\Delta_n,\ \lbrace (k_1, A_1),\ ...,\  (k_n, A_n) \rbrace}}$ [blue]+Record⇒+
    $\quad\quad$
    $\frac{L = \text{MLang}}{\expr{\Gamma}{() \Rightarrow 1}{\Gamma}}$ [green]+1l⇒+
    +
@@ -301,12 +304,12 @@ variables pulled out as universal quantifiers.
    $\frac{L \quad \expr{\Gamma,\ea_L,\eb_L,x:\ea_L}{e \Leftarrow \eb_L}{\Delta, x:\ea_L, \Theta}}{\expr{\Gamma}{\lambda x.e\ \Rightarrow\ \ea_L\rightarrow \eb_L}{\Delta}}$ [green]+→I⇒+
 >| $\text{synthesizeSingular} :: L \rightarrow \Gamma \rightarrow e \rightarrow (\Delta,\ A)$
 
-^| $\frac{(\,x\,:\,\vec{A}\,)\ \in\ \Gamma}{\expr{\Gamma}{x\ \Rightarrow \vec{A}}{\Gamma}}$ [green]+Var+
+^| $\frac{(\,x\,:\,A_L\,)\ \in\ \vec{A}\ \in\ \Gamma}{\expr{\Gamma}{x\ \overset{L}{\Rightarrow} A_L}{\Gamma}}$ [green]+Var+
    $\quad\quad$
    $\frac{\Gamma\ \vdash\ A \quad \Delta_1 = \Gamma \quad \braced{ \expr{\Delta_i}{e \overset{L_i}{\Leftarrow} A_i}{\Delta_{i+1}} }_{i=1}^k}{\expr{\Gamma}{(e:\vec{A})\ \Rightarrow\ \vec{A}}{\Delta}}$ [green]+Anno+
    +
    +
-   $\frac{\expr{\Gamma}{e_1\ \Rightarrow\ \vec{A}}{\Delta_1} \quad\quad \braced{ \expr{\Delta_i}{[\Delta_i\] \apply{A_{L_i}}{e_2}{C_{L_i}}}{\Delta_{i+1}}\ \|\ C_{L_i} \in \vec{C} }_{i=1}^k}{\expr{\Gamma}{e_1 e_2 \Rightarrow \vec{C}}{\Delta_k}}$ [green]+→E+
+   $\frac{\expr{\Gamma}{e_1\ \Rightarrow\ \vec{A}}{\Delta} \quad\quad \braced{ \Delta\ \vdash\ [\Delta\] \apply{A_{L_i}}{e_2}{C_{L_i}}\ \|\ L_i \in \text{lang}(\vec{A}) }_{i=1}^k}{\expr{\Gamma}{e_1 e_2 \Rightarrow \vec{C}}{\Delta}}$ [green]+→E+
 >| $\text{synthesizeSpread} :: \Gamma \rightarrow e \rightarrow (\Delta_k,\ [(L, A)\])$
 |===
 
@@ -346,11 +349,11 @@ it generates.
    $\quad\quad$
    $\frac{\expr{\Gamma,x:A}{e \Leftarrow B}{\Delta,x:A,\Theta}}{\expr{\Gamma}{\lambda x.e \Leftarrow A \rightarrow B}{\Delta}}$ [green]+→I+
    $\quad\quad$
-   $\frac{\expr{\Gamma,\alpha_L}{e \Leftarrow A}{\Delta,\alpha_L,\Theta}}{\expr{\Gamma}{e \Leftarrow \forall \alpha_L . A}{\Delta}}$ [green]+∀I+
+   $\frac{\expr{\Gamma,\alpha_L}{e \Leftarrow A_L}{\Delta,\alpha_L,\Theta}}{\expr{\Gamma}{e \Leftarrow \forall \alpha_L . A_L}{\Delta}}$ [green]+∀I+
    $\quad\quad$
-   $\frac{\expr{\Gamma}{e \Rightarrow A}{\Theta} \quad\quad \expr{\Theta}{[\Theta\]A\ <:\ [\Theta\]B}{\Delta}}{\expr{\Gamma}{e \Leftarrow B}{\Delta}}$ [green]+Sub+
+   $\frac{\expr{\Gamma}{e \overset{L}{\Rightarrow} A_L}{\Theta} \quad\quad \expr{\Theta}{[\Theta\]A_L\ <:\ [\Theta\]B_L}{\Delta}}{\expr{\Gamma}{e \Leftarrow B_L}{\Delta}}$ [green]+Sub+
    $\quad\quad$
->| $\text{check} :: \Gamma \rightarrow e \rightarrow A \rightarrow (\Delta,\ [(L,\ B)\])$
+>| $\text{check} :: \Gamma \rightarrow e \rightarrow A \rightarrow (\Delta,\ B\])$
 |===
 
 .apply
