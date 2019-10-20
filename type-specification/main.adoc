@@ -54,11 +54,11 @@ many different languages, thus $x$ is multilingual.
 
 [env.equationalign]
 --
-\text{Types} \sep A,B,C\ &:= 1     \sep & \text{unit} \\
-       &|\ \alpha_L                \sep & \text{var in language L} \\
-       &|\ A \rightarrow B         \sep & \text{function} \\
-       &|\ \forall\ \alpha_L\ . A  \sep & \text{universal quantification over L} \\
-       &|\ \alpha_L\ [A]           \sep & \text{parameterization} \\
+\text{Types} \sep A,B,C\
+       &: \alpha_L   \sep & \text{var in language L} \\
+       &|\ A \rightarrow B              \sep & \text{function} \\
+       &|\ \forall\ \alpha_L\ . A       \sep & \text{universal quantification over L} \\
+       &|\ \alpha_L\ [A]                \sep & \text{parameterization} \\
 --
 
 Every type is associated with either the general language or a concrete
@@ -156,8 +156,6 @@ There are two main extensions:
    $\frac{\packto{\alpha_{L1}}{\beta_{L2}\ [B_i\]_{i=1}^n}}{\expr{\Gamma}{\alpha_{L1}\ <:\ \beta_{L2}\ [B_i\]_{i=1}^n}{\Gamma}}$ [blue]+<:AppAlienVarR+
    +
    +
-   $\frac{}{\expr{\Gamma}{1\ <:\ 1}{\Gamma}}$ [green]+<:Unit+
-   $\quad\quad$
    $\frac{\expr{\Gamma}{B_1\ <:\ A_1}{\Theta} \quad \expr{\Theta}{[\Theta\]A_2\ <:\ [\Theta\]B_2}{\Delta}}{\expr{\Gamma}{A_1 \rightarrow A_2\ <:\ B_1 \rightarrow B_2}{\Delta}}$ [green]+<:→+
    +
    +
@@ -297,8 +295,6 @@ variables pulled out as universal quantifiers.
    +
    +
    $\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A_1}{\Delta_1} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Rightarrow A_n}{\Delta_n}}{\expr{\Gamma}{\lbrace (k_1,x_1),(k_2, x_2),\ ...,\ (k_n, x_n) \rbrace}{\Delta_n,\ \lbrace (k_1, A_1),\ ...,\  (k_n, A_n) \rbrace}}$ [blue]+Record⇒+
-   $\quad\quad$
-   $\frac{L = \text{MLang}}{\expr{\Gamma}{() \Rightarrow 1}{\Gamma}}$ [green]+1l⇒+
    +
    +
    $\frac{L \quad \expr{\Gamma,\ea_L,\eb_L,x:\ea_L}{e \Leftarrow \eb_L}{\Delta, x:\ea_L, \Theta}}{\expr{\Gamma}{\lambda x.e\ \Rightarrow\ \ea_L\rightarrow \eb_L}{\Delta}}$ [green]+→I⇒+

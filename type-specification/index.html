@@ -618,11 +618,11 @@ many different languages, thus \(x\) is multilingual.</p>
 <table class="equation_table_style" ><tr class="equation_row_style">
 <td class="equation_content_style";>
 \[\begin{split}
-\text{Types} \sep A,B,C\ &amp;:= 1     \sep &amp; \text{unit} \\
-       &amp;|\ \alpha_L                \sep &amp; \text{var in language L} \\
-       &amp;|\ A \rightarrow B         \sep &amp; \text{function} \\
-       &amp;|\ \forall\ \alpha_L\ . A  \sep &amp; \text{universal quantification over L} \\
-       &amp;|\ \alpha_L\ [A]           \sep &amp; \text{parameterization} \\
+\text{Types} \sep A,B,C\
+       &amp;: \alpha_L   \sep &amp; \text{var in language L} \\
+       &amp;|\ A \rightarrow B              \sep &amp; \text{function} \\
+       &amp;|\ \forall\ \alpha_L\ . A       \sep &amp; \text{universal quantification over L} \\
+       &amp;|\ \alpha_L\ [A]                \sep &amp; \text{parameterization} \\
 \end{split}\]
 </td>
 </tr></table>
@@ -769,8 +769,6 @@ shortcut for List a.</p>
    \(\frac{\packto{\alpha_{L1}}{\beta_{L2}\ [B_i]_{i=1}^n}}{\expr{\Gamma}{\alpha_{L1}\ <:\ \beta_{L2}\ [B_i]_{i=1}^n}{\Gamma}}\) <span class="blue">&lt;:AppAlienVarR</span>
   <br>
   <br>
-   \(\frac{}{\expr{\Gamma}{1\ <:\ 1}{\Gamma}}\) <span class="green">&lt;:Unit</span>
-   \(\quad\quad\)
    \(\frac{\expr{\Gamma}{B_1\ <:\ A_1}{\Theta} \quad \expr{\Theta}{[\Theta]A_2\ <:\ [\Theta]B_2}{\Delta}}{\expr{\Gamma}{A_1 \rightarrow A_2\ <:\ B_1 \rightarrow B_2}{\Delta}}\) <span class="green">&lt;:→</span>
   <br>
   <br>
@@ -952,8 +950,6 @@ variables pulled out as universal quantifiers.</p>
   <br>
   <br>
    \(\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A_1}{\Delta_1} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Rightarrow A_n}{\Delta_n}}{\expr{\Gamma}{\lbrace (k_1,x_1),(k_2, x_2),\ ...,\ (k_n, x_n) \rbrace}{\Delta_n,\ \lbrace (k_1, A_1),\ ...,\  (k_n, A_n) \rbrace}}\) <span class="blue">Record⇒</span>
-   \(\quad\quad\)
-   \(\frac{L = \text{MLang}}{\expr{\Gamma}{() \Rightarrow 1}{\Gamma}}\) <span class="green">1l⇒</span>
   <br>
   <br>
    \(\frac{L \quad \expr{\Gamma,\ea_L,\eb_L,x:\ea_L}{e \Leftarrow \eb_L}{\Delta, x:\ea_L, \Theta}}{\expr{\Gamma}{\lambda x.e\ \Rightarrow\ \ea_L\rightarrow \eb_L}{\Delta}}\) <span class="green">→I⇒</span></p></td>
@@ -1076,7 +1072,7 @@ it generates.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-10-15 18:30:03 -0500
+Last updated 2019-10-20 04:29:42 -0500
 </div>
 </div>
 <script type="text/x-mathjax-config">
