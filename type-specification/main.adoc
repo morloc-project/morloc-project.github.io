@@ -29,19 +29,19 @@ conventions where possible.
 --
 program   &\ :\ [statement]                         \sep & \text{brackets indicate a list of 0 or more} \\
 statement &\ :\ \text{Source}\ x\ L                 \sep & \text{source var x from language L} \\
-          &\ |\ \text{Import}\ v\ L                 \sep & \text{source var x from language L} \\
-          &\ |\ \text{Export}\ x                    \sep & \text{source var x from language L} \\
-          &\ |\ x\ L ::\ A                          \sep & \text{signature for language L} \\
-          &\ |\ x=expr\                             \sep & \text{declaration} \\
+{}        &\ |\ \text{Import}\ v\ L                 \sep & \text{import all terms in module v} \\
+{}        &\ |\ \text{Export}\ x                    \sep & \text{export var x from this module} \\
+{}        &\ |\ x\ L ::\ A_L                        \sep & \text{signature for language L} \\
+{}        &\ |\ x=expr\                             \sep & \text{declaration} \\
 expr      &\ :\ (\ )                                \sep & \text{nothing} \\
-          &\ |\ x                                   \sep & \text{var} \\
-          &\ |\ x\ ::\ [(L, A)]                     \sep & \text{annotation, usually only used in annotated output} \\
-          &\ |\ \lambda x .\ expr                   \sep & \text{abstraction} \\
-          &\ |\ expr\ expr                          \sep & \text{application} \\
-          &\ |\ num\ |\ str\ |\ bool                \sep & \text{primitives} \\
-          &\ |\ [e_1, ..., e_n]                     \sep & \text{list} \\
-          &\ |\ (e_1, ..., e_n)                     \sep & \text{tuple} \\
-          &\ |\ \braced{v_1=e_1,\ ...,\ v_n = e_n}  \sep & \text{record}
+{}        &\ |\ x                                   \sep & \text{var} \\
+{}        &\ |\ x\ ::\ [A_L]                        \sep & \text{annotation, usually only used in annotated output} \\
+{}        &\ |\ \lambda x .\ expr                   \sep & \text{abstraction} \\
+{}        &\ |\ expr\ expr                          \sep & \text{application} \\
+{}        &\ |\ num\ |\ str\ |\ bool                \sep & \text{primitives} \\
+{}        &\ |\ [e_1, ..., e_n]                     \sep & \text{list} \\
+{}        &\ |\ (e_1, ..., e_n)                     \sep & \text{tuple} \\
+{}        &\ |\ \braced{v_1=e_1,\ ...,\ v_n = e_n}  \sep & \text{record}
 --
 
 Xi departs from conventional lambda calculus by supporting multiple languages
@@ -179,6 +179,27 @@ will both raise errors.
 The rule +<:AlienExvar+ stores in context an "existential assertion" that
 cannot be evaluated until the existential variables it contains are solved.
 
+Parameterized types across languages is supported. This may seem impossible,
+since not all languages support parameterized types. This is easiest to explain
+with examples showing general, Haskell, `C++`, python and R signatures.
+
+.map of strings to integers
+[source,bash]
+----
+x :: Map String Integer
+x Haskell :: "Map \$1 \$2" String Integer
+x C++ :: "std::map<\$1,\$2>" "std::string" int
+x Python :: "dict" str int
+x R :: "list" str int
+----
+
+To allow for different syntax for paramterization across languages, the first
+term is a pattern that takes the parameters as arguments. For Haskell and
+`C++`, the parameterized types would ultimately be formed into `Map String
+Integer` and `std::map<std::string,int>`, respectively. For dynamic languages,
+the parameters will not appear in final type itself (`dict` and `list`,
+respectively), but the type information will be preserved.
+
 .Instantiation Rules
 |===
 <| $\expr{\Gamma}{\subtype{\ea_L}{A}}{\Delta}$ $\quad\quad$ Under input context $\Gamma$, instantiate $\ea_L$ such that $\ea_L <: A$, with output context $\Delta$
@@ -266,7 +287,7 @@ variables pulled out as universal quantifiers.
 .synthesize
 |===
 <| $\expr{\Gamma}{e \Rightarrow A}{\Delta}$ $\quad\quad$ Under input context $\Gamma$, $e$ synthesizes output type $A$, with output context $\Delta$
-^| $\frac{\expr{\Gamma, x:A}{e_2\ \Rightarrow\ \\_}{\Delta}}{\expr{\Gamma}{x\ L\ ::\ A\ ;\ e_2}{\Delta}}$ [blue]+Signature+
+^| $\frac{\expr{\Gamma, x:A_L}{e_2\ \Rightarrow\ \\_}{\Delta}}{\expr{\Gamma}{x\ L\ ::\ A_L\ ;\ e_2}{\Delta}}$ [blue]+Signature+
    $\quad\quad$
    $\frac{}{\expr{\Gamma}{\text{Source }L\ x}{\Gamma,\ \ea_L}}$ [blue]+Source+
    +
@@ -306,22 +327,33 @@ variables pulled out as universal quantifiers.
    +
    +
    $\frac{\expr{\Gamma}{e_1\ \Rightarrow\ \vec{A}}{\Delta} \quad\quad \braced{ \Delta\ \vdash\ [\Delta\] \apply{A_{L_i}}{e_2}{C_{L_i}}\ \|\ L_i \in \text{lang}(\vec{A}) }_{i=1}^k}{\expr{\Gamma}{e_1 e_2 \Rightarrow \vec{C}}{\Delta}}$ [green]+→E+
->| $\text{synthesizeSpread} :: \Gamma \rightarrow e \rightarrow (\Delta_k,\ [(L, A)\])$
+>| $\text{synthesizeSpread} :: \Gamma \rightarrow e \rightarrow (\Delta_k,\ [A_L\])$
 |===
 
 The three functions +synthesisToplevel+, +synthesisSingular+, and
 +synthesisSpread+ are all specializations of the general functions of type:
 
-`synthesis` +++::+++ +L+ -> +Gamma+ -> +e+ -> +[(L, A)]+
+`synthesis` +++::+++ +L+ -> +Gamma+ -> +e+ -> +[A]+
 
+Each rule will be described in the sections below.
+
+==== synthesisToplevel
 
 The top-level statements import/source terms, specify their type (+Signature+),
-and build compositions from them (+Declaration+). A top-level declaration can
-only ever be in MLang. An error should be raised if a concrete signature is
-given.
+and build compositions from them (+Declaration+).
+
+The +Import+ rule is premised on the evalutation of $e$, which is an entire
+module body that yields a full context. The term $A\ \Rightarrow\ \\_$ is an
+inference that throws away the resulting type, being run only for the context
+it generates.
+
+
+==== synthesisSingular
+
+==== synthesisSpread
 
 Morloc Data structures can be typed into MLang, but not directly into other
-languages without additional information. For example, is +[Num]+ in C++ an
+languages without additional information. For example, is +[Num]+ in `C++` an
 array or vector? Is Num a "double" or a "float"? Determining the concrete type
 will require a concrete type-signature. Thus the concrete types are _checked_
 rather than _synthesized_.
@@ -331,19 +363,11 @@ lambda expression specifies the language of the lambda. The language of the
 subcomponents may differ from the language of the lambda or may have no
 concrete binding at all (e.g., $\lambda x . 42$).
 
-The +Import+ rule is premised on the evalutation of $e$, which is an entire
-module body that yields a full context. The term $A\ \Rightarrow\ \\_$ is an
-inference that throws away the resulting type, being run only for the context
-it generates.
-
-+→E+ 
 
 .check
 |===
 <| $\expr{\Gamma}{e \Leftarrow A}{\Delta}$ $\quad\quad$ Under input context $\Gamma$, $e$ checks against input type $A$, with output context $\Delta$ 
-^| $\frac{}{\expr{\Gamma}{() \Leftarrow 1}{\Gamma}}$ [green]+1I+
-   $\quad\quad$
-   $\frac{\expr{\Gamma,x:A}{e \Leftarrow B}{\Delta,x:A,\Theta}}{\expr{\Gamma}{\lambda x.e \Leftarrow A \rightarrow B}{\Delta}}$ [green]+→I+
+^| $\frac{\expr{\Gamma,x:A_L}{e \Leftarrow B_L}{\Delta,x:A_L,\Theta}}{\expr{\Gamma}{\lambda x.e \Leftarrow A_L \rightarrow B_L}{\Delta}}$ [green]+→I+
    $\quad\quad$
    $\frac{\expr{\Gamma,\alpha_L}{e \Leftarrow A_L}{\Delta,\alpha_L,\Theta}}{\expr{\Gamma}{e \Leftarrow \forall \alpha_L . A_L}{\Delta}}$ [green]+∀I+
    $\quad\quad$

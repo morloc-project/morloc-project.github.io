@@ -1,5 +1,5 @@
 all:
-	asciidoctor-latex -b html -r asciidoctor-bibtex main.adoc
+	asciidoctor-latex -b html --trace -r asciidoctor-bibtex main.adoc
 	mv main.html index.html
 
 clean:
