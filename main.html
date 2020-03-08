@@ -444,88 +444,49 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel0">
 <li><a href="#_introduction">Introduction</a>
 <ul class="sectlevel1">
-<li><a href="#_motivation">1. Motivation</a>
+<li><a href="#_code_examples">1. Code Examples</a></li>
+<li><a href="#_motivation">2. Motivation</a>
 <ul class="sectlevel2">
-<li><a href="#_programming_is_tedious">1.1. Programming is tedious</a></li>
-<li><a href="#_functions_cannot_be_used_across_languages">1.2. Functions cannot be used across languages</a></li>
-<li><a href="#_functions_are_not_searchable">1.3. Functions are not searchable</a></li>
-<li><a href="#_cross_language_abstractions_are_poor">1.4. Cross-language abstractions are poor</a></li>
+<li><a href="#_programming_is_tedious">2.1. Programming is tedious</a></li>
+<li><a href="#_functions_cannot_be_used_across_languages">2.2. Functions cannot be used across languages</a></li>
+<li><a href="#_functions_are_not_searchable">2.3. Functions are not searchable</a></li>
 </ul>
 </li>
-<li><a href="#_what_is_morloc">2. What is <code>morloc</code>?</a></li>
-<li><a href="#_pieces">3. Pieces</a></li>
-<li><a href="#_another_phrasing">4. Another phrasing</a></li>
-<li><a href="#_morloc_workflow">5. <code>morloc</code> workflow</a></li>
 </ul>
 </li>
 <li><a href="#_theory">Theory</a>
 <ul class="sectlevel1">
-<li><a href="#_build_system">6. Build system</a>
-<ul class="sectlevel2">
-<li><a href="#_how_to_make_a_morloc_module">6.1. How to make a <code>morloc</code> module</a></li>
+<li><a href="#_the_semantic_type_system">3. The semantic type system</a></li>
 </ul>
 </li>
-<li><a href="#_forms_of_data_and_the_grim_model">7. Forms of data and the GRIM model</a>
-<ul class="sectlevel2">
-<li><a href="#_general_g">7.1. General (G)</a></li>
-<li><a href="#_resources_r">7.2. Resources (R)</a></li>
-<li><a href="#_ideal_i">7.3. Ideal (I)</a></li>
-<li><a href="#_machine_m">7.4. Machine (M)</a></li>
-</ul>
-</li>
-<li><a href="#_functions_may_have_roles">8. Functions may have roles</a></li>
-<li><a href="#_graph_rules">9. Graph rules</a></li>
-<li><a href="#_manifold_templates_and_code_generation">10. Manifold templates and code generation</a></li>
-<li><a href="#_modules">11. Modules</a></li>
-<li><a href="#_related_work">12. Related work</a>
-<ul class="sectlevel2">
-<li><a href="#_related_systems">12.1. Related systems</a></li>
-<li><a href="#_specification_languages">12.2. Specification languages</a></li>
-<li><a href="#_language_orientations">12.3. Language orientations</a></li>
-<li><a href="#_multi_language_type_systems_schemas_data_serialization_systems">12.4. Multi-language type systems (schemas) / data serialization systems</a></li>
-<li><a href="#_related_work_2">12.5. Related work</a></li>
-<li><a href="#_summary_of_related_work">12.6. Summary of related work</a></li>
-<li><a href="#_workflow_theory_and_other">12.7. Workflow theory (and other)</a></li>
-</ul>
-</li>
-<li><a href="#_the_semantic_type_system">13. The semantic type system</a>
-<ul class="sectlevel2">
-<li><a href="#_function_signatures_and_more_stuff">13.1. Function signatures and more stuff</a></li>
-<li><a href="#_components_of_the_semantic_system">13.2. Components of the semantic system</a></li>
-<li><a href="#_how_morloc_uses_knowledge">13.3. How <code>morloc</code> uses knowledge</a></li>
-<li><a href="#_why_do_we_need_type_systems">13.4. Why do we need type systems?</a></li>
-</ul>
-</li>
-<li><a href="#_unsettled_issues">14. Unsettled issues</a>
-<ul class="sectlevel2">
-<li><a href="#_support_for_lazy_evaluation">14.1. Support for lazy evaluation</a></li>
-<li><a href="#_purity_totallity_and_planes">14.2. Purity, totallity and planes</a></li>
-<li><a href="#_handling_ontology_conflicts">14.3. Handling ontology conflicts</a></li>
-<li><a href="#_polymorphism">14.4. Polymorphism</a></li>
-<li><a href="#_handling_effects">14.5. Handling effects</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#_implementation">Implementation</a>
+<li><a href="#_implementation">Implementation</a></li>
+<li><a href="#_the_future">The Future</a>
 <ul class="sectlevel1">
-<li><a href="#_the_semantic_type_system_2">15. The Semantic Type System</a>
+<li><a href="#_unsettled_issues">4. Unsettled issues</a>
 <ul class="sectlevel2">
-<li><a href="#_function_type_signatures_with_constraints">15.1. Function type signatures with constraints</a></li>
-<li><a href="#_data_signatures_with_constraints">15.2. Data signatures with constraints</a></li>
-<li><a href="#_ontologies_of_types">15.3. Ontologies of types</a></li>
-<li><a href="#_mapping_from_abstract_morloc_type_to_concrete_language_specific_type">15.4. Mapping from abstract <code>morloc</code> type to concrete, language-specific type</a></li>
+<li><a href="#_support_for_lazy_evaluation">4.1. Support for lazy evaluation</a></li>
+<li><a href="#_purity_totallity_and_planes">4.2. Purity, totallity and planes</a></li>
+<li><a href="#_handling_ontology_conflicts">4.3. Handling ontology conflicts</a></li>
+<li><a href="#_polymorphism">4.4. Polymorphism</a></li>
+<li><a href="#_handling_effects">4.5. Handling effects</a></li>
 </ul>
 </li>
-<li><a href="#_architecture">16. Architecture</a></li>
-<li><a href="#_performance_optimizations_and_high_performance_computing">17. Performance Optimizations and High-Performance Computing</a></li>
-<li><a href="#_tech_tree">18. Tech Tree</a>
+<li><a href="#_pieces">5. Pieces</a></li>
+<li><a href="#_another_phrasing">6. Another phrasing</a></li>
+<li><a href="#_morloc_workflow">7. <code>morloc</code> workflow</a></li>
+</ul>
+</li>
+<li><a href="#_related_work">Related work</a>
+<ul class="sectlevel1">
+<li><a href="#_related_work_2">8. Related work</a>
 <ul class="sectlevel2">
-<li><a href="#_docopt">18.1. <code>docopt</code></a></li>
-<li><a href="#_hsparql">18.2. <code>hsparql</code></a></li>
-<li><a href="#_rdf4h">18.3. <code>rdf4h</code></a></li>
-<li><a href="#_wl_pprint_text">18.4. <code>wl-pprint-text</code></a></li>
-<li><a href="#_megaparsec">18.5. <code>megaparsec</code></a></li>
+<li><a href="#_related_systems">8.1. Related systems</a></li>
+<li><a href="#_specification_languages">8.2. Specification languages</a></li>
+<li><a href="#_language_orientations">8.3. Language orientations</a></li>
+<li><a href="#_multi_language_type_systems_schemas_data_serialization_systems">8.4. Multi-language type systems (schemas) / data serialization systems</a></li>
+<li><a href="#_related_work_3">8.5. Related work</a></li>
+<li><a href="#_summary_of_related_work">8.6. Summary of related work</a></li>
+<li><a href="#_workflow_theory_and_other">8.7. Workflow theory (and other)</a></li>
 </ul>
 </li>
 </ul>
@@ -546,10 +507,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="title">Note</div>
 </td>
 <td class="content">
-This document is cobbled together from loose informal notes, fragments of a
-stuffy academic paper, and purple prose from an NSF grant. Much of what is
-written here has not yet been implemented. What has been implemented is likely
-to be radically redone in the near future.
+This document is cobbled together from loose informal notes, fragments of an
+out-of-date academic paper, and purple prose from an NSF grant. Much of what is
+written here has not yet been implemented and much of what has been implemented
+will be changed in the future.
 </td>
 </tr>
 </table>
@@ -562,11 +523,193 @@ build a community portal for curating a universal library. Any public functions
 in this library can be used in any Morloc script. They may also be imported
 into specific languages and used.</p>
 </div>
+<div class="paragraph">
+<p>The ultimate purpose of the Morloc system is to serve as the foundation for a
+universal library of functions. Each function in the library has a universal
+type that specifies how the function relates to other functions. Each function
+has zero or more implementations. Each implementaton has a language-specific
+type that aligns with the universal type. The Morloc compiler takes the
+specification for a program, written as a compostion of typed functions, and
+generates an optimized program.</p>
+</div>
+<div class="paragraph">
+<p>In other words, Morloc is a query language that takes a program specification
+and searches against a function database, returning an optimized composition of
+functions. The functions may all be in the same language (often best for
+performance when possible), or they may be from several languages.</p>
+</div>
+<div class="paragraph">
+<p><code>morloc</code> supports:</p>
+</div>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p>&#10003; function composition across languages (currently <code>C++</code>, R and Python3)</p>
+</li>
+<li>
+<p>&#10003; higher-order functions</p>
+</li>
+<li>
+<p>&#10003; currying</p>
+</li>
+<li>
+<p>&#10003; generic types (System F) and type parameterization across languages</p>
+</li>
+<li>
+<p>&#10003; type checking and inference</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>in development:</p>
+</div>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p>&#10063; extensible records</p>
+</li>
+<li>
+<p>&#10063; a semantic type extension where types are defined in ontologies</p>
+</li>
+<li>
+<p>&#10063; dependent types (with cheats: if I can&#8217;t solve statically, I&#8217;ll generate optional assertion statements)</p>
+</li>
+<li>
+<p>&#10063; profanity-free error messages</p>
+</li>
+<li>
+<p>&#10063; a functional database and community portal (<code>morlocIO</code>)</p>
+</li>
+<li>
+<p>&#10063; a knowledgebase used to inform optimization in the compiler,</p>
+</li>
+<li>
+<p>&#10063; automated testing of <code>morloc</code> functions</p>
+</li>
+<li>
+<p>&#10063; an actual userbase</p>
+</li>
+<li>
+<p>&#10063; much much more &#8230;&#8203;</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 <h1 id="_introduction" class="sect0">Introduction</h1>
+<div class="openblock partintro">
+<div class="content">
+I will introduce <code>morloc</code> first through a simple code example. Then discuss the
+motivations for building the system.
+</div>
+</div>
 <div class="sect1">
-<h2 id="_motivation">1. Motivation</h2>
+<h2 id="_code_examples">1. Code Examples</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>morloc</code> can compose functions across languages. For example</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>import math (fibonacci)
+import rbase (plotPDF)
+
+export fibplot
+
+fibplot n = plotPDF (fibonacci n) &quot;fibonacci-plot.pdf&quot;;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>fibplot</code> function calculates Fibonacci numbers using a C++ function and
+plots it using an R function.</p>
+</div>
+<div class="paragraph">
+<p><code>plotPDF</code> is defined in the <code>morloc</code> module <code>rbase</code>. The <code>morloc</code> module
+contains the following files:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>README.md
+package.yaml
+main.loc
+core.R
+rbase.R</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>main.loc</code> file contains <code>morloc</code> function signatures, compositions, and
+export statements. The <code>core.R</code> and <code>rbase.R</code> files contain R source code.
+<code>rbase.R</code> contains the general serialization functions required for R
+interoperability with other languages. The <code>core.R</code> file contains mostly core
+utilities that are common between languages (<code>map</code>, <code>zip</code>, <code>fold</code>, <code>add</code>,
+<code>sub</code>, etc). It also contains a wrapper around the useful (though a bit ugly)
+generic R plot function: <code>plotPDF</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="R"><span></span>plotPDF &lt;- function(x, filename){
+  pdf(filename)
+  plot(x)
+  dev.off()
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is a perfectly normal R function with now extra boilerplate. It takes an
+arbitrary input <code>x</code> and a filename, passes <code>x</code> to the generic plot function,
+and writes the result to a PDF with the name <code>filename</code>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>main.loc</code> file contains the type signatures for this function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>plotPDF :: forall a . a -&gt; Str -&gt; ()
+plotPDF R :: forall a . a -&gt; character -&gt; ()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first signature is the general type, the second is the concrete, R-specific
+type. The <code>forall a</code> states that <code>a</code> is a generic variable.</p>
+</div>
+<div class="paragraph">
+<p>Similarly the <code>fibonacci</code> <code>C++</code> function has the types:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>fibonacci :: Num -&gt; List Num
+fibonacci Cpp :: &quot;size_t&quot; -&gt; &quot;std::vector&lt;$1&gt;&quot; double;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The general type, <code>Num &#8594; List Num</code>, takes a number and returns a list of
+numbers.  The only general constraint on <code>Num</code> is that it be rational. In
+serialized form (e.g., in JSON), it is represented as a decimal number of
+arbitrary size and precision. The concrete type signature <em>aligns</em> to the
+general one in that it must be a function of the same number of arguments and
+any parameterized types must have the same number of parameters (and so on down
+recursively into the type). <code>"std::vector&lt;$1&gt;" double</code> aligns to <code>List Num</code> (or
+equivalently, <code>[Num]</code>). The type that is used in <code>C++</code> prototypes and type
+annotations is generated from the concrete type via macro expansion into the
+type constructor: <code>double</code> replaces <code>$1</code> yielding the concrete type
+<code>std::vector&lt;double&gt;</code>. The use of <code>double</code> isn&#8217;t ideal, since Fibonacci
+sequences are integers, but was done to support larger outputs without overflow
+(might be better to go with log Fibonacci numbers).</p>
+</div>
+<div class="paragraph">
+<p>A Haskell programmer might take issue with the generic plot function (can it
+really plot <em>anything</em>). Eventually I will add type machinery for adding
+further constraints, but even after such systems are in place, it is essential
+that <code>morloc</code> give some amount of flexibility to dynamic languages such as R.
+In the future, I imagine the <code>morloc</code> universe will partition into planes of
+differing strictness and performance. Some programmers will care about function
+totality and static guarantees, others will trade this for ease of use or
+familiarity.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_motivation">2. Motivation</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><code>morloc</code> is designed to unify computational communities. Existing solutions are
@@ -582,32 +725,28 @@ their use available to everyone.  <code>morloc</code> will reduce both duplicate
 "abandonware", and increase modularity and searchability of functions.</p>
 </div>
 <div class="sect2">
-<h3 id="_programming_is_tedious">1.1. Programming is tedious</h3>
+<h3 id="_programming_is_tedious">2.1. Programming is tedious</h3>
 <div class="paragraph">
 <p>While documentation, testing, checking, and package and system design are seen
-as the tenants of "good programming", these are all "evils". They are evil
-because they contribute nothing intrinsically to the purpose of programming,
-which is either to ask a question and get an answer or to animate a process.
-They are thought good only for the reasons death is thought good.</p>
-</div>
-<div class="paragraph">
-<p>Any work that is not part of the end. I distinguish here between the "means"
-and the "ends". The "means" are tedious. The <code>morloc</code> composer should not have to
-deal with them. Rather, they describe the ends. They describe the input data.
-They describe the serious of transformations that may be done upon it. Then the
-compiler builds the program. And the composer interacts with it however they
-like.</p>
-</div>
-<div class="paragraph">
-<p>From the programmer&#8217;s point of view, "tedious work" is anything that is not
-part of the transformation from inputs to outputs. Checking the inputs, testing
-and benchmarking, internal infrastructure, package infrastructure, most
+as the tenants of "good programming", I consider them inherently "evil". They
+are evil because they contribute nothing intrinsically to the purpose of
+programming, which is either to ask a question and get an answer or to animate
+a process. From the programmer&#8217;s point of view, "tedious work" is anything that
+is not part of the transformation from inputs to outputs: checking the inputs,
+testing and benchmarking, internal infrastructure, package infrastructure, most
 documentation, writing input and output, handling caching, handling runtime
 environment, handling parallelism.</p>
 </div>
+<div class="paragraph">
+<p>The correctness, readability, usability, and searchability are all intrinsic
+goods; tests, documentation and other infrastructure, while they may be paths
+to goods, are intrinsically just extra work. In a perfect system, the
+programmer would describe the problem and the compiler would handle the
+implementation details.</p>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_functions_cannot_be_used_across_languages">1.2. Functions cannot be used across languages</h3>
+<h3 id="_functions_cannot_be_used_across_languages">2.2. Functions cannot be used across languages</h3>
 <div class="paragraph">
 <p>A second problem is the complexity of using functions across languages.  This
 problem is especially vexing for high-turnover analyses, where there is a
@@ -640,7 +779,7 @@ evolution of programming.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_functions_are_not_searchable">1.3. Functions are not searchable</h3>
+<h3 id="_functions_are_not_searchable">2.3. Functions are not searchable</h3>
 <div class="paragraph">
 <p>The final problem is that searching for functions is annoyingly difficult.
 Within in a specific strongly-typed language, you may be able to search by
@@ -659,98 +798,343 @@ passing data, but for functions we have nothing. Machines cannot reason about
 or use our tools.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_cross_language_abstractions_are_poor">1.4. Cross-language abstractions are poor</h3>
+</div>
+</div>
+<h1 id="_theory" class="sect0">Theory</h1>
+<div class="sect1">
+<h2 id="_the_semantic_type_system">3. The semantic type system</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The fundamental innovation of <code>morloc</code> is the merger of knowledge engineering,
+type system design, and functional programming to create a powerful new
+programming paradigm. The foundation of this new paradigm is the concept of a
+universal semantic type system, where all information about the data and
+functions are stored using ontologies as knowledge representation systems.
+<code>morloc</code> uses ontologies for three distinct purposes: 1) as a language-agnostic
+type system, 2) to power automatic programming through encoded domain knowledge
+and 3) to describe data, functions, and systems. These purposes will be
+detailed in the following paragraphs.</p>
+</div>
+<div class="paragraph">
+<p><strong>First</strong>, the ontologies are the foundation of the universal type system. Like
+other strong type systems, the <code>morloc</code> type system will prevent many bugs at
+compile time. It goes beyond most languages by also allowing specification of
+constraints on values (e.g. input x must be greater than input y). These
+constraints can be used in static analysis of program correctness or to
+generate runtime assertions. They effectively replace in-code assertion
+statements and informal English descriptions of behavior with concise,
+language-agnostic mathematical statements about the function. Since the type
+system is language-agnostic, <code>morloc</code> provides a common language for programmers
+and domain scientists to discuss the operation and assumptions of functions.
+This system is a necessary requirement for the vision of building a universal
+library.</p>
+</div>
+<div class="paragraph">
+<p><strong>Second</strong>, the type system can be augmented with domain knowledge to provide
+rich machine and human accessible documentation, powerful and highly
+customizable automatic programming, and more intelligent data validation. The
+domain knowledge is encoded as relations between types or as annotations of
+types with special information. Examples of the knowledge that may be encoded
+include: inheritance relationships between types (e.g., <code>WindSpeed</code> inherits
+from <code>Speed</code>); associations between functions and the functions that benchmark
+or predict their performance; associations between data types and random
+generators; identification of conversion functions (see Fig. 6).</p>
+</div>
+<div class="paragraph">
+<p><strong>Third</strong>, the ontologies can store metadata about functions, data and systems.
+This would include metadata about functions (such as the version, license,
+documentation, author, performance metrics, links to related functions,
+keywords) or about data (such as its historical origin) or about systems (such
+as details about how languages work together, which compilers to use, or the
+local user preferences and system architecture). Examples of the application of
+this knowledge include: using community experience to optimize builds; using
+license data to avoid violations in proprietary workflows; and using author
+information to automatically cite the creators of the package or submit error
+reports.</p>
+</div>
+<div class="paragraph">
+<p>These three purposes intersect to offer human and machine users a powerful
+resource discovery system. There is currently no general way to search for
+tools and functions across different languages, because within programming
+languages the meaning of the code is hidden in variable naming conventions and
+documentation that is inaccessible to machines. By unifying programming
+languages and tools under a common type system, search engines can be designed
+to find and compare functions by their roles and input/output types. The common
+type system will also allow machines, and emergent AIs, to reason about
+<code>morloc</code>’s tools.</p>
+</div>
+<div class="paragraph">
+<p>By lifting this entire system into a community portal, an environment is
+created that allows both humans and machines to participate in curating and
+building a collective description of the world (the data type system), a set of
+tools to operate on it (the function library), and knowledge about how to use
+the tools (the function type system). The global ontologies further offer
+endless potential for <code>morloc</code> extensions that improve pipeline documentation,
+automation, optimization, accessibility, and reproducibility.</p>
+</div>
+</div>
+</div>
+<h1 id="_implementation" class="sect0">Implementation</h1>
 
+<h1 id="_the_future" class="sect0">The Future</h1>
+<div class="sect1">
+<h2 id="_unsettled_issues">4. Unsettled issues</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are many issues that need to be resolved before <code>morloc</code> is ready for
+widespread use.</p>
+</div>
+<div class="sect2">
+<h3 id="_support_for_lazy_evaluation">4.1. Support for lazy evaluation</h3>
+<div class="paragraph">
+<p>Many languages support lazy evaluation, either by default (e.g., Haskell and
+R), by using special syntax (e.g., Python), or using system streaming utilities
+(e.g. pipelines in Bash). <code>morloc</code> should support this as well. Doing so is
+fairly easy for calls within a language, but can and should this be supported
+for calls between languages?</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_purity_totallity_and_planes">4.2. Purity, totallity and planes</h3>
+<div class="paragraph">
+<div class="title">Should functions be pure?  I certainly cannot, and should not, guarantee that</div>
+<p>all functions are pure. One possibility is adding (or inferring) a tag for
+purity. This could potentially be automatically tested by running the function
+within a sandbox or through static evaluation. Then <code>morloc</code> programmers and
+library builders can require all functions be pure.</p>
+</div>
+<div class="paragraph">
+<div class="title">Should functions be total? Again, not in general and again this could be a</div>
+<p>tag. In this case, some users, particularly of the Haskell persuation, might
+want to only work on the <code>morloc</code> "plane of totality".</p>
+</div>
+<div class="paragraph">
+<p>Perhaps what we need is a strict subset of <code>morloc</code>. Well, there will be layers.
+And functions will be ascend through the levels of quality, from unverified to
+proven. Though quality is not a one-dimensional trait. There is</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>correctness (ranging from unverified to levels of test to proven)</p>
+</li>
+<li>
+<p>asymptotic time and space complexity (ranging from unverified, then through
+a range of equations, bound perhaps by a proven form).</p>
+</li>
+<li>
+<p>there is code quality (which is somewhat subjective, but perhaps with "human vetted" on top)</p>
+</li>
+<li>
+<p>codebase size (remove comments and count the tokens)</p>
+</li>
+<li>
+<p>for some functions, there can be other quality metrics (accuracy, AUC, energy, etc)</p>
+</li>
+<li>
+<p>documentation (which is very subjective)</p>
+</li>
+<li>
+<p>purity (TRUE | FALSE)</p>
+</li>
+<li>
+<p>pairwise suitability to other functions (whatever that means)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_handling_ontology_conflicts">4.3. Handling ontology conflicts</h3>
+<div class="paragraph">
+<p>Should there be one central authority for types, or many systems? We will
+eventually begin studying millions of compositions of functions to learn how
+the functions are used and what they mean. We want ontologies and rulesets to
+be reusable, which favors a central authority. However, we also want them to be
+flexible and to evolve freely, which favors decentralization. We will need to
+be able to merge ontologies and rulesets, identify equivalent terms and
+redundant rules, and automatically update programs. We will need to allow
+conflicting rules and ontologies to co-exist so long as they do not interact.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_polymorphism">4.4. Polymorphism</h3>
+<div class="paragraph">
+<p>Monolithic tools often do not resolve cleanly into a single type. This is
+especially true of standalone tools. But it is also true of many functions in
+dynamic languages. The problem is that they may have many possible types of
+input and output.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>input type depends on parameters</p>
+</li>
+<li>
+<p>input type depends on input value (ad hoc polymorphism)</p>
+</li>
+<li>
+<p>output type depends on parameters</p>
+</li>
+<li>
+<p>output type depends on input value</p>
+</li>
+<li>
+<p>output type depends on output value</p>
+</li>
+<li>
+<p>cardinality of input depends on parameters</p>
+</li>
+<li>
+<p>and more</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Enumerating all combinations of types would be a naming nightmare.</p>
+</div>
+<div class="paragraph">
+<p>Allowing function overloading reduces this problem somewhat.</p>
+</div>
+<div class="paragraph">
+<p>We could infer the output type, then attempt to cast it to the expected output
+type. For example, suppose we have a function that returns a list of integers
+if the list is longer than 1 and a single integer otherwise. <code>morloc</code> could
+generate a code in the manifold that checks the type of the output function,
+then casts it as needed.</p>
+</div>
+<div class="paragraph">
+<p>Some of these issues may need to be solved by workarounds in the wrapper (such
+as hard-coding certain parameters or processing the output or input).</p>
+</div>
+<div class="paragraph">
+<p>One way to solve this is to consider the tool&#8217;s function signature as a graph
+of types, rather than a singular entity.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_handling_effects">4.5. Handling effects</h3>
+<div class="paragraph">
+<p>A function maps data from one form to another. Where do effects, like writing
+something to a database, creating a file, showing a plot, or running an
+application fit in?</p>
+</div>
+<div class="paragraph">
+<p>For example, what is the type signature of a histogram function?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; ?</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can delay visualization, keeping things in the pure realm a little longer,
+by converting the vector of numbers to bins:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; [Rectangle]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>While this conveniently decouples the histogram algorithm from the
+visualization, it doesn&#8217;t solve the problem. We still want to make an image.</p>
+</div>
+<div class="paragraph">
+<p>We could allow the effect to run and return the filename</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; Filename</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Though <code>Filename</code> is fairly ad hoc. Is this a PDF? Or a PNG? Perhaps here
+parameterized types would be worthwhile. Where <code>Path PDF</code> implies a filename
+reference to the PDF is being passed (alternatively <code>Bytestream PDF</code>). Or
+perhaps just <code>PDF</code>, where <code>PDF</code> is a complex representation of the PDF vector
+object (see the 700 page reference manual) that will be converted into an
+appropriate data structure (e.g. PDF object) in the target language.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; Path PDF
+histogram :: [Num] -&gt; Bytestream PDF
+histogram :: [Num] -&gt; PDF</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But this still does not capture the fact that a file was created. More clearly,
+imagine a robotic function that calculates a movement vector from the original
+position, moves the robot, and then returns the new position. The signature
+might be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>literallyMove :: Position -&gt; Vector -&gt; Position</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But this does not capture the fact that the function is also causing an effect
+(making the robot move).</p>
+</div>
+<div class="paragraph">
+<p>In old <code>morloc</code>, I have support for <code>Void</code> types, which roughly indicate IO. So
+we could couple two function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>calculateMove :: Position -&gt; Vector
+moveRobot :: Vector -&gt; Void
+moveRobot $ calculateMove (1.1, 3.4)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Perhaps we can leave Void as Void, for the base type, then expound upon it
+semantically. Perhaps with a prefix to indicate effect, e.g.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>-- using &#39;!&#39;, I&#39;d want to think more before settling
+moveRobot :: Vector -&gt; !MoveRobot</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now of course, in Haskell we would solve this with an IO monad. Do we want
+monads? But we really can&#8217;t pretend to be pure, since the functions are black
+boxes. And even if we could be pure, would we want to be? <code>morloc</code> needs to allow
+effects. Otherwise Haskell would be about the only major language it could
+support.</p>
+</div>
+<div class="paragraph">
+<p>Conclusion: for now I lean towards specialized Void.</p>
+</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_what_is_morloc">2. What is <code>morloc</code>?</h2>
+<h2 id="_pieces">5. Pieces</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p><code>morloc</code> is a highly minimal, functional programming language with a semantic
-type system and a very special compiler. The language exclusively relies on
-functions cannibalized from other languages. The transfer of data between the
-constituent functions is entirely automated such that the <code>morloc</code> programmer
-needn&#8217;t know where the function came from. Likewise, the programmer who writes
-the function needn&#8217;t know that their function will be consumed by <code>morloc</code>; they
-are free to write in completely idiomatic prose, without boilerplate.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Currently this is not how <code>morloc</code> is implemented. Previously I did parse
+directly to RDF and then collect the data needed for generation using SPARQL
+queries. This proved to be complicated and the path to full typechecking using
+some sort of rule engine seemed hard, so I refactored the parser to generate a
+more conventional abstract syntax tree. This allows more direct implementation
+of type systems. I currently use the bidirectional typing algorithm as
+described by Dunsfield, but generalized to work with multiple simultaneous
+languages. I plan to eventually replace this with a rule engine that reads from
+RDF, but I will probably not make that jump until I&#8217;ve ironed out the
+difficulties in the code generators and basic F system implementation.
+</td>
+</tr>
+</table>
 </div>
-<div class="paragraph">
-<p>The semantic type system is what makes this possible. Think semantic web.
-Ontologies. The types, and the relationships between them, are specified in an
-ontology. Every function is given a signature that describes the inputs and
-outputs of the function and also lists any constraints. This function signature
-and the type ontology are the two pieces of information shared between <code>morloc</code>
-programmer and function writer. The type ontology and the function signatures
-are the axioms of a logical system. The code written by the programmer compiles
-to a list of logical statements. The program is correct if the whole system is
-logically consistent.</p>
-</div>
-<div class="paragraph">
-<p>Logic programming is old. Very old. But over the last few decades it has gone
-out of fashion. With the rise of the semantic web, that is beginning to change.
-Logic machines are beginning to challenge deep learning as a path to general
-intelligence (see Doug Lenat).</p>
-</div>
-<div class="paragraph">
-<p>A semantic type system would allow expression of relations between types.
-A possible relation might be, "There exists Filename openable as Text". Then if
-you pass a Filename to a function expecting Text, the compiler can infer that
-Filename is convertable, with possible failure, to Text. It can then search
-a database for a suitable function, and if the function is found, insert it
-between Filename and Text. By importing different sets of relations, the
-strictness of a program can be finely tuned. Behavior that is hard-coded in
-most languages, becomes easily customizable. If you want your pipeline to
-automatically try to resolve type conflicts by converting a String to a Number
-(as is done dynamically in Perl), you just have to add the relation that Number
-can be cast as a String (the reasoner can then infer that some String can be
-cast as Number).</p>
-</div>
-<div class="paragraph">
-<p>The compiler&#8217;s logical inference can go further. In principle, if a path exists
-between any two types, the compiler can find it (e.g. Internet &#8594; LaunchCodes)
-and build a logically correct program. While the function signatures are highly
-expressive, they do not specify what actually happens inside the function.
-Functions in <code>morloc</code> are black boxes. The function signatures are premises of
-the system. However, functions are types and they also can be annotated with
-additional semantic information.</p>
-</div>
-<div class="paragraph">
-<p>The semantic type system gives all the information the compiler needs to
-convert data between languages. Concrete, language-specific types would map to
-instances of the type classes. A given language may have 0 or more instances
-for a given type (e.g. the C types 'float' and 'double' might both be instances
-of the <code>morloc</code> type 'Real'). The compiler would sometimes need a hint from the
-programmer about which instance to use.</p>
-</div>
-<div class="paragraph">
-<p>Semantic types offer many additional possibilities. Sets of inter-convertible
-types could be specified (e.g. {Meter, Foot, Angstrom} or sequence alignment
-formats {ClustalW, Stockholm}). Types could be given attributes, such as
-<code>has_length</code> which could be automatically used in descriptive statistics. The
-semantic type system could, I think, emulate the typeclasses of Haskell, e.g.
-"Monoid" or "Traversable". Types could be associated with metadata, such as
-statistical generative models.</p>
-</div>
-<div class="paragraph">
-<p>Speaking of statistical generative models, most types should have one. If we
-can simulate data for all inputs to a function, then we can automatically test
-the function, generate sample data, and build simulation-based performance
-models. Given performance models, the compiler can reason about the performance
-of the overall system, allowing estimation of runtime given inputs and smart
-optimizations.</p>
-</div>
-<div class="paragraph">
-<p>Overall, I want to give the compiler what it needs so that it can reason about
-the code and automate away the tedium of programming.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_pieces">3. Pieces</h2>
-<div class="sectionbody">
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -807,7 +1191,7 @@ etc etc.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_another_phrasing">4. Another phrasing</h2>
+<h2 id="_another_phrasing">6. Another phrasing</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <div class="title">Compiler</div>
@@ -839,26 +1223,18 @@ all functions.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_morloc_workflow">5. <code>morloc</code> workflow</h2>
+<h2 id="_morloc_workflow">7. <code>morloc</code> workflow</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="#fig:overview">The figure below</a> outlines the 6 levels of the <code>morloc</code>
 workflow.</p>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-Most of this framework is not yet implemented. For now, <code>morloc</code> can be run
-only as a simple fuctional programming language that imports functions from a
-few languages and generates an executable. A rough syntax for expressing types
-is supported, but full type checking is not.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>Most of the framework below is not yet implemented. For now, <code>morloc</code> can be
+run as a fuctional programming language that imports foreign functions
+(Python3, R and <code>C++</code>), performs type checking and generates an executable. The
+current type system supports generic and parameterized types; a more expressive
+system is under development.</p>
 </div>
 <div id="fig:overview" class="paragraph">
 <p><span class="image"><img src="images/overview.svg" alt="overview"></span></p>
@@ -894,12 +1270,10 @@ automated reasoning.</p>
 <li>
 <p>The <strong>integration</strong> level. All the libraries can be queried using powerful
 semantic query languages, such as SPARQL. Functions can be imported into
-<code>morloc</code> scripts and composed into new programs. These new programs can then be
-uploaded to <code>morlocIO</code> or built into new programs. Programs can be type
-checked and the deep knowledge the type signatures provide, along with access
-to the <code>morlocIO</code> knowledgebase and any local knowledgebases, will allow
-powerful inference of optimal parameters, function choice, runtime modeling,
-or inference of the optimal sequence of functions to achieve a given end.</p>
+<code>morloc</code> scripts and composed into new programs. These new programs can then
+be uploaded to <code>morlocIO</code> or built into new programs. The function type signatures, along with access to the <code>morlocIO</code> knowledgebase and
+any local knowledgebases, will allow parameter optimization, performance optimization, runtime modeling, or inference of the optimal sequence of functions
+to achieve a given end.</p>
 </li>
 <li>
 <p>The <strong>build</strong> level. Workflows can be compiled into local executables,
@@ -919,470 +1293,9 @@ generated Shiny app), or imported into MorlocStudio.</p>
 </div>
 </div>
 </div>
-<h1 id="_theory" class="sect0">Theory</h1>
+<h1 id="_related_work" class="sect0">Related work</h1>
 <div class="sect1">
-<h2 id="_build_system">6. Build system</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Internally, <code>morloc</code> follows a model similar to Pandoc. Pandoc can convert
-between markup formats (for example HTML, Markdown, LaTeX, and Word). All data
-is stored internally as an abstract syntax tree. To add a new markup format,
-a programmer only needs to add a Reader and Writer that converts the new markup
-format to and from Pandoc&#8217;s internal format.</p>
-</div>
-<div class="paragraph">
-<p>From the <code>morloc</code> users perspective, a module is a set of <code>morloc</code> functions that
-can be used in a <code>morloc</code> program. Each function in the module has a type. But
-the actual implementation, which is hidden from the <code>morloc</code> user, is a bit
-tricky. There are a couple very different cases:</p>
-</div>
-<div class="paragraph">
-<p>the imported module is:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>a <code>morloc</code> script. In this case, we are importing selected compositions
-written in <code>morloc</code>. These <code>morloc</code> imports are nodes on a tree.</p>
-</li>
-<li>
-<p>a single function in language X that uses only core features from X. No
-external libraries are used. No version info given. It is assumed that the
-function will work on any version of the language.</p>
-</li>
-<li>
-<p>a collection of functions in X and imports from X libraries. No version
-info. In this case, the <code>morloc</code> compiler needs to find and install the
-required libraries. It is assumed that the functions will work with an
-version of the language or libraries.</p>
-</li>
-<li>
-<p>#2 or #3, but with version info given. Install the specific version, or the
-highest version in the range.</p>
-</li>
-<li>
-<p>import a library from X. This is easier than #2-4, see the note below.</p>
-</li>
-</ol>
-</div>
-<div class="sect2">
-<h3 id="_how_to_make_a_morloc_module">6.1. How to make a <code>morloc</code> module</h3>
-<div class="imageblock">
-<div class="content">
-<img src="images/linear-algebra-module.png" alt="linear algebra module">
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_forms_of_data_and_the_grim_model">7. Forms of data and the GRIM model</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>U &lt;-&gt; I &lt;1-n&gt; T &lt;?-?&gt; S
-      |1      |1
-       \1     /1
-        \    /
-          vv
-          C &lt;1-1&gt; L_i &lt;1-1&gt; C_i</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>U  - User interface data</p>
-</li>
-<li>
-<p>I  - Internal <code>morloc</code> data</p>
-</li>
-<li>
-<p>T  - Typed <code>morloc</code> data</p>
-</li>
-<li>
-<p>S  - Standard formats</p>
-</li>
-<li>
-<p>C  - Common form</p>
-</li>
-<li>
-<p>Li - Language-specific forms</p>
-</li>
-<li>
-<p>Cu - Language-specific Cache</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>CDF - Common Data Format</p>
-</div>
-<div class="paragraph">
-<p>The semantic type system can be partioned into 4 main groups (GRIM model).</p>
-</div>
-<div class="sect2">
-<h3 id="_general_g">7.1. General (G)</h3>
-<div class="paragraph">
-<p>A structured type that can often map directly to the machine
-type of specific languages, though this may be ambiguous when a given type
-of data can map to multiple language-specific types. G maps uniquely to
-a CDF. This is the lowest level type that generalizes across languages.</p>
-</div>
-<div class="ulist">
-<div class="title">Examples:</div>
-<ul>
-<li>
-<p>Integer</p>
-</li>
-<li>
-<p>ProteinSeq, ProteinStructure</p>
-</li>
-<li>
-<p>Table {col1 : Integer, col2 : String}</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_resources_r">7.2. Resources (R)</h3>
-<div class="paragraph">
-<p>Types that describe resources. This may be data outside of the CDF. It may be
-databases.</p>
-</div>
-<div class="ulist">
-<div class="title">Examples:</div>
-<ul>
-<li>
-<p>URL, Filename, Folder</p>
-</li>
-<li>
-<p>SQLDB</p>
-</li>
-<li>
-<p>FastaFile, FastaFile UniProt, FastaFile GeneBank</p>
-</li>
-<li>
-<p>Markdown, Markdown GitHub</p>
-</li>
-<li>
-<p>Music, MP3</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_ideal_i">7.3. Ideal (I)</h3>
-<div class="paragraph">
-<p>A high-level idea that often does not contain enough information to
-unambiguously map to a machine type.</p>
-</div>
-<div class="ulist">
-<div class="title">Examples:</div>
-<ul>
-<li>
-<p>Protein</p>
-</li>
-<li>
-<p>Shoe, House</p>
-</li>
-<li>
-<p>Tree</p>
-</li>
-<li>
-<p>Symbol</p>
-</li>
-<li>
-<p>Music</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_machine_m">7.4. Machine (M)</h3>
-<div class="paragraph">
-<p>The data type within a specific language (e.g. AAStringSet or double). The
-Machine type will closely follow type format for the specific language. Part of
-building the binding for a new language is mapping <code>M&#8592;&#8594;G</code>.</p>
-</div>
-<div class="ulist">
-<div class="title">Examples:</div>
-<ul>
-<li>
-<p>(C) int, double, float, bool</p>
-</li>
-<li>
-<p>(R) integer, numeric, logical</p>
-</li>
-<li>
-<p>(R) AAStringSet</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_functions_may_have_roles">8. Functions may have roles</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>There are a few roles that are builtin to the compiler:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>load - R &#8594; ?G | R &#8594; ?M</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Load an external resource into a general form (i.e. conversion to CDF) or
-a machine type. Loading can fail.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>write - G &#8594; ?R | M &#8594; ?R</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Write to the given resource (generally not to the CDF). Writing can fail.</p>
-</div>
-<div class="ulist">
-<div class="title">Examples:</div>
-<ul>
-<li>
-<p>upload data to a database</p>
-</li>
-<li>
-<p>write a file</p>
-</li>
-<li>
-<p>send an email</p>
-<div class="ulist">
-<ul>
-<li>
-<p>convert - M &#8594; M | M &#8594; G | G &#8594; M</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>A reversible conversion from x to y.</p>
-</div>
-<div class="paragraph">
-<p>Examples:
-  <strong> (R) data.frame &#8594; data.table
-  </strong> (a, b, c) &#8594; (b, c, a)
-  ** Foot &#8594; Meter</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>downcast - M &#8594; M | G &#8594; G | G &#8594; M | R &#8594; R</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Convert one type to another descendent type, possibly irreversible</p>
-</div>
-<div class="paragraph">
-<p>Examples:
-  <strong> FullName &#8594; GivenName &#8201;&#8212;&#8201;both are names
-  </strong> Double &#8594; Integer     &#8201;&#8212;&#8201;both are numbers
-  ** Integer &#8594; String</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>upcast - M &#8594; ?M | G &#8594; ?G | G &#8594; ?M | R &#8594; ?R</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Attempts to upcast, this may fail</p>
-</div>
-<div class="ulist">
-<div class="title">Examples:</div>
-<ul>
-<li>
-<p>String &#8594; ?Integer</p>
-<div class="ulist">
-<ul>
-<li>
-<p>specialize - M &#8594; M | M &#8594; G | G &#8594; M</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Like convert, but may not be reversible, however the data should be the
-same, in some sense. Formally, they share a common ancestor.</p>
-</div>
-<div class="ulist">
-<div class="title">Examples:</div>
-<ul>
-<li>
-<p>(a, b, c) &#8594; (a, b)   &#8201;&#8212;&#8201;both are tuples</p>
-<div class="ulist">
-<ul>
-<li>
-<p>transform - M &#8594; M | M &#8594; G | G &#8594; M</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>This role is used when there is one natural transformation between two
-types. But no concept of specialization. The things on both sides are
-different.</p>
-</div>
-<div class="ulist">
-<div class="title">Examples:</div>
-<ul>
-<li>
-<p>Person &#8594; Age</p>
-</li>
-<li>
-<p>Graph &#8594; Size</p>
-</li>
-<li>
-<p>sorting given a comparator</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_graph_rules">9. Graph rules</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>A <code>morloc</code> program and all imported modules and ontologies, needs to be encoded
-as a RDF triple store. Here I will work out the rules for how elements of
-a <code>morloc</code> script should be translated into RDF.</p>
-</div>
-<div class="paragraph">
-<p>The system needs to define the</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>connectivity of the graph (what functions call what)</p>
-</li>
-<li>
-<p>language-specific type hints</p>
-</li>
-<li>
-<p>type ontology (including the function types)</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Object
- 1. WUID - workflow unique identifier, used to identify elements, such as nodes
-    in the application graph, that are unique to the workflow.
- 2. UUID - universally unique identifiers, such as functions or types from Morloc.IO.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_manifold_templates_and_code_generation">10. Manifold templates and code generation</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span># Where x and y are outside arguments coming in as JSON
-# The third argument comes from a downstream argument
-m1(x, y) =
-    @effect1
-    if (isCached) {
-        @effect2
-        x = getCache
-        @effect3
-    } else {
-        @effect4
-        x_ = unpackX(x)
-        y_ = unpackY(y)
-        z_ = m2(y_)
-        assert(constraint1(x_))
-        assert(constraint2(x_, z_))
-        @effect5
-        x = foo(x_, z_)
-        @effect6
-    }
-    @effect7
-    return(x)
-}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_modules">11. Modules</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>How is new code wrapped and given to <code>morloc</code>?</p>
-</div>
-<div class="paragraph">
-<p>Everything goes into RDF. That is the inviolate rule. But triples are an
-awkward way to write data for a human, so we offer <code>morloc</code> script. So, where do
-module details, such as author info and such, go?</p>
-</div>
-<div class="paragraph">
-<p>Maybe a <code>morloc.yaml</code> file. This single file would uniquely identify the
-contents of a folder as a morloc module.</p>
-</div>
-<div class="paragraph">
-<p>The downside, is that that ties the config file to a specific format, YAML, and
-to a single file. Better to use a folder where all <code>morloc</code> related info is
-witten. This could be sugar forms (e.g. anything that is not RDF). Or it could
-be local mods, whatever. This would be a little like the Python convention of
-having a <code><em>python</em></code> folder.</p>
-</div>
-<div class="paragraph">
-<p>Putting <code><em>morloc</em></code> in a folder automatically turns the contents into a morloc
-module, even if the folder is empty.</p>
-</div>
-<div class="paragraph">
-<p>Since morloc is designed to work with any language, we don&#8217;t want to have loose
-files hanging around in the same folder with the source. So there could be
-a <code><em>source</em></code> folder for holding all non-morloc source code. This code would
-be compiled or loaded by morloc. It would contain whatever is conventional for
-packages in the given language.</p>
-</div>
-<div class="paragraph">
-<p>No, let&#8217;s avoid new conventions. The <code>.loc</code> file has a relative path to any
-source code that is used, so requiring a <code><em>source</em></code> folder is silly. The
-<code><em>morloc</em></code> folder sounds nice, but I would want the top folder in a module to
-contain a README. And if I have a README here, I might as well have the module
-metadata. And I might as well have the loc file. Thus, everything in the
-<em>morloc</em>` folder might as well be moved up to the top folder. Then for
-source, if I have it in a dedicated <code><em>source</em></code> folder, and the name of that
-folder is hardcoded, then I&#8217;ll have to everywhere account for it. Meh, mess.
-So, just a simple package of this form (for module <code>foo</code>):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span> \foo
-   README.md
-   package.yaml
-   main.loc
-   whatever.py</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Where <code>main.loc</code> will identify <code>whatever.py</code> as its source. The <code>package.yaml</code>
-file may identify something other than <code>main.loc</code> as the main morloc file. It
-may refer to something other than the README.md file as module documentation.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_related_work">12. Related work</h2>
+<h2 id="_related_work_2">8. Related work</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>There are several attributes we can use to separate related languages and platforms:</p>
@@ -1496,9 +1409,9 @@ not have to write their results to STDOUT or read their input from it.</p>
 <p>This may be an impossible language.</p>
 </div>
 <div class="sect2">
-<h3 id="_related_systems">12.1. Related systems</h3>
+<h3 id="_related_systems">8.1. Related systems</h3>
 <div class="sect3">
-<h4 id="_serialization_systems">12.1.1. Serialization systems</h4>
+<h4 id="_serialization_systems">8.1.1. Serialization systems</h4>
 <div class="paragraph">
 <p><code>morloc</code> is not a serialization system. Indeed, any good serialization system
 would be a system that could greatly add to <code>morloc</code>, since serialization will
@@ -1508,14 +1421,14 @@ serialization system if Google&#8217;s protobuffers
 </div>
 </div>
 <div class="sect3">
-<h4 id="_ibm_knowledge_studio">12.1.2. IBM Knowledge Studio</h4>
+<h4 id="_ibm_knowledge_studio">8.1.2. IBM Knowledge Studio</h4>
 <div class="paragraph">
 <p><a href="https://console.bluemix.net/docs/services/knowledge-studio/typesystem.html">IBM Knowledge Studio</a>
 does pure logic reasoning, Doug Lenat style. Also similar to Palantir.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_microservices">12.1.3. Microservices</h4>
+<h4 id="_microservices">8.1.3. Microservices</h4>
 <div class="paragraph">
 <p>Microservice oriented design builds systems through modular programs that
 interact through usually through a REST interface with intermediate
@@ -1551,7 +1464,7 @@ to the microservice.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_specification_languages">12.2. Specification languages</h3>
+<h3 id="_specification_languages">8.2. Specification languages</h3>
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
@@ -1568,37 +1481,37 @@ behavior.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_petri_nets">12.2.1. petri nets</h4>
+<h4 id="_petri_nets">8.2.1. petri nets</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_assertion_definition_language_adl">12.2.2. Assertion definition language (ADL)</h4>
+<h4 id="_assertion_definition_language_adl">8.2.2. Assertion definition language (ADL)</h4>
 <div class="paragraph">
 <p>provides a formal grammar for specifying behaviour using function pre- and
 postconditions to specify the interfaces.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_common_algebraic_specification_language">12.2.3. Common Algebraic Specification Language</h4>
+<h4 id="_common_algebraic_specification_language">8.2.3. Common Algebraic Specification Language</h4>
 <div class="paragraph">
 <p>A general-purpose specification language based on first-order logic with induction.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_java_modeling_language">12.2.4. Java Modeling Language</h4>
+<h4 id="_java_modeling_language">8.2.4. Java Modeling Language</h4>
 <div class="paragraph">
 <p>Design by contract paradigm</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_larch_family">12.2.5. Larch family</h4>
+<h4 id="_larch_family">8.2.5. Larch family</h4>
 <div class="paragraph">
 <p>Has one language of abstract data types and a separate interface language for
 each language in which programs are to be written</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_universal_systems_language">12.2.6. Universal Systems Language</h4>
+<h4 id="_universal_systems_language">8.2.6. Universal Systems Language</h4>
 <div class="paragraph">
 <p>Developed by NASA scientists (Margaret Hamilton) for catching errors before the
 occur [<a href="#hamilton1976higher">1</a>].</p>
@@ -1657,9 +1570,9 @@ that the language itself inherently captures this relationship."</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_language_orientations">12.3. Language orientations</h3>
+<h3 id="_language_orientations">8.3. Language orientations</h3>
 <div class="sect3">
-<h4 id="_semantic_oriented_programming">12.3.1. Semantic-oriented programming</h4>
+<h4 id="_semantic_oriented_programming">8.3.1. Semantic-oriented programming</h4>
 <div class="paragraph">
 <p>Maxim Kizub, an enigmatic Ukrainian, is the possible coiner of the term
 "semantic programming". He is the creator of SymADE, a Java-based IDE. He has
@@ -1673,7 +1586,7 @@ bug reports. There is more information available in Ukrainian.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_intentional_programming">12.3.2. Intentional programming</h4>
+<h4 id="_intentional_programming">8.3.2. Intentional programming</h4>
 <div class="paragraph">
 <p>The goal of intentional programming is to encode exactly the intent of the
 programmer, rather than the operational details.</p>
@@ -1685,7 +1598,7 @@ company was subsequently reobsorbed by Microsoft.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_language_oriented_programming">12.3.3. Language-oriented programming</h4>
+<h4 id="_language_oriented_programming">8.3.3. Language-oriented programming</h4>
 <div class="paragraph">
 <p>Create a DSL for every problem. Encode specific domain knowledge in
 a dedicated language, send it to the user.</p>
@@ -1699,7 +1612,7 @@ itself.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_concept_programming">12.3.4. Concept programming</h4>
+<h4 id="_concept_programming">8.3.4. Concept programming</h4>
 <div class="paragraph">
 <p>There are a lot of neat ideas written in the wikipedia article on Concept
 programming. The goals of concept programming and my goals for <code>morloc</code> align
@@ -1711,30 +1624,30 @@ well.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_multi_language_type_systems_schemas_data_serialization_systems">12.4. Multi-language type systems (schemas) / data serialization systems</h3>
+<h3 id="_multi_language_type_systems_schemas_data_serialization_systems">8.4. Multi-language type systems (schemas) / data serialization systems</h3>
 <div class="sect3">
-<h4 id="_microsoft_bond">12.4.1. <a href="https://microsoft.github.io/bond/why_bond.html">Microsoft Bond</a></h4>
+<h4 id="_microsoft_bond">8.4.1. <a href="https://microsoft.github.io/bond/why_bond.html">Microsoft Bond</a></h4>
 <div class="paragraph">
 <p>There is a Bond schema.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_googles_protocol_buffers_serialization">12.4.2. [Google&#8217;s Protocol buffers]() - serialization</h4>
+<h4 id="_googles_protocol_buffers_serialization">8.4.2. [Google&#8217;s Protocol buffers]() - serialization</h4>
 
 </div>
 <div class="sect3">
-<h4 id="_apache_thrift_tutorial">12.4.3. <a href="http://thrift.apache.org/">Apache Thrift</a> - <a href="http://thrift.apache.org/tutorial/">tutorial</a></h4>
+<h4 id="_apache_thrift_tutorial">8.4.3. <a href="http://thrift.apache.org/">Apache Thrift</a> - <a href="http://thrift.apache.org/tutorial/">tutorial</a></h4>
 
 </div>
 <div class="sect3">
-<h4 id="_apache_avro">12.4.4. [Apache Avro]()</h4>
+<h4 id="_apache_avro">8.4.4. [Apache Avro]()</h4>
 <div class="paragraph">
 <p>Also, a little different, but <a href="https://docs.racket-lang.org/quick/index.html">racket</a></p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_related_work_2">12.5. Related work</h3>
+<h3 id="_related_work_3">8.5. Related work</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1926,7 +1839,7 @@ no loops.</p>
 </ol>
 </div>
 <div class="sect3">
-<h4 id="_formal_compositional_languages">12.5.1. Formal compositional languages</h4>
+<h4 id="_formal_compositional_languages">8.5.1. Formal compositional languages</h4>
 <div class="paragraph">
 <p>A powerful abstraction is the separation of a program into components and
 a script (schneider 1999). In the computer science community, this is the
@@ -1954,7 +1867,7 @@ between languages.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_scripting_languages">12.5.2. Scripting languages</h4>
+<h4 id="_scripting_languages">8.5.2. Scripting languages</h4>
 <div class="paragraph">
 <p>Many scientific workflows are coordinated through scripting languages, usually
 Bash (or a similar shell language). While Bash can be used as a full
@@ -1970,7 +1883,7 @@ management within a cluster environment.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_rule_based_languages">12.5.3. Rule-based languages</h4>
+<h4 id="_rule_based_languages">8.5.3. Rule-based languages</h4>
 <div class="paragraph">
 <p>The most well-known rule-based language is Make. Its was designed for
 coordinating the build of a program. It consists of a set of rules for
@@ -1985,7 +1898,7 @@ recipes only through the files they create.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_graphical_workflow_managers">12.5.4. Graphical workflow managers</h4>
+<h4 id="_graphical_workflow_managers">8.5.4. Graphical workflow managers</h4>
 <div class="paragraph">
 <p>Galaxy (Hillman 2012), Taverna (Oinn 2004) and other
 workflow managers allow visual composition of functional units and setting of
@@ -2004,7 +1917,7 @@ components are not generally the ones who write them (or could write them).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_summary_of_related_work">12.6. Summary of related work</h3>
+<h3 id="_summary_of_related_work">8.6. Summary of related work</h3>
 <div class="paragraph">
 <p>The different approaches to workflows can be classified based on the nature of
 the script, component, coder (writer of components), and composer (writer of
@@ -2020,7 +1933,7 @@ type system.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_workflow_theory_and_other">12.7. Workflow theory (and other)</h3>
+<h3 id="_workflow_theory_and_other">8.7. Workflow theory (and other)</h3>
 <div class="paragraph">
 <p>TODO: reread the charfi2006aspect paper, look into who cited it</p>
 </div>
@@ -2096,1166 +2009,6 @@ of 'hard-coded' components.</p>
 <div class="paragraph">
 <p>A few more things to look at: Triana, SOMA, SMILA, VisTrails, Discovery Net,
 Pipeline Pilot, KNIME</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_the_semantic_type_system">13. The semantic type system</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The fundamental innovation of <code>morloc</code> is the merger of knowledge engineering,
-type system design, and functional programming to create a powerful new
-programming paradigm. The foundation of this new paradigm is the concept of a
-universal semantic type system, where all information about the data and
-functions are stored using ontologies as knowledge representation systems.
-<code>morloc</code> uses ontologies for three distinct purposes: 1) as a language-agnostic
-type system, 2) to power automatic programming through encoded domain knowledge
-and 3) to describe data, functions, and systems. These purposes will be
-detailed in the following paragraphs.</p>
-</div>
-<div class="paragraph">
-<p><strong>First</strong>, the ontologies are the foundation of the universal type system. Like
-other strong type systems, the <code>morloc</code> type system will prevent many bugs at
-compile time. It goes beyond most languages by also allowing specification of
-constraints on values (e.g. input x must be greater than input y). These
-constraints can be used in static analysis of program correctness or to
-generate runtime assertions. They effectively replace in-code assertion
-statements and informal English descriptions of behavior with concise,
-language-agnostic mathematical statements about the function. Since the type
-system is language-agnostic, <code>morloc</code> provides a common language for programmers
-and domain scientists to discuss the operation and assumptions of functions.
-This system is a necessary requirement for the vision of building a universal
-library.</p>
-</div>
-<div class="paragraph">
-<p><strong>Second</strong>, the type system can be augmented with domain knowledge to provide
-rich machine and human accessible documentation, powerful and highly
-customizable automatic programming, and more intelligent data validation. The
-domain knowledge is encoded as relations between types or as annotations of
-types with special information. Examples of the knowledge that may be encoded
-include: inheritance relationships between types (e.g., <code>WindSpeed</code> inherits
-from <code>Speed</code>); associations between functions and the functions that benchmark
-or predict their performance; associations between data types and random
-generators; identification of conversion functions (see Fig. 6).</p>
-</div>
-<div class="paragraph">
-<p><strong>Third</strong>, the ontologies can store metadata about functions, data and systems.
-This would include metadata about functions (such as the version, license,
-documentation, author, performance metrics, links to related functions,
-keywords) or about data (such as its historical origin) or about systems (such
-as details about how languages work together, which compilers to use, or the
-local user preferences and system architecture). Examples of the application of
-this knowledge include: using community experience to optimize builds; using
-license data to avoid violations in proprietary workflows; and using author
-information to automatically cite the creators of the package or submit error
-reports.</p>
-</div>
-<div class="paragraph">
-<p>These three purposes intersect to offer human and machine users a powerful
-resource discovery system. There is currently no general way to search for
-tools and functions across different languages, because within programming
-languages the meaning of the code is hidden in variable naming conventions and
-documentation that is inaccessible to machines. By unifying programming
-languages and tools under a common type system, search engines can be designed
-to find and compare functions by their roles and input/output types. The common
-type system will also allow machines, and emergent AIs, to reason about
-<code>morloc</code>’s tools.</p>
-</div>
-<div class="paragraph">
-<p>By lifting this entire system into a community portal, an environment is
-created that allows both humans and machines to participate in curating and
-building a collective description of the world (the data type system), a set of
-tools to operate on it (the function library), and knowledge about how to use
-the tools (the function type system). The global ontologies further offer
-endless potential for <code>morloc</code> extensions that improve pipeline documentation,
-automation, optimization, accessibility, and reproducibility.</p>
-</div>
-<div class="sect2">
-<h3 id="_function_signatures_and_more_stuff">13.1. Function signatures and more stuff</h3>
-<div class="paragraph">
-<p>Function signatures are also needed to build the database of functions. I want
-a formal way to search for functions that does not depend on human written
-documentation or function/argument names. I want to search by type. But it
-seems there is currently no good method for this. Within a specific
-strongly-typed language, you may be able to search by function signature (e.g.
-in Haskell&#8217;s Hoogle you can search for <code>[a] &#8594; (a &#8594; b) &#8594; [b]</code>). Within
-dynamic languages you are limited to text searches against the documentation or
-unchecked, hand-written type annotations. But when searching for functions
-across languages, the best you can do is query Google and hope the terms are
-written in the documentation.</p>
-</div>
-<div class="paragraph">
-<p>A possible way to address these problems is to use a semantic type system. That
-is, a type system based on knowledge representation (ontologies). Basing a type
-system on formal logic seems reasonable. The ontology of types and the function
-signatures are the axioms. The code compiles to a list of statements. The
-program is correct if the whole system is logically consistent. Reasoning on
-knowledge bases (descriptive logics) is a rich field. There are good languages
-(such as OWL), good support for databases (SPARQL), and good reasoners (e.g.
-<code>HermiT</code> and <code>Fact++</code>).</p>
-</div>
-<div class="paragraph">
-<p>A semantic type system would allow expression of relations between types.
-A possible relation might be, "There exists Filename openable as Text". Then if
-you pass a Filename to a function expecting Text, the compiler can infer that
-Filename is convertible, with possible failure, to Text. It can then search
-a database for a suitable function, and if the function is found, insert it
-between Filename and Text. By importing different sets of relations, the
-strictness of a program can be finely tuned. Behavior that is hard-coded in
-most languages, becomes easily customizable. If you want your pipeline to
-automatically try to resolve type conflicts by converting a String to a Number
-(as is done dynamically in Perl), you just have to add the relation that Number
-can be cast as a String (the reasoner can then infer that some String can be
-cast as Number).</p>
-</div>
-<div class="paragraph">
-<p>The type would give the compiler all the information it needs to convert data
-between languages. Concrete, language-specific types would map to instances of
-the type classes. A given language may have 0 or more instances for a given
-type (e.g. the C types <code>float</code> and <code>double</code> might both be instances of the
-<code>morloc</code> type <code>Real</code>). The compiler would sometimes need a hint from the
-programmer about which instance to use.</p>
-</div>
-<div class="paragraph">
-<p>Semantic types offer many additional possibilities. Sets of inter-convertible
-types could be specified (e.g. {<code>Meter</code>, <code>Foot</code>, <code>Angstrom</code>} or sequence
-alignment formats {<code>ClustalW</code>, <code>Stockholm</code>}). Types could be given attributes,
-such as <code>has_length</code> which could be automatically used in descriptive
-statistics. The semantic type system could, I think, emulate the typeclasses of
-Haskell, e.g. <code>Monoid</code> or <code>Traversable</code>. Types could be associated with
-metadata, such as statistical generative models.</p>
-</div>
-<div class="paragraph">
-<p>Speaking of statistical generative models, I think most types should have one.
-If we can simulate data for all inputs to a function, then we can automatically
-test the function, generate sample data, and build simulation-based performance
-models. Given performance models, the compiler can reason about the performance
-of the overall system and can make smart optimizations.</p>
-</div>
-<div class="paragraph">
-<p>Overall, I want to give the compiler what it needs so that it can reason about
-the code and automate away the tedium of programming.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_components_of_the_semantic_system">13.2. Components of the semantic system</h3>
-<div class="paragraph">
-<p>The use of semantic reasoners for type processing is mostly an implementation
-difference (using constraint solvers rather than algorithm W)
-[@stuckey2006type]. This concept has been explored extensively and has proven
-not only feasible but superior to bespoke algorithms (at least in regards to
-clarity of debugging info) [@stuckey2006type]. Allowing types to be terms from
-a controlled vocabulary, an ontology, is major extension to the system.
-However, it is probably isomorphic to subtyping or some other system with type
-inheritance.  Although having an entire rule system describing how the types
-relate to eachother is probably more powerful than simple inheritance.</p>
-</div>
-<div class="paragraph">
-<p>There are three components to the semantic side of <code>morloc</code>. The 1) knowledge
-representation language (KR), 2) the query language (QL), 3) the rule language
-(RL) and 4) an inference engine (IE).</p>
-</div>
-<div class="sect3">
-<h4 id="_knowledge_representation_language">13.2.1. Knowledge representation language</h4>
-<div class="paragraph">
-<p>KR will be used to store the AST for all scripts, user system info, package
-descriptions, community info, and everything else. For KR we can use
-RDF/RDFS/OWL. This is a fairly easy choice to make. We will need to decide how
-much of OWL to use. There are alternatives, such as using one of the other
-graph database systems. Or for that matter, using bespoke data structures.</p>
-</div>
-<div class="paragraph">
-<p>OWL2 is based on a formal logic system, Description Logics (DL). It is good for
-describing the relations between types and what properties types have. The
-types and the type constraints (corresponding to Haskell typeclasses) are
-rules. <code>morloc</code> code can be translated into a list of facts. If the facts are
-consistent, the type checker passes. This will allow highly expressive types.</p>
-</div>
-<div class="paragraph">
-<p>All data are "instances" from the type "classes" (not to be confused with
-typeclasses ala Haskell, which are class properties). Functions are premises.
-The reasoner can prove that the program is correct, but the functions are
-blackboxes, they may not do what their types suggest. The functions are
-premises. If the premises are invalid, then the program is invalid.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_query_language">13.2.2. Query language</h4>
-<div class="paragraph">
-<p>A QL allows the user to query the entire system. To find functions that fit
-a problem. To find workflows where functions of interest were used, for example
-to find usage examples. To find subsets of the function space that have certain
-standards for strictness, quality, licensing, etc. The QL needs to be able to
-query the KR. Given our choice of RDF for KR, SPARQL is a pretty natural
-choice. Of course there are a lot of other query languages. But many are
-attached to proprietary systems or have low market penetration.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_rule_language">13.2.3. Rule language</h4>
-<div class="paragraph">
-<p>The RL is needed to encode the deep business logic of the system. While many
-types of constraints can be encoded in OWL, it has its limitations. Also, OWL
-constraints are often not as intuitive as the simple rules that can be written
-in, say, Datalog. Here there are many options.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>SPARQL - can be used to impose rules on an ontology.</p>
-</li>
-<li>
-<p>SHACL - this is a W3C specification for a SPARQL based constraint language.</p>
-</li>
-<li>
-<p>SWRL - the Semantic Web Rule Language allows Datalog-based rules to be used
-to impose laws on an OWL database.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_inference_engine">13.2.4. Inference engine</h4>
-<div class="paragraph">
-<p>The IE is needed to infer missing information. This includes</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>type inference (e.g., finding the concrete instances of generic types).</p>
-</li>
-<li>
-<p>choosing concrete instances for functions when there are multiple choices
-(e.g., which sort function to use).</p>
-</li>
-<li>
-<p>linking functions to their source code</p>
-</li>
-<li>
-<p>etc</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>These decisions are complex and will require an RL as well. This is also where
-many user customizations will occur.</p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_how_morloc_uses_knowledge">13.3. How <code>morloc</code> uses knowledge</h3>
-<div class="sect3">
-<h4 id="_static_type_checking">13.3.1. Static type checking</h4>
-<div class="paragraph">
-<div class="title">Base type</div>
-<p>The base type will consist of a large subset of the Haskell type system.
-Including algebraic types, type classes (will need to include functions which
-are implemented in each language), and parameterized types. The purpose of the
-base type is to allow rigorous type checking and code reuse according to
-property (e.g. all the functor, monoid, foldable, etc wonders of Haskell).</p>
-</div>
-<div class="paragraph">
-<p>The <strong>Fast Way</strong> to implement the base type is to follow Haskell conventions.
-Implement the safe stuff. Use the GHC typechecker for handling containers.</p>
-</div>
-<div class="paragraph">
-<p>The <strong>Right Way</strong> is to learn from Haskell mistakes. Do Prelude right. Use
-richer algebras. Do not use GHC. Do everything through logical inference.
-Encode containers through the knowledge system. The latter transition from the
-"Fast Way" to the "Right Way" here should be mostly in the backend.</p>
-</div>
-<div class="paragraph">
-<div class="title">Semantic/ontological types</div>
-<p>Orthogonal to the base type, is the semantic type system. The semantic type
-system expands upon the base type. For example, the base type might be
-<code>Double</code>. But <code>Double</code> really is not very informative. The semantic type can
-specialize this into, for example, <code>Meter</code>, <code>Second</code>, or <code>RadianAngle</code>.
-Relations can be set between semantic types (e.g. <code>is_a Meter Distance</code>).
-Properties can be added to them, to set the range of the value, add a
-distribution, etc.</p>
-</div>
-<div class="paragraph">
-<p>Before settling on the semantic type system, we should carefully consider
-category theory (groups, semigroups, algebras), search literature, base the
-ontology on theory. We should prove that everything works, if possible.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_runtime_data_validation">13.3.2. Runtime data validation</h4>
-<div class="paragraph">
-<div class="title">Invariants/runtime dependencies</div>
-<p>These includes dependencies between sub-units of a type (e.g. arguments in a
-functional signature or members of a tuple). It is probably not practical to
-have true, compile-time checked, dependent types in <code>morloc</code>, since functions are
-black boxes. So these dependencies will be probably be checked at runtime
-(unless compiled without checking). In the future, at least in some cases, we
-will be able to statically analyze the invariants.</p>
-</div>
-<div class="paragraph">
-<div class="title">Distribution</div>
-<p>A random model of the data. All data should be modeled. This allows random
-values to be generated and used in automatic testing. The distribution can also
-be handled in real-time to find outliers and possibly pathological behaviour.
-In the short term, we can add distributions as links to generative functions.
-In the long term, we should find a formal representation for models. Build a
-statistical reasoning machine to work with them. Test consistency between
-functions across the type system. Allow function instances to specialize the
-models.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Annotation
-Performance expectation - There are two layers to this "type" (we are not
-really in type-world anymore, perhaps). First is a performance contract for a
-function signature, where all implementations of the function must meet the
-specified standards. A second layer is a parameterized function for modeling
-time and space usage. This is closer to an annotation. It can be inferred
-through simulation. A major use of this would be to predict runtime
-requirements from the inputs and system data. A programmer may put limits on
-the time and space of the program and halt if a node is predicted to exceed
-them.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Eventually we should formally express as a mathematical functions of the
-features derived from the inputs (and the input distributions) and possibly the
-architecture. If the distributions for the inputs are specified, then inputs
-can be sampled and the function timed for each input set. The resulting data
-can be fed into a symbolic regression machine to infer an analytic solution to
-the time and space behaviour.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_allowing_machines_to_use_our_tools">13.3.3. Allowing machines to use our tools</h4>
-<div class="paragraph">
-<p>Machines need to learn how to use tools. The statistical deep learning approach
-gives them data, and then trains a network to recognize patterns. But whether
-this will ever be a substitute for knowledge is uncertain. There are other
-approaches to machine learning: Symbolic regression and logic. Knowledge
-representation systems allow them to reason and give them common sense. But how
-can they use tools and other resources? How can they find them? They need to be
-able to reason about functions. Deep learning can be used to create predicates
-in a knowledge representation system.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_searching_for_functions">13.3.4. Searching for functions</h4>
-<div class="paragraph">
-<p>Imposing semantic meaning on functions. This allows them to be organized and
-searched in databases.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_types_by_domain">13.3.5. Types by domain</h4>
-<div class="olist arabic">
-<div class="title">Statistics</div>
-<ol class="arabic">
-<li>
-<p>John White: The blog post [Type Safety and Statistical Computing](<a href="http://www.johnmyleswhite.com/notebook/2016/12/12/type-safety-and-statistical-computing/" class="bare">http://www.johnmyleswhite.com/notebook/2016/12/12/type-safety-and-statistical-computing/</a>)
-discusses the need to encode assumptions in the type system</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_mapping_to_conventional_types">13.3.6. Mapping to conventional types</h4>
-<div class="paragraph">
-<p>A minimal functionallity of ST is to emulate conventional primitive types and
-containers. What information do I need to store about each type?</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Number</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>bounds</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>String</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>encoding</p>
-</li>
-<li>
-<p>length</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Boolean</p>
-</li>
-<li>
-<p>Enum</p>
-</li>
-<li>
-<p>Maybe</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>type</p>
-</li>
-</ol>
-</div>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Syntactically, I will probably use a '?' for Maybe, for example: <code>?Int</code></p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>List</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>length</p>
-</li>
-<li>
-<p>element type</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Tuple</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>discrete number of types</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Matrix</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>dimension</p>
-</li>
-<li>
-<p>element type</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Structure</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>list of (name,type) pairs (recursive)</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Table</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>dimension</p>
-</li>
-<li>
-<p>column types</p>
-</li>
-<li>
-<p>? column dependencies</p>
-</li>
-<li>
-<p>? column names</p>
-</li>
-<li>
-<p>? row names</p>
-</li>
-<li>
-<p>? table metadata</p>
-</li>
-<li>
-<p>? column metadata</p>
-</li>
-<li>
-<p>? row metadata</p>
-</li>
-<li>
-<p>? cell metadata</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Parameterized Boolean - this is a odd type, but something important I want
-to express: a boolean with semantic annotation. For example:</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>Filename -&gt; Is Readable
-Image    -&gt; Is Dog
-String   -&gt; Is Integer
-Integer  -&gt; Is Odd
-Audio    -&gt; Is HipHop</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>-- general
-filterImage :: (Image -&gt; Is Thing) -&gt; [Image] -&gt; [Image]
-
--- more specific
-filterImage :: (Image -&gt; Is Airplane) -&gt; [Image] -&gt; [Image]
-
--- most specific
-filterImage :: (Image -&gt; Is Boeing747) -&gt; [Image] -&gt; [Image]</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>These would have the more general types:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>Filename -&gt; Bool
-Image    -&gt; Bool
-String   -&gt; Bool
-Integer  -&gt; Bool
-Audio    -&gt; Bool</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>But these lack semantic meaning.</p>
-</div>
-<div class="paragraph">
-<p>'Is' implies an equivalence of some sort. 'Has' implies a <code>has_part</code> relation.
-For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>[Integer] -&gt; Has 45
-Image -&gt; Has Dog</code></pre>
-</div>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Parameterized Probability</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>First there is the <code>ChanceOf</code> type</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>FeatureTable -&gt; ChanceOf Win</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_why_do_we_need_type_systems">13.4. Why do we need type systems?</h3>
-<div class="paragraph">
-<p>There is a growing appreciation for the importance of types. Conventionally
-dynamic languages, like Python and R, are gaining type systems.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>&gt;&gt;&gt; def foo(x,y):
-&gt;&gt;&gt;     print ((x * 2) + y)
-&gt;&gt;&gt; foo(2,3)
-7
-&gt;&gt;&gt; foo(&quot;a&quot;, &quot;b&quot;)
-&quot;aab&quot;
-&gt;&gt;&gt; foo([1,2,3], [8,9])
-[1,2,3,1,2,3,8,9]
-&gt;&gt;&gt; def commasep(xs):
-&gt;&gt;&gt;     return &#39;, &#39;.join(xs)
-&gt;&gt;&gt; commasep([&quot;asdf&quot;, &quot;df&quot;])
-&#39;asdf, df&#39;
-&gt;&gt;&gt; commasep(&quot;asdf&quot;)
-&#39;a, s, d, f&#39;</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_unsettled_issues">14. Unsettled issues</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>There are many issues that need to be resolved before <code>morloc</code> is ready for
-widespread use.</p>
-</div>
-<div class="sect2">
-<h3 id="_support_for_lazy_evaluation">14.1. Support for lazy evaluation</h3>
-<div class="paragraph">
-<p>Many languages support lazy evaluation, either by default (e.g., Haskell and
-R), by using special syntax (e.g., Python), or using system streaming utilities
-(e.g. pipelines in Bash). <code>morloc</code> should support this as well. Doing so is
-fairly easy for calls within a language, but can and should this be supported
-for calls between languages?</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_purity_totallity_and_planes">14.2. Purity, totallity and planes</h3>
-<div class="paragraph">
-<div class="title">Should functions be pure?  I certainly cannot, and should not, guarantee that</div>
-<p>all functions are pure. One possibility is adding (or inferring) a tag for
-purity. This could potentially be automatically tested by running the function
-within a sandbox or through static evaluation. Then <code>morloc</code> programmers and
-library builders can require all functions be pure.</p>
-</div>
-<div class="paragraph">
-<div class="title">Should functions be total? Again, not in general and again this could be a</div>
-<p>tag. In this case, some users, particularly of the Haskell persuation, might
-want to only work on the <code>morloc</code> "plane of totality".</p>
-</div>
-<div class="paragraph">
-<p>Perhaps what we need is a strict subset of <code>morloc</code>. Well, there will be layers.
-And functions will be ascend through the levels of quality, from unverified to
-proven. Though quality is not a one-dimensional trait. There is</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>correctness (ranging from unverified to levels of test to proven)</p>
-</li>
-<li>
-<p>asymptotic time and space complexity (ranging from unverified, then through
-a range of equations, bound perhaps by a proven form).</p>
-</li>
-<li>
-<p>there is code quality (which is somewhat subjective, but perhaps with "human vetted" on top)</p>
-</li>
-<li>
-<p>codebase size (remove comments and count the tokens)</p>
-</li>
-<li>
-<p>for some functions, there can be other quality metrics (accuracy, AUC, energy, etc)</p>
-</li>
-<li>
-<p>documentation (which is very subjective)</p>
-</li>
-<li>
-<p>purity (TRUE | FALSE)</p>
-</li>
-<li>
-<p>pairwise suitability to other functions (whatever that means)</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_handling_ontology_conflicts">14.3. Handling ontology conflicts</h3>
-<div class="paragraph">
-<p>Should there be one central authority for types, or many systems? We will
-eventually begin studying millions of compositions of functions to learn how
-the functions are used and what they mean. We want ontologies and rulesets to
-be reusable, which favors a central authority. However, we also want them to be
-flexible and to evolve freely, which favors decentralization. We will need to
-be able to merge ontologies and rulesets, identify equivalent terms and
-redundant rules, and automatically update programs. We will need to allow
-conflicting rules and ontologies to co-exist so long as they do not interact.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_polymorphism">14.4. Polymorphism</h3>
-<div class="paragraph">
-<p>Monolithic tools often do not resolve cleanly into a single type. This is
-especially true of standalone tools. But it is also true of many functions in
-dynamic languages. The problem is that they may have many possible types of
-input and output.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>input type depends on parameters</p>
-</li>
-<li>
-<p>input type depends on input value (ad hoc polymorphism)</p>
-</li>
-<li>
-<p>output type depends on parameters</p>
-</li>
-<li>
-<p>output type depends on input value</p>
-</li>
-<li>
-<p>output type depends on output value</p>
-</li>
-<li>
-<p>cardinality of input depends on parameters</p>
-</li>
-<li>
-<p>and more</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Enumerating all combinations of types would be a naming nightmare.</p>
-</div>
-<div class="paragraph">
-<p>Allowing function overloading reduces this problem somewhat.</p>
-</div>
-<div class="paragraph">
-<p>We could infer the output type, then attempt to cast it to the expected output
-type. For example, suppose we have a function that returns a list of integers
-if the list is longer than 1 and a single integer otherwise. <code>morloc</code> could
-generate a code in the manifold that checks the type of the output function,
-then casts it as needed.</p>
-</div>
-<div class="paragraph">
-<p>Some of these issues may need to be solved by workarounds in the wrapper (such
-as hard-coding certain parameters or processing the output or input).</p>
-</div>
-<div class="paragraph">
-<p>One way to solve this is to consider the tool&#8217;s function signature as a graph
-of types, rather than a singular entity.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_handling_effects">14.5. Handling effects</h3>
-<div class="paragraph">
-<p>A function maps data from one form to another. Where do effects, like writing
-something to a database, creating a file, showing a plot, or running an
-application fit in?</p>
-</div>
-<div class="paragraph">
-<p>For example, what is the type signature of a histogram function?</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; ?</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>We can delay visualization, keeping things in the pure realm a little longer,
-by converting the vector of numbers to bins:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; [Rectangle]</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>While this conveniently decouples the histogram algorithm from the
-visualization, it doesn&#8217;t solve the problem. We still want to make an image.</p>
-</div>
-<div class="paragraph">
-<p>We could allow the effect to run and return the filename</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; Filename</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Though <code>Filename</code> is fairly ad hoc. Is this a PDF? Or a PNG? Perhaps here
-parameterized types would be worthwhile. Where <code>Path PDF</code> implies a filename
-reference to the PDF is being passed (alternatively <code>Bytestream PDF</code>). Or
-perhaps just <code>PDF</code>, where <code>PDF</code> is a complex representation of the PDF vector
-object (see the 700 page reference manual) that will be converted into an
-appropriate data structure (e.g. PDF object) in the target language.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; Path PDF
-histogram :: [Num] -&gt; Bytestream PDF
-histogram :: [Num] -&gt; PDF</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>But this still does not capture the fact that a file was created. More clearly,
-imagine a robotic function that calculates a movement vector from the original
-position, moves the robot, and then returns the new position. The signature
-might be:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>literallyMove :: Position -&gt; Vector -&gt; Position</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>But this does not capture the fact that the function is also causing an effect
-(making the robot move).</p>
-</div>
-<div class="paragraph">
-<p>In old <code>morloc</code>, I have support for <code>Void</code> types, which roughly indicate IO. So
-we could couple two function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>calculateMove :: Position -&gt; Vector
-moveRobot :: Vector -&gt; Void
-moveRobot $ calculateMove (1.1, 3.4)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Perhaps we can leave Void as Void, for the base type, then expound upon it
-semantically. Perhaps with a prefix to indicate effect, e.g.:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>-- using &#39;!&#39;, I&#39;d want to think more before settling
-moveRobot :: Vector -&gt; !MoveRobot</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Now of course, in Haskell we would solve this with an IO monad. Do we want
-monads? But we really can&#8217;t pretend to be pure, since the functions are black
-boxes. And even if we could be pure, would we want to be? <code>morloc</code> needs to allow
-effects. Otherwise Haskell would be about the only major language it could
-support.</p>
-</div>
-<div class="paragraph">
-<p>Conclusion: for now I lean towards specialized Void.</p>
-</div>
-</div>
-</div>
-</div>
-<h1 id="_implementation" class="sect0">Implementation</h1>
-<div class="openblock partintro">
-<div class="content">
-<div class="paragraph">
-<p><code>morloc</code> is an ontology-based workflow framework that uses a code-generating
-compiler to integrate components. While the entire system is quite unique, the
-components are built on well-established technology.  The system can be divided
-into the five layers as show in Fig 5. Work related to the semantic, workflow,
-and interoperability layers, where the key technical innovations of <code>morloc</code>
-occur, is discussed below.</p>
-</div>
-<div class="paragraph">
-<p>The semantic layer consists of a type system based on the knowledge
-representation logic that underlies the semantic web. Knowledge representation
-systems, specifically ontologies, have been used extensively across fields to
-curate human knowledge. This knowledge can be understood by both humans and
-machines. One example of a successful ontology is the EDAM ontology of
-bioinformatics operations, data types and identifiers.7 Lamprecht, et al. used
-this ontology as a guiding logic for automatic workflow composition program
-where the components of the workflow were web services with inputs and outputs
-described by EDAM data types.8 Ontologies have also been studied as a tool for
-managing databases of functions.9 <code>morloc</code> will make heavy use of existing
-ontology tools and, where possible, reuse or adapt existing domain ontologies.
-<code>morloc</code> also will allow constraints to be placed on types, including functions.
-This has been explored extensively, for example in the dependently typed
-language Idris.10</p>
-</div>
-<div class="paragraph">
-<p>The workflow layer takes a graph of components and integrates them into a
-single program.  There are many systems designed to integrate standalone
-services, applications, and functions. For the UNIX community, the pipeline
-pattern of sending data through series of specialized filters is common.
-Scripting languages are used to coordinate system tools, where data is passed
-between the tools as raw files. For the research community, there are many
-large scientific platforms that manage workflows and curate resources, for
-example Galaxy builds workflows from UNIX scripts with XML metadata11 and
-Taverna similarly assembles web services into workflows.12 There are also many
-small language-specific libraries for building workflows from external tools or
-language constructs. API frameworks like MuleSoft are designed to allow many
-web microservices to communicate through a REST interface. The Common Workflow
-Language (CWL) is a specification language for describing command line tools
-and their composition into workflows.13 CWL scripts can be used to specify
-dependencies and automate the lifting of a pipeline into a high-performance
-computing context.</p>
-</div>
-<div class="paragraph">
-<p>The interoperability layer generates the interfaces needed to pass data between
-functions of different languages. Interfaces between languages, which allow
-calls to foreign languages with little overhead, have been developed for
-specific pairs of languages, usually from a high-level language (e.g. Python)
-to a high-performance compiled language (usually C) or for select groups of
-languages (e.g. GraalVM). The planned <code>morloc</code> implementation will take a more
-general approach to interoperability: serialize the output of the first
-function into a language-agnostic format and then deserialize this in the
-second function. The serialization format for the <code>morloc</code> prototype will be the
-web standard JSON. In the future, we will explore faster industrial systems,
-such as Google’s Protocol Buffers.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_the_semantic_type_system_2">15. The Semantic Type System</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The semantic type system is the foundation of <code>morloc</code>. The system is based on
-description logic, which is widely used across disciplines to organize
-knowledge into ontologies, which are directed graphs describing relationships
-between concepts. In this section, we will introduce 1) function type
-signatures, 2) data signatures, 3) ontologies of types, and 4) how abstract
-<code>morloc</code> types are converted into concrete language-specific types.</p>
-</div>
-<div class="sect2">
-<h3 id="_function_type_signatures_with_constraints">15.1. Function type signatures with constraints</h3>
-<div class="paragraph">
-<p>Here is an example of a <code>morloc</code> type signature:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>		sample :: i:Integer, xs:[a] -&gt; ys:[a] where {
-    i &gt;= 0
-    length(ys) == min(i, length(xs))
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This signature describes a function named sample that returns i random elements
-from the vector xs as a new vector ys. The vectors, [a], contain elements of
-generic type a, which can be anything. The where clause introduces a list of
-constraints. First, at least 0 elements must be sampled. Second, the length of
-the output vector must be the minimum of i and the length of xs. These two
-constraints describe the edge conditions of the function. Sampling 0 elements
-is legal and will return a vector of 0 length. Likewise, if the number of
-elements sampled is greater than the length of the input vector, the output
-vector will have the same length as the input vector.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_data_signatures_with_constraints">15.2. Data signatures with constraints</h3>
-<div class="paragraph">
-<p>Non-function types may also have constraints, for example, counting number
-could be defined as:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>		CountingNumber :: i:Integer where { i &gt; 0 }</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>While our first prototypes will use constraints only to generate runtime assert
-statements in the code, there are at least two powerful options for future
-development: 1) developing formal methods for static analysis of constraints
-across a pipeline and 2) using these constraints to automate testing of
-functions.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_ontologies_of_types">15.3. Ontologies of types</h3>
-<div class="paragraph">
-<p>The <code>morloc</code> type system is intended to powerfully describe concrete ideas.
-Knowledge representation systems, specifically ontologies, are the most natural
-system for this purpose. <code>morloc</code> will support adding arbitrary relations to
-types. Support for special handling for specific relations may be
-built into the <code>morloc</code> compiler or added as extensions. We have not chosen a
-syntax for expressing semantic relations. One option would be to use an
-existing W3C standard, such as Turtle format. Alternatively, we could develop
-our own syntax. The <code>morloc</code> compiler will convert a <code>morloc</code> script into a list of
-logical statements (an RDF triple store). Typechecking will involve proving the
-consistency of the resulting logical system.</p>
-</div>
-<div class="paragraph">
-<p>The relations between types will be used to encode domain specific handling
-into the <code>morloc</code> type system. For example, a programmer may state that Meter and
-Centimeter are both Length and that they can be interconverted. The function
-performing the interconversion will have the signature Meter&#8594;Centimeter and
-the role convert. If a function that expects the type Meter is
-passed data of type Centimeter, an appropriate conversion will be automatically
-performed.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_mapping_from_abstract_morloc_type_to_concrete_language_specific_type">15.4. Mapping from abstract <code>morloc</code> type to concrete, language-specific type</h3>
-<div class="paragraph">
-<p>Mapping from general <code>morloc</code> types, like Integer or [Integer] (a list of
-integers) to concrete types in specific languages is one of the basic functions
-of the <code>morloc</code> compiler. For a given general type, there may be many possible
-concrete instances in every language (see <a href="#serialization">the figure below</a>).
-To convert between concrete instances, the data must first be resolved into a
-nested structure of primitive values, clearing away language-specific features.
-This structure can then be unambiguously serialized into JSON, a nested
-language-agnostic data format.  Next the JSON intermediate form is deserialized
-into a nested structure of primitive values in language 2. Finally, this
-structure is cast into a language-specific concrete instance. The casting steps
-will not always be needed and there will often be reasonable defaults. The
-wrappers <code>morloc</code> generates around the pure functions will handle casting
-operations.</p>
-</div>
-<div class="paragraph">
-<p>Specifying cast functions will be most important for object oriented languages.
-In these cases, the primitive nested structure will hold all the information
-needed to build the required object, and the cast function will pass the
-appropriate data to the class constructor. We will explore object handling as
-we implement support for <code>C++</code>.</p>
-</div>
-<div id="serialzation" class="paragraph">
-<p><span class="image"><img src="images/serialization.png" alt="serialization"></span></p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_architecture">16. Architecture</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The <code>morloc</code> architecture can divided into 5 layers. The input layer handles the
-conversion of input source code into <code>morloc</code> packages. It extracts any <code>morloc</code>
-metadata that is encoded in the source code. This metadata includes the
-language-specific type information that may be needed when casting complex
-types between languages. The metadata would be stored within the comments above
-a function, as is done in Javadocs or Doxygen.</p>
-</div>
-<div class="paragraph">
-<p>The interoperability layer involves specification of the language-agnostic data
-formats and serializations to/from these formats. The semantic layer includes
-knowledge engineering and handles parsing of the type strings, inferencing, and
-type checking workflows. The workflow layer takes the raw functions and
-workflow graph and generates an executable and user interface. The distribution
-layer involves the database that stores all the functions and ontologies and
-the algorithms used for accessing them. The user layer includes all the ways in
-which a user interacts with <code>morloc</code>.</p>
-</div>
-<div class="paragraph">
-<p>The language grammar specification template is a vital piece of the <code>morloc</code>
-architecture that will allow support for new languages to be added without
-having to modify the core compiler. The <code>morloc</code> code generator needs to know
-enough of the language grammar to generate wrappers. For example, it needs to
-know the syntax for a function call given a list of arguments. In the input
-layer, the source code preprocessor needs to know how metadata are encoded in
-the source language (i.e. a regular expression that captures a specific pattern
-within the source code comments). We have explored these ideas in our current
-prototypes, but they will need to be formalized and generalized in order to
-realize our goal of easily adding support for almost any language.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_performance_optimizations_and_high_performance_computing">17. Performance Optimizations and High-Performance Computing</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Since <code>morloc</code> is built for data science, performance is a top priority. There
-are two main performance concerns: serialization and runtime transitions. In
-the most naive implementation of the <code>morloc</code> compiler, every function would be
-an independent script and every function call would require starting up the
-runtime (for non-compiled languages) and a serialization/deserialization step.
-An obvious optimization, and one that is already implemented in the current
-prototypes, is to merge all functions of the same language into the same
-script, removing all serialization and startup costs for within-language calls.
-But further optimizations are possible. Serialization costs can be reduced by
-using an industrial strength serialization solution (such as Google’s Protocol
-Buffers), rather than JSON. Existing solutions for efficient between-language
-calls also exist for some languages, and it may be possible to automatically
-generate the boilerplate to apply these solutions. Startup costs can also be
-removed for some interpreted languages by using a server/client interface (e.g.
-RServe for R).</p>
-</div>
-<div class="paragraph">
-<p>Beyond inter-language and serialization optimizations, lifting <code>morloc</code> workflows
-into high-performance computing frameworks is essential to scaling. One option
-is building Common Workflow Language (CWL) specifications for workflows during
-the compilation process. This would open the whole suite of CWL compatible
-tools and frameworks to <code>morloc</code> workflows. One such framework is Arvados
-(<a href="https://arvados.org/" class="bare">https://arvados.org/</a>), which could be leveraged to allow <code>morloc</code> workflows to
-run on local HPC clusters or in the cloud.</p>
-</div>
-<div class="paragraph">
-<p>In the long-term, we anticipate that one of the most powerful features of
-<code>morloc</code> will be its ability to automatically generate optimal solutions from
-simple components. The <code>morloc</code> compiler is given source code for each component,
-semantic knowledge about how the components work, and a vast knowledge base
-including past performance for all components both individually and when
-integrated into workflows. The only limit on the optimization of the compiled
-programs is the intelligence of the compiler and the quality of the knowledge
-we make available to it.</p>
-</div>
-<div class="paragraph">
-<p>Given the current acceleration of machine intelligence, we believe the best and
-most lasting frameworks will be those that make knowledge and tools available
-to the machine. This is exactly what we hope to achieve with <code>morloc</code>: to unify
-access to programmatic tools and create an elegant system for encoding
-knowledge about their operation.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_tech_tree">18. Tech Tree</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The purpose of this document is to describe the underlying Haskell packages
-that are used in <code>morloc</code>. It is not intended to act as a replacement for the
-documentation of the packages themselves, but rather describes how they are
-used within the <code>morloc</code> context and why they were chosen.</p>
-</div>
-<div class="sect2">
-<h3 id="_docopt">18.1. <code>docopt</code></h3>
-<div class="paragraph">
-<p>The <code>docopt</code> package is the Haskell implementation of the wider
-["docopt"](docopt.org) paradigm. The idea is that usage statements are
-standardized enough to allow them to be parsed as a language. Thus a usage
-statement, such as:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>morloc version 0.16.2
-
-Usage:
-  morloc make [--expression] &lt;script&gt; [--endpoint=&lt;sparql-endpoint&gt;]
-  morloc rdf [--triple] [--expression] &lt;script&gt;
-
-Options:
-  -t, --triple       print RDF graph in triple format, rather than the turtle
-  -e, --expression   read script as string rather than file</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This string serves as both the usage statement that is printed when help is
-needed (e.g., <code>morloc -h</code>) and the specification of the supported command line
-arguments that can be called. The Haskell code in <code>Main.hs</code> determines the
-behavior of <code>morloc</code> when these options are used, but does not have to deal with
-formatting or argument parsing.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_hsparql">18.2. <code>hsparql</code></h3>
-<div class="paragraph">
-<p><code>hsparql</code> is a DSL for making SPARQL queries from Haskell. In the past I wrote
-raw SPARQL code since I considered the use of a DSL unnecessary, since SPARQL
-is so pretty on its own. However, I found the raw SPARQL queries, which
-bypassed the typechecker, were a constant source of errors. I further had no
-options for abstraction and code reuse. So I converted to the DSL. It is more
-verbose, but also more reliable.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_rdf4h">18.3. <code>rdf4h</code></h3>
-<div class="paragraph">
-<p><code>rdf4h</code> is a Relational Data Format (RDF) handling package designed by Rob Stewart (the
-same person is maintains the <code>hsparql</code>).</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_wl_pprint_text">18.4. <code>wl-pprint-text</code></h3>
-<div class="paragraph">
-<p>Parsers such as <code>parsec</code> and <code>megaparsec</code> take strings and turn them into
-structures. The dreadfully named <code>wl-pprint-text</code> does the reverse. There is
-a beautiful symmetry between the syntax for <code>wl-pprint-text</code> and <code>parsec</code>.
-Commands in <code>parsec</code> that parse a string into a list (e.g., <code>many digit</code>) and
-reversed by <code>hsep</code> that takes a list of Doc types and makes a new Doc.</p>
-</div>
-<div class="paragraph">
-<p>What is this Doc things? Apart from the beauty of <code>wl-pprint-text</code>, it is also
-highly performant. The <code>wl</code> is a reference to Wadler [<a href="#wadler2003prettier">2</a>]
-and Leijen [<a href="#leijen2006pprint">3</a>], the authors of the paper on a
-high-performance, combinator-based pretty printer.</p>
-</div>
-<div class="paragraph">
-<p><code>wl-pprint-text</code> is a translation of <code>wl-pprint</code> from using String to using
-Text, for greater performance.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_megaparsec">18.5. <code>megaparsec</code></h3>
-<div class="paragraph">
-<p><code>megaparsec</code> is an industrial strength alternative to <code>parsec</code>.</p>
 </div>
 </div>
 </div>
@@ -3587,18 +2340,12 @@ programs which cover the same functionality.</p>
 <div class="paragraph">
 <p><a id="hamilton1976higher"></a>[1] M. Hamilton &amp; S. Zeldin, Higher order software—A methodology for defining software. <em>IEEE Transactions on Software Engineering</em>, (1976) 9–32.</p>
 </div>
-<div class="paragraph">
-<p><a id="wadler2003prettier"></a>[2] P. Wadler, A prettier printer. <em>The Fun of Programming, Cornerstones of Computing</em>, (2003) 223–243.</p>
-</div>
-<div class="paragraph">
-<p><a id="leijen2006pprint"></a>[3] D. Leijen, PPrint, a prettier printer. (2006).</p>
-</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-10-11 07:12:03 -0500
+Last updated 2020-03-06 22:23:18 -0600
 </div>
 </div>
 <style>
