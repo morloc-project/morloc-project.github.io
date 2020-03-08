@@ -454,45 +454,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </li>
-<li><a href="#_theory">Theory</a>
+<li><a href="#_philosophy">Philosophy</a>
 <ul class="sectlevel1">
 <li><a href="#_the_semantic_type_system">3. The semantic type system</a></li>
 </ul>
 </li>
-<li><a href="#_implementation">Implementation</a></li>
-<li><a href="#_the_future">The Future</a>
+<li><a href="#_specification">Specification</a>
 <ul class="sectlevel1">
-<li><a href="#_unsettled_issues">4. Unsettled issues</a>
+<li><a href="#_grammar">4. Grammar</a></li>
+<li><a href="#_let_polymorphism">5. Let polymorphism</a></li>
+<li><a href="#_declarative_type_system">6. Declarative type system</a></li>
+<li><a href="#_algorithmic_rules">7. Algorithmic Rules</a>
 <ul class="sectlevel2">
-<li><a href="#_support_for_lazy_evaluation">4.1. Support for lazy evaluation</a></li>
-<li><a href="#_purity_totallity_and_planes">4.2. Purity, totallity and planes</a></li>
-<li><a href="#_handling_ontology_conflicts">4.3. Handling ontology conflicts</a></li>
-<li><a href="#_polymorphism">4.4. Polymorphism</a></li>
-<li><a href="#_handling_effects">4.5. Handling effects</a></li>
-</ul>
-</li>
-<li><a href="#_pieces">5. Pieces</a></li>
-<li><a href="#_another_phrasing">6. Another phrasing</a></li>
-<li><a href="#_morloc_workflow">7. <code>morloc</code> workflow</a></li>
-</ul>
-</li>
-<li><a href="#_related_work">Related work</a>
-<ul class="sectlevel1">
-<li><a href="#_related_work_2">8. Related work</a>
-<ul class="sectlevel2">
-<li><a href="#_related_systems">8.1. Related systems</a></li>
-<li><a href="#_specification_languages">8.2. Specification languages</a></li>
-<li><a href="#_language_orientations">8.3. Language orientations</a></li>
-<li><a href="#_multi_language_type_systems_schemas_data_serialization_systems">8.4. Multi-language type systems (schemas) / data serialization systems</a></li>
-<li><a href="#_related_work_3">8.5. Related work</a></li>
-<li><a href="#_summary_of_related_work">8.6. Summary of related work</a></li>
-<li><a href="#_workflow_theory_and_other">8.7. Workflow theory (and other)</a></li>
+<li><a href="#_context">7.1. Context</a></li>
+<li><a href="#_subtyping_and_instantiation">7.2. Subtyping and instantiation</a></li>
+<li><a href="#_typechecking_rulesbidirectional_or_tridirectional">7.3. Typechecking rules&#8201;&#8212;&#8201;bidirectional or tridirectional?</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#_glossary">Glossary</a></li>
-<li><a href="#_loc_old_version_of_morloc">Appendix A: LOC (old version of Morloc)</a></li>
 <li><a href="#_references">References</a></li>
 </ul>
 </div>
@@ -500,6 +480,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
+<div class="stemblock">
+<div class="content">
+\[
+\def\ea{\widehat{\alpha}}
+\def\eb{\widehat{\beta}}
+\def\eg{\widehat{\gamma}}
+\def\sep{ \quad\quad}
+\newcommand{\mark}[1]{\blacktriangleright_{#1}}
+\newcommand{\expr}[3]{#1\ \ \vdash\ #2\ \dashv\ \ #3}
+\newcommand{\packto}[2]{#1\ \approx &gt;\ #2}
+\newcommand{\apply}[3]{#1 \bullet #2\ \Rightarrow {\kern -1em} \Rightarrow\ #3}
+\newcommand{\subtype}[2]{#1\ :\leqq\ #2}
+\newcommand{\braced}[1]{\lbrace #1 \rbrace}
+\]
+</div>
+</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -800,7 +796,7 @@ or use our tools.</p>
 </div>
 </div>
 </div>
-<h1 id="_theory" class="sect0">Theory</h1>
+<h1 id="_philosophy" class="sect0">Philosophy</h1>
 <div class="sect1">
 <h2 id="_the_semantic_type_system">3. The semantic type system</h2>
 <div class="sectionbody">
@@ -874,1463 +870,504 @@ automation, optimization, accessibility, and reproducibility.</p>
 </div>
 </div>
 </div>
-<h1 id="_implementation" class="sect0">Implementation</h1>
-
-<h1 id="_the_future" class="sect0">The Future</h1>
-<div class="sect1">
-<h2 id="_unsettled_issues">4. Unsettled issues</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>There are many issues that need to be resolved before <code>morloc</code> is ready for
-widespread use.</p>
-</div>
-<div class="sect2">
-<h3 id="_support_for_lazy_evaluation">4.1. Support for lazy evaluation</h3>
-<div class="paragraph">
-<p>Many languages support lazy evaluation, either by default (e.g., Haskell and
-R), by using special syntax (e.g., Python), or using system streaming utilities
-(e.g. pipelines in Bash). <code>morloc</code> should support this as well. Doing so is
-fairly easy for calls within a language, but can and should this be supported
-for calls between languages?</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_purity_totallity_and_planes">4.2. Purity, totallity and planes</h3>
-<div class="paragraph">
-<div class="title">Should functions be pure?  I certainly cannot, and should not, guarantee that</div>
-<p>all functions are pure. One possibility is adding (or inferring) a tag for
-purity. This could potentially be automatically tested by running the function
-within a sandbox or through static evaluation. Then <code>morloc</code> programmers and
-library builders can require all functions be pure.</p>
-</div>
-<div class="paragraph">
-<div class="title">Should functions be total? Again, not in general and again this could be a</div>
-<p>tag. In this case, some users, particularly of the Haskell persuation, might
-want to only work on the <code>morloc</code> "plane of totality".</p>
-</div>
-<div class="paragraph">
-<p>Perhaps what we need is a strict subset of <code>morloc</code>. Well, there will be layers.
-And functions will be ascend through the levels of quality, from unverified to
-proven. Though quality is not a one-dimensional trait. There is</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>correctness (ranging from unverified to levels of test to proven)</p>
-</li>
-<li>
-<p>asymptotic time and space complexity (ranging from unverified, then through
-a range of equations, bound perhaps by a proven form).</p>
-</li>
-<li>
-<p>there is code quality (which is somewhat subjective, but perhaps with "human vetted" on top)</p>
-</li>
-<li>
-<p>codebase size (remove comments and count the tokens)</p>
-</li>
-<li>
-<p>for some functions, there can be other quality metrics (accuracy, AUC, energy, etc)</p>
-</li>
-<li>
-<p>documentation (which is very subjective)</p>
-</li>
-<li>
-<p>purity (TRUE | FALSE)</p>
-</li>
-<li>
-<p>pairwise suitability to other functions (whatever that means)</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_handling_ontology_conflicts">4.3. Handling ontology conflicts</h3>
-<div class="paragraph">
-<p>Should there be one central authority for types, or many systems? We will
-eventually begin studying millions of compositions of functions to learn how
-the functions are used and what they mean. We want ontologies and rulesets to
-be reusable, which favors a central authority. However, we also want them to be
-flexible and to evolve freely, which favors decentralization. We will need to
-be able to merge ontologies and rulesets, identify equivalent terms and
-redundant rules, and automatically update programs. We will need to allow
-conflicting rules and ontologies to co-exist so long as they do not interact.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_polymorphism">4.4. Polymorphism</h3>
-<div class="paragraph">
-<p>Monolithic tools often do not resolve cleanly into a single type. This is
-especially true of standalone tools. But it is also true of many functions in
-dynamic languages. The problem is that they may have many possible types of
-input and output.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>input type depends on parameters</p>
-</li>
-<li>
-<p>input type depends on input value (ad hoc polymorphism)</p>
-</li>
-<li>
-<p>output type depends on parameters</p>
-</li>
-<li>
-<p>output type depends on input value</p>
-</li>
-<li>
-<p>output type depends on output value</p>
-</li>
-<li>
-<p>cardinality of input depends on parameters</p>
-</li>
-<li>
-<p>and more</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Enumerating all combinations of types would be a naming nightmare.</p>
-</div>
-<div class="paragraph">
-<p>Allowing function overloading reduces this problem somewhat.</p>
-</div>
-<div class="paragraph">
-<p>We could infer the output type, then attempt to cast it to the expected output
-type. For example, suppose we have a function that returns a list of integers
-if the list is longer than 1 and a single integer otherwise. <code>morloc</code> could
-generate a code in the manifold that checks the type of the output function,
-then casts it as needed.</p>
-</div>
-<div class="paragraph">
-<p>Some of these issues may need to be solved by workarounds in the wrapper (such
-as hard-coding certain parameters or processing the output or input).</p>
-</div>
-<div class="paragraph">
-<p>One way to solve this is to consider the tool&#8217;s function signature as a graph
-of types, rather than a singular entity.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_handling_effects">4.5. Handling effects</h3>
-<div class="paragraph">
-<p>A function maps data from one form to another. Where do effects, like writing
-something to a database, creating a file, showing a plot, or running an
-application fit in?</p>
-</div>
-<div class="paragraph">
-<p>For example, what is the type signature of a histogram function?</p>
-</div>
-<div class="listingblock">
+<h1 id="_specification" class="sect0">Specification</h1>
+<div class="openblock partintro">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; ?</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>We can delay visualization, keeping things in the pure realm a little longer,
-by converting the vector of numbers to bins:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; [Rectangle]</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>While this conveniently decouples the histogram algorithm from the
-visualization, it doesn&#8217;t solve the problem. We still want to make an image.</p>
-</div>
-<div class="paragraph">
-<p>We could allow the effect to run and return the filename</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; Filename</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Though <code>Filename</code> is fairly ad hoc. Is this a PDF? Or a PNG? Perhaps here
-parameterized types would be worthwhile. Where <code>Path PDF</code> implies a filename
-reference to the PDF is being passed (alternatively <code>Bytestream PDF</code>). Or
-perhaps just <code>PDF</code>, where <code>PDF</code> is a complex representation of the PDF vector
-object (see the 700 page reference manual) that will be converted into an
-appropriate data structure (e.g. PDF object) in the target language.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>histogram :: [Num] -&gt; Path PDF
-histogram :: [Num] -&gt; Bytestream PDF
-histogram :: [Num] -&gt; PDF</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>But this still does not capture the fact that a file was created. More clearly,
-imagine a robotic function that calculates a movement vector from the original
-position, moves the robot, and then returns the new position. The signature
-might be:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>literallyMove :: Position -&gt; Vector -&gt; Position</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>But this does not capture the fact that the function is also causing an effect
-(making the robot move).</p>
-</div>
-<div class="paragraph">
-<p>In old <code>morloc</code>, I have support for <code>Void</code> types, which roughly indicate IO. So
-we could couple two function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>calculateMove :: Position -&gt; Vector
-moveRobot :: Vector -&gt; Void
-moveRobot $ calculateMove (1.1, 3.4)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Perhaps we can leave Void as Void, for the base type, then expound upon it
-semantically. Perhaps with a prefix to indicate effect, e.g.:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>-- using &#39;!&#39;, I&#39;d want to think more before settling
-moveRobot :: Vector -&gt; !MoveRobot</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Now of course, in Haskell we would solve this with an IO monad. Do we want
-monads? But we really can&#8217;t pretend to be pure, since the functions are black
-boxes. And even if we could be pure, would we want to be? <code>morloc</code> needs to allow
-effects. Otherwise Haskell would be about the only major language it could
-support.</p>
-</div>
-<div class="paragraph">
-<p>Conclusion: for now I lean towards specialized Void.</p>
-</div>
-</div>
+The type system presented within this section is based the work of Dunfield and
+Krishnaswami [<a href="#dunfield2013complete">1</a>] (DK). I preserved their naming
+conventions where possible.
 </div>
 </div>
 <div class="sect1">
-<h2 id="_pieces">5. Pieces</h2>
+<h2 id="_grammar">4. Grammar</h2>
 <div class="sectionbody">
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-Currently this is not how <code>morloc</code> is implemented. Previously I did parse
-directly to RDF and then collect the data needed for generation using SPARQL
-queries. This proved to be complicated and the path to full typechecking using
-some sort of rule engine seemed hard, so I refactored the parser to generate a
-more conventional abstract syntax tree. This allows more direct implementation
-of type systems. I currently use the bidirectional typing algorithm as
-described by Dunsfield, but generalized to work with multiple simultaneous
-languages. I plan to eventually replace this with a rule engine that reads from
-RDF, but I will probably not make that jump until I&#8217;ve ironed out the
-difficulties in the code generators and basic F system implementation.
-</td>
-</tr>
-</table>
+<div class="stemblock">
+<div class="content">
+\[
+\begin{align}
+program   &amp;\ :\ [statement]                         \sep &amp; \text{brackets indicate a list of 0 or more} \\
+statement &amp;\ :\ \text{Source}\ x\ L                 \sep &amp; \text{source var x from language L} \\
+{}        &amp;\ |\ \text{Import}\ v\ L                 \sep &amp; \text{import all terms in module v} \\
+{}        &amp;\ |\ \text{Export}\ x                    \sep &amp; \text{export var x from this module} \\
+{}        &amp;\ |\ x\ L ::\ A_L                        \sep &amp; \text{signature for language L} \\
+{}        &amp;\ |\ x=expr\                             \sep &amp; \text{declaration} \\
+expr      &amp;\ :\ (\ )                                \sep &amp; \text{nothing} \\
+{}        &amp;\ |\ x                                   \sep &amp; \text{var} \\
+{}        &amp;\ |\ x\ ::\ [A_L]                        \sep &amp; \text{annotation, usually only used in annotated output} \\
+{}        &amp;\ |\ \lambda x .\ expr                   \sep &amp; \text{abstraction} \\
+{}        &amp;\ |\ expr\ expr                          \sep &amp; \text{application} \\
+{}        &amp;\ |\ num\ |\ str\ |\ bool                \sep &amp; \text{primitives} \\
+{}        &amp;\ |\ [e_1, ..., e_n]                     \sep &amp; \text{list} \\
+{}        &amp;\ |\ (e_1, ..., e_n)                     \sep &amp; \text{tuple} \\
+{}        &amp;\ |\ \braced{v_1=e_1,\ ...,\ v_n = e_n}  \sep &amp; \text{record}
+\end{align}
+\]
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Parser
-The local parser that generates RDF from whatever flavor of morloc script (or
-MorlocStudio or any other tool) they happen to be using. The output though is
-MAST (MorlocScript Abstract Syntax Tree). MAST needs a formal specification
-that is respected by every parser. There may be a parser-specific ruleset for
-cleaning the generated RDF (which may be influenced by the implementation of
-the parser) into MAST. Alternatively, the parser may create some other output
-that is then converted by whatever means into MAST. Anyway, all that really
-matters that MAST is the final output. The RDF morloc currently generates
-roughly corresponds to MAST (it needs a lot of refinement, though).</p>
-</li>
-<li>
-<p>Semantic Engine (SE)
-Next the MAST is passed through a semantic engine (SE). There will be default
-rulesets for typechecking and inference (light on both counts). The morloc
-script writer may also specify in the script (this is not yet supported) which
-rulesets to use. The SE does type checking and type casting. It further removes
-the temporary data structures used in MAST, thus generating the abstract syntax
-tree that describes the abstract program (VAST, Very Abstract Syntax Tree). It
-is VAST that is stored in MorlocIO.</p>
-</li>
-<li>
-<p>"Linker"
-When a user decides to generate an executable from a morloc program (i.e. a
-VAST file) they need to first merge data from their local system (which is RDF
-also) with the VAST file. Then we can start trying to link functions to
-concrete sources. This is where dependencies are handled. The final output is a
-CAST file (Concrete Abstract Syntax Tree). The CAST file contains all the
-information needed to generate an executable on the local system.</p>
-</li>
-<li>
-<p>Generator
-The final step is to compile the CAST file into an exectuable.  This involves
-generating the nexus file and all required pools.  Alternatively, it may
-involve (as directed by CAST) the generation of Common Workflow Language
-scripts or other possible outputs. The final executable will probably not be
-portable (i.e., it will probably have hard-coded paths to resources).</p>
-</li>
-<li>
-<p>UI
-This fifth piece is the interface to the previous 4 steps. On the command
-line, it is the <code>morloc</code> program. For GUI users, it is <code>MorlocStudio</code> (which
-will probably be built on top of <code>morloc</code>).  This piece handles local
-configurations (i.e. generating the aforementioned RDF description of the local
-system); all IO operations; dependency checking; downloading, uploading and
-managing packages; generating local package templates and checking them; etc
-etc etc.</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_another_phrasing">6. Another phrasing</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<div class="title">Compiler</div>
-<p>given an ontology, database of typed functions, and an application, it
-generates code to allow the functions to talk across languages and builds a
-nexus to integrate them.</p>
 </div>
 <div class="paragraph">
-<div class="title">Environment</div>
-<p><code>morloc</code> is intended to allow tools and languages to be interoperable. The user
-should be able to import a function from any language and expect it to run. For
-this to work, the compiler needs to have the languages and tools installed. The
-user should not have to install all this.  Instead, they work through Docker.
-Inside the Docker image, everything they need is present. When a new program is
-installed, the code is sent to the docker image, everything is built in there
-and run in there. The local executable is an API to the docker image. Or
-something. I seriously need to prototype this.</p>
+<p>This system departs from conventional lambda calculus by supporting multiple
+languages in one program. It is designed to typecheck programs comprised of
+many languages that share a common general type but that also have
+language-specific forms. Thus an expression may have the abstract type <code>Num</code>
+and the C-type <code>double</code> and the python type <code>float</code>. Top-level signatures can
+be used to specify the type of a term in different languages. A term may be
+sourced from many different languages, thus \(x\) is multilingual.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[
+\begin{align}
+\text{Types} \sep A,B,C\
+       &amp;: \alpha_L   \sep &amp; \text{var in language L} \\
+       &amp;|\ A \rightarrow B              \sep &amp; \text{function} \\
+       &amp;|\ \forall\ \alpha_L\ . A       \sep &amp; \text{universal quantification over L} \\
+       &amp;|\ \alpha_L\ [A]                \sep &amp; \text{parameterization} \\
+\end{align}
+\]
+</div>
 </div>
 <div class="paragraph">
-<div class="title">Semantic type system (STS)</div>
-<p>a language for ascribing sufficient semantic information to data and functions
-that an AI can automate every sort of tedious work.</p>
-</div>
-<div class="paragraph">
-<div class="title">Packager</div>
-<p>A knowledge-base describing the relations between all data types and storing
-all functions.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_morloc_workflow">7. <code>morloc</code> workflow</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><a href="#fig:overview">The figure below</a> outlines the 6 levels of the <code>morloc</code>
-workflow.</p>
-</div>
-<div class="paragraph">
-<p>Most of the framework below is not yet implemented. For now, <code>morloc</code> can be
-run as a fuctional programming language that imports foreign functions
-(Python3, R and <code>C++</code>), performs type checking and generates an executable. The
-current type system supports generic and parameterized types; a more expressive
-system is under development.</p>
-</div>
-<div id="fig:overview" class="paragraph">
-<p><span class="image"><img src="images/overview.svg" alt="overview"></span></p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>The <strong>creation</strong> level. The programmer creates their functions just as they
-would without <code>morloc</code>. New functions and libraries can be written using
-idiomatic syntax. The code is maintained in the programmer&#8217;s favorite version
-control platform (e.g. github) and maintained following whatever conventions
-are standard for the given language. That is, the programmer does usually not
-need to change anything in order to integrate with <code>morloc</code>.</p>
-</li>
-<li>
-<p>The <strong>semantic</strong> level. Each function in the library is given a type
-annotation (perhaps automatically). The type annotation may be as simple as
-<code>Int &#8594; Int</code>, just like a C prototype. Simple type signatures like this may be
-inferred automatically from the source code if the guest language is typed.
-Far more expressive types can also be used.</p>
-</li>
-<li>
-<p>The <strong>curation</strong> level. Once types are assigned to the functions, they can be
-uploaded to the <code>morlocIO</code> repository. Here they can be benchmarked against
-related functions (even across languages), documented, discussed, and
-organized into rich modules. Entire workflows, compositions of many <code>morloc</code>
-functions, can be uploaded as well (see next level). Stats for how functions
-are used can be maintained. They can be plugged into cross-language test
-suites. Functions and libraries that are reliable will gain "stars". Community
-knowledge about how these functions are used will be collected to allow deeper
-automated reasoning.</p>
-</li>
-<li>
-<p>The <strong>integration</strong> level. All the libraries can be queried using powerful
-semantic query languages, such as SPARQL. Functions can be imported into
-<code>morloc</code> scripts and composed into new programs. These new programs can then
-be uploaded to <code>morlocIO</code> or built into new programs. The function type signatures, along with access to the <code>morlocIO</code> knowledgebase and
-any local knowledgebases, will allow parameter optimization, performance optimization, runtime modeling, or inference of the optimal sequence of functions
-to achieve a given end.</p>
-</li>
-<li>
-<p>The <strong>build</strong> level. Workflows can be compiled into local executables,
-graphical user interface wrappers, or scalable workflows (e.g. using the
-Common Workflow Language). The compiler, armed with a powerful reasoner and
-deep knowledge about the system, can figure out how to integrate the functions
-across languages and embed them in code for handling error, caching data, and
-scaling.</p>
-</li>
-<li>
-<p>The <strong>execution</strong> level. Depending on the build configuration, the resulting
-program may be run locally, uploaded to a cloud computing framework (e.g.
-arvados using CWL), shared with users as a GUI (e.g. an automatically
-generated Shiny app), or imported into MorlocStudio.</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<h1 id="_related_work" class="sect0">Related work</h1>
-<div class="sect1">
-<h2 id="_related_work_2">8. Related work</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>There are several attributes we can use to separate related languages and platforms:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>cached (C) - many pipeline programs, such as the Make family, only build what is needed.</p>
-</li>
-<li>
-<p>distributed (D) - are the pieces sent to a cluster or parallelized?</p>
-</li>
-<li>
-<p>typed (T) - each node input and output have types, has typechecking</p>
-</li>
-<li>
-<p>language agnostic (A) - any language can be used</p>
-</li>
-<li>
-<p>nodes are: [executables (nE), functions (nF)]</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>generative types - Every type is defined as a generative model, when fully
-parameterized, data can be generated from it, for testing purposes. All
-terminating programs are also generative types given the random models of the
-input types.</p>
-</li>
-</ol>
-</div>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Based on these discriminants, we can enumerate the types of possible programs:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>C[D]AnE</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>These tie together many executable scripts. They tend to focus on caching
-so that the same steps are not rerun (e.g. Make). This includes most
-variants of the Make family.</p>
-</div>
-<div class="paragraph">
-<p>They may be distributed. Some are simply parallelized (GNU Make) others are
-designed to run on Hadoop or on a cluster through Slurm. They emphasize
-performance.</p>
-</div>
-<div class="paragraph">
-<p>Examples: Make, Snakemake</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>[CD]TAnE</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>These are typed, language agnostic pipelines. They coordinate executable
-scripts, but annotate them with a type system, such that illegal
-combinations are prevented.</p>
-</div>
-<div class="paragraph">
-<p>Examples: Galaxy</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>[CDT]nF</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>These are simple pipelines for use within a single language. Whether they
-are typed depends on the type system of the host language. They may be
-distributed and cached.</p>
-</div>
-<div class="paragraph">
-<p>Examples: magrittr and rmonad</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>[CD]TAnF</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Here we have pipeline languages that work at the level of the function, but
-that are also language agnostic. That is, any function can be written in
-any (supported) language and they can be linked together. The functions do
-not have to write their results to STDOUT or read their input from it.</p>
-</div>
-<div class="paragraph">
-<p>Examples: <code>morloc</code></p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>[CD]AnF</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>This may be an impossible language.</p>
-</div>
-<div class="sect2">
-<h3 id="_related_systems">8.1. Related systems</h3>
-<div class="sect3">
-<h4 id="_serialization_systems">8.1.1. Serialization systems</h4>
-<div class="paragraph">
-<p><code>morloc</code> is not a serialization system. Indeed, any good serialization system
-would be a system that could greatly add to <code>morloc</code>, since serialization will
-often be the limiting step in a <code>morloc</code> workflow&#8217;s performance. On
-serialization system if Google&#8217;s protobuffers
-<a href="http://reasonablypolymorphic.com/blog/protos-are-wrong/" class="bare">http://reasonablypolymorphic.com/blog/protos-are-wrong/</a>.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_ibm_knowledge_studio">8.1.2. IBM Knowledge Studio</h4>
-<div class="paragraph">
-<p><a href="https://console.bluemix.net/docs/services/knowledge-studio/typesystem.html">IBM Knowledge Studio</a>
-does pure logic reasoning, Doug Lenat style. Also similar to Palantir.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_microservices">8.1.3. Microservices</h4>
-<div class="paragraph">
-<p>Microservice oriented design builds systems through modular programs that
-interact through usually through a REST interface with intermediate
-serialization/deserialization steps.</p>
-</div>
-<div class="paragraph">
-<p><code>morloc</code> is not a microservice oriented system. The only immediate similarity to
-microservices is that calls between functions of different languages will pass
-data (barring future optimizations) through a serialization step. The <code>morloc</code>
-compiler though builds all functions together, integrating them, where
-possible, into single programs. Thus functions within languages are communicate
-directly, not through an interface.</p>
-</div>
-<div class="paragraph">
-<p>There is a further, less direct, association with microservices, though. Any
-<code>morloc</code> program, or composition of programs, can be transformed into
-a microservice. This would be a fairly straightforward step, since <code>morloc</code>
-already knows how to serialize the inputs and output of any function. Thus,
-<code>morloc</code> will provide microservice deployment of any pipeline.</p>
-</div>
-<div class="paragraph">
-<p>Any <code>morloc</code> pipeline will be able to trivially incorporate a <code>morloc</code>
-microservice. The company can provide cloud hosting of these microservices. The
-code in the microservices could be proprietary. The advantage of hosting on
-<code>morloc</code> is that, since the code is already on <code>morloc</code>, the hosting can be
-accomplished with little more than a single click. Then any changes made to the
-code that is tested and benchmarked on <code>morloc</code>, can be automatically propagated
-to the microservice.</p>
-</div>
-<div class="paragraph">
-<p><a href="https://www.oreilly.com/ideas/modules-vs-microservices">modules vs microservices by Sander Mak</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_specification_languages">8.2. Specification languages</h3>
-<div class="quoteblock">
-<blockquote>
-<div class="paragraph">
-<p>A specification language is a formal language in computer science that
-describes what a process does, rather than how it does it. They should
-contain no implementation details. They tend to contain a set of data
-values together with a set of functions over those values. The correctness
-of the pipeline is dependent on the correctness of the input output
-behavior.</p>
-</div>
-</blockquote>
-<div class="attribution">
-&#8212; paraphrased from wikipedia
-</div>
-</div>
-<div class="sect3">
-<h4 id="_petri_nets">8.2.1. petri nets</h4>
-
-</div>
-<div class="sect3">
-<h4 id="_assertion_definition_language_adl">8.2.2. Assertion definition language (ADL)</h4>
-<div class="paragraph">
-<p>provides a formal grammar for specifying behaviour using function pre- and
-postconditions to specify the interfaces.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_common_algebraic_specification_language">8.2.3. Common Algebraic Specification Language</h4>
-<div class="paragraph">
-<p>A general-purpose specification language based on first-order logic with induction.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_java_modeling_language">8.2.4. Java Modeling Language</h4>
-<div class="paragraph">
-<p>Design by contract paradigm</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_larch_family">8.2.5. Larch family</h4>
-<div class="paragraph">
-<p>Has one language of abstract data types and a separate interface language for
-each language in which programs are to be written</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_universal_systems_language">8.2.6. Universal Systems Language</h4>
-<div class="paragraph">
-<p>Developed by NASA scientists (Margaret Hamilton) for catching errors before the
-occur [<a href="#hamilton1976higher">1</a>].</p>
-</div>
-<div class="paragraph">
-<p>A system of two maps: the function map (FMap) and the type map (TMap). All
-systems and their relations are defined in terms of these two maps.</p>
-</div>
-<div class="paragraph">
-<p>notes paraphrased from <a href="http://www.htius.com/Articles/r12ham.pdf" class="bare">http://www.htius.com/Articles/r12ham.pdf</a>:</p>
-</div>
-<div class="paragraph">
-<p>Most problems in a programm derive from inconsistencies in the interface.</p>
-</div>
-<div class="paragraph">
-<p>"Through these efforts, we learned that interface errors (dataflow,
-priority, and timing errors from the highest to the lowest levels of
-a system to the finest grain) accounted for approximately 75 percent of all
-errors&#8201;&#8212;&#8201;for example, ambiguous relationships, integration mismatches and
-conflicts, communication and coordination problems&#8201;&#8212;&#8201;a clear indication
-that finding ways to reduce errors in this category was of the highest
-priority"</p>
-</div>
-<div class="paragraph">
-<p>"Although half of the billions of dollars (by today’s standard) spent on the
-life cycle was devoted to simulation, 44 percent of the errors were found by
-manual means, referred to on the project as the Augekugal method
-(eyeballing) or “Nortonizing” (named after the person who perfected this
-technique)"</p>
-</div>
-<div class="paragraph">
-<p>"The interface errors were analyzed in greater detail first because they
-not only accounted for the majority of errors, they also were often the
-most subtle and most difficult to find. Each interface error was placed
-into a category identifying the means to prevent it by way of system
-definition. This process led to a set of axioms forming the basis for a new
-mathematical theory for designing systems that would, among other things,
-eliminate the entire class of interface errors just by the way a system is
-defined"</p>
-</div>
-<div class="paragraph">
-<p>"Implementation- and architecture-independent, USL adheres to the principle
-that everything is relative (one person’s design is another’s
-implementation); the same language can be used seamlessly throughout
-a system’s life cycle to define and integrate all aspects of, and
-viewpoints about, the system and its evolution. The overarching principle
-is that all aspects of a USL universe are related to the real world and
-that the language itself inherently captures this relationship."</p>
-</div>
-<div class="paragraph">
-<p>"USL is semantics-dependent but syntax independent"</p>
-</div>
-<div class="paragraph">
-<p>Recursive reliability</p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_language_orientations">8.3. Language orientations</h3>
-<div class="sect3">
-<h4 id="_semantic_oriented_programming">8.3.1. Semantic-oriented programming</h4>
-<div class="paragraph">
-<p>Maxim Kizub, an enigmatic Ukrainian, is the possible coiner of the term
-"semantic programming". He is the creator of SymADE, a Java-based IDE. He has
-not written any papers that I can find. I also cannot find any reference to
-semantic programming in literature. It does, however, show up on Wikipedia.
-The original author of the Wikipedia page is, surprise, Maxim Kizub.</p>
-</div>
-<div class="paragraph">
-<p>So far, the only information I have on him is a few scattered comments and
-bug reports. There is more information available in Ukrainian.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_intentional_programming">8.3.2. Intentional programming</h4>
-<div class="paragraph">
-<p>The goal of intentional programming is to encode exactly the intent of the
-programmer, rather than the operational details.</p>
-</div>
-<div class="paragraph">
-<p>It was first developed by the Microsoft programmer Charles Simonyi, who
-later left Microsoft to found the company Intentional Software. This
-company was subsequently reobsorbed by Microsoft.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_language_oriented_programming">8.3.3. Language-oriented programming</h4>
-<div class="paragraph">
-<p>Create a DSL for every problem. Encode specific domain knowledge in
-a dedicated language, send it to the user.</p>
-</div>
-<div class="paragraph">
-<p>MPS - meta programming system (jetbrains).</p>
-</div>
-<div class="paragraph">
-<p><code>morloc</code> is similar in that I want to encode domain knowledge in the language
-itself.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_concept_programming">8.3.4. Concept programming</h4>
-<div class="paragraph">
-<p>There are a lot of neat ideas written in the wikipedia article on Concept
-programming. The goals of concept programming and my goals for <code>morloc</code> align
-well.</p>
-</div>
-<div class="paragraph">
-<p>See the XL language.</p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_multi_language_type_systems_schemas_data_serialization_systems">8.4. Multi-language type systems (schemas) / data serialization systems</h3>
-<div class="sect3">
-<h4 id="_microsoft_bond">8.4.1. <a href="https://microsoft.github.io/bond/why_bond.html">Microsoft Bond</a></h4>
-<div class="paragraph">
-<p>There is a Bond schema.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_googles_protocol_buffers_serialization">8.4.2. [Google&#8217;s Protocol buffers]() - serialization</h4>
-
-</div>
-<div class="sect3">
-<h4 id="_apache_thrift_tutorial">8.4.3. <a href="http://thrift.apache.org/">Apache Thrift</a> - <a href="http://thrift.apache.org/tutorial/">tutorial</a></h4>
-
-</div>
-<div class="sect3">
-<h4 id="_apache_avro">8.4.4. [Apache Avro]()</h4>
-<div class="paragraph">
-<p>Also, a little different, but <a href="https://docs.racket-lang.org/quick/index.html">racket</a></p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_related_work_3">8.5. Related work</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>nothing - the programming teams choose a language, develop their own
-infrastructure, and write all in one language. They write their own
-wrappers around foreign functions when they need them.</p>
-</li>
-<li>
-<p>Platforms based on curated sets of functions - Galaxy, Taverna</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>In <code>morloc</code>, programmers have to agree upon a common type system. In conventional
-workflow systems, programmers have to agree upon file specs, error
-transmission, log handling, etc. Imagine a two function pipeline: 1) <code>clean</code>:
-an R script that downloads data from an online source and cleans it into a form
-appropriate for downstream analysis; 2) <code>analyze</code>: a python script that takes
-a table of clean data and performs some analysis on it. These two functions are
-written by people who don&#8217;t know eachother. They are in entirely different
-fields and follow entirely different conventions.</p>
-</div>
-<div class="paragraph">
-<p>The separation between script and component, developed formally in the context
-of composition languages, is a core principle of all workflow approaches
-(Schneider 1999). The script specifies the connectivity of the components, the
-components perform the actual data transforms.</p>
-</div>
-<div class="paragraph">
-<p>There are also many languages and programs designed to meet challenges of
-writing quality scientific workflows (Leipzig 2016}.</p>
-</div>
-<div class="paragraph">
-<p>The general idea of extending a program (workflow) without modifying it has
-been extensively explored (Hannemann 2002).</p>
-</div>
-<div class="paragraph">
-<p>In the following sections I will summarize the main classes of
-languages/programs that are related to <code>morloc</code>.</p>
-</div>
-<div class="paragraph">
-<p><code>morloc</code> goes further, in that nothing meaningful can be written in <code>morloc</code>
-without accessing foreign languages. And no language is given special status.</p>
-</div>
-<div class="paragraph">
-<p>as has mixed language data types (Einarsson 1986).</p>
-</div>
-<div class="paragraph">
-<p>In the formal composition languages, one programmer writes components and
-another programmer writes scripts. Many of the workflow languages are designed
-for researchers who can&#8217;t program. The components are made by a programmer,
-wrapped manually in an API, and loaded into a GUI. The composer then uses these
-and generally cannot modify them.</p>
+<p>Every type is associated with either the general language or a concrete
+realization of the general type into a specific language.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 1. A comparison of features. GWFM refers to Graphical Workflow Managers. <code>Make*</code> refers to the family of Make-like rule-based programs.</caption>
 <colgroup>
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
+<col style="width: 100%;">
 </colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top"><code>morloc</code></th>
-<th class="tableblock halign-left valign-top">GWFM</th>
-<th class="tableblock halign-left valign-top">Shell</th>
-<th class="tableblock halign-left valign-top">Make*</th>
-<th class="tableblock halign-left valign-top">Cuneiform</th>
-</tr>
-</thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Component</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">function</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">wrapper</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">executable</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">recipe</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">function</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Script</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">composition</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">node graph</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">pipeline/ad hoc</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">build graph</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">composition</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Component IO</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">builtin</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Foreign call IO</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">native</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">wrapper</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">wrapper</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">wrapper</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">native</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Function scope</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">composition</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">component</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">component</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">local</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">component</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Type System</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">none</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">filetype</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Remote access</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">?</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Remote validation</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">?</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Control syntax</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">user/library</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\text{TypeAnnotation} \sep A^{\bullet}, B^{\bullet}, C^{\bullet}\ := A \; L \; \braced{P_i}_{i=0}^m \; \braced{C_i}_{i=0}^n\)
+  <br>
+   \(\text{Typeset} \sep \vec{A} := A_1^{\bullet},\ ...,\ A_n^{\bullet}\)</p></td>
 </tr>
 </tbody>
 </table>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Component: the form of a node in the workflow.</p>
-</li>
-<li>
-<p>recipes: used in the Make languages are a list of instructions. Usually
-these are written in a shell language usually, but Drake supports several
-additional languages.</p>
-</li>
-<li>
-<p>Script: the form of the workflow.</p>
-</li>
-<li>
-<p>Component IO: how is input passed to and from a function:</p>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
-<li>
-<p>idiomatic: implies it is passed as idiomatic data structures in the source language</p>
-</li>
-<li>
-<p>system: implies it is read from files or databases (components cannot
-pass native data structures).</p>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Foreign call IO:</p>
-</li>
-<li>
-<p>Function scope: xxx.</p>
-</li>
-<li>
-<p><strong>Remote access</strong> and <strong>validation</strong>: Can the language access node values
-or add validators without local modification of the code?.</p>
-</li>
-<li>
-<p><strong>Control syntax</strong>: Origin of control structures (e.g. conditionals,
-loops). In <code>morloc</code> these are in user space (or core libraries). GWFM vary,
-many have no conditionals or loops. Make derivatives have conditionals but
-no loops.</p>
-</li>
-</ol>
-</div>
-<div class="sect3">
-<h4 id="_formal_compositional_languages">8.5.1. Formal compositional languages</h4>
 <div class="paragraph">
-<p>A powerful abstraction is the separation of a program into components and
-a script (schneider 1999). In the computer science community, this is the
-central concept of component languages, such as Piccola (Achermann 2001).
-Outside this community community, the concept is widespread (though unsung) in
-workflow programs.</p>
-</div>
-<div class="paragraph">
-<p>Piccola is built on a model that cleanly separates the script from the
-components (Achermann 2001). The components in Piccola are considered black
-boxes. They argue that OOP is good for building components but bad at reusing
-them, because the components become overly specialized and the interfaces
-overly complex, such that scripting with them requires deep understanding of
-their implementation. <code>morloc</code> follows the same model of scripts and components.
-The components in Picolla are general objects, characterized by an API. The
-components can be anything. In <code>morloc</code> the components are functions. They can be
-used in exactly one way, which is specified by their type signature.</p>
-</div>
-<div class="paragraph">
-<p>The work most similar to <code>morloc</code> is perhaps the language Cuneiform (brandt
-2015), which is a workflow language designed for high-performance and implicit
-parallelism. Cuneiform allows multiple languages and is uses explicit types.
-<code>morloc</code> differs in its emphasis on automating IO code and type conversions
-between languages.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_scripting_languages">8.5.2. Scripting languages</h4>
-<div class="paragraph">
-<p>Many scientific workflows are coordinated through scripting languages, usually
-Bash (or a similar shell language). While Bash can be used as a full
-programming language, it is more often used to link components (programs)
-written in other languages. The input and output of these functions must be in
-a common representation (raw data in files or connections to data bases). Thus
-the components handle the IO.</p>
-</div>
-<div class="paragraph">
-<p>There are also specialized scientific scripting languages, for example,
-BigDataScript (Cingolani 2015}, which is optimized for job submission and
-management within a cluster environment.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_rule_based_languages">8.5.3. Rule-based languages</h4>
-<div class="paragraph">
-<p>The most well-known rule-based language is Make. Its was designed for
-coordinating the build of a program. It consists of a set of rules for
-producing new files and managing file dependencies. Make is often used in
-scientific analysis (e.g. (Askren 2016)). A few variants of Make designed for
-scientific analysis include Snakemake (Koster 2012)} and Drake
-(github.com/Factual/drake). The dependency graphs automatically built by Make
-are isomorphic to the pull-based workflows of <code>morloc</code>. But Make (and its
-variants) provide no type safety or language integration. Drake does allow
-recipes to be written in many languages, but by design data can passed between
-recipes only through the files they create.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_graphical_workflow_managers">8.5.4. Graphical workflow managers</h4>
-<div class="paragraph">
-<p>Galaxy (Hillman 2012), Taverna (Oinn 2004) and other
-workflow managers allow visual composition of functional units and setting of
-parameters. They are designed for the non-programmer, thus the community that
-composes workflows and the community that creates the nodes, are quite
-separate.</p>
-</div>
-<div class="paragraph">
-<p>Thus they are an interesting case of the component model where the composers
-and scripters are members of different communities.  Those who use the
-components are not generally the ones who write them (or could write them).</p>
-</div>
-<div class="paragraph">
-<p>In contrast, <code>morloc</code> is a metaprogramming language for creating pure code.</p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_summary_of_related_work">8.6. Summary of related work</h3>
-<div class="paragraph">
-<p>The different approaches to workflows can be classified based on the nature of
-the script, component, coder (writer of components), and composer (writer of
-scripts). In the composition languages, components are objects. In scripting
-languages, components are generally executable programs.  In graphical workflow
-managers components are hard-coded functions wrapped in a graphical widget with
-exposed parameters, inputs and outputs. The differences between approaches is
-summarized in Table xxx</p>
-</div>
-<div class="paragraph">
-<p>They also differ in how data how they grow in complexity, handle IO, and their
-type system.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_workflow_theory_and_other">8.7. Workflow theory (and other)</h3>
-<div class="paragraph">
-<p>TODO: reread the charfi2006aspect paper, look into who cited it</p>
-</div>
-<div class="paragraph">
-<p>TODO: factcheck, 'there are no aspect oriented workflow languages'</p>
-</div>
-<div class="paragraph">
-<p>The idea of adding aspect-oriented elements to a workflow languages has been
-explored in the context of business workflows (Charfi 2006) but has not been
-integrated into a programming language.</p>
-</div>
-<div class="paragraph">
-<p>General workflow languages, for example YAWL (Van 2005). YAWL is based on petri
-nets (Murata 1989), which are a mathematical system for describing networks.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Taverna (Oinn 2004), a graphical program for linking web services. It also
-supports R scripts (which must be wrapped as Rshells) and running
-standalone programs.</p>
-</li>
-<li>
-<p>OMICtools, a database of bioinformatics functions</p>
-</li>
-<li>
-<p>rperl - collections of functions <a href="http://bioinformaticssoftwareandtools.co.in/rperl.php" class="bare">http://bioinformaticssoftwareandtools.co.in/rperl.php</a></p>
-</li>
-<li>
-<p>Galaxy, similar to Taverna</p>
-</li>
-<li>
-<p>Pegasus takes an XML abstract workflow description as input and manages the
-execution environment.</p>
-</li>
-<li>
-<p>BioWMS (Bartocci 2007)</p>
-</li>
-<li>
-<p>Biowep (Romano 2007)</p>
-</li>
-<li>
-<p>Bioworks (Han 2011)</p>
-</li>
-<li>
-<p>Conveyor (Linke 2011)</p>
-</li>
-<li>
-<p>Mobyle (Neron 2009)</p>
-</li>
-<li>
-<p>Ergatis (Orvis 2010)</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Node-based graphical programs: Galaxy, node programming editors in (e.g.  in
-Blender).</p>
-</div>
-<div class="paragraph">
-<p>Rule based bioinformatics workflows (Conery 2005).</p>
-</div>
-<div class="paragraph">
-<p>Modeling bioinformatics workflows with petri-net models (Peleg 2002).</p>
-</div>
-<div class="paragraph">
-<p>Outside of bioinformatics, there is the Kepler system (Ludascher 2006).</p>
-</div>
-<div class="paragraph">
-<p>There are also many specialized workflows. Generally these have a small number
-of 'hard-coded' components.</p>
-</div>
-<div class="paragraph">
-<p>A few more things to look at: Triana, SOMA, SMILA, VisTrails, Discovery Net,
-Pipeline Pilot, KNIME</p>
-</div>
+<p>Type annotations couple a type to properties, a language (possibly the general
+one), and constraints. Typesets serve as collections of all that is known about
+a type as it is represented across languages. Different languages may have
+different sets of properties and constraints, they are unified only by a common
+name and complete interchangeability.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_glossary">Glossary</h2>
+<h2 id="_let_polymorphism">5. Let polymorphism</h2>
 <div class="sectionbody">
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-The entries in this glossary mostly define ideas from early in the development
-of <code>morloc</code>. Many of these ideas have been discarded, replaced, or tabled.
-</td>
-</tr>
-</table>
-</div>
 <div class="paragraph">
-<div class="title">Node</div>
-<p>A wrapper around a function or composition of functions. It may carry state and
-effects can be attached to it. For example, arbitrary functions of its output
-can be attached to it (leading to out-of-plane branching). Or conditions can be
-set that must be met before the contained function is run. Or caching functions
-may be added.</p>
-</div>
-<div class="paragraph">
-<div class="title">Programmer versus composer</div>
-<p>Where I say <code>programmer</code>, I mean the one who writes the functions in a
-non-<code>morloc</code> language. Where I say <code>composer</code>, I mean the person who writes
-<code>morloc</code> code (or more generally, any pure scripting language).</p>
-</div>
-<div class="paragraph">
-<div class="title">Double-blind</div>
-<p><code>morloc</code> is designed to allow a double-blind relation between composers and
-programmers.</p>
-</div>
-<div class="paragraph">
-<p>The blind programmer doesn&#8217;t how their code is being used by <code>morloc</code>. They write
-as they like using the data types that make sense for their problem. They only
-know the general function type signature, which contains nothing specific to
-their language.</p>
-</div>
-<div class="paragraph">
-<p>The blind composer builds workflows from nodes. They know the type of the nodes
-and, based on documentation, know what they do. But they know nothing about the
-implementation, including the language.</p>
-</div>
-<div class="paragraph">
-<p>A doubly blind system is a system where all programmers and all composers are
-blind. Only the function signatures are known. The signatures play the role of
-an API.</p>
-</div>
-<div class="paragraph">
-<div class="title">Common form</div>
-<p>A data form that is used everywhere between functions, and is independent of
-any particular language. It is a data representation such as JSON, YAML, ASCII
-text, or whatever (the details depend on the implementation and should not
-normally be the concern of either the programmer or composer).</p>
-</div>
-<div class="paragraph">
-<div class="title"><code>cis</code> and <code>trans</code> connections</div>
-<p>A <strong>cis</strong> connection is a call between two functions of the same language.
-A <strong>trans</strong> connection is between two different languages.</p>
-</div>
-<div class="paragraph">
-<p><strong>cis</strong> connections are completely idiomatic. They compile to something like
-<code>foo(bar())</code> in the target language. They can use language-specific features
-(like laziness). They can also use types that are not supported by <code>morloc</code>. No
-types even need to be specified for them. However, this allows
-language-inflexibility, where two nodes become coupled such that they have to
-be in the same language. This goes against the <code>morloc</code> philosophy of double
-blindness, where neither programer or composer needs to know about the other.</p>
-</div>
-<div class="paragraph">
-<p><strong>trans</strong> calls are easy to control. The results always pass through the common
-type (barring future optimizations). In a <strong>trans</strong> connection, <code>foo</code> would have
-to make a system call to the program that has <code>bar</code> (optimizations aside). This
-is likely slow. Also the generated code is less concise.</p>
-</div>
-<div class="paragraph">
-<div class="title">Strict versus non-strict mode</div>
-<p>In strict mode, all connections must be <strong>trans</strong>. This provides fine granularity
-of errors, you can know exactly where the failure occurs and handle it in
-a clean uniform way. This also forces double-blindness by preventing reliance
-on language specific features.</p>
-</div>
-<div class="paragraph">
-<div class="title">Functions of nodes</div>
-<p>This is a composition that is indistinguishable from a normal node, with the
-exception that its language cannot be set (since it is in <code>morloc</code>). This allows
-hiding of the particular nodes used inside. It also allows inputs to be freely
-distributed inside the internal composition.</p>
-</div>
-<div class="paragraph">
-<div class="title">Caching</div>
-<p>The output of node with caching toggled will run exactly once. Any subsequent
-calls to it will receive only the cache result. The caching is persistent.</p>
-</div>
-<div class="paragraph">
-<div class="title">Early and late validator</div>
-<p>Validators come before (early) or after (late) a function is called within
-a node. Validators are themselves nodes. They must be in a layer that inherits
-from the node they validate.</p>
-</div>
-<div class="paragraph">
-<div class="title">Output and input filter</div>
-<p>These filters take the data flowing through an edge, and access it, possibly
-modifying it. They could be used to create log messages. Or they could be used
-to sample from or subset the data flow.</p>
-</div>
-<div class="paragraph">
-<div class="title">Layer</div>
-<p>A layer is an environment where nodes can be composed. They can link only to
-other nodes in the layer and to nodes in any layer their parent layer inherits
-from.</p>
-</div>
-<div class="paragraph">
-<div class="title">Layers define scope.</div>
-<p>Layers are important when adding modifications to a node, for example:</p>
+<p>We depart from Hindley-Milner (HM) by excluding a let term. In HM,
+expressions bound in let are generalized, allowing statements such as:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>A = (foo . bar) x y z
-
-after A :: baz</code></pre>
+<pre>let f = (forall a . a -&gt; a) in
+    x = (f 42, f "lettuce")</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Which calls baz on the output of <code>foo . bar</code> after it has take the inputs <code>x</code>,
-<code>y</code>, <code>z</code>.</p>
+<p>Where \(f\) is generalized, allowing it to retain its polymorphism. The same is
+not true of variables bound in functions (in HM at least). For example, the
+following Haskell expression fails to typecheck:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>foo :: (a -&gt; a) -&gt; (Int, String)
+foo f = (f 42, f "lettuce")</pre>
+</div>
 </div>
 <div class="paragraph">
-<div class="title">Anonymous layer</div>
-<p>Layers don&#8217;t have to have names. If they do not have names, then nothing can
-inherit from them.</p>
-</div>
-<div class="paragraph">
-<div class="title">Master nodes, slave node, and slave layers</div>
-<p>A master node is a node that takes other nodes as input and uses them
-internally as functions. The slave is the node so used. Masters can pass
-arguments to slaves. They may call a slave many times with different arguments.
-The entire graph of nodes downstream of the slaves, all filters, listeners, and
-anything touching the slave, is wrapped into a slave layer. Nodes in the slave
-layer link to each other or to arguments passed from the master.</p>
-</div>
-<div class="paragraph">
-<p>A new slave layer is generated every time the top slave node is called. Each
-slave layer possesses a globally unique id.</p>
-</div>
-<div class="paragraph">
-<p>Slaves may have slaves. In which case, the unique id of a slave of a slave
-would contain two elements.</p>
-</div>
-<div class="paragraph">
-<div class="title">Import</div>
-<p>Import a set of nodes from a module. These nodes behave exactly as if they were
-defined locally. But nodes that were not exported by the module cannot be
-altered in any way. Naming conflicts result in compile time errors, which can
-be resolved by specifying the namespace (name of the imported module).</p>
-</div>
-<div class="paragraph">
-<div class="title">Module</div>
-<p>A module exports a specific set of nodes and specifies which parameters may be
-set. Node attributes cannot be overridden.</p>
-</div>
-<div class="paragraph">
-<div class="title">Node signature</div>
-<p>The general type signature for the function in the node. It is general, in that
-this signature is language-independent. See <strong>type system</strong> for details.</p>
-</div>
-<div class="paragraph">
-<p>A node signature plays the role of a specification. The signature, along with
-a human language description of what it should do, should be all that is needed
-to implement the function. But there are additional formal constraints that
-could reasonably be added. For example, time and space runtime properties.</p>
-</div>
-<div class="paragraph">
-<p>In languages like Haskell (or other ML variants), type signatures are optional.
-Though these languages are statically typed, explicit signatures are not
-necessary since the type can be inferred from the code. However, in <code>morloc</code> the
-code is inside foreign languages, and thus are black boxes. This makes type
-inference impossible in general. So explicit types are required (except in
-non-strict <strong>cis</strong> calls).</p>
-</div>
-<div class="paragraph">
-<div class="title">Type system</div>
-<p>The type system is under development. It is the core of the <code>morloc</code> ecosystem,
-but so far is modeled heavily after the Haskell system. I want type classes so
-that I can specify the properties of a type. However, I also want to be able to
-layer on "soft" types. Whereas the "hard" types would be formally checked at
-compile time, the soft-types would have more runtime use. Or be used to testing
-specification and testing. Or used to generate random instances of the type.
-Soft types would include type dependencies, dependencies between types in
-a function signature, and the distribution of a type.</p>
-</div>
-<div class="paragraph">
-<div class="title">Type random model</div>
-<p>For every type there is a random generative model. These random models may be
-automatically generated. Or they may be specified in detail in the "soft" type.
-They may be simple, such as a uniform distribution between 2e-63 and 2e+63, or
-complex, such as Markov model for generating random English text. The
-generative models are used to test and optimize a workflow.</p>
-</div>
-<div class="paragraph">
-<div class="title">Parameter</div>
-<p>A parameter is an keyword argument to a target language function and the may be
-optional. Not all languages have parameters. R and python do; Haskell doesn&#8217;t.
-UNIX commands do (as <code>-*</code> flags). Parameterization can be modularized into
-configuration scripts.</p>
-</div>
-<div class="paragraph">
-<div class="title">Parameter type</div>
-<p>This is experimental. Currently, in old <code>morloc</code>, parameters are expressed freely
-without compile time checking. But this is pretty loose and highly language
-dependent. The parameter typing allows tighter control of the functions and may
-be used to provide automated documentation of parameters.</p>
-</div>
-<div class="paragraph">
-<div class="title">Specialization</div>
-<p>Ideally the type signature is all that is needed to generate required IO. But
-often more is needed. Should a table passed to R, for example, be
-a <code>data.frame</code>, a <code>data.table</code>, a list of vectors, a <code>matrix</code>, a <code>tibble</code>, etc.
-Or should a string sent to Haskell be a String, ByteString or Text? In such
-cases, hints must be passed to the compiler. The specialization syntax needs to
-be general enough to allow great flexibility in meeting the needs of wildly
-different languages. Perhaps it can be a YAML block.</p>
-</div>
-<div class="paragraph">
-<p>Providing this information is the responsibility of the programmer, since it is
-language specific. The composer can pass hints to the programmer in the form of
-soft types (such as the distribution of data and time/space complexity).</p>
-</div>
-<div class="paragraph">
-<div class="title">Primitives</div>
-<p>Primitives are terminal values in a workflow that are not modifiable, e.g.
-numbers, strings.</p>
-</div>
-<div class="paragraph">
-<div class="title">Workflow Intermediate Language</div>
-<p>This is a simple language designed to be easy to parse by a machine. It
-contains all the information needed to build the <code>morloc</code> executable, but is
-abstracted away from the particular syntax used for specification.</p>
-</div>
-<div class="paragraph">
-<div class="title">Void, wells and sinks</div>
-<p>A node that either writes to or reads from something outside the program will
-have type <code>Void</code>. Functions with a void input are <strong>wells</strong>, they produce data,
-but take nothing from other nodes. Functions that have a void output, take data
-and do something with it, passing nothing on. Since functions are black boxes
-in <code>morloc</code>, there is no guarantee that a function without a void in its type
-signature doesn&#8217;t interact impurely with the system.</p>
+<p>We do not suport let expressions or <em>let-polymorphism</em>, instead we generalize
+expressions only if they are bound at the top-level (i.e. in declaration
+terms). This follows the practice argued for in [<a href="#vytiniotis2010let">2</a>].</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_loc_old_version_of_morloc">Appendix A: LOC (old version of Morloc)</h2>
+<h2 id="_declarative_type_system">6. Declarative type system</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>LOC was the first working(ish) version of <code>morloc</code></p>
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_algorithmic_rules">7. Algorithmic Rules</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_context">7.1. Context</h3>
+<div class="stemblock">
+<div class="content">
+\[
+\begin{align}
+\Gamma, \Delta &amp; \ :\ [entry]              \sep &amp; \text{ordered list of }entry \text{ items} \\
+entry          &amp; \ :\ \alpha_L             \sep &amp; \text{type variable from language L} \\
+               &amp; \ |\ e = \vec{A}          \sep &amp; \text{annotated expression}          \\
+               &amp; \ |\ \ea_L                \sep &amp; \text{existential}                   \\
+               &amp; \ |\ \ea_L = t            \sep &amp; \text{solved existential}            \\
+               &amp; \ |\ \mark{x}             \sep &amp; \text{a named marker}                \\
+               &amp; \ |\ \text{Source}\ v\ L\ \sep &amp; \text{source term from language L}   \\
+               &amp; \ |\ \text{Export}\ v     \sep &amp; \text{export term v from this module}
+\end{align}
+\]
+</div>
 </div>
 <div class="paragraph">
-<p>The core of a computational workflow is a network of data-transforming
-functions. These functions are often simple and elegant, but composing them
-into a full program&#8201;&#8212;&#8201;which involves input/output linking, type conversions,
-error catching and handling, report generation, file management, caching and
-parallelization, etc&#8201;&#8212;&#8201;quickly bloats the code, which slows development and
-complicates modification. Furthermore, workflows are often multi-lingual or
-invoke external programs, and thus require writing tedious linking code. To
-address these issues, we present a new language: LOC.</p>
+<p>The context is a list storing type annotations, solved and unsolved existential
+variables, markers, and source/export info.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_subtyping_and_instantiation">7.2. Subtyping and instantiation</h3>
+<div class="paragraph">
+<p>The subtyping rules are adapted from DK.</p>
 </div>
 <div class="paragraph">
-<p>LOC composes functions from other languages (e.g. Bash, R, Python) into
-multi-lingual workflows. A LOC script is partitioned into sections.
-Everything needed to understand the flow of data is written in one
-section. Effects, checks and other details are written in their own
-sections. Adding an effect to a function cannot alter the output of the
-function. Adding a check can only switch the output of a function into
-a failed state. In this way, a programmer can safely query the internal
-data of a program, modify the generated reports, and add or remove checks
-and debugging statements.</p>
+<p>There are two main extensions:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>multi-lingual support.</p>
+</li>
+<li>
+<p>Type application. This extension allows types to take an arbitrary
+number of type parameters. For example, the type of a hashmap from strings
+to integers might be written as Map Str Int. We also support [a] as a
+shortcut for List a.</p>
+</li>
+</ol>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Subtyping Rules</caption>
+<colgroup>
+<col style="width: 100%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\expr{\Gamma}{A\ &lt;:\ B}{\Delta}\) \(\quad\quad\) Under input context \(\Gamma\), type \(A\) is a subtype of \(B\), with output context \(\Delta\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{}{\expr{\Gamma}{\alpha_L\ &lt;:\ \alpha_L}{\Gamma}}\) <span class="green">&lt;:Var</span>
+   \(\quad\quad\)
+   \(\frac{\packto{\beta_{L2}}{\alpha_{L1}}}{\expr{\Gamma}{\alpha_{L1}\ &lt;:\ \beta_{L2}}{\Gamma}}\) <span class="blue">&lt;:AlienVar*</span>
+  <br>
+  <br>
+   \(\frac{}{\expr{\Gamma}{\ea_L\ &lt;:\ \ea_L}{\Gamma}}\) <span class="green">&lt;:Exvar</span>
+   \(\quad\quad\)
+   \(\frac{}{\expr{\Gamma}{\ea_{L1}\ &lt;:\ \eb_{L2}}{\Gamma,\ \packto{\eb_{L2}}{\ea_{L1}}}}\) <span class="blue">&lt;:AlienExvar*</span>
+  <br>
+  <br>
+   \(\frac{\Delta_1 = \Gamma \quad [\expr{\Delta_{i-1}}{A_i\ &lt;:\ B_i}{\Delta_i}]_{i=1}^n}{\expr{\Gamma}{\alpha_L\ [A_i]_{i=1}^n &lt;:\ \alpha_L\ [B_i]_{i=1}^n}{\Delta_n}}\) <span class="blue">&lt;:App</span>
+   \(\quad\quad\)
+   \(\frac{\packto{\beta_{L2}\ [B_i]_{i=1}^m}{\alpha_{L1}\ [A_i]_{i=1}^n}}{\expr{\Gamma}{\alpha_{L1}\ [A_i]_{i=1}^n\ &lt;:\ \beta_{L2}\ [B_i]_{i=1}^m}{\Gamma}}\) <span class="blue">&lt;:AppAlien</span>
+  <br>
+  <br>
+   \(\frac{\packto{\alpha_{L1}\ [A_i]_{i=1}^n}{\beta_{L2}}}{\expr{\Gamma}{\alpha_{L1}\ [A_i]_{i=1}^n\ &lt;:\ \beta_{L2}}{\Gamma}}\) <span class="blue">&lt;:AppAlienVarL</span>
+   \(\quad\quad\)
+   \(\frac{\packto{\alpha_{L1}}{\beta_{L2}\ [B_i]_{i=1}^n}}{\expr{\Gamma}{\alpha_{L1}\ &lt;:\ \beta_{L2}\ [B_i]_{i=1}^n}{\Gamma}}\) <span class="blue">&lt;:AppAlienVarR</span>
+  <br>
+  <br>
+   \(\frac{\expr{\Gamma}{B_1\ &lt;:\ A_1}{\Theta} \quad \expr{\Theta}{[\Theta]A_2\ &lt;:\ [\Theta]B_2}{\Delta}}{\expr{\Gamma}{A_1 \rightarrow A_2\ &lt;:\ B_1 \rightarrow B_2}{\Delta}}\) <span class="green">&lt;:→</span>
+  <br>
+  <br>
+   \(\frac{\expr{\Gamma,\mark{\ea_L},\ea_L}{[\ea_L/\alpha_L]A\ &lt;:\ B}{\Delta,\mark{\ea_L},\Theta}}{\expr{\Gamma}{\forall \alpha_L . A\ &lt;:\ B}{\Delta}}\) <span class="green">&lt;:∀L</span>
+   \(\quad\quad\)
+   \(\frac{\expr{\Gamma,\alpha_L}{A&lt;:B}{\Delta,\alpha_L,\Theta}}{\expr{\Gamma}{A &lt;: \forall \alpha_L . B}{\Delta}}\) <span class="green">&lt;:∀R</span>
+  <br>
+  <br>
+   \(\frac{\ea_L \notin FV(A) \quad \expr{\Gamma[\ea_L]}{\subtype{\ea_L}{A}}{\Delta}}{\expr{\Gamma[\ea_L]}{\ea_L\ &lt;:\ A}{\Delta}}\) <span class="green">&lt;:InstantiateL</span>
+   \(\quad\quad\)
+   \(\frac{\ea_L \notin FV(A) \quad \expr{\Gamma[\ea_L]}{\subtype{A}{\ea_L}}{\Delta}}{\expr{\Gamma[\ea_L]}{A\ &lt;:\ \ea_L}{\Delta}}\) <span class="green">&lt;:InstantiateR</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-right valign-top"><p class="tableblock">\(\text{subtype} :: A \rightarrow B \rightarrow \Gamma \rightarrow \Delta\)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Type variables in different languages have no subtype relationship. As far as
+the typechecker goes, it is assumed that the language-specific (concrete) types
+match if the general types do. Note that functions are not annotated with
+languages. Thus the subtype test \(A \rightarrow B\ &lt;:\ \alpha_L\) and its reverse
+will both raise errors.</p>
 </div>
 <div class="paragraph">
-<p>Another central goal of LOC is to unify languages through a common
-ontology of types. A pure function can be described completely in terms
-what data comes in (input types) and what data comes out (output type). In
-LOC, functions are explicitly typed (as in Haskell). Based on these types,
-the compiler generates any required linking code and checks the high-level
-correctness of the program. Rather than implementing ad hoc linking code,
-the LOC programmer tells the LOC compiler the function signature, and the
-compiler does the rest.</p>
+<p>The rule &lt;:AlienExvar stores in context an "existential assertion" that
+cannot be evaluated until the existential variables it contains are solved.</p>
 </div>
 <div class="paragraph">
-<p>Overall, LOC can 1) simplify development, 2) allow easy and safe
-extensions, 3) allow transparent validation, 4) seamlessly link between
-languages and 5) provide a basis for a universal database of functions.
-LOC will be useful in developing readable, flexible, modular and
-extensible programs.</p>
+<p>Parameterized types across languages is supported. This may seem impossible,
+since not all languages support parameterized types. This is easiest to explain
+with examples showing general, Haskell, <code>C++</code>, python and R signatures.</p>
+</div>
+<div class="listingblock">
+<div class="title">map of strings to integers</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="bash"><span></span>x :: Map String Integer
+x Haskell :: <span class="tok-s2">&quot;Map \$1 \$2&quot;</span> String Integer
+x C++ :: <span class="tok-s2">&quot;std::map&lt;\$1,\$2&gt;&quot;</span> <span class="tok-s2">&quot;std::string&quot;</span> int
+x Python :: <span class="tok-s2">&quot;dict&quot;</span> str int
+x R :: <span class="tok-s2">&quot;list&quot;</span> str int</code></pre>
+</div>
 </div>
 <div class="paragraph">
-<p>Data analysis workflows often are multilingual, have many inputs, and require
-rigorous quality control and report generation. While the functions from which
-they are built may be simple and elegant, the whole quickly becomes more
-bloated than sum of the parts. We present a new workflow language, <code>morloc</code>,
-which composes workflows from typed functions exapted from supported languages.
-The programmer specifies function types and connectivity, while the compiler
-generates all boilerplate for interfacing between languages. <code>morloc</code> allows
-a layered development strategy. Where the abstract workflow and function types
-are specified first. These may remain unchanged as functions are subsequently
-defined, assertions on inputs added, and probes attached. We provide early
-evidence of <code>morloc</code>’s potential to simplify development of data analysis
-workflows, enable easy extension and validation, and seamlessly link between
-languages in a single workflow.</p>
+<p>To allow for different syntax for paramterization across languages, the first
+term is a pattern that takes the parameters as arguments. For Haskell and
+<code>C++</code>, the parameterized types would ultimately be formed into <code>Map String
+Integer</code> and <code>std::map&lt;std::string,int&gt;</code>, respectively. For dynamic languages,
+the parameters will not appear in final type itself (<code>dict</code> and <code>list</code>,
+respectively), but the type information will be preserved.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Instantiation Rules</caption>
+<colgroup>
+<col style="width: 100%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\expr{\Gamma}{\subtype{\ea_L}{A}}{\Delta}\) \(\quad\quad\) Under input context \(\Gamma\), instantiate \(\ea_L\) such that \(\ea_L &lt;: A\), with output context \(\Delta\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{\Gamma\ \vdash\ \tau}{\expr{\Gamma,\ea_L,\Gamma'}{\subtype{\ea_L}{\tau}}{\Gamma,\ea_L=\tau,\Gamma'}}\) <span class="green">InstLSolve</span>
+   \(\quad\quad\)
+   \(\frac{}{\expr{\Gamma[\ea_L][\eb_L]}{\subtype{\ea_L}{\eb_L}}{\Gamma[\ea_L][\eb=\ea_L]}}\) <span class="green">InstLReach</span>
+  <br>
+  <br>
+   \(\frac{\expr{\Gamma[\ea_2,\ea_1,\ea=\ea_2\rightarrow\ea_1]}{\subtype{A_1}{\ea_1}}{\Theta} \quad \expr{\Theta}{\subtype{\ea_2}{[\Theta]A_2}}{\Delta}}{\expr{\Gamma[\ea]}{\subtype{\ea}{A_1 \rightarrow A_2}}{\Delta}}\) <span class="green">InstLArr</span>
+   \(\quad\quad\)
+   \(\frac{\expr{\Gamma[\ea_L],\beta_L}{\subtype{\ea_L}{B}}{\Delta,\beta_L,\Delta'}}{\expr{\Gamma[\ea_L}{\subtype{\ea_L}{\forall \beta_L . B}}{\Delta}}\) <span class="green">InstLAllR</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{\Gamma\ \vdash\ \tau}{\expr{\Gamma,\ea_L,\Gamma'}{\subtype{\tau}{\ea_L}}{\Gamma,\ea_L=\tau,\Gamma'}}\) <span class="green">InstRSolve</span>
+   \(\quad\quad\)
+   \(\frac{}{\expr{\Gamma[\ea_L][\eb_L]}{\subtype{\eb_L}{\ea_L}}{\Gamma[\ea_L][\eb_L=\ea_L]}}\) <span class="green">InstRReach</span>
+  <br>
+  <br>
+   \(\frac{\expr{\Gamma[\ea_{L,2},\ea_{L,1},\ea_L=\ea_{L,2}\rightarrow\ea_{L,1}]}{\subtype{\ea_{L,1}}{A_1}}{\Theta}  \quad  \expr{\Theta}{\subtype{[\Theta]A_2}{\ea_{L,2}}}{\Delta}}{\expr{\Gamma[\ea_L]}{\subtype{A_1 \rightarrow A_2}{\ea}}{\Delta}}\) <span class="green">InstRArr</span>
+   \(\quad\quad\)
+   \(\frac{\expr{\Gamma[\ea_L],\ \blacktriangleright \eb_L,\ \eb_L}{\subtype{[\eb_L/\beta_L]B}{\ea_L}}{\Delta,\ \blacktriangleright \eb_L,\ \Delta'}}{\expr{\Gamma[\ea_L]}{\subtype{\forall \beta_L . B}{\ea_L}}{\Delta}}\) <span class="green">InstRAllL</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-right valign-top"><p class="tableblock">\(\text{instantiate}\ ::\ A \rightarrow B \rightarrow \Gamma \rightarrow \Delta\)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. Transform rules</caption>
+<colgroup>
+<col style="width: 100%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\packto{A_{L1}}{B_{L2}}\) \(\quad\quad\) Type \(A\) in language \(L1\) can be uniquely transformed to type \(B\) in language \(L2\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{}{\expr{\Gamma}{\packto{A_L}{A_L}}{\Gamma}}\) <span class="green">SerializeCis</span>
+   \(\quad\quad\)
+   \(\frac {f\ L_1\ ::\ \text{packs}\ \Rightarrow\ A'_{L1}\ \rightarrow\ C_{L1} \quad g\ L_2\ ::\ \text{unpacks}\ \Rightarrow\ D_{L2}\ \rightarrow\ B'_{L2} \quad \subtype{A'_{L1}}{A_{L1}} \quad \subtype{B'_{L1}}{B_{L1}}} {\expr{\Gamma}{\packto{A_{L1}}{B_{L2}}}{\Gamma}}\) <span class="green">SerializeTrans</span>
+  <br>
+  <br>
+   \(\frac{f\ L\ ::\ \text{cast}\ \Rightarrow\ A_L\ \rightarrow\ X_L \quad \packto{X_L}{B_L}}{\expr{\Gamma}{\packto{A_{L}}{B_{L}}}{\Gamma}}\) <span class="green">Cast</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-right valign-top"><p class="tableblock">\(\text{cast}\ ::\ A\ \rightarrow\ B\ \rightarrow\ \Gamma\ \rightarrow\ \Gamma\)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The transform rules assert that types are interconvertible. The serialization
+rules transform between semantically equivalent types that are expressed in
+different languages. The cast rules transform between semantically different
+types expressed in the same language.</p>
 </div>
 <div class="paragraph">
-<p>This is a much needed ability. Currently there is a massive code duplication
-problem, with libraries and wrappers for libraries and whole classes of
-problems reimplemented in every language. For example, in bioinformatics we
-have Bioperl, Biopython, Bioconductor, BioC, BioHaskell, Biojava, etc.; all
-programs which cover the same functionality.</p>
+<p>SerializeCis is a trivial rule stating that any type can be converted to
+itself. SerializeTrans states that types \(A_{L1}\) and \(A_{L2}\) interconverted
+if there exist functions for serializing from type \(A\) in language \(L_1\) to a
+standard intermediate form (e.g., JSON) and a derserialization function from
+the standard intermediate to \(B\) in language \(L_2\). The serialization function
+may be more polymorphic than \(A\) and \(B\). For example, a general serialization
+function may exist which would serialiaze any type in the given language into
+JSON.</p>
+</div>
+<div class="paragraph">
+<p>These assertions alone are not sufficient for proving that two types are
+interconvertible. The serialization functions only show that a path exists
+between the types, it does not show that the types are semantically equivalent.
+Semantic equivalence is demonstrated through typechecking of the general,
+language-independent, type. That is, if the language-specific types under
+consideration are not semantically equivalent, and error will be raised
+elsewhere in the typechecking process.</p>
+</div>
+<div class="paragraph">
+<p>The Cast rule involves handling of directed automatic conversions between
+types within a language. A common example of this would be the conversion of
+integers to doubles. The current rules are very strict, requiring type identity
+for casting, and are not amiable to more general transformations. Note the rule
+is recursive. The cast functions form a directed graph (usually highly
+disconnected and possibly cyclic) of unambiguous and unfailing transformations
+between types. They should describe relationships where there is a single
+obvious meaning (e.g., a-&gt;[a] or PositiveInteger-&gt;Integer) and that will
+never fail (so string to integer would not be included).</p>
+</div>
+<div class="paragraph">
+<p>Further, the rules specified here are assertions showing the transformations
+are possible. There may be multiple paths to accomplishing the transforms that
+will differ in performance and require different dependencies at build time.
+Choosing which path to take is not the responsibility of the typechecker and
+will be dependent on the user&#8217;s system architecture and local configuration.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_typechecking_rulesbidirectional_or_tridirectional">7.3. Typechecking rules&#8201;&#8212;&#8201;bidirectional or tridirectional?</h3>
+<div class="paragraph">
+<p>We add new typechecking rules that add support for primitives, containers,
+declarations and signatures. The primitive rules are axioms where the types are
+inferred by the lexer. The only currently supported container is a homogenous
+list (e.g., [Num] for a list of numbers). A declaration allows a variable to
+be assigned to an expression. Top-level shadowing is not allowed (i.e. no
+re-assignment). Also the types are generalized, with all remaining existential
+variables pulled out as universal quantifiers.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. synthesize</caption>
+<colgroup>
+<col style="width: 100%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\expr{\Gamma}{e \Rightarrow A}{\Delta}\) \(\quad\quad\) Under input context \(\Gamma\), \(e\) synthesizes output type \(A\), with output context \(\Delta\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{\expr{\Gamma, x:A_L}{e_2\ \Rightarrow\ \\_}{\Delta}}{\expr{\Gamma}{x\ L\ ::\ A_L\ ;\ e_2}{\Delta}}\) <span class="blue">Signature</span>
+   \(\quad\quad\)
+   \(\frac{}{\expr{\Gamma}{\text{Source }L\ x}{\Gamma,\ \ea_L}}\) <span class="blue">Source</span>
+  <br>
+  <br>
+   \(\frac{e\ \Rightarrow\ \\_\ \vdash\ \Theta \quad \lbrace x:A\ |\ (x:A)\ \in\ \Theta \rbrace\ \vdash\ \Theta' \quad \lbrace x:A\ |\ x\ \in\ xs,\ (x:A) \in \Theta' \rbrace\ \vdash\ \Delta}{\expr{\Gamma}{\text{Import}\ e\ xs}{\Gamma, \Delta}}\) <span class="red">Import</span>
+  <br>
+  <br>
+   \(\frac{x \notin \text{FV}(\Gamma) \quad \expr{\Gamma[x:A], \mark{x}}{e\ \Leftarrow\ A}{\Delta,\mark{x}, \Theta}}{\expr{\Gamma}{x=e}{\Delta}}\) <span class="blue">DeclareCheck</span>
+   \(\quad\quad\)
+   \(\frac{x \notin \text{FV}(\Gamma) \quad \expr{\Gamma,\mark{x}}{e\ \Rightarrow\ A}{\Delta,\mark{x}, \Theta}}{\expr{\Gamma}{x=e}{\Delta,\ x:\text{Gen}(A)}}\) <span class="blue">DeclareInfer</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-right valign-top"><p class="tableblock">\(\text{synthesizeToplevel} :: \Gamma \rightarrow e \rightarrow \Delta\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{L = \text{MLang}}{\expr{\Gamma}{\text{number}\ \Rightarrow\ \text{Num}}{\Gamma}}\) <span class="blue">Num⇒</span>
+   \(\quad\quad\)
+   \(\frac{L = \text{MLang}}{\expr{\Gamma}{\text{int} \Rightarrow \text{Int}}{\Gamma}}\) <span class="blue">Int⇒</span>
+   \(\quad\quad\)
+   \(\frac{L = \text{MLang}}{\expr{\Gamma}{\text{string} \Rightarrow \text{Str}}{\Gamma}}\) <span class="blue">Str⇒</span>
+   \(\quad\quad\)
+   \(\frac{L = \text{MLang}}{\expr{\Gamma}{\text{bool} \Rightarrow \text{Bool}}{\Gamma}}\) <span class="blue">Bool⇒</span>
+  <br>
+  <br>
+   \(\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A}{\Delta_1} \quad \expr{\Delta_1}{x_2 \Leftarrow A}{\Delta_2} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Leftarrow A}{\Delta_n}}{\expr{\Gamma}{[x_1,x_2, ..., x_n]}{\Delta_n,\ \text{List}\ A}}\) <span class="blue">List⇒</span>
+  <br>
+  <br>
+   \(\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A_1}{\Delta_1} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Rightarrow A_n}{\Delta_n}}{\expr{\Gamma}{(x_1,x_2,\ ...\ x_n)}{\Delta_n,\ \text{Tuple}\ A_1\ ...\  A_n}}\) <span class="blue">Tuple⇒</span>
+  <br>
+  <br>
+   \(\frac{L = \text{MLang} \quad \expr{\Gamma}{x_1 \Rightarrow A_1}{\Delta_1} \quad ... \quad \expr{\Delta_{n-1}}{x_n \Rightarrow A_n}{\Delta_n}}{\expr{\Gamma}{\lbrace (k_1,x_1),(k_2, x_2),\ ...,\ (k_n, x_n) \rbrace}{\Delta_n,\ \lbrace (k_1, A_1),\ ...,\  (k_n, A_n) \rbrace}}\) <span class="blue">Record⇒</span>
+  <br>
+  <br>
+   \(\frac{L \quad \expr{\Gamma,\ea_L,\eb_L,x:\ea_L}{e \Leftarrow \eb_L}{\Delta, x:\ea_L, \Theta}}{\expr{\Gamma}{\lambda x.e\ \Rightarrow\ \ea_L\rightarrow \eb_L}{\Delta}}\) <span class="green">→I⇒</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-right valign-top"><p class="tableblock">\(\text{synthesizeSingular} :: L \rightarrow \Gamma \rightarrow e \rightarrow (\Delta,\ A)\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{(\,x\,:\,A_L\,)\ \in\ \vec{A}\ \in\ \Gamma}{\expr{\Gamma}{x\ \overset{L}{\Rightarrow} A_L}{\Gamma}}\) <span class="green">Var</span>
+   \(\quad\quad\)
+   \(\frac{\Gamma\ \vdash\ A \quad \Delta_1 = \Gamma \quad \braced{ \expr{\Delta_i}{e \overset{L_i}{\Leftarrow} A_i}{\Delta_{i+1}} }_{i=1}^k}{\expr{\Gamma}{(e:\vec{A})\ \Rightarrow\ \vec{A}}{\Delta}}\) <span class="green">Anno</span>
+  <br>
+  <br>
+   \(\frac{\expr{\Gamma}{e_1\ \Rightarrow\ \vec{A}}{\Delta} \quad\quad \braced{ \Delta\ \vdash\ [\Delta] \apply{A_{L_i}}{e_2}{C_{L_i}}\ |\ L_i \in \text{lang}(\vec{A}) }_{i=1}^k}{\expr{\Gamma}{e_1 e_2 \Rightarrow \vec{C}}{\Delta}}\) <span class="green">→E</span></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-right valign-top"><p class="tableblock">\(\text{synthesizeSpread} :: \Gamma \rightarrow e \rightarrow (\Delta_k,\ [A_L])\)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The three functions synthesisToplevel, synthesisSingular, and
+synthesisSpread are all specializations of the general functions of type:</p>
+</div>
+<div class="paragraph">
+<p><code>synthesis</code> :: L &#8594; Gamma &#8594; e &#8594; [A]</p>
+</div>
+<div class="paragraph">
+<p>Each rule will be described in the sections below.</p>
+</div>
+<div class="paragraph">
+<div class="title">synthesisToplevel</div>
+<p>The top-level statements import/source terms, specify their type (Signature),
+and build compositions from them (Declaration).</p>
+</div>
+<div class="paragraph">
+<p>The Import rule is premised on the evalutation of \(e\), which is an entire
+module body that yields a full context. The term \((A\ \Rightarrow\ \_)\) is an
+inference that throws away the resulting type, being run only for the context
+it generates.</p>
+</div>
+<div class="paragraph">
+<div class="title">synthesisSpread</div>
+<p>Morloc Data structures can be typed into MLang, but not directly into other
+languages without additional information. For example, is [Num] in <code>C++</code> an
+array or vector? Is Num a "double" or a "float"? Determining the concrete type
+will require a concrete type-signature. Thus the concrete types are <em>checked</em>
+rather than <em>synthesized</em>.</p>
+</div>
+<div class="paragraph">
+<p>Synthesizing a lambda requires we choose a language. Nothing in the body of the
+lambda expression specifies the language of the lambda. The language of the
+subcomponents may differ from the language of the lambda or may have no
+concrete binding at all (e.g., \(\lambda x . 42\)).</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. check</caption>
+<colgroup>
+<col style="width: 100%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\expr{\Gamma}{e \Leftarrow A}{\Delta}\) \(\quad\quad\) Under input context \(\Gamma\), \(e\) checks against input type \(A\), with output context \(\Delta\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{\expr{\Gamma,x:A_L}{e \Leftarrow B_L}{\Delta,x:A_L,\Theta}}{\expr{\Gamma}{\lambda x.e \Leftarrow A_L \rightarrow B_L}{\Delta}}\) <span class="green">→I</span>
+   \(\quad\quad\)
+   \(\frac{\expr{\Gamma,\alpha_L}{e \Leftarrow A_L}{\Delta,\alpha_L,\Theta}}{\expr{\Gamma}{e \Leftarrow \forall \alpha_L . A_L}{\Delta}}\) <span class="green">∀I</span>
+   \(\quad\quad\)
+   \(\frac{\expr{\Gamma}{e \overset{L}{\Rightarrow} A_L}{\Theta} \quad\quad \expr{\Theta}{[\Theta]A_L\ &lt;:\ [\Theta]B_L}{\Delta}}{\expr{\Gamma}{e \Leftarrow B_L}{\Delta}}\) <span class="green">Sub</span>
+   \(\quad\quad\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-right valign-top"><p class="tableblock">\(\text{check} :: \Gamma \rightarrow e \rightarrow A \rightarrow (\Delta,\ B])\)</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 6. apply</caption>
+<colgroup>
+<col style="width: 100%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\expr{\Gamma}{\apply{A}{e}{C}}{\Delta}\) \(\quad\quad\) Under \(\Gamma\), applying a function of type \(A\) to \(e\) synthesizes type \(C\), with output context \(\Delta\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{\expr{\Gamma[\ea_{2L},\ \ea_{1L},\ \ea_L\ =\ \ea_{1L}\ \rightarrow\ \ea_{2L}]}{e \Leftarrow\ \ea_{1L}}{\Delta}}{\expr{\Gamma[\ea_L]}{\apply{\ea_L}{e}{\ea_{2L}}}{\Delta}}\) <strong class="green">\(\ea_L\)</strong><span class="green">App</span>
+   \(\quad\quad\)
+   \(\frac{\expr{\Gamma,\ea_L}{\apply{[\ea_L/\alpha_L]A}{e}{C}}{\Delta}}{\expr{\Gamma}{\apply{\forall\alpha_L . A}{e}{C}}{\Delta}}\) <span class="green">∀App</span>
+   \(\quad\quad\)
+   \(\frac{\expr{\Gamma}{e \Leftarrow A}{\Delta}}{\expr{\Gamma}{\apply{A \rightarrow C}{e}{C}}{\Delta}}\)  <span class="green">→App</span>
+   \(\quad\quad\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-right valign-top"><p class="tableblock">\(\text{apply} :: \Gamma \rightarrow e \rightarrow A \rightarrow (\Delta,\ [(L,\ B)])\)</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -2338,14 +1375,17 @@ programs which cover the same functionality.</p>
 <h2 id="_references">References</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><a id="hamilton1976higher"></a>[1] M. Hamilton &amp; S. Zeldin, Higher order software—A methodology for defining software. <em>IEEE Transactions on Software Engineering</em>, (1976) 9–32.</p>
+<p><a id="dunfield2013complete"></a>[1] J. Dunfield &amp; N. R. Krishnaswami, Complete and easy bidirectional typechecking for higher-rank polymorphism. <em>ACM SIGPLAN Notices</em> (ACM, 2013), pp. 429–442.</p>
+</div>
+<div class="paragraph">
+<p><a id="vytiniotis2010let"></a>[2] D. Vytiniotis, S. Peyton Jones, &amp; T. Schrijvers, Let should not be generalized. <em>Proceedings of the 5th ACM SIGPLAN workshop on Types in language design and implementation</em> (ACM, 2010), pp. 39–50.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-03-06 22:23:18 -0600
+Last updated 2020-03-08 07:19:38 -0500
 </div>
 </div>
 <style>
