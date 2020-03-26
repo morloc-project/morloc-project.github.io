@@ -462,13 +462,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_specification">Specification</a>
 <ul class="sectlevel1">
 <li><a href="#_grammar">4. Grammar</a></li>
-<li><a href="#_let_polymorphism">5. Let polymorphism</a></li>
-<li><a href="#_declarative_type_system">6. Declarative type system</a></li>
-<li><a href="#_algorithmic_rules">7. Algorithmic Rules</a>
+<li><a href="#_declarative_type_system">5. Declarative type system</a></li>
+<li><a href="#_algorithmic_rules">6. Algorithmic Rules</a>
 <ul class="sectlevel2">
-<li><a href="#_context">7.1. Context</a></li>
-<li><a href="#_subtyping_and_instantiation">7.2. Subtyping and instantiation</a></li>
-<li><a href="#_typechecking_rulesbidirectional_or_tridirectional">7.3. Typechecking rules&#8201;&#8212;&#8201;bidirectional or tridirectional?</a></li>
+<li><a href="#_context">6.1. Context</a></li>
+<li><a href="#_subtyping_and_instantiation">6.2. Subtyping and instantiation</a></li>
+<li><a href="#_typechecking_rulesbidirectional_or_tridirectional">6.3. Typechecking rules&#8201;&#8212;&#8201;bidirectional or tridirectional?</a></li>
+</ul>
+</li>
+<li><a href="#_let_polymorphism">7. Let polymorphism</a></li>
+</ul>
+</li>
+<li><a href="#_code_generation_and_optimization">Code Generation and Optimization</a>
+<ul class="sectlevel1">
+<li><a href="#_root">8. Root</a></li>
+<li><a href="#_collect">9. Collect</a></li>
+<li><a href="#_realize">10. Realize</a>
+<ul class="sectlevel2">
+<li><a href="#_algorithm_optimization">10.1. Algorithm optimization</a></li>
+<li><a href="#_build_optimization">10.2. Build optimization</a></li>
+<li><a href="#_interoperability_optimization">10.3. Interoperability optimization</a></li>
 </ul>
 </li>
 </ul>
@@ -874,8 +887,8 @@ automation, optimization, accessibility, and reproducibility.</p>
 <div class="openblock partintro">
 <div class="content">
 The type system presented within this section is based the work of Dunfield and
-Krishnaswami [<a href="#dunfield2013complete">1</a>] (DK). I preserved their naming
-conventions where possible.
+Krishnaswami [<a href="#dunfield2013complete">1</a>]. I preserved their naming conventions
+where possible.
 </div>
 </div>
 <div class="sect1">
@@ -892,8 +905,8 @@ statement &amp;\ :\ \text{Source}\ x\ L                 \sep &amp; \text{source 
 {}        &amp;\ |\ x\ L ::\ A_L                        \sep &amp; \text{signature for language L} \\
 {}        &amp;\ |\ x=expr\                             \sep &amp; \text{declaration} \\
 expr      &amp;\ :\ (\ )                                \sep &amp; \text{nothing} \\
-{}        &amp;\ |\ x                                   \sep &amp; \text{var} \\
-{}        &amp;\ |\ x\ ::\ [A_L]                        \sep &amp; \text{annotation, usually only used in annotated output} \\
+{}        &amp;\ |\ x                                   \sep &amp; \text{a variable name} \\
+{}        &amp;\ |\ x\ ::\ [A_L]                        \sep &amp; \text{annotation, only required for top-level expressions} \\
 {}        &amp;\ |\ \lambda x .\ expr                   \sep &amp; \text{abstraction} \\
 {}        &amp;\ |\ expr\ expr                          \sep &amp; \text{application} \\
 {}        &amp;\ |\ num\ |\ str\ |\ bool                \sep &amp; \text{primitives} \\
@@ -908,10 +921,11 @@ expr      &amp;\ :\ (\ )                                \sep &amp; \text{nothing
 <p>This system departs from conventional lambda calculus by supporting multiple
 languages in one program. It is designed to typecheck programs comprised of
 many languages that share a common general type but that also have
-language-specific forms. Thus an expression may have the abstract type <code>Num</code>
-and the C-type <code>double</code> and the python type <code>float</code>. Top-level signatures can
-be used to specify the type of a term in different languages. A term may be
-sourced from many different languages, thus \(x\) is multilingual.</p>
+language-specific, concrete types. Thus an expression may have the abstract
+type <code>Num</code>, the C-type <code>double</code> and the python type <code>float</code>. Top-level
+signatures can be used to specify the type of a term in different languages. A
+term may be sourced from many different languages, thus \(x\) is
+multilingual.</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -922,6 +936,7 @@ sourced from many different languages, thus \(x\) is multilingual.</p>
        &amp;|\ A \rightarrow B              \sep &amp; \text{function} \\
        &amp;|\ \forall\ \alpha_L\ . A       \sep &amp; \text{universal quantification over L} \\
        &amp;|\ \alpha_L\ [A]                \sep &amp; \text{parameterization} \\
+       &amp;|\ \ea_L [A] [d]       \sep &amp; \text{existential (unsolved) variable with parameters and defaults}
 \end{align}
 \]
 </div>
@@ -943,56 +958,37 @@ realization of the general type into a specific language.</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Type annotations couple a type to properties, a language (possibly the general
-one), and constraints. Typesets serve as collections of all that is known about
-a type as it is represented across languages. Different languages may have
-different sets of properties and constraints, they are unified only by a common
-name and complete interchangeability.</p>
+<p>A type annotation couples a type in a given language with a set of properties
+and constraints. The "properties" of the type are a set of n-ary relations
+describing the type. These properties will eventually be used to implement the
+equivalent of Haskell typeclasses. They are currently used to define
+serialization/deserialization functions. In the near future, I will also add
+support for casting functions that can be defined to allow automatic,
+language-specific, handling for conversions between types (e.g., handling
+automatic conversions from integers to doubles). The "constraints" are not yet
+implemented, but will allow the specification of boolean equations that must be
+held. When possible, these constraints will be evaluated statically, otherwise
+they will be translated into possibly optional runtime assertions.</p>
+</div>
+<div class="paragraph">
+<p>Typesets serve as collections of all that is known about a type as it is
+represented across languages. Different languages may have different sets of
+properties and constraints, they are unified only by a common name and complete
+interchangeability.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_let_polymorphism">5. Let polymorphism</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>We depart from Hindley-Milner (HM) by excluding a let term. In HM,
-expressions bound in let are generalized, allowing statements such as:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>let f = (forall a . a -&gt; a) in
-    x = (f 42, f "lettuce")</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Where \(f\) is generalized, allowing it to retain its polymorphism. The same is
-not true of variables bound in functions (in HM at least). For example, the
-following Haskell expression fails to typecheck:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>foo :: (a -&gt; a) -&gt; (Int, String)
-foo f = (f 42, f "lettuce")</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>We do not suport let expressions or <em>let-polymorphism</em>, instead we generalize
-expressions only if they are bound at the top-level (i.e. in declaration
-terms). This follows the practice argued for in [<a href="#vytiniotis2010let">2</a>].</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_declarative_type_system">6. Declarative type system</h2>
+<h2 id="_declarative_type_system">5. Declarative type system</h2>
 <div class="sectionbody">
 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_algorithmic_rules">7. Algorithmic Rules</h2>
+<h2 id="_algorithmic_rules">6. Algorithmic Rules</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_context">7.1. Context</h3>
+<h3 id="_context">6.1. Context</h3>
 <div class="stemblock">
 <div class="content">
 \[
@@ -1004,7 +1000,6 @@ entry          &amp; \ :\ \alpha_L             \sep &amp; \text{type variable fr
                &amp; \ |\ \ea_L = t            \sep &amp; \text{solved existential}            \\
                &amp; \ |\ \mark{x}             \sep &amp; \text{a named marker}                \\
                &amp; \ |\ \text{Source}\ v\ L\ \sep &amp; \text{source term from language L}   \\
-               &amp; \ |\ \text{Export}\ v     \sep &amp; \text{export term v from this module}
 \end{align}
 \]
 </div>
@@ -1015,7 +1010,7 @@ variables, markers, and source/export info.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_subtyping_and_instantiation">7.2. Subtyping and instantiation</h3>
+<h3 id="_subtyping_and_instantiation">6.2. Subtyping and instantiation</h3>
 <div class="paragraph">
 <p>The subtyping rules are adapted from DK.</p>
 </div>
@@ -1102,8 +1097,8 @@ with examples showing general, Haskell, <code>C++</code>, python and R signature
 <div class="title">map of strings to integers</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="bash"><span></span>x :: Map String Integer
-x Haskell :: <span class="tok-s2">&quot;Map \$1 \$2&quot;</span> String Integer
-x C++ :: <span class="tok-s2">&quot;std::map&lt;\$1,\$2&gt;&quot;</span> <span class="tok-s2">&quot;std::string&quot;</span> int
+x Haskell :: <span class="tok-s2">&quot;Map </span><span class="tok-nv">$1</span><span class="tok-s2"> </span><span class="tok-nv">$2</span><span class="tok-s2">&quot;</span> String Integer
+x C++ :: <span class="tok-s2">&quot;std::map&lt;</span><span class="tok-nv">$1</span><span class="tok-s2">,</span><span class="tok-nv">$2</span><span class="tok-s2">&gt;&quot;</span> <span class="tok-s2">&quot;std::string&quot;</span> int
 x Python :: <span class="tok-s2">&quot;dict&quot;</span> str int
 x R :: <span class="tok-s2">&quot;list&quot;</span> str int</code></pre>
 </div>
@@ -1217,7 +1212,7 @@ will be dependent on the user&#8217;s system architecture and local configuratio
 </div>
 </div>
 <div class="sect2">
-<h3 id="_typechecking_rulesbidirectional_or_tridirectional">7.3. Typechecking rules&#8201;&#8212;&#8201;bidirectional or tridirectional?</h3>
+<h3 id="_typechecking_rulesbidirectional_or_tridirectional">6.3. Typechecking rules&#8201;&#8212;&#8201;bidirectional or tridirectional?</h3>
 <div class="paragraph">
 <p>We add new typechecking rules that add support for primitives, containers,
 declarations and signatures. The primitive rules are axioms where the types are
@@ -1237,12 +1232,12 @@ variables pulled out as universal quantifiers.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">\(\expr{\Gamma}{e \Rightarrow A}{\Delta}\) \(\quad\quad\) Under input context \(\Gamma\), \(e\) synthesizes output type \(A\), with output context \(\Delta\)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{\expr{\Gamma, x:A_L}{e_2\ \Rightarrow\ \\_}{\Delta}}{\expr{\Gamma}{x\ L\ ::\ A_L\ ;\ e_2}{\Delta}}\) <span class="blue">Signature</span>
+<td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{\expr{\Gamma, x:A_L}{e_2\ \Rightarrow\ \_}{\Delta}}{\expr{\Gamma}{x\ L\ ::\ A_L\ ;\ e_2}{\Delta}}\) <span class="blue">Signature</span>
    \(\quad\quad\)
    \(\frac{}{\expr{\Gamma}{\text{Source }L\ x}{\Gamma,\ \ea_L}}\) <span class="blue">Source</span>
   <br>
   <br>
-   \(\frac{e\ \Rightarrow\ \\_\ \vdash\ \Theta \quad \lbrace x:A\ |\ (x:A)\ \in\ \Theta \rbrace\ \vdash\ \Theta' \quad \lbrace x:A\ |\ x\ \in\ xs,\ (x:A) \in \Theta' \rbrace\ \vdash\ \Delta}{\expr{\Gamma}{\text{Import}\ e\ xs}{\Gamma, \Delta}}\) <span class="red">Import</span>
+   \(\frac{e\ \Rightarrow\ \_\ \vdash\ \Theta \quad \lbrace x:A\ |\ (x:A)\ \in\ \Theta \rbrace\ \vdash\ \Theta' \quad \lbrace x:A\ |\ x\ \in\ xs,\ (x:A) \in \Theta' \rbrace\ \vdash\ \Delta}{\expr{\Gamma}{\text{Import}\ e\ xs}{\Gamma, \Delta}}\) <span class="red">Import</span>
   <br>
   <br>
    \(\frac{x \notin \text{FV}(\Gamma) \quad \expr{\Gamma[x:A], \mark{x}}{e\ \Leftarrow\ A}{\Delta,\mark{x}, \Theta}}{\expr{\Gamma}{x=e}{\Delta}}\) <span class="blue">DeclareCheck</span>
@@ -1372,6 +1367,250 @@ concrete binding at all (e.g., \(\lambda x . 42\)).</p>
 </div>
 </div>
 <div class="sect1">
+<h2 id="_let_polymorphism">7. Let polymorphism</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We depart from Hindley-Milner (HM) by excluding a let term. In HM,
+expressions bound in let are generalized, allowing statements such as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>let f = (forall a . a -&gt; a) in
+    x = (f 42, f "lettuce")</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Where \(f\) is generalized, allowing it to retain its polymorphism. The same is
+not true of variables bound in functions (in HM at least). For example, the
+following Haskell expression fails to typecheck:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>foo :: (a -&gt; a) -&gt; (Int, String)
+foo f = (f 42, f "lettuce")</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We do not suport let expressions or <em>let-polymorphism</em>, instead we generalize
+expressions only if they are bound at the top-level (i.e. in declaration
+terms). This follows the practice argued for in [<a href="#vytiniotis2010let">2</a>].</p>
+</div>
+</div>
+</div>
+<h1 id="_code_generation_and_optimization" class="sect0">Code Generation and Optimization</h1>
+<div class="openblock partintro">
+<div class="content">
+<div class="paragraph">
+<p>The input to the code generator is a list of module records.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span>   <span class="tok-kt">Module</span>
+    <span class="tok-p">{</span> <span class="tok-n">moduleName</span> <span class="tok-ow">::</span> <span class="tok-kt">MVar</span>                            <span class="tok-c1">-- module name</span>
+    <span class="tok-p">,</span> <span class="tok-n">modulePath</span> <span class="tok-ow">::</span> <span class="tok-kt">Maybe</span> <span class="tok-kt">Path</span>                      <span class="tok-c1">-- local path to module</span>
+    <span class="tok-p">,</span> <span class="tok-n">moduleBody</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-kt">Expr</span><span class="tok-p">]</span>                          <span class="tok-c1">-- full source code</span>
+    <span class="tok-p">,</span> <span class="tok-n">moduleExports</span> <span class="tok-ow">::</span> <span class="tok-kt">Set</span> <span class="tok-kt">EVar</span>                     <span class="tok-c1">-- exported morloc variables</span>
+    <span class="tok-p">,</span> <span class="tok-n">moduleImports</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-kt">Import</span><span class="tok-p">]</span>                     <span class="tok-c1">-- imported morloc modules</span>
+    <span class="tok-p">,</span> <span class="tok-n">moduleImportMap</span> <span class="tok-ow">::</span> <span class="tok-kt">Map</span> <span class="tok-kt">EVar</span> <span class="tok-kt">MVar</span>              <span class="tok-c1">-- local term to import map</span>
+    <span class="tok-p">,</span> <span class="tok-n">moduleSourceMap</span> <span class="tok-ow">::</span> <span class="tok-kt">Map</span> <span class="tok-p">(</span><span class="tok-kt">EVar</span><span class="tok-p">,</span> <span class="tok-kt">Lang</span><span class="tok-p">)</span> <span class="tok-kt">Source</span>    <span class="tok-c1">-- foreign language sources</span>
+    <span class="tok-p">,</span> <span class="tok-n">moduleTypeMap</span> <span class="tok-ow">::</span> <span class="tok-kt">Map</span> <span class="tok-kt">EVar</span> <span class="tok-kt">TypeSet</span>             <span class="tok-c1">-- type of every variable</span>
+    <span class="tok-p">,</span> <span class="tok-n">moduleDeclarationMap</span> <span class="tok-ow">::</span> <span class="tok-kt">Map</span> <span class="tok-kt">EVar</span> <span class="tok-kt">Expr</span>         <span class="tok-c1">-- all morloc declarations</span>
+    <span class="tok-p">}</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_root">8. Root</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The first step is to find the modules that are imported by no other module,
+i.e., the "root" modules. There should be exactly one root module, which I
+shall call "Main".</p>
+</div>
+<div class="paragraph">
+<p>Each variable that is exported from Main will become a command that can be
+called in the generated program.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_collect">9. Collect</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Next a bipartite, ambiguous, abstract syntax tree (AST) is built for each
+variabe exported from Main. The AST is implemented as a pair of mutually
+recursive data structures.</p>
+</div>
+<div class="paragraph">
+<p><code>SAnno</code> associates a set of subtrees with a shared annotation (general type and metadata).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">data</span> <span class="tok-kt">SAnno</span> <span class="tok-n">g</span> <span class="tok-n">f</span> <span class="tok-n">c</span> <span class="tok-ow">=</span> <span class="tok-kt">SAnno</span> <span class="tok-p">(</span><span class="tok-n">f</span> <span class="tok-p">(</span><span class="tok-kt">SExpr</span> <span class="tok-n">g</span> <span class="tok-n">f</span> <span class="tok-n">c</span><span class="tok-p">,</span> <span class="tok-n">c</span><span class="tok-p">))</span> <span class="tok-n">g</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Where
+ * g - an annotation for the group of child trees (what they have in common)
+ * f - a collection of subtrees
+ * c - an annotation for the specific child tree</p>
+</div>
+<div class="paragraph">
+<p><code>SExpr</code> stores an expression node and <code>SAnno</code> children.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">data</span> <span class="tok-kt">SExpr</span> <span class="tok-n">g</span> <span class="tok-n">f</span> <span class="tok-n">c</span>
+  <span class="tok-ow">=</span> <span class="tok-kt">UniS</span>
+  <span class="tok-o">|</span> <span class="tok-kt">VarS</span> <span class="tok-kt">EVar</span>
+  <span class="tok-o">|</span> <span class="tok-kt">ListS</span> <span class="tok-p">[</span><span class="tok-kt">SAnno</span> <span class="tok-n">g</span> <span class="tok-n">f</span> <span class="tok-n">c</span><span class="tok-p">]</span>
+  <span class="tok-o">|</span> <span class="tok-kt">TupleS</span> <span class="tok-p">[</span><span class="tok-kt">SAnno</span> <span class="tok-n">g</span> <span class="tok-n">f</span> <span class="tok-n">c</span><span class="tok-p">]</span>
+  <span class="tok-o">|</span> <span class="tok-kt">LamS</span> <span class="tok-p">[</span><span class="tok-kt">EVar</span><span class="tok-p">]</span> <span class="tok-p">(</span><span class="tok-kt">SAnno</span> <span class="tok-n">g</span> <span class="tok-n">f</span> <span class="tok-n">c</span><span class="tok-p">)</span>
+  <span class="tok-o">|</span> <span class="tok-kt">AppS</span> <span class="tok-p">(</span><span class="tok-kt">SAnno</span> <span class="tok-n">g</span> <span class="tok-n">f</span> <span class="tok-n">c</span><span class="tok-p">)</span> <span class="tok-p">[</span><span class="tok-kt">SAnno</span> <span class="tok-n">g</span> <span class="tok-n">f</span> <span class="tok-n">c</span><span class="tok-p">]</span>
+  <span class="tok-o">|</span> <span class="tok-kt">NumS</span> <span class="tok-kt">Scientific</span>
+  <span class="tok-o">|</span> <span class="tok-kt">LogS</span> <span class="tok-kt">Bool</span>
+  <span class="tok-o">|</span> <span class="tok-kt">StrS</span> <span class="tok-kt">Text</span>
+  <span class="tok-o">|</span> <span class="tok-kt">RecS</span> <span class="tok-p">[(</span><span class="tok-kt">EVar</span><span class="tok-p">,</span> <span class="tok-kt">SAnno</span> <span class="tok-n">g</span> <span class="tok-n">f</span> <span class="tok-n">c</span><span class="tok-p">)]</span>
+  <span class="tok-o">|</span> <span class="tok-kt">CallS</span> <span class="tok-kt">Source</span>
+  <span class="tok-o">|</span> <span class="tok-kt">ForeignS</span> <span class="tok-kt">Int</span> <span class="tok-kt">Lang</span> <span class="tok-p">[</span><span class="tok-kt">EVar</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_realize">10. Realize</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <code>f</code> in the <code>SAnno</code> type takes on two forms in the generator: <code>One</code> or <code>Many</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">data</span> <span class="tok-kt">One</span> <span class="tok-n">a</span> <span class="tok-ow">=</span> <span class="tok-kt">One</span> <span class="tok-n">a</span>
+<span class="tok-kr">data</span> <span class="tok-kt">Many</span> <span class="tok-n">a</span> <span class="tok-ow">=</span> <span class="tok-kt">Many</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The prior "Collect" step gathers all possible programs into one tree, thus <code>f</code>
+is <code>Many</code>. The "Realize" step collapses the tree done to a single "realization"
+(or "instance"). Thus the <code>realize</code> function, eliding implementation details,
+has the type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">realize</span> <span class="tok-ow">::</span> <span class="tok-kt">SAnno</span> <span class="tok-n">g</span> <span class="tok-kt">Many</span> <span class="tok-p">[</span><span class="tok-kt">Type</span><span class="tok-p">]</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">SAnno</span> <span class="tok-n">g</span> <span class="tok-kt">One</span> <span class="tok-kt">Type</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Two levels of ambiguity are removed in this step. The <code>Many</code> to <code>One</code>
+transition selects selects a single sub-tree topology. For example, suppose there</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>import math (sum, div, length, mean)
+source R (&quot;mean&quot;)
+
+export mean
+mean xs = div (sum xs) (length xs)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we have three definitions of <code>mean</code>. One is sourced from the <code>R</code> language
+(where it is a built in function). One is sourced from the <code>morloc math</code>
+module, where it is implemented in C. One is defined as a Morloc composition of
+the three functions <code>div</code>, <code>sum</code>, and <code>length</code>; these are all implemented in C
+currently, but they could gain more implementations in the future.</p>
+</div>
+<div class="paragraph">
+<p>There are <strong>three</strong> definitions of <code>mean</code>, and <strong>two</strong> topologies (thus two
+elements in <code>Many</code>). The topologies are either the <code>(div (sum xs) (length xs))</code>
+tree or the call to the <code>R</code> or <code>C</code> functions. The first problem is the
+<code>Many&#8594;One</code> selection. The second problem is the <code>[Type]&#8594;Type</code> problem, where
+the sourced implementation is chosen. Here we decide just between a single <code>R</code>
+and single <code>C</code> function. But the choice could be more involved, such as
+choosing between a dozen sort algorithms all written in <code>C</code>.</p>
+</div>
+<div class="paragraph">
+<p>This is the data structure is the starting point for an epic optimization
+problem.</p>
+</div>
+<div class="sect2">
+<h3 id="_algorithm_optimization">10.1. Algorithm optimization</h3>
+<div class="paragraph">
+<p>In the distant future, when Morloc is mature, the realization step will
+incorporate community knowledge, performance modeling, and benchmarking to make
+the optimal decision. For now, I assign a relative cost to each pair of
+inter-language calls and find the tree that minimizes the total cost.</p>
+</div>
+<div class="paragraph">
+<p>The most interesting optimizations those that involve choices between
+algorithms. We could build formal performance models for each algorithm and
+parameterize them empirically for each implementation.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>performance</p>
+</li>
+<li>
+<p>accuracy</p>
+</li>
+<li>
+<p>parameterization</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_build_optimization">10.2. Build optimization</h3>
+<div class="paragraph">
+<p>The goal of build optimization is to 1) ensure the program compiles, 2)
+minimize the dependencies and 3) tailor the build to the local architecture. In
+theory, a <code>morloc</code> program can avoid bit-rot and adapt to any architecture so
+long as there exists at least one valid tree instance.</p>
+</div>
+<div class="paragraph">
+<p>I haven&#8217;t worked on build optimization yet, but I imagine the input to the
+mature morloc build machine will be a description of the local architecture and
+a list of possible ASTs, ordered by expected performance. The machine could
+then try to build the "best" tree. If the build fails, the machine then finds
+the next highest scoring tree that does not contain the failing component.</p>
+</div>
+<div class="paragraph">
+<p>Making this process efficient through judicious use of deep knowledge gathered
+from the community will be a major focus in the future. The knowledge gained in
+one build (e.g., function X failed on OS Y in state Z) could be uploaded
+automatically to the community knowledgebase and accessed in future builds.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_interoperability_optimization">10.3. Interoperability optimization</h3>
+<div class="paragraph">
+<p>The minimization of inter-operability costs is the easiest optimization and the
+only one that is currently supported. Program performance can be optimized by
+reducing the number and cost of foreign calls.</p>
+</div>
+<div class="listingblock">
+<div class="title">Penalties for calls between languages</div>
+<div class="content">
+<pre>          C    Python           R
+C         1       100        1000
+Python   10         2        1000
+R        10       100           3</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The values in the table above are obviously very rough, but they demonstrate
+important principles for optimizing Morloc programs. Calls within languages are
+cheap and between languages are expensive. Major performance improvements could
+be obtained by removing the start-up costs of loading the R/Python runtime
+(e.g., passing data to an open R server rather than restarting R for every
+call).</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_references">References</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -1385,7 +1624,7 @@ concrete binding at all (e.g., \(\lambda x . 42\)).</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-03-08 07:19:38 -0500
+Last updated 2020-03-26 06:47:58 -0500
 </div>
 </div>
 <style>
