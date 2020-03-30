@@ -477,11 +477,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#_root">8. Root</a></li>
 <li><a href="#_collect">9. Collect</a></li>
-<li><a href="#_realize">10. Realize</a>
+<li><a href="#_rewrite">10. Rewrite</a></li>
+<li><a href="#_realize">11. Realize</a>
 <ul class="sectlevel2">
-<li><a href="#_algorithm_optimization">10.1. Algorithm optimization</a></li>
-<li><a href="#_build_optimization">10.2. Build optimization</a></li>
-<li><a href="#_interoperability_optimization">10.3. Interoperability optimization</a></li>
+<li><a href="#_algorithm_optimization">11.1. Algorithm optimization</a></li>
+<li><a href="#_build_optimization">11.2. Build optimization</a></li>
+<li><a href="#_interoperability_optimization">11.3. Interoperability optimization</a></li>
+</ul>
+</li>
+<li><a href="#_serialization">12. Serialization</a>
+<ul class="sectlevel2">
+<li><a href="#_specifying_serialization_functions">12.1. Specifying serialization functions</a></li>
+<li><a href="#_selecting_serialization_functions">12.2. Selecting serialization functions</a></li>
+<li><a href="#_composing_serialization_functions">12.3. Composing serialization functions</a></li>
+<li><a href="#_serialization_format_standards">12.4. Serialization format standards</a></li>
+<li><a href="#_non_json_serialization">12.5. non-JSON serialization</a></li>
 </ul>
 </li>
 </ul>
@@ -1439,7 +1449,7 @@ called in the generated program.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Next a bipartite, ambiguous, abstract syntax tree (AST) is built for each
-variabe exported from Main. The AST is implemented as a pair of mutually
+variable exported from Main. The AST is implemented as a pair of mutually
 recursive data structures.</p>
 </div>
 <div class="paragraph">
@@ -1479,7 +1489,69 @@ recursive data structures.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_realize">10. Realize</h2>
+<h2 id="_rewrite">10. Rewrite</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The ASTs made in Collect are not quite ready for translation yet. They contain
+<code>morloc</code> functions on the right-hand-side of equations. Yet these functions are
+not "real" and should not appear (except as debugging info) in the final
+generated code.</p>
+</div>
+<div class="paragraph">
+<p>For example, consider the following <code>morloc</code> script:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>import cppbase (mul, add)
+
+export foo
+
+foo x y = bar x (baz y)
+bar x y = mul x (add y 1)
+baz x = mul x x</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The Rewrite step redefines the exported <code>foo</code> function by eliminating the <code>bar</code>
+and <code>baz</code> abstractions, as below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>foo x y = mul x (add (mul y y) 1)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The process is complicated when there are unresolved topology differences. For
+example, if <code>bar</code> has two definitions, as below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>import cppbase (mul, add, bar)
+
+export foo
+
+foo x y = bar x (baz y)
+bar x y = mul x (add y 1)
+baz x = mul x x</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now <code>bar</code> can either be the <code>morloc</code> abstraction or the <code>C++</code> function. So we
+can generate two possible forms of <code>foo</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>foo x y = mul x (add (mul y y) 1)
+foo x y = bar x (mul y y)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These two ASTs will be included under the <code>Many</code> in the <code>SAnno</code> output.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_realize">11. Realize</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The <code>f</code> in the <code>SAnno</code> type takes on two forms in the generator: <code>One</code> or <code>Many</code>:</p>
@@ -1517,7 +1589,7 @@ mean xs = div (sum xs) (length xs)</code></pre>
 <div class="paragraph">
 <p>Here we have three definitions of <code>mean</code>. One is sourced from the <code>R</code> language
 (where it is a built in function). One is sourced from the <code>morloc math</code>
-module, where it is implemented in C. One is defined as a Morloc composition of
+module, where it is implemented in C. One is defined as a <code>morloc</code> composition of
 the three functions <code>div</code>, <code>sum</code>, and <code>length</code>; these are all implemented in C
 currently, but they could gain more implementations in the future.</p>
 </div>
@@ -1535,9 +1607,9 @@ choosing between a dozen sort algorithms all written in <code>C</code>.</p>
 problem.</p>
 </div>
 <div class="sect2">
-<h3 id="_algorithm_optimization">10.1. Algorithm optimization</h3>
+<h3 id="_algorithm_optimization">11.1. Algorithm optimization</h3>
 <div class="paragraph">
-<p>In the distant future, when Morloc is mature, the realization step will
+<p>In the distant future, when <code>morloc</code> is mature, the realization step will
 incorporate community knowledge, performance modeling, and benchmarking to make
 the optimal decision. For now, I assign a relative cost to each pair of
 inter-language calls and find the tree that minimizes the total cost.</p>
@@ -1562,7 +1634,7 @@ parameterize them empirically for each implementation.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_build_optimization">10.2. Build optimization</h3>
+<h3 id="_build_optimization">11.2. Build optimization</h3>
 <div class="paragraph">
 <p>The goal of build optimization is to 1) ensure the program compiles, 2)
 minimize the dependencies and 3) tailor the build to the local architecture. In
@@ -1571,7 +1643,7 @@ long as there exists at least one valid tree instance.</p>
 </div>
 <div class="paragraph">
 <p>I haven&#8217;t worked on build optimization yet, but I imagine the input to the
-mature morloc build machine will be a description of the local architecture and
+mature <code>morloc</code> build machine will be a description of the local architecture and
 a list of possible ASTs, ordered by expected performance. The machine could
 then try to build the "best" tree. If the build fails, the machine then finds
 the next highest scoring tree that does not contain the failing component.</p>
@@ -1584,7 +1656,7 @@ automatically to the community knowledgebase and accessed in future builds.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_interoperability_optimization">10.3. Interoperability optimization</h3>
+<h3 id="_interoperability_optimization">11.3. Interoperability optimization</h3>
 <div class="paragraph">
 <p>The minimization of inter-operability costs is the easiest optimization and the
 only one that is currently supported. Program performance can be optimized by
@@ -1601,12 +1673,111 @@ R        10       100           3</pre>
 </div>
 <div class="paragraph">
 <p>The values in the table above are obviously very rough, but they demonstrate
-important principles for optimizing Morloc programs. Calls within languages are
+important principles for optimizing <code>morloc</code> programs. Calls within languages are
 cheap and between languages are expensive. Major performance improvements could
 be obtained by removing the start-up costs of loading the R/Python runtime
 (e.g., passing data to an open R server rather than restarting R for every
 call).</p>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_serialization">12. Serialization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The current interoperability paradigm <code>morloc</code> follows under the hood is based
+entirely on serialization. To be clear, serialization is not a fundamental
+requirement of <code>morloc</code>, if someone where to develop clean solutions for
+machine-level interoperability between all languages, then <code>morloc</code> could use
+this solution in place of the current serialization solution. The transition
+from serialization interop would be invisible to most morloc programmers, since
+most programmers will be relying entirely on interop code written deep within
+modules they import. They would see only a sudden increase in the performance
+of their code.</p>
+</div>
+<div class="sect2">
+<h3 id="_specifying_serialization_functions">12.1. Specifying serialization functions</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_selecting_serialization_functions">12.2. Selecting serialization functions</h3>
+<div class="paragraph">
+<p>Deciding which serialization function to use for a given concrete type is
+certainly not trivial. There may be several choices. For example, suppose we
+have the tuple <code>(int, bool)</code>. This could be deserialized by any of the following
+functions:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>JSON &#8594; forall a . a</code></p>
+</li>
+<li>
+<p><code>JSON &#8594; forall a . (a, bool)</code></p>
+</li>
+<li>
+<p><code>JSON &#8594; forall a . (int, a)</code></p>
+</li>
+<li>
+<p><code>JSON &#8594; forall a b . (a, b)</code></p>
+</li>
+<li>
+<p><code>JSON &#8594; (int, bool)</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The first deserializer is the most generic choice. It is the default
+serialization function that will happily attempt to serialize anything. In some
+languages, a single, well-designed serialization library may be able to
+deserialize any type of input, and this one generic deserializer may be all
+that is needed. But so far, even in the dynamic Python and R languages, the
+generic serialization tools are insufficient.</p>
+</div>
+<div class="paragraph">
+<p>The five functions above are all possible deserializers for type <code>(int, bool)</code>.
+But in practice, we will need to find a suitable serializer from a much larger
+list of all serializers available for this language. This can be done by 1)
+selecting all functions where the deserialized type (or serialized type) is a
+subtype of the given type and 2) then selecting the function that is <strong>maximal</strong>.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[S_j = \text{max}_{subtype} [ t_i\ |\ t_i \leftarrow S_{all}, t_i &lt;: t_j ]\]
+</div>
+</div>
+<div class="paragraph">
+<p>Since this is a partial order, there may be multiple maximal elements. For
+example, both #2 and #3 (from above), are subtypes of <code>(int, bool)</code>, but
+neither are subtypes of eachother, so if #5 where not in the set, these two
+functions would be the maxima. To split ties, I could add another ordering to
+types or use the generic Haskell ordering. I have not yet settled on a
+convention.</p>
+</div>
+<div class="paragraph">
+<p>Here are a few examples of ordering:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\forall a . a &lt;: A \\
+\forall a . a &lt;: \forall a b . (a, b) \\
+\forall a b . (a, b) &lt;: \forall a . (a, B) \\
+\forall a b . (a, b) &lt;: (A, B)\]
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_composing_serialization_functions">12.3. Composing serialization functions</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_serialization_format_standards">12.4. Serialization format standards</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_non_json_serialization">12.5. non-JSON serialization</h3>
+
 </div>
 </div>
 </div>
