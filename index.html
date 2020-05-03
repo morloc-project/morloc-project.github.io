@@ -469,13 +469,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#_grammar">4. Grammar</a></li>
 <li><a href="#_declarative_type_system">5. Declarative type system</a></li>
-<li><a href="#_algorithmic_rules">6. Algorithmic Rules</a>
-<ul class="sectlevel2">
-<li><a href="#_context">6.1. Context</a></li>
-<li><a href="#_subtyping_and_instantiation">6.2. Subtyping and instantiation</a></li>
-<li><a href="#_typechecking_rulesbidirectional_or_tridirectional">6.3. Typechecking rules&#8201;&#8212;&#8201;bidirectional or tridirectional?</a></li>
-</ul>
-</li>
+<li><a href="#_algorithmic_rules">6. Algorithmic Rules</a></li>
 <li><a href="#_let_polymorphism">7. Let polymorphism</a></li>
 </ul>
 </li>
@@ -1013,11 +1007,16 @@ automation, optimization, accessibility, and reproducibility.</p>
 <h1 id="_specification" class="sect0">Specification</h1>
 <div class="openblock partintro">
 <div class="content">
-The type system presented within this section is based the work of Dunfield and
+<div class="paragraph">
+<p><strong>This section is a work in progress</strong></p>
+</div>
+<div class="paragraph">
+<p>The type system presented within this section is based the work of Dunfield and
 Krishnaswami [<a href="#dunfield2013complete">1</a>]. I preserved their naming conventions
 where possible. Only the basic type checking and inference (System F) is
 described here, the broader knowledge system introduced in the prior section
-has not yet been implemented.
+has not yet been implemented.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1090,14 +1089,13 @@ realization of the general type into a specific language.</p>
 <p>A type annotation couples a type in a given language with a set of properties
 and constraints. The "properties" of the type are a set of n-ary relations
 describing the type. These properties will eventually be used to implement the
-equivalent of Haskell typeclasses. They are currently used to define
-serialization/deserialization functions. In the near future, I will also add
-support for casting functions that can be defined to allow automatic,
-language-specific, handling for conversions between types (e.g., handling
-automatic conversions from integers to doubles). The "constraints" are not yet
-implemented, but will allow the specification of boolean equations that must be
-held. When possible, these constraints will be evaluated statically, otherwise
-they will be translated into possibly optional runtime assertions.</p>
+equivalent of Haskell typeclasses. In the near future, I will add support for
+casting functions that can be defined to allow automatic, language-specific,
+handling for conversions between types (e.g., handling automatic conversions
+from integers to doubles). The "constraints" are not yet implemented, but will
+be a list of assertions that must be met. When possible, these constraints will
+be evaluated statically, otherwise they will be translated into (possibly
+optional) runtime assertions.</p>
 </div>
 <div class="paragraph">
 <p>Typesets serve as collections of all that is known about a type as it is
@@ -1110,14 +1108,14 @@ interchangeability.</p>
 <div class="sect1">
 <h2 id="_declarative_type_system">5. Declarative type system</h2>
 <div class="sectionbody">
-
+<div class="paragraph">
+<p><strong>Coming soon (or late)</strong></p>
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_algorithmic_rules">6. Algorithmic Rules</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_context">6.1. Context</h3>
 <div class="stemblock">
 <div class="content">
 \[
@@ -1137,27 +1135,13 @@ entry          &amp; \ :\ \alpha_L             \sep &amp; \text{type variable fr
 <p>The context is a list storing type annotations, solved and unsolved existential
 variables, markers, and source/export info.</p>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_subtyping_and_instantiation">6.2. Subtyping and instantiation</h3>
 <div class="paragraph">
-<p>The subtyping rules are adapted from DK.</p>
+<p>The subtyping rules are adapted from [<a href="#dunfield2013complete">1</a>].</p>
 </div>
 <div class="paragraph">
-<p>There are two main extensions:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>multi-lingual support.</p>
-</li>
-<li>
-<p>Type application. This extension allows types to take an arbitrary
-number of type parameters. For example, the type of a hashmap from strings
-to integers might be written as Map Str Int. We also support [a] as a
-shortcut for List a.</p>
-</li>
-</ol>
+<p>I fleshed out the type system with containers (lists, tuples, records) and
+parameterized types. The main change though is the addition of multi-lingual
+support.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 1. Subtyping Rules</caption>
@@ -1314,12 +1298,23 @@ JSON.</p>
 </div>
 <div class="paragraph">
 <p>These assertions alone are not sufficient for proving that two types are
-interconvertible. The serialization functions only show that a path exists
-between the types, it does not show that the types are semantically equivalent.
-Semantic equivalence is demonstrated through typechecking of the general,
-language-independent, type. That is, if the language-specific types under
-consideration are not semantically equivalent, and error will be raised
-elsewhere in the typechecking process.</p>
+interconvertible. The serialization functions show only that a path exists
+between the types (e.g., they serialize to a common JSON object), it does not
+show that the types are semantically equivalent. Semantic equivalence is
+demonstrated through typechecking of the general, language-independent, type.
+That is, if the language-specific types under consideration are not
+semantically equivalent, and error will be raised elsewhere in the typechecking
+process.</p>
+</div>
+<div class="paragraph">
+<p>Prior to <code>morloc</code> v0.22.0, I explicitly wrote serialization functions with
+<code>morloc</code> signatures using the <code>pack</code>/<code>unpack</code> property. In v0.22.0, I replaced
+this system with a language-specific approach of passing some form of
+type-template to the serialization machinery particular to the given language.
+This means serialization is up to the libraries in the specific languages and
+the type checker will not be able to catch the absence of a serialization path.
+This approach has worked well, but I am not happy with the absence of static
+checks or with how awkward it is to explain.</p>
 </div>
 <div class="paragraph">
 <p>The Cast rule involves handling of directed automatic conversions between
@@ -1338,18 +1333,6 @@ are possible. There may be multiple paths to accomplishing the transforms that
 will differ in performance and require different dependencies at build time.
 Choosing which path to take is not the responsibility of the typechecker and
 will be dependent on the user&#8217;s system architecture and local configuration.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_typechecking_rulesbidirectional_or_tridirectional">6.3. Typechecking rules&#8201;&#8212;&#8201;bidirectional or tridirectional?</h3>
-<div class="paragraph">
-<p>We add new typechecking rules that add support for primitives, containers,
-declarations and signatures. The primitive rules are axioms where the types are
-inferred by the lexer. The only currently supported container is a homogenous
-list (e.g., [Num] for a list of numbers). A declaration allows a variable to
-be assigned to an expression. Top-level shadowing is not allowed (i.e. no
-re-assignment). Also the types are generalized, with all remaining existential
-variables pulled out as universal quantifiers.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 4. synthesize</caption>
@@ -1413,6 +1396,15 @@ variables pulled out as universal quantifiers.</p>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>I addd typechecking rules that for primitives, containers, declarations and
+signatures. The primitive rules are axioms where the types are inferred by the
+lexer. The containers include homogenous lists, tuples, and records. A
+declaration allows a variable to be assigned to an expression. Top-level
+shadowing is not allowed (i.e. no re-assignment). Also the types are
+generalized, with all remaining existential variables pulled out as universal
+quantifiers.</p>
+</div>
 <div class="paragraph">
 <p>The three functions synthesisToplevel, synthesisSingular, and
 synthesisSpread are all specializations of the general functions of type:</p>
@@ -1494,7 +1486,6 @@ concrete binding at all (e.g., \(\lambda x . 42\)).</p>
 </table>
 </div>
 </div>
-</div>
 <div class="sect1">
 <h2 id="_let_polymorphism">7. Let polymorphism</h2>
 <div class="sectionbody">
@@ -1530,7 +1521,8 @@ terms). This follows the practice argued for in [<a href="#vytiniotis2010let">2<
 <div class="openblock partintro">
 <div class="content">
 <div class="paragraph">
-<p>The input to the code generator is a list of module records.</p>
+<p>The input to the code generator is the list of module records that is created
+by the parser and annotated by the inference engine.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1555,7 +1547,7 @@ terms). This follows the practice argued for in [<a href="#vytiniotis2010let">2<
 <div class="paragraph">
 <p>The first step is to find the modules that are imported by no other module,
 i.e., the "root" modules. There should be exactly one root module, which I
-shall call "Main".</p>
+will call "Main".</p>
 </div>
 <div class="paragraph">
 <p>Each variable that is exported from Main will become a command that can be
