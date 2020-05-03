@@ -1,5 +1,5 @@
-title: Jekyll AsciiDoc Quickstart
-description: The Jekyll AsciiDoc Quickstart project is a leg-up in starting your own website hosted on GitHub with content based in AsciiDoc.
+title: Morloc Documentation
+description: The primary technical manual for Morloc language and ecosystem.
 exclude:
   - LICENSE.adoc
   - README.adoc
