@@ -33,12 +33,11 @@ written here has not yet been implemented and much of what has been implemented
 will be changed in the future.
 
 
-Morloc is a framework that allows interoperability between functions across
-languages, multi-language libraries and package managers, and encoding of
-domain specific behavior into the type system. Based on this framework, we will
-build a community portal for curating a universal library. Any public functions
-in this library can be used in any Morloc script. They may also be imported
-into specific languages and used.
+`morloc` is a functional programming language where functions are imported from
+foreign languages and unified through a common type system. The compiler
+generates the code needed to compose functions across languages and also to
+direct automation of mundane tasks such as data validation, type/format
+conversions, data caching, distributed computing, and file reading/writing.
 
 The ultimate purpose of the Morloc system is to serve as the foundation for a
 universal library of functions. Each function in the library has a universal
@@ -57,13 +56,13 @@ performance when possible), or they may be from several languages.
 
  * [x] function composition across languages (currently `C++`, R and Python3)
 
+ * [x] generic types and type parameterization across languages
+
+ * [x] type checking and inference
+
  * [x] higher-order functions
 
  * [x] currying
-
- * [x] generic types (System F) and type parameterization across languages
-
- * [x] type checking and inference
 
 in development:
 
@@ -71,7 +70,7 @@ in development:
 
  * [ ] a semantic type extension where types are defined in ontologies
 
- * [ ] dependent types (with cheats: if I can't solve statically, I'll generate optional assertion statements)
+ * [ ] dependent types (with cheats: if unsolvable at compile-time, generate optional assertion statements)
 
  * [ ] profanity-free error messages
 

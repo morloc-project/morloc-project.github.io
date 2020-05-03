@@ -1,4 +1,4 @@
-# Morloc Technical Documentation
+= Morloc Technical Documentation
 
 To compile this documentation just run `make`.
 
