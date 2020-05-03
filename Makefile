@@ -1,5 +1,5 @@
 all:
-	asciidoctor -r asciidoctor-bibtex --doctype=book main.asc
+	asciidoctor -r asciidoctor-bibtex --doctype=book index.adoc
 
 clean:
 	rm -r *pdf
