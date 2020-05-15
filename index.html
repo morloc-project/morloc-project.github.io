@@ -1163,9 +1163,9 @@ support.</p>
    \(\frac{}{\expr{\Gamma}{\ea_{L1}\ &lt;:\ \eb_{L2}}{\Gamma,\ \packto{\eb_{L2}}{\ea_{L1}}}}\) <span class="blue">&lt;:AlienExvar*</span>
   <br>
   <br>
-   \(\frac{\Delta_1 = \Gamma \quad [\expr{\Delta_{i-1}}{A_i\ &lt;:\ B_i}{\Delta_i}]_{i=1}^n}{\expr{\Gamma}{\alpha_L\ [A_i]_{i=1}^n &lt;:\ \alpha_L\ [B_i]_{i=1}^n}{\Delta_n}}\) <span class="blue">&lt;:App</span>
+   \(\frac{\Delta_1 = \Gamma \quad [\expr{\Delta_{i}}{A_i\ &lt;:\ B_i}{\Delta_{i+1}}]_{i=1}^n}{\expr{\Gamma}{\alpha_L\ [A_i]_{i=1}^n &lt;:\ \alpha_L\ [B_i]_{i=1}^n}{\Delta_{n+1}}}\) <span class="blue">&lt;:App</span>
    \(\quad\quad\)
-   \(\frac{\packto{\beta_{L2}\ [B_i]_{i=1}^m}{\alpha_{L1}\ [A_i]_{i=1}^n}}{\expr{\Gamma}{\alpha_{L1}\ [A_i]_{i=1}^n\ &lt;:\ \beta_{L2}\ [B_i]_{i=1}^m}{\Gamma}}\) <span class="blue">&lt;:AppAlien</span>
+   \(\frac{\Delta_1 = \Gamma \quad [ \expr{\Delta_i}{A_i\ &lt;:\ B_i}{\Delta_{i+1}} ]_{i=1}^n \quad \packto{\beta_{L2}\ [B_i]_{i=1}^m}{\alpha_{L1}\ [A_i]_{i=1}^n}}{\expr{\Gamma}{\alpha_{L1}\ [A_i]_{i=1}^n\ &lt;:\ \beta_{L2}\ [B_i]_{i=1}^n}{\Delta_{n+1}}}\) <span class="blue">&lt;:AppAlien</span>
   <br>
   <br>
    \(\frac{\packto{\alpha_{L1}\ [A_i]_{i=1}^n}{\beta_{L2}}}{\expr{\Gamma}{\alpha_{L1}\ [A_i]_{i=1}^n\ &lt;:\ \beta_{L2}}{\Gamma}}\) <span class="blue">&lt;:AppAlienVarL</span>
@@ -1258,6 +1258,10 @@ respectively), but the type information will be preserved.</p>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>The instantiation rules above are identical to the rules from DK. However, in
+<code>morloc</code>, existential types additionally carry parameters and default values.</p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 3. Transform rules</caption>
 <colgroup>
@@ -1386,9 +1390,11 @@ will be dependent on the user&#8217;s system architecture and local configuratio
 <tr>
 <td class="tableblock halign-center valign-top"><p class="tableblock">\(\frac{(\,x\,:\,A_L\,)\ \in\ \vec{A}\ \in\ \Gamma}{\expr{\Gamma}{x\ \overset{L}{\Rightarrow} A_L}{\Gamma}}\) <span class="green">Var</span>
    \(\quad\quad\)
+   \(\frac{\forall\ M\ .\ (x:A_m)\ \notin\ \vec{A}\ \in\ \Gamma \quad (\,x\,:\,A\,)\ \in\ \vec{A}\ \in\ \Gamma \quad \Gamma\ \vdash\ x=e \quad \expr{\Gamma}{e \overset{L}{\Rightarrow} A_L}{\Delta}}{\expr{\Gamma}{x\ \overset{L}{\Rightarrow} A_L}{\Delta}}\) <span class="blue">Var⇒</span>
+  <br>
+  <br>
    \(\frac{\Gamma\ \vdash\ A \quad \Delta_1 = \Gamma \quad \braced{ \expr{\Delta_i}{e \overset{L_i}{\Leftarrow} A_i}{\Delta_{i+1}} }_{i=1}^k}{\expr{\Gamma}{(e:\vec{A})\ \Rightarrow\ \vec{A}}{\Delta}}\) <span class="green">Anno</span>
-  <br>
-  <br>
+   \(\quad\quad\)
    \(\frac{\expr{\Gamma}{e_1\ \Rightarrow\ \vec{A}}{\Delta} \quad\quad \braced{ \Delta\ \vdash\ [\Delta] \apply{A_{L_i}}{e_2}{C_{L_i}}\ |\ L_i \in \text{lang}(\vec{A}) }_{i=1}^k}{\expr{\Gamma}{e_1 e_2 \Rightarrow \vec{C}}{\Delta}}\) <span class="green">→E</span></p></td>
 </tr>
 <tr>
