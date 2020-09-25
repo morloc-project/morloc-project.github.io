@@ -733,19 +733,16 @@ The following commands are exported
 <div class="sect2">
 <h3 id="_composition_between_languages">1.3. Composition between languages</h3>
 <div class="paragraph">
-<p><strong>NOTE: this example is currently borken, see issue #11</strong></p>
-</div>
-<div class="paragraph">
 <p><code>morloc</code> can compose functions across languages. For example</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code><span></span>import math (fibonacci)
-import rbase (plotPDF)
+import rbase (plotVectorPDF)
 
 export fibplot
 
-fibplot n = plotPDF (fibonacci n) &quot;fibonacci-plot.pdf&quot;;</code></pre>
+fibplot n = plotVectorPDF (fibonacci n) &quot;fibonacci-plot.pdf&quot;;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -753,7 +750,7 @@ fibplot n = plotPDF (fibonacci n) &quot;fibonacci-plot.pdf&quot;;</code></pre>
 plots it using an R function.</p>
 </div>
 <div class="paragraph">
-<p><code>plotPDF</code> is defined in the <code>morloc</code> module <code>rbase</code>. The <code>morloc</code> module
+<p><code>plotVectorPDF</code> is defined in the <code>morloc</code> module <code>rbase</code>. The <code>morloc</code> module
 contains the following files:</p>
 </div>
 <div class="listingblock">
@@ -776,7 +773,7 @@ generic R plot function: <code>plotPDF</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="R"><span></span>plotPDF &lt;- function(x, filename){
+<pre class="pygments highlight"><code data-lang="R"><span></span>plotVectorPDF &lt;- function(x, filename){
   pdf(filename)
   plot(x)
   dev.off()
@@ -793,13 +790,13 @@ and writes the result to a PDF with the name <code>filename</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>plotPDF :: forall a . a -&gt; Str -&gt; ()
-plotPDF R :: forall a . a -&gt; character -&gt; ()</code></pre>
+<pre class="pygments highlight"><code><span></span>plotVectorPDF :: [Num] -&gt; Str -&gt; ()
+plotVectorPDF R :: [numeric] -&gt; character -&gt; ()</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>The first signature is the general type, the second is the concrete, R-specific
-type. The <code>forall a</code> states that <code>a</code> is a generic variable.</p>
+type.</p>
 </div>
 <div class="paragraph">
 <p>Similarly the <code>fibonacci</code> <code>C++</code> function has the types:</p>
@@ -824,16 +821,6 @@ type constructor: <code>double</code> replaces <code>$1</code> yielding the conc
 <code>std::vector&lt;double&gt;</code>. The use of <code>double</code> isn&#8217;t ideal, since Fibonacci
 sequences are integers, but was done to support larger outputs without overflow
 (might be better to go with log Fibonacci numbers).</p>
-</div>
-<div class="paragraph">
-<p>A Haskell programmer might take issue with the generic plot function (can it
-really plot <em>anything</em>). Eventually I will add type machinery for adding
-further constraints, but even after such systems are in place, it is essential
-that <code>morloc</code> give some amount of flexibility to dynamic languages such as R.
-In the future, I imagine the <code>morloc</code> universe will partition into planes of
-differing strictness and performance. Some programmers will care about function
-totality and static guarantees, others will trade this for ease of use or
-familiarity.</p>
 </div>
 </div>
 </div>
@@ -1403,7 +1390,7 @@ will be dependent on the user&#8217;s system architecture and local configuratio
 </tbody>
 </table>
 <div class="paragraph">
-<p>I addd typechecking rules that for primitives, containers, declarations and
+<p>I added typechecking rules that for primitives, containers, declarations and
 signatures. The primitive rules are axioms where the types are inferred by the
 lexer. The containers include homogenous lists, tuples, and records. A
 declaration allows a variable to be assigned to an expression. Top-level
@@ -1445,6 +1432,24 @@ rather than <em>synthesized</em>.</p>
 lambda expression specifies the language of the lambda. The language of the
 subcomponents may differ from the language of the lambda or may have no
 concrete binding at all (e.g., \(\lambda x . 42\)).</p>
+</div>
+<div class="paragraph">
+<p>The Var⇒ rule handles cases where an expression with no concrete type (i.e.,
+one that does not make a function call) is assigned to a variable and is then
+used in a second expression. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="bash"><span></span>import pybase <span class="tok-o">(</span>map, add<span class="tok-o">)</span>
+<span class="tok-nv">ys</span> <span class="tok-o">=</span> <span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
+foo <span class="tok-nv">x</span> <span class="tok-o">=</span> map <span class="tok-o">(</span>add x<span class="tok-o">)</span> ys</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>map</code> and <code>add</code> are both functions imported from Python3. <code>ys</code>, though, is
+defined as a general list of numbers. At the location where it is defined, no
+language can be inferred. It is not until <code>ys</code> is called within <code>foo</code> that its
+concrete type can be inferred.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 5. check</caption>
