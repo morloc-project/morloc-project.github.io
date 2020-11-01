@@ -1,5 +1,26 @@
-foo :: Int -> Foo {a :: Int, b :: Str};
+type PersonTable = Table Person
+-- define a general table constructor
+Table :: Record rec => [rec] -> Table rec
+-- define a C++ table constructor that builds an object of the CoolTable type
+Table Cpp :: Record rec => [rec] -> "CoolTable<$1>" rec
+-- or the fast table type
+Table Cpp :: Record rec => [rec] -> "FastTable<$1>" rec
 
+join :: forall a b . k:Str -> Table a -> Table b -> Table (a + b)
+
+-- We should remove the "forall" keyword and use lowercase as generic, then
+-- require function names and variables be lower case. Uppercase functions imply
+-- the definition of a type constructor function.
+
+source cpp from "wherever.hpp" ("Map")
+source py from "wherever.hpp" ("Map")
+
+-- Definition of a Map constructor - this defines how the JSON serialization is stored.
+Map :: forall a b . [(a,b)] -> Map a b
+-- having multiple constructors is legal
+Map Cpp :: forall a b . [(a, b)] -> "std::map<$1,$2>" a b
+Map Cpp :: forall a b . [(a, b)] -> "std::hashmap<$1,$2>" a b
+Map py  :: forall a b . [(a, b)] -> "dict" a b
 
 -- typedefs are type constructors or aliases.
 
@@ -62,6 +83,7 @@ constructor Py (RoseTreeDict a) = "RoseTree(kids=$2, payload=$1, depth=0)"
 -- parameters, for example Map, below:
 record (Map a b) = Map a b
 -- where the argument to the function is probably something like: [(a,b)]. Map would need a dedicated
+
 
 
 
