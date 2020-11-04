@@ -27,6 +27,8 @@
 \]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+== What is `morloc`?
+
 `morloc` is a functional programming language where functions are imported from
 foreign languages and unified through a common type system. The compiler
 generates the code needed to compose functions across languages and also to
@@ -45,7 +47,7 @@ Morloc is a query language that takes a program specification and searches
 against a function database, returning an optimized composition of functions.
 The functions may be selected all from one language or from several.
 
-= Getting Started
+== Getting Started
 
 ```
 export hello
@@ -54,23 +56,22 @@ hello = "Hello world!!!"
 
 include::{includedir}/examples.asc[]
 
-include::{includedir}/motivation.asc[]
+// = Philosophy
+// // include::{includedir}/motivation.asc[]
+//
+// include::{includedir}/types.asc[]
 
-= Philosophy
+== Syntax and Features
 
-include::{includedir}/types.asc[]
+include::{includedir}/features.asc[]
 
-// system F - import the type specification
-
-// ontology system
-
-= Specification 
-
-include::{includedir}/type-specification.asc[]
-
-= Code Generation and Optimization
+== Code Generation and Optimization
 
 include::{includedir}/code-generation.asc[]
+
+== Specification 
+
+include::{includedir}/type-specification.asc[]
 
 // the module system and environment
 
@@ -102,6 +103,8 @@ include::{includedir}/code-generation.asc[]
 // LOC was the first working(ish) version of `morloc`
 //
 // include::{includedir}/LOC.asc[]
+
+
 
 [bibliography]
 = References
