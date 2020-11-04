@@ -15,6 +15,11 @@ join :: forall a b . k:Str -> Table a -> Table b -> Table (a + b)
 source cpp from "wherever.hpp" ("Map")
 source py from "wherever.hpp" ("Map")
 
+shape (Num a b) where { NUM a, NUM b, a <= b }
+shape (Matrix a b) where { INT a, INT b, a > 0, b > 0 }
+
+rand :: n:Int -> a:Num -> b:Num -> [Num_{a,b}]_n;
+
 -- Definition of a Map constructor - this defines how the JSON serialization is stored.
 Map :: forall a b . [(a,b)] -> Map a b
 -- having multiple constructors is legal

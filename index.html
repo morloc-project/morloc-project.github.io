@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel0">
-<li><a href="#_introduction">Introduction</a>
+<li><a href="#_getting_started">Getting Started</a>
 <ul class="sectlevel1">
 <li><a href="#_code_examples">1. Code Examples</a>
 <ul class="sectlevel2">
@@ -519,21 +519,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 \]
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-This document is cobbled together from loose informal notes, fragments of an
-out-of-date academic paper, and purple prose from an NSF grant. Much of what is
-written here has not yet been implemented and much of what has been implemented
-will be changed in the future.
-</td>
-</tr>
-</table>
-</div>
 <div class="paragraph">
 <p><code>morloc</code> is a functional programming language where functions are imported from
 foreign languages and unified through a common type system. The compiler
@@ -545,80 +530,27 @@ conversions, data caching, distributed computing, and file reading/writing.</p>
 <p>The ultimate purpose of the Morloc system is to serve as the foundation for a
 universal library of functions. Each function in the library has a universal
 type that specifies how the function relates to other functions. Each function
-has zero or more implementations. Each implementaton has a language-specific
+has zero or more implementations. Each implementation has a language-specific
 type that aligns with the universal type. The Morloc compiler takes the
-specification for a program, written as a compostion of typed functions, and
+specification for a program, written as a composition of typed functions, and
 generates an optimized program.</p>
 </div>
 <div class="paragraph">
-<p>In other words, Morloc is a query language that takes a program specification
-and searches against a function database, returning an optimized composition of
-functions. The functions may all be in the same language (often best for
-performance when possible), or they may be from several languages.</p>
-</div>
-<div class="paragraph">
-<p><code>morloc</code> supports:</p>
-</div>
-<div class="ulist checklist">
-<ul class="checklist">
-<li>
-<p>&#10003; function composition across languages (currently <code>C++</code>, R and Python3)</p>
-</li>
-<li>
-<p>&#10003; generic types and type parameterization across languages</p>
-</li>
-<li>
-<p>&#10003; type checking and inference</p>
-</li>
-<li>
-<p>&#10003; higher-order functions</p>
-</li>
-<li>
-<p>&#10003; currying</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>in development:</p>
-</div>
-<div class="ulist checklist">
-<ul class="checklist">
-<li>
-<p>&#10063; extensible records</p>
-</li>
-<li>
-<p>&#10063; a semantic type extension where types are defined in ontologies</p>
-</li>
-<li>
-<p>&#10063; dependent types (with cheats: if unsolvable at compile-time, generate optional assertion statements)</p>
-</li>
-<li>
-<p>&#10063; profanity-free error messages</p>
-</li>
-<li>
-<p>&#10063; a functional database and community portal (<code>morlocIO</code>)</p>
-</li>
-<li>
-<p>&#10063; a knowledgebase used to inform optimization in the compiler,</p>
-</li>
-<li>
-<p>&#10063; automated testing of <code>morloc</code> functions</p>
-</li>
-<li>
-<p>&#10063; an actual userbase</p>
-</li>
-<li>
-<p>&#10063; much much more &#8230;&#8203;</p>
-</li>
-</ul>
+<p>Morloc is a query language that takes a program specification and searches
+against a function database, returning an optimized composition of functions.
+The functions may be selected all from one language or from several.</p>
 </div>
 </div>
 </div>
-<h1 id="_introduction" class="sect0">Introduction</h1>
+<h1 id="_getting_started" class="sect0">Getting Started</h1>
 <div class="openblock partintro">
 <div class="content">
-I will introduce <code>morloc</code> first through a simple code example. Then discuss the
-motivations for building the system.
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>export hello
+hello = &quot;Hello world!!!&quot;</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -737,12 +669,12 @@ The following commands are exported
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>import math (fibonacci)
-import rbase (plotVectorPDF)
+<pre class="pygments highlight"><code><span></span>import math (fibonacci);
+import rbase (plotVectorPDF, ints2reals);
 
 export fibplot
 
-fibplot n = plotVectorPDF (fibonacci n) &quot;fibonacci-plot.pdf&quot;;</code></pre>
+fibplot n = plotVectorPDF (ints2reals (fibonacci n)) &quot;fibonacci-plot.pdf&quot;;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -768,8 +700,8 @@ export statements. The <code>core.R</code> and <code>rbase.R</code> files contai
 <code>rbase.R</code> contains the general serialization functions required for R
 interoperability with other languages. The <code>core.R</code> file contains mostly core
 utilities that are common between languages (<code>map</code>, <code>zip</code>, <code>fold</code>, <code>add</code>,
-<code>sub</code>, etc). It also contains a wrapper around the useful (though a bit ugly)
-generic R plot function: <code>plotPDF</code>:</p>
+<code>sub</code>, etc). <code>ints2reals</code> is an alias for the base R function <code>as.numeric</code>.
+<code>plotPDF</code> is a wrapper around the generic R plot function, as shown below:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -803,24 +735,28 @@ type.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>fibonacci :: Num -&gt; List Num
-fibonacci Cpp :: &quot;size_t&quot; -&gt; &quot;std::vector&lt;$1&gt;&quot; double;</code></pre>
+<pre class="pygments highlight"><code><span></span>fibonacci :: Int -&gt; List Int
+fibonacci Cpp :: &quot;size_t&quot; -&gt; &quot;std::vector&lt;$1&gt;&quot; size_t;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The general type, <code>Num &#8594; List Num</code>, takes a number and returns a list of
-numbers.  The only general constraint on <code>Num</code> is that it be rational. In
-serialized form (e.g., in JSON), it is represented as a decimal number of
-arbitrary size and precision. The concrete type signature <em>aligns</em> to the
-general one in that it must be a function of the same number of arguments and
-any parameterized types must have the same number of parameters (and so on down
-recursively into the type). <code>"std::vector&lt;$1&gt;" double</code> aligns to <code>List Num</code> (or
-equivalently, <code>[Num]</code>). The type that is used in <code>C++</code> prototypes and type
-annotations is generated from the concrete type via macro expansion into the
-type constructor: <code>double</code> replaces <code>$1</code> yielding the concrete type
-<code>std::vector&lt;double&gt;</code>. The use of <code>double</code> isn&#8217;t ideal, since Fibonacci
-sequences are integers, but was done to support larger outputs without overflow
-(might be better to go with log Fibonacci numbers).</p>
+<p>The general type, <code>Int &#8594; List Int</code>, describes a function that takes an integer
+and returns a list of integers. <code>List Int</code> could be written equivalently as
+<code>[Int]</code>. The concrete type signature <em>aligns</em> to the general one in that it
+must be a function of the same number of arguments and any parameterized types
+must have the same number of parameters (and so on down recursively into the
+type). <code>"std::vector&lt;$1&gt;" size_t</code> aligns to <code>List Int</code> (or equivalently,
+<code>[Int]</code>). The type that is used in <code>C++</code> prototypes and type annotations is
+generated from the concrete type via macro expansion into the type constructor:
+<code>size_t</code> replaces <code>$1</code> yielding the concrete type <code>std::vector&lt;size_t&gt;</code>.</p>
+</div>
+<div class="paragraph">
+<p>The fibonacci function itself is a normal C++ function with the prototype:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="C++"><span></span>std::vector&lt;size_t&gt; fibonacci(size_t n);</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1926,7 +1862,7 @@ how it will could eventually be accomplished.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-05-03 02:26:34 -0500
+Last updated 2020-11-04 11:38:49 -0600
 </div>
 </div>
 <style>

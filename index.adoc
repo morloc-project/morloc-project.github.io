@@ -27,13 +27,6 @@
 \]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-[NOTE]
-This document is cobbled together from loose informal notes, fragments of an
-out-of-date academic paper, and purple prose from an NSF grant. Much of what is
-written here has not yet been implemented and much of what has been implemented
-will be changed in the future.
-
-
 `morloc` is a functional programming language where functions are imported from
 foreign languages and unified through a common type system. The compiler
 generates the code needed to compose functions across languages and also to
@@ -43,53 +36,21 @@ conversions, data caching, distributed computing, and file reading/writing.
 The ultimate purpose of the Morloc system is to serve as the foundation for a
 universal library of functions. Each function in the library has a universal
 type that specifies how the function relates to other functions. Each function
-has zero or more implementations. Each implementaton has a language-specific
+has zero or more implementations. Each implementation has a language-specific
 type that aligns with the universal type. The Morloc compiler takes the
-specification for a program, written as a compostion of typed functions, and
+specification for a program, written as a composition of typed functions, and
 generates an optimized program.
 
-In other words, Morloc is a query language that takes a program specification
-and searches against a function database, returning an optimized composition of
-functions. The functions may all be in the same language (often best for
-performance when possible), or they may be from several languages.
+Morloc is a query language that takes a program specification and searches
+against a function database, returning an optimized composition of functions.
+The functions may be selected all from one language or from several.
 
-`morloc` supports:
+= Getting Started
 
- * [x] function composition across languages (currently `C++`, R and Python3)
-
- * [x] generic types and type parameterization across languages
-
- * [x] type checking and inference
-
- * [x] higher-order functions
-
- * [x] currying
-
-in development:
-
- * [ ] extensible records
-
- * [ ] a semantic type extension where types are defined in ontologies
-
- * [ ] dependent types (with cheats: if unsolvable at compile-time, generate optional assertion statements)
-
- * [ ] profanity-free error messages
-
- * [ ] a functional database and community portal (`morlocIO`)
-
- * [ ] a knowledgebase used to inform optimization in the compiler,  
-
- * [ ] automated testing of `morloc` functions
-
- * [ ] an actual userbase
-
- * [ ] much much more ...
-
-
-= Introduction
-
-I will introduce `morloc` first through a simple code example. Then discuss the
-motivations for building the system.
+```
+export hello
+hello = "Hello world!!!"
+```
 
 include::{includedir}/examples.asc[]
 
