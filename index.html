@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.10">
+<meta name="generator" content="Asciidoctor 2.0.12">
 <title>Morloc Technical Manual</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -47,7 +47,7 @@ textarea{overflow:auto;vertical-align:top}
 table{border-collapse:collapse;border-spacing:0}
 *,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
 html,body{font-size:100%}
-body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
 a:hover{cursor:pointer}
 img,object,embed{max-width:100%;height:auto}
 object,embed{height:100%}
@@ -62,10 +62,8 @@ img{-ms-interpolation-mode:bicubic}
 img,object,svg{display:inline-block;vertical-align:middle}
 textarea{height:auto;min-height:50px}
 select{width:100%}
-.center{margin-left:auto;margin-right:auto}
-.stretch{width:100%}
 .subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
-div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
 a{color:#2156a5;text-decoration:underline;line-height:inherit}
 a:hover,a:focus{color:#1d4b8f}
 a img{border:0}
@@ -105,19 +103,22 @@ h1{font-size:2.75em}
 h2{font-size:2.3125em}
 h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
 h4{font-size:1.4375em}}
-table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede;word-wrap:normal}
 table thead,table tfoot{background:#f7f8f7}
 table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
 table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
 table tr.even,table tr.alt{background:#f8f8f7}
-table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
 h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
 h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
 .clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
 .clearfix::after,.float-group::after{clear:both}
-:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
-:not(pre)>code.nobreak{word-wrap:normal}
-:not(pre)>code.nowrap{white-space:nowrap}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
 pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
 pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
 pre>code{display:block}
@@ -182,7 +183,7 @@ body.toc2.toc-right{padding-left:0;padding-right:20em}}
 #content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
 #content #toc>:first-child{margin-top:0}
 #content #toc>:last-child{margin-bottom:0}
-#footer{max-width:100%;background:rgba(0,0,0,.8);padding:1.25em}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
 #footer-text{color:rgba(255,255,255,.8);line-height:1.44}
 #content{margin-bottom:.625em}
 .sect1{padding-bottom:.625em}
@@ -205,7 +206,7 @@ table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font
 .admonitionblock>table td.icon{text-align:center;width:80px}
 .admonitionblock>table td.icon img{max-width:none}
 .admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
-.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
 .admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
 .exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
 .exampleblock>.content>:first-child{margin-top:0}
@@ -215,7 +216,7 @@ table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font
 .sidebarblock>:last-child{margin-bottom:0}
 .sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
 .exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
-.literalblock pre,.listingblock>.content>pre{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;overflow-x:auto;padding:1em;font-size:.8125em}
+.literalblock pre,.listingblock>.content>pre{-webkit-border-radius:4px;border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
 @media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
 @media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
 .literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class="highlight"],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
@@ -261,21 +262,20 @@ pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
 .quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
 .quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
-table.tableblock{max-width:100%;border-collapse:separate}
 p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
 td.tableblock>.content>:last-child{margin-bottom:-1.25em}
-td.tableblock>.content>:last-child.sidebarblock{margin-bottom:0}
 table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
-table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
-table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
-table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
-table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
-table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
-table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
-table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
 table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
 table.frame-sides{border-width:0 1px}
-table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
 table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd),table.stripes-even tr:nth-of-type(even),table.stripes-hover tr:hover{background:#f8f8f7}
 th.halign-left,td.halign-left{text-align:left}
 th.halign-right,td.halign-right{text-align:right}
@@ -284,7 +284,7 @@ th.valign-top,td.valign-top{vertical-align:top}
 th.valign-bottom,td.valign-bottom{vertical-align:bottom}
 th.valign-middle,td.valign-middle{vertical-align:middle}
 table thead th,table tfoot th{font-weight:bold}
-tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th{background:#f7f8f7}
 tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
 p.tableblock>code:only-child{background:none;padding:0}
 p.tableblock{font-size:1em}
@@ -313,6 +313,7 @@ ol.lowergreek{list-style-type:lower-greek}
 .hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
 td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
 td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
 .literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
 .colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
 .colist td:not([class]):first-child img{max-width:none}
@@ -385,7 +386,7 @@ a span.icon>.fa{cursor:inherit}
 .admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
 .admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
 .admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
-.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);-webkit-border-radius:50%;border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
 .conum[data-value] *{color:#fff!important}
 .conum[data-value]+b{display:none}
 .conum[data-value]::after{content:attr(data-value)}
@@ -412,6 +413,7 @@ thead{display:table-header-group}
 svg{max-width:100%}
 p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
 h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
 #toc,.sidebarblock,.exampleblock>.content{background:none!important}
 #toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
 body.book #header{text-align:center}
@@ -434,6 +436,82 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer{background:none}
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<style>
+pre { line-height: 125%; }
+td.linenos pre { color: #000000; background-color: #f0f0f0; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #000000; background-color: #f0f0f0; padding-left: 5px; padding-right: 5px; }
+td.linenos pre.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+pre.pygments .hll { background-color: #ffffcc }
+pre.pygments { background: #f8f8f8; }
+pre.pygments .tok-c { color: #008800; font-style: italic } /* Comment */
+pre.pygments .tok-err { border: 1px solid #FF0000 } /* Error */
+pre.pygments .tok-k { color: #AA22FF; font-weight: bold } /* Keyword */
+pre.pygments .tok-o { color: #666666 } /* Operator */
+pre.pygments .tok-ch { color: #008800; font-style: italic } /* Comment.Hashbang */
+pre.pygments .tok-cm { color: #008800; font-style: italic } /* Comment.Multiline */
+pre.pygments .tok-cp { color: #008800 } /* Comment.Preproc */
+pre.pygments .tok-cpf { color: #008800; font-style: italic } /* Comment.PreprocFile */
+pre.pygments .tok-c1 { color: #008800; font-style: italic } /* Comment.Single */
+pre.pygments .tok-cs { color: #008800; font-weight: bold } /* Comment.Special */
+pre.pygments .tok-gd { color: #A00000 } /* Generic.Deleted */
+pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
+pre.pygments .tok-gr { color: #FF0000 } /* Generic.Error */
+pre.pygments .tok-gh { color: #000080; font-weight: bold } /* Generic.Heading */
+pre.pygments .tok-gi { color: #00A000 } /* Generic.Inserted */
+pre.pygments .tok-go { color: #888888 } /* Generic.Output */
+pre.pygments .tok-gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
+pre.pygments .tok-gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+pre.pygments .tok-gt { color: #0044DD } /* Generic.Traceback */
+pre.pygments .tok-kc { color: #AA22FF; font-weight: bold } /* Keyword.Constant */
+pre.pygments .tok-kd { color: #AA22FF; font-weight: bold } /* Keyword.Declaration */
+pre.pygments .tok-kn { color: #AA22FF; font-weight: bold } /* Keyword.Namespace */
+pre.pygments .tok-kp { color: #AA22FF } /* Keyword.Pseudo */
+pre.pygments .tok-kr { color: #AA22FF; font-weight: bold } /* Keyword.Reserved */
+pre.pygments .tok-kt { color: #00BB00; font-weight: bold } /* Keyword.Type */
+pre.pygments .tok-m { color: #666666 } /* Literal.Number */
+pre.pygments .tok-s { color: #BB4444 } /* Literal.String */
+pre.pygments .tok-na { color: #BB4444 } /* Name.Attribute */
+pre.pygments .tok-nb { color: #AA22FF } /* Name.Builtin */
+pre.pygments .tok-nc { color: #0000FF } /* Name.Class */
+pre.pygments .tok-no { color: #880000 } /* Name.Constant */
+pre.pygments .tok-nd { color: #AA22FF } /* Name.Decorator */
+pre.pygments .tok-ni { color: #999999; font-weight: bold } /* Name.Entity */
+pre.pygments .tok-ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+pre.pygments .tok-nf { color: #00A000 } /* Name.Function */
+pre.pygments .tok-nl { color: #A0A000 } /* Name.Label */
+pre.pygments .tok-nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+pre.pygments .tok-nt { color: #008000; font-weight: bold } /* Name.Tag */
+pre.pygments .tok-nv { color: #B8860B } /* Name.Variable */
+pre.pygments .tok-ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+pre.pygments .tok-w { color: #bbbbbb } /* Text.Whitespace */
+pre.pygments .tok-mb { color: #666666 } /* Literal.Number.Bin */
+pre.pygments .tok-mf { color: #666666 } /* Literal.Number.Float */
+pre.pygments .tok-mh { color: #666666 } /* Literal.Number.Hex */
+pre.pygments .tok-mi { color: #666666 } /* Literal.Number.Integer */
+pre.pygments .tok-mo { color: #666666 } /* Literal.Number.Oct */
+pre.pygments .tok-sa { color: #BB4444 } /* Literal.String.Affix */
+pre.pygments .tok-sb { color: #BB4444 } /* Literal.String.Backtick */
+pre.pygments .tok-sc { color: #BB4444 } /* Literal.String.Char */
+pre.pygments .tok-dl { color: #BB4444 } /* Literal.String.Delimiter */
+pre.pygments .tok-sd { color: #BB4444; font-style: italic } /* Literal.String.Doc */
+pre.pygments .tok-s2 { color: #BB4444 } /* Literal.String.Double */
+pre.pygments .tok-se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+pre.pygments .tok-sh { color: #BB4444 } /* Literal.String.Heredoc */
+pre.pygments .tok-si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+pre.pygments .tok-sx { color: #008000 } /* Literal.String.Other */
+pre.pygments .tok-sr { color: #BB6688 } /* Literal.String.Regex */
+pre.pygments .tok-s1 { color: #BB4444 } /* Literal.String.Single */
+pre.pygments .tok-ss { color: #B8860B } /* Literal.String.Symbol */
+pre.pygments .tok-bp { color: #AA22FF } /* Name.Builtin.Pseudo */
+pre.pygments .tok-fm { color: #00A000 } /* Name.Function.Magic */
+pre.pygments .tok-vc { color: #B8860B } /* Name.Variable.Class */
+pre.pygments .tok-vg { color: #B8860B } /* Name.Variable.Global */
+pre.pygments .tok-vi { color: #B8860B } /* Name.Variable.Instance */
+pre.pygments .tok-vm { color: #B8860B } /* Name.Variable.Magic */
+pre.pygments .tok-il { color: #666666 } /* Literal.Number.Integer.Long */
 </style>
 </head>
 <body class="book toc2 toc-left">
@@ -478,6 +556,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_declarative_type_system">5.2. Declarative type system</a></li>
 <li><a href="#_algorithmic_rules">5.3. Algorithmic Rules</a></li>
 <li><a href="#_let_polymorphism">5.4. Let polymorphism</a></li>
+</ul>
+</li>
+<li><a href="#_in_development">6. In Development</a></li>
+<li><a href="#_index_and_refinement_types">7. Index and Refinement types</a>
+<ul class="sectlevel2">
+<li><a href="#_how_are_the_types_used">7.1. How are the types used</a></li>
+<li><a href="#_additional_typing_examples">7.2. Additional typing examples</a></li>
+<li><a href="#_typing_and_test_generation">7.3. Typing and test generation</a></li>
+<li><a href="#_typing_and_performance_modeling">7.4. Typing and performance modeling</a></li>
 </ul>
 </li>
 <li><a href="#_references">References</a></li>
@@ -1799,6 +1886,216 @@ terms). This follows the practice argued for in [<a href="#vytiniotis2010let">2<
 </div>
 </div>
 <div class="sect1">
+<h2 id="_in_development">6. In Development</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_index_and_refinement_types">7. Index and Refinement types</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>Nothing here has been implemented yet</strong></p>
+</div>
+<div class="paragraph">
+<p>This section will first introduce what information the additional type
+annotations will provide and will then cover what can be done with this
+information.</p>
+</div>
+<div class="paragraph">
+<p>The type system described so far allows for clear expressions of general
+intent, for example, <code>(a,b) &#8594; b</code>. But often these signatures are too general
+to be informative and too permissive to be safe. They can be improved by
+allowing constraints to be placed on the types.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ll introduce these ideas with a series of motivating examples.</p>
+</div>
+<div class="paragraph">
+<p>Suppose there is a function with the signature <code>[a] &#8594; [a]</code>. This could be a
+sort function, reverse function, or subsampling function. Index types can
+clarify the meaning:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">reverse</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span>
+<span class="tok-nf">sort</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span>    <span class="tok-c1">-- note, for now, this has the same signature as reverse</span>
+<span class="tok-nf">head</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">a</span>
+<span class="tok-nf">transpose</span> <span class="tok-ow">::</span> <span class="tok-kt">Matrix_</span><span class="tok-p">{</span><span class="tok-n">m</span><span class="tok-p">,</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-n">a</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Matrix_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">,</span><span class="tok-n">m</span><span class="tok-p">}</span> <span class="tok-n">a</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-c1">-- where n is an integer or expression that evaluates to an integer, the</span>
+<span class="tok-c1">-- expressions may have arithmetic binary operators, min, max, etc</span>
+<span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span>
+<span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-o">+</span><span class="tok-mi">1</span><span class="tok-p">}</span>
+<span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-mi">1</span><span class="tok-p">}</span>
+<span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-n">m</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-n">m</span> <span class="tok-o">+</span> <span class="tok-n">n</span><span class="tok-p">}</span>
+<span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-n">m</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">A_</span><span class="tok-p">{</span><span class="tok-n">max</span> <span class="tok-n">m</span> <span class="tok-n">n</span><span class="tok-p">}</span>
+
+<span class="tok-c1">-- Expressions may have multiple indices (e.g., matrices and graphs)</span>
+<span class="tok-kt">Matrix_</span><span class="tok-p">{</span><span class="tok-n">m</span><span class="tok-p">,</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-c1">-- row and column counts</span>
+<span class="tok-kt">Graph_</span><span class="tok-p">{</span><span class="tok-n">e</span><span class="tok-p">,</span><span class="tok-n">v</span><span class="tok-p">}</span>  <span class="tok-c1">-- counts of edges and vertices in the graph</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>How do I specify the shape of a term?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">shapeA</span> <span class="tok-ow">::</span> <span class="tok-n">shape</span> <span class="tok-ow">=&gt;</span> <span class="tok-kt">A</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Int</span>
+<span class="tok-nf">shapeMatrix</span> <span class="tok-ow">::</span> <span class="tok-n">shape</span> <span class="tok-ow">=&gt;</span> <span class="tok-kt">Matrix</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">(</span><span class="tok-kt">Int</span><span class="tok-p">,</span><span class="tok-kt">Int</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Refinement types build on index types by allowing boolean expressions that make
+the types more specific.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span>
+<span class="tok-kr">type</span> <span class="tok-kt">Prob</span> <span class="tok-ow">=</span> <span class="tok-p">{</span> <span class="tok-n">x</span><span class="tok-kt">:Num</span> <span class="tok-o">|</span> <span class="tok-mi">0</span> <span class="tok-o">&lt;=</span> <span class="tok-n">x</span> <span class="tok-o">&lt;=</span> <span class="tok-mi">1</span> <span class="tok-p">}</span>
+<span class="tok-kr">type</span> <span class="tok-kt">Index</span> <span class="tok-ow">=</span> <span class="tok-p">{</span> <span class="tok-n">x</span><span class="tok-kt">:Int</span> <span class="tok-o">|</span> <span class="tok-mi">1</span> <span class="tok-o">&lt;=</span> <span class="tok-n">x</span> <span class="tok-p">}</span>
+
+<span class="tok-nf">reverse</span> <span class="tok-ow">::</span> <span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">{</span><span class="tok-n">ys</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-o">|</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-o">==</span> <span class="tok-n">ys</span><span class="tok-p">[</span><span class="tok-n">n</span> <span class="tok-o">-</span> <span class="tok-n">i</span><span class="tok-p">],</span> <span class="tok-mi">1</span> <span class="tok-o">&lt;=</span> <span class="tok-n">i</span> <span class="tok-o">&lt;=</span> <span class="tok-n">n</span> <span class="tok-p">}</span>
+<span class="tok-nf">sort</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">{</span><span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-o">|</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-o">&lt;=</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-o">+</span><span class="tok-mi">1</span><span class="tok-p">],</span> <span class="tok-mi">0</span> <span class="tok-o">&lt;</span> <span class="tok-n">i</span> <span class="tok-o">&lt;</span> <span class="tok-n">n</span><span class="tok-p">}</span>
+<span class="tok-nf">head</span> <span class="tok-ow">::</span> <span class="tok-p">{</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span>      <span class="tok-o">|</span> <span class="tok-n">n</span> <span class="tok-o">&gt;</span> <span class="tok-mi">1</span> <span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">a</span>
+<span class="tok-nf">head</span> <span class="tok-ow">::</span> <span class="tok-p">{</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">a</span> <span class="tok-o">|</span> <span class="tok-n">n</span> <span class="tok-o">&gt;</span> <span class="tok-mi">1</span> <span class="tok-p">}</span>
+<span class="tok-nf">head</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">a</span> <span class="tok-kr">where</span> <span class="tok-p">{</span> <span class="tok-n">n</span> <span class="tok-o">&gt;</span> <span class="tok-mi">1</span> <span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Array indices can also be accessed in the types. This allows, for example, for
+types with autocorrelation to be expressed.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">type</span> <span class="tok-kt">GaussianWalk</span> <span class="tok-ow">=</span> <span class="tok-p">{</span> <span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-kt">Num</span><span class="tok-p">]</span><span class="tok-n">_n</span> <span class="tok-o">|</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-o">+</span><span class="tok-mi">1</span><span class="tok-p">]</span> <span class="tok-o">~</span> <span class="tok-kt">Norm</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">],</span> <span class="tok-mi">1</span><span class="tok-p">),</span> <span class="tok-mi">0</span> <span class="tok-o">&lt;</span> <span class="tok-n">i</span> <span class="tok-o">&lt;</span> <span class="tok-n">n</span> <span class="tok-p">}</span>
+<span class="tok-nf">scale</span> <span class="tok-ow">::</span> <span class="tok-p">{</span> <span class="tok-p">[</span><span class="tok-n">x</span><span class="tok-kt">:Num</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-o">|</span> <span class="tok-n">x</span> <span class="tok-o">~</span> <span class="tok-kt">Norm</span><span class="tok-p">(</span><span class="tok-n">m</span><span class="tok-p">,</span><span class="tok-n">s</span><span class="tok-p">)</span> <span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">{</span> <span class="tok-p">[</span><span class="tok-n">y</span><span class="tok-kt">:Num</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-o">|</span> <span class="tok-n">y</span> <span class="tok-o">~</span> <span class="tok-kt">Norm</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span> <span class="tok-mi">1</span><span class="tok-p">)</span> <span class="tok-p">}</span>
+<span class="tok-nf">scale</span> <span class="tok-ow">::</span> <span class="tok-p">{</span> <span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-kt">Num</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-o">|</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-o">~</span> <span class="tok-kt">Norm</span><span class="tok-p">(</span><span class="tok-n">m</span><span class="tok-p">,</span><span class="tok-n">s</span><span class="tok-p">),</span> <span class="tok-mi">0</span> <span class="tok-o">&lt;</span> <span class="tok-n">i</span> <span class="tok-o">&lt;=</span> <span class="tok-n">n</span> <span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">{</span> <span class="tok-n">ys</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-kt">Num</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-o">|</span> <span class="tok-n">ys</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-o">~</span> <span class="tok-kt">Norm</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span> <span class="tok-mi">1</span><span class="tok-p">)}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A few questions:
+  * should indexing be 1-based (as in math) or 0-based (as in most computer langauges)?
+  * does indexing make sense for non-ordered sets (e.g., graph nodes and edges)?
+  * what about dictionaries that are indexed with non-integer keys?
+  * what about scoping? Are both <strong>i</strong>'s the same in the code below?
+    <code>{ xs:[Num]_n | xs[i] ~ Exp(4), 0 &lt; i &#8656; n } &#8594; { ys:[Num]_m | ys[i] ~ Exp(5), 0 &lt; i &lt; m }</code></p>
+</div>
+<div class="paragraph">
+<p>Scoping should be global within the type signature. So above, the actual bounds
+on i would be <code>0 &lt; min n m</code>, which is probably not what the user intended. This
+would leave some elements untyped.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>some refinements may be handled statically, but probably not all</p>
+</li>
+<li>
+<p>is indexing just sugar that can be rewritten in refinement type terms? (probably)</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-c1">-- using indexing</span>
+<span class="tok-nf">reverse</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-n">_n</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-n">_n</span>
+
+<span class="tok-c1">-- using refinement type syntax</span>
+<span class="tok-nf">reverse</span> <span class="tok-ow">::</span> <span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">{</span> <span class="tok-n">ys</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span> <span class="tok-o">|</span> <span class="tok-n">len</span> <span class="tok-n">xs</span> <span class="tok-ow">=</span> <span class="tok-n">len</span> <span class="tok-n">ys</span> <span class="tok-p">}</span>
+<span class="tok-nf">reverse</span> <span class="tok-ow">::</span> <span class="tok-p">{</span> <span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">ys</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span> <span class="tok-o">|</span> <span class="tok-n">len</span> <span class="tok-n">xs</span> <span class="tok-ow">=</span> <span class="tok-n">len</span> <span class="tok-n">ys</span> <span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_are_the_types_used">7.1. How are the types used</h3>
+<div class="paragraph">
+<p>The system f layer of the morloc type system is statically typed. Typeclasses,
+when they are added, will be statically typed as well.</p>
+</div>
+<div class="paragraph">
+<p>However, the refinement types, particularly when they are using user-defined
+functions, will not always be checkable statically, and instead will generate
+(optional) runtime assertions.</p>
+</div>
+<div class="paragraph">
+<p>How will we divide what can and cannot be statically checked?</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_additional_typing_examples">7.2. Additional typing examples</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">align</span> <span class="tok-ow">::</span> <span class="tok-p">{</span> <span class="tok-p">[</span><span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-kt">Char</span><span class="tok-p">]]</span><span class="tok-n">_n</span> <span class="tok-o">|</span> <span class="tok-n">len</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-o">&gt;</span> <span class="tok-n">k1</span><span class="tok-p">,</span> <span class="tok-mi">0</span> <span class="tok-o">&lt;</span> <span class="tok-n">i</span> <span class="tok-o">&lt;=</span> <span class="tok-n">m</span> <span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">{</span> <span class="tok-p">[</span><span class="tok-n">ys</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-kt">Char</span><span class="tok-p">]]</span><span class="tok-n">_n</span> <span class="tok-o">|</span> <span class="tok-n">len</span> <span class="tok-n">ys</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-ow">=</span> <span class="tok-n">k2</span><span class="tok-p">}</span>
+
+<span class="tok-nf">align</span> <span class="tok-ow">::</span> <span class="tok-kt">Char</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[</span><span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-kt">Char</span><span class="tok-p">]]</span><span class="tok-n">_n</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[</span><span class="tok-n">ys</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-kt">Char</span><span class="tok-p">]]</span><span class="tok-n">_n</span>
+  <span class="tok-kr">where</span>
+    <span class="tok-mi">0</span> <span class="tok-o">&lt;</span> <span class="tok-n">i</span> <span class="tok-o">&lt;=</span> <span class="tok-n">n</span>
+    <span class="tok-n">len</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-o">&gt;</span> <span class="tok-n">k1</span>
+    <span class="tok-n">len</span> <span class="tok-n">ys</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-ow">=</span> <span class="tok-n">k2</span>
+    <span class="tok-n">k2</span> <span class="tok-o">&gt;=</span> <span class="tok-n">k1</span>
+    <span class="tok-n">ungap</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-ow">=</span> <span class="tok-n">ungap</span> <span class="tok-n">ys</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span>
+
+<span class="tok-nf">ungap</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-kt">Char</span><span class="tok-p">]</span><span class="tok-n">_n</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">{</span> <span class="tok-p">[</span><span class="tok-kt">Char</span><span class="tok-p">]</span><span class="tok-n">_m</span> <span class="tok-o">|</span> <span class="tok-n">m</span> <span class="tok-o">&lt;=</span> <span class="tok-n">n</span> <span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">foo</span> <span class="tok-ow">::</span> <span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-kt">:Int</span> <span class="tok-o">|</span> <span class="tok-n">n</span> <span class="tok-o">&gt;=</span> <span class="tok-mi">0</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span>
+<span class="tok-nf">bar</span> <span class="tok-ow">::</span> <span class="tok-p">{[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-o">|</span> <span class="tok-n">n</span> <span class="tok-o">&gt;</span> <span class="tok-mi">0</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">a</span>
+
+<span class="tok-c1">-- fails at compile time</span>
+<span class="tok-nf">f</span> <span class="tok-n">xs</span> <span class="tok-ow">=</span> <span class="tok-n">bar</span> <span class="tok-p">(</span><span class="tok-n">foo</span> <span class="tok-mi">0</span> <span class="tok-n">xs</span><span class="tok-p">)</span>
+
+<span class="tok-c1">-- passes at compile time, refining the constraint on n to {n &gt; 0}</span>
+<span class="tok-nf">g</span> <span class="tok-n">k</span> <span class="tok-n">xs</span> <span class="tok-ow">=</span> <span class="tok-n">bar</span> <span class="tok-p">(</span><span class="tok-n">foo</span> <span class="tok-n">k</span> <span class="tok-n">xs</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_typing_and_test_generation">7.3. Typing and test generation</h3>
+<div class="paragraph">
+<p>One goal of morloc is to be able to generate test data from the type signatures
+and ensure that running the functions on the generated data 1) doesn&#8217;t fail at
+runtime and 2) yields data that respects all constraints on the function
+output.</p>
+</div>
+<div class="paragraph">
+<p>The goal is essentially to add property testing to the type signatures.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_typing_and_performance_modeling">7.4. Typing and performance modeling</h3>
+<div class="paragraph">
+<p>If data can be generated based on the type signatures, and if functions are
+given that map from input data to model features, then a performance model can
+be generated that is a function of the input features. These input features are
+descriptions of the input data. For example, a generic list has exactly one
+features, its length. The features of a graph might be edge count, node count,
+and select centrality measures.</p>
+</div>
+<div class="paragraph">
+<p>This could be implemented as a typeclass:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">class</span> <span class="tok-kt">Typecheckable</span> <span class="tok-n">a</span> <span class="tok-kr">where</span>
+  <span class="tok-n">features</span> <span class="tok-ow">::</span> <span class="tok-n">a</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[</span><span class="tok-kt">Num</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That is, if a vector of numeric features can be derived for a type, then for a
+list of examples of this type a feature table can be created. Then the examples
+can be run through the function and performance statistics can be measured.
+Then a model can be made that predicts runtime and memory usage from the
+features.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_references">References</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -1812,80 +2109,9 @@ terms). This follows the practice argued for in [<a href="#vytiniotis2010let">2<
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-11-04 15:15:46 -0600
+Last updated 2021-02-15 17:48:04 -0600
 </div>
 </div>
-<style>
-pre.pygments .hll { background-color: #ffffcc }
-pre.pygments  { background: #f8f8f8; }
-pre.pygments .tok-c { color: #008800; font-style: italic } /* Comment */
-pre.pygments .tok-err { border: 1px solid #FF0000 } /* Error */
-pre.pygments .tok-k { color: #AA22FF; font-weight: bold } /* Keyword */
-pre.pygments .tok-o { color: #666666 } /* Operator */
-pre.pygments .tok-ch { color: #008800; font-style: italic } /* Comment.Hashbang */
-pre.pygments .tok-cm { color: #008800; font-style: italic } /* Comment.Multiline */
-pre.pygments .tok-cp { color: #008800 } /* Comment.Preproc */
-pre.pygments .tok-cpf { color: #008800; font-style: italic } /* Comment.PreprocFile */
-pre.pygments .tok-c1 { color: #008800; font-style: italic } /* Comment.Single */
-pre.pygments .tok-cs { color: #008800; font-weight: bold } /* Comment.Special */
-pre.pygments .tok-gd { color: #A00000 } /* Generic.Deleted */
-pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
-pre.pygments .tok-gr { color: #FF0000 } /* Generic.Error */
-pre.pygments .tok-gh { color: #000080; font-weight: bold } /* Generic.Heading */
-pre.pygments .tok-gi { color: #00A000 } /* Generic.Inserted */
-pre.pygments .tok-go { color: #888888 } /* Generic.Output */
-pre.pygments .tok-gp { color: #000080; font-weight: bold } /* Generic.Prompt */
-pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
-pre.pygments .tok-gu { color: #800080; font-weight: bold } /* Generic.Subheading */
-pre.pygments .tok-gt { color: #0044DD } /* Generic.Traceback */
-pre.pygments .tok-kc { color: #AA22FF; font-weight: bold } /* Keyword.Constant */
-pre.pygments .tok-kd { color: #AA22FF; font-weight: bold } /* Keyword.Declaration */
-pre.pygments .tok-kn { color: #AA22FF; font-weight: bold } /* Keyword.Namespace */
-pre.pygments .tok-kp { color: #AA22FF } /* Keyword.Pseudo */
-pre.pygments .tok-kr { color: #AA22FF; font-weight: bold } /* Keyword.Reserved */
-pre.pygments .tok-kt { color: #00BB00; font-weight: bold } /* Keyword.Type */
-pre.pygments .tok-m { color: #666666 } /* Literal.Number */
-pre.pygments .tok-s { color: #BB4444 } /* Literal.String */
-pre.pygments .tok-na { color: #BB4444 } /* Name.Attribute */
-pre.pygments .tok-nb { color: #AA22FF } /* Name.Builtin */
-pre.pygments .tok-nc { color: #0000FF } /* Name.Class */
-pre.pygments .tok-no { color: #880000 } /* Name.Constant */
-pre.pygments .tok-nd { color: #AA22FF } /* Name.Decorator */
-pre.pygments .tok-ni { color: #999999; font-weight: bold } /* Name.Entity */
-pre.pygments .tok-ne { color: #D2413A; font-weight: bold } /* Name.Exception */
-pre.pygments .tok-nf { color: #00A000 } /* Name.Function */
-pre.pygments .tok-nl { color: #A0A000 } /* Name.Label */
-pre.pygments .tok-nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
-pre.pygments .tok-nt { color: #008000; font-weight: bold } /* Name.Tag */
-pre.pygments .tok-nv { color: #B8860B } /* Name.Variable */
-pre.pygments .tok-ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
-pre.pygments .tok-w { color: #bbbbbb } /* Text.Whitespace */
-pre.pygments .tok-mb { color: #666666 } /* Literal.Number.Bin */
-pre.pygments .tok-mf { color: #666666 } /* Literal.Number.Float */
-pre.pygments .tok-mh { color: #666666 } /* Literal.Number.Hex */
-pre.pygments .tok-mi { color: #666666 } /* Literal.Number.Integer */
-pre.pygments .tok-mo { color: #666666 } /* Literal.Number.Oct */
-pre.pygments .tok-sa { color: #BB4444 } /* Literal.String.Affix */
-pre.pygments .tok-sb { color: #BB4444 } /* Literal.String.Backtick */
-pre.pygments .tok-sc { color: #BB4444 } /* Literal.String.Char */
-pre.pygments .tok-dl { color: #BB4444 } /* Literal.String.Delimiter */
-pre.pygments .tok-sd { color: #BB4444; font-style: italic } /* Literal.String.Doc */
-pre.pygments .tok-s2 { color: #BB4444 } /* Literal.String.Double */
-pre.pygments .tok-se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
-pre.pygments .tok-sh { color: #BB4444 } /* Literal.String.Heredoc */
-pre.pygments .tok-si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
-pre.pygments .tok-sx { color: #008000 } /* Literal.String.Other */
-pre.pygments .tok-sr { color: #BB6688 } /* Literal.String.Regex */
-pre.pygments .tok-s1 { color: #BB4444 } /* Literal.String.Single */
-pre.pygments .tok-ss { color: #B8860B } /* Literal.String.Symbol */
-pre.pygments .tok-bp { color: #AA22FF } /* Name.Builtin.Pseudo */
-pre.pygments .tok-fm { color: #00A000 } /* Name.Function.Magic */
-pre.pygments .tok-vc { color: #B8860B } /* Name.Variable.Class */
-pre.pygments .tok-vg { color: #B8860B } /* Name.Variable.Global */
-pre.pygments .tok-vi { color: #B8860B } /* Name.Variable.Instance */
-pre.pygments .tok-vm { color: #B8860B } /* Name.Variable.Magic */
-pre.pygments .tok-il { color: #666666 } /* Literal.Number.Integer.Long */
-</style>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   messageStyle: "none",
@@ -1902,13 +2128,13 @@ MathJax.Hub.Config({
 })
 MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
   MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
-    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains("stemblock")) {
       data.math.root.display = "block"
     }
     return data
   })
 })
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
 </body>
 </html>

@@ -73,6 +73,10 @@ include::{includedir}/code-generation.asc[]
 
 include::{includedir}/type-specification.asc[]
 
+== In Development
+
+include::{includedir}/refinement-types.asc[]
+
 // the module system and environment
 
 // // TODO: salvage the goods from this file (there is a lot of good)
