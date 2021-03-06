@@ -686,12 +686,12 @@ Hello World</code></pre>
 <div class="content">
 <pre class="pygments highlight"><code><span></span>import cppbase (fold, map, add, mul)
 
-export square;
-export sumOfSquares;
+export square
+export sumOfSquares
 
-square x = mul x x;
+square x = mul x x
 
-sumOfSquares xs = fold add 0 (map square xs);</code></pre>
+sumOfSquares xs = fold add 0 (map square xs)</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -740,12 +740,12 @@ The following commands are exported
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>import math (fibonacci);
-import rbase (plotVectorPDF, ints2reals);
+<pre class="pygments highlight"><code><span></span>import math (fibonacci)
+import rbase (plotVectorPDF, ints2reals)
 
 export fibplot
 
-fibplot n = plotVectorPDF (ints2reals (fibonacci n)) &quot;fibonacci-plot.pdf&quot;;</code></pre>
+fibplot n = plotVectorPDF (ints2reals (fibonacci n)) &quot;fibonacci-plot.pdf&quot;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -807,7 +807,7 @@ type.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code><span></span>fibonacci :: Int -&gt; List Int
-fibonacci Cpp :: &quot;size_t&quot; -&gt; &quot;std::vector&lt;$1&gt;&quot; size_t;</code></pre>
+fibonacci Cpp :: &quot;size_t&quot; -&gt; &quot;std::vector&lt;$1&gt;&quot; size_t</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -826,7 +826,7 @@ generated from the concrete type via macro expansion into the type constructor:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="C++"><span></span>std::vector&lt;size_t&gt; fibonacci(size_t n);</code></pre>
+<pre class="pygments highlight"><code data-lang="C++"><span></span>std::vector&lt;size_t&gt; fibonacci(size_t n)</code></pre>
 </div>
 </div>
 </div>
@@ -869,7 +869,7 @@ can figure out how to do so in the parser).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">foo</span> <span class="tok-n">x</span> <span class="tok-ow">=</span> <span class="tok-n">g</span> <span class="tok-p">(</span><span class="tok-n">f</span> <span class="tok-n">x</span><span class="tok-p">);</span></code></pre>
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">foo</span> <span class="tok-n">x</span> <span class="tok-ow">=</span> <span class="tok-n">g</span> <span class="tok-p">(</span><span class="tok-n">f</span> <span class="tok-n">x</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -926,8 +926,8 @@ signature for <code>take</code> might be:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">source</span> <span class="tok-kt">Cpp</span> <span class="tok-n">from</span> <span class="tok-s">&quot;foo.h&quot;</span> <span class="tok-p">(</span><span class="tok-s">&quot;mlc_foo&quot;</span> <span class="tok-n">as</span> <span class="tok-n">foo</span><span class="tok-p">)</span>
 
-<span class="tok-nf">foo</span> <span class="tok-ow">::</span> <span class="tok-kt">A</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">B</span><span class="tok-p">;</span>
-<span class="tok-nf">foo</span> <span class="tok-kt">Cpp</span> <span class="tok-ow">::</span> <span class="tok-s">&quot;int&quot;</span> <span class="tok-ow">-&gt;</span> <span class="tok-s">&quot;std::string&quot;</span><span class="tok-p">;</span></code></pre>
+<span class="tok-nf">foo</span> <span class="tok-ow">::</span> <span class="tok-kt">A</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">B</span>
+<span class="tok-nf">foo</span> <span class="tok-kt">Cpp</span> <span class="tok-ow">::</span> <span class="tok-s">&quot;int&quot;</span> <span class="tok-ow">-&gt;</span> <span class="tok-s">&quot;std::string&quot;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1014,18 +1014,17 @@ to the class constructor in the OOP language.</p>
 <div class="sect2">
 <h3 id="_modules">3.9. Modules</h3>
 <div class="paragraph">
-<p>A module is defined as <code>module Foo { &#8230;&#8203; }</code>. It can be imported with the
-<code>import</code> command.</p>
+<p>A module includes all the code defined under the <code>import &lt;module_name&gt;</code>
+statement. It can be imported with the <code>import</code> command.</p>
 </div>
 <div class="paragraph">
 <p>The following module defines the constant <code>x</code> and exports it.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">module</span> <span class="tok-nn">Foo</span> <span class="tok-p">{</span>
-  <span class="tok-n">x</span> <span class="tok-ow">=</span> <span class="tok-mi">42</span><span class="tok-p">;</span>
-  <span class="tok-n">export</span> <span class="tok-n">x</span><span class="tok-p">;</span>
-<span class="tok-p">}</span></code></pre>
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">module</span> <span class="tok-nn">Foo</span>
+<span class="tok-nf">x</span> <span class="tok-ow">=</span> <span class="tok-mi">42</span>
+<span class="tok-nf">export</span> <span class="tok-n">x</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1043,13 +1042,12 @@ to the class constructor in the OOP language.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">module</span> <span class="tok-nn">Add</span> <span class="tok-p">{</span>
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">module</span> <span class="tok-nn">Add</span>
 <span class="tok-kr">import</span> <span class="tok-nn">cppbase</span> <span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span>
 <span class="tok-kr">import</span> <span class="tok-nn">pybase</span> <span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span>
 <span class="tok-kr">import</span> <span class="tok-nn">rbase</span> <span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span>
 
-<span class="tok-nf">export</span> <span class="tok-n">add</span>
-<span class="tok-p">}</span></code></pre>
+<span class="tok-nf">export</span> <span class="tok-n">add</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1924,6 +1922,9 @@ clarify the meaning:</p>
 <span class="tok-nf">transpose</span> <span class="tok-ow">::</span> <span class="tok-kt">Matrix_</span><span class="tok-p">{</span><span class="tok-n">m</span><span class="tok-p">,</span><span class="tok-n">n</span><span class="tok-p">}</span> <span class="tok-n">a</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Matrix_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">,</span><span class="tok-n">m</span><span class="tok-p">}</span> <span class="tok-n">a</span></code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>The index types just describe the dimension of the data.</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-c1">-- where n is an integer or expression that evaluates to an integer, the</span>
@@ -1949,8 +1950,7 @@ clarify the meaning:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Refinement types build on index types by allowing boolean expressions that make
-the types more specific.</p>
+<p>Index types, though, are just sugar for a subset of refinement types.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2109,7 +2109,7 @@ features.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-15 17:48:04 -0600
+Last updated 2021-03-02 08:44:11 -0600
 </div>
 </div>
 <script type="text/x-mathjax-config">
