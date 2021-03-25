@@ -80,6 +80,8 @@ include::{includedir}/refinement-types.asc[]
 
 include::{includedir}/generating-user-interfaces.asc[]
 
+include::{includedir}/effects.asc[]
+
 // the module system and environment
 
 // // TODO: salvage the goods from this file (there is a lot of good)

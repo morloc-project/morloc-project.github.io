@@ -570,6 +570,7 @@ pre.pygments .tok-il { color: #666666 } /* Literal.Number.Integer.Long */
 </ul>
 </li>
 <li><a href="#_generating_user_interfaces">6.2. Generating user interfaces</a></li>
+<li><a href="#_effect_handling_algebraic_effects_monads_and_nothing">6.3. Effect handling - algebraic effects, monads, and nothing</a></li>
 </ul>
 </li>
 <li><a href="#_references">References</a></li>
@@ -2022,6 +2023,10 @@ functions, will not always be checkable statically, and instead will generate
 (optional) runtime assertions.</p>
 </div>
 <div class="paragraph">
+<p>Hybrid systems that perform static checking for decidable problems and generate
+runtime assertions of undecidable cases have been explored [<a href="#xu2012hybrid">3</a>].</p>
+</div>
+<div class="paragraph">
 <p>How will we divide what can and cannot be statically checked?</p>
 </div>
 </div>
@@ -2373,6 +2378,110 @@ maintainer, copyright, license information and such. But this is an easy thing
 to add.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_effect_handling_algebraic_effects_monads_and_nothing">6.3. Effect handling - algebraic effects, monads, and nothing</h3>
+<div class="paragraph">
+<p><code>morloc</code> is a functional programming language. But development of <code>morloc</code> is under that constraint that</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>morloc</code> must have a way of describing effects</p>
+</li>
+<li>
+<p><code>morloc</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>We could use monads to describe different effects</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">read</span> <span class="tok-ow">::</span> <span class="tok-kt">Filename</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">IO</span> <span class="tok-kt">Text</span>
+
+<span class="tok-nf">write</span> <span class="tok-ow">::</span> <span class="tok-kt">Filename</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Text</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">IO</span> <span class="tok-nb">()</span>
+
+<span class="tok-nf">writeErr</span> <span class="tok-ow">::</span> <span class="tok-kt">Text</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">IO</span> <span class="tok-nb">()</span>
+
+<span class="tok-nf">modifyText</span> <span class="tok-ow">::</span> <span class="tok-kt">Text</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Either</span> <span class="tok-kt">Text</span> <span class="tok-kt">Text</span>
+
+<span class="tok-nf">main</span> <span class="tok-n">infile</span> <span class="tok-n">outfile</span> <span class="tok-ow">=</span> <span class="tok-kr">do</span>
+  <span class="tok-n">f</span> <span class="tok-ow">&lt;-</span> <span class="tok-n">read</span> <span class="tok-n">infile</span>
+  <span class="tok-kr">case</span> <span class="tok-n">modifyText</span> <span class="tok-n">f</span> <span class="tok-kr">of</span>
+    <span class="tok-kt">Left</span> <span class="tok-n">err</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">writeError</span> <span class="tok-n">err</span>
+    <span class="tok-kt">Right</span> <span class="tok-n">f&#39;</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">write</span> <span class="tok-n">outfile</span> <span class="tok-n">f&#39;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We could ignore effects and just "let it be"</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">read</span> <span class="tok-ow">::</span> <span class="tok-kt">Filename</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Text</span>
+
+<span class="tok-nf">write</span> <span class="tok-ow">::</span> <span class="tok-kt">Filename</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Text</span> <span class="tok-ow">-&gt;</span> <span class="tok-nb">()</span>
+
+<span class="tok-nf">modifyText</span> <span class="tok-ow">::</span> <span class="tok-kt">Text</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Text</span>
+
+<span class="tok-nf">main</span> <span class="tok-n">i</span> <span class="tok-n">o</span> <span class="tok-ow">=</span> <span class="tok-n">write</span> <span class="tok-n">o</span> <span class="tok-o">.</span> <span class="tok-n">modifyText</span> <span class="tok-o">.</span> <span class="tok-n">read</span> <span class="tok-n">i</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or we could use shallow algebraic effects. This approach ash been explored in
+the Koka language [<a href="#Leijen_2014">4</a>].</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">read</span> <span class="tok-ow">::</span> <span class="tok-kt">Filename</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Text</span> <span class="tok-o">+</span><span class="tok-kt">IO</span>
+
+<span class="tok-nf">write</span> <span class="tok-ow">::</span> <span class="tok-kt">Filename</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Text</span> <span class="tok-ow">-&gt;</span> <span class="tok-nb">()</span> <span class="tok-o">+</span><span class="tok-kt">IO</span>
+
+<span class="tok-nf">modifyText</span> <span class="tok-ow">::</span> <span class="tok-kt">Text</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Text</span> <span class="tok-o">+</span><span class="tok-kt">Err</span>
+
+<span class="tok-nf">main</span> <span class="tok-n">i</span> <span class="tok-n">o</span> <span class="tok-ow">=</span> <span class="tok-n">write</span> <span class="tok-n">o</span> <span class="tok-o">.</span> <span class="tok-n">modifyText</span> <span class="tok-o">.</span> <span class="tok-n">read</span> <span class="tok-n">i</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here effects are added to functions with the <code>+EFFECT</code> syntax. Some languages
+will be able to enforce the contracts, some will not. We get composability back
+and monadic concepts from Haskell don&#8217;t leak into other languages.
+Implementations signatures would not have to specify effects.</p>
+</div>
+<div class="paragraph">
+<p>The effect annotations are only specified explicitly in the signatures for
+functions that perform the effect. And these effects may be implemented only
+for certain implementations. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">add</span> <span class="tok-ow">::</span> <span class="tok-kt">Int</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Int</span>
+<span class="tok-nf">add</span> <span class="tok-kt">Hask</span> <span class="tok-ow">::</span> <span class="tok-s">&quot;Integer&quot;</span> <span class="tok-ow">-&gt;</span> <span class="tok-s">&quot;Integer&quot;</span>
+<span class="tok-nf">add</span> <span class="tok-kt">Cpp</span> <span class="tok-kt">:</span> <span class="tok-s">&quot;int&quot;</span> <span class="tok-ow">-&gt;</span> <span class="tok-s">&quot;int&quot;</span> <span class="tok-o">+</span><span class="tok-kt">Exn</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here the ideal add function will never go wrong, the Hask add function with
+integers of arbitrary length will never go wrong unless memory runs out (and we
+don&#8217;t model that sort of error), but the C++ add <strong>can</strong> go wrong due to
+overflows since the type is bound.</p>
+</div>
+<div class="paragraph">
+<p>Some functions have intrinsic effects, which will be written in the ideal type,
+such as <code>read</code> and <code>write</code> IO functions. Implementations are free to impose
+effects as well. So different realizations of a given ideal composition may
+have different effects.</p>
+</div>
+<div class="paragraph">
+<p>This system is not mutually exclusive with monadic error handling. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">head</span>    <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">a</span> <span class="tok-o">+</span><span class="tok-kt">Exn</span>
+<span class="tok-nf">headMay</span> <span class="tok-ow">::</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Maybe</span> <span class="tok-n">a</span></code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -2384,12 +2493,18 @@ to add.</p>
 <div class="paragraph">
 <p><a id="vytiniotis2010let"></a>[2] D. Vytiniotis, S. Peyton Jones, &amp; T. Schrijvers, Let should not be generalized. <em>Proceedings of the 5th ACM SIGPLAN workshop on Types in language design and implementation</em> (ACM, 2010), pp. 39–50.</p>
 </div>
+<div class="paragraph">
+<p><a id="xu2012hybrid"></a>[3] D. N. Xu, Hybrid contract checking via symbolic simplification. <em>Proceedings of the ACM SIGPLAN 2012 workshop on Partial evaluation and program manipulation</em> (2012), pp. 107–116.</p>
+</div>
+<div class="paragraph">
+<p><a id="Leijen_2014"></a>[4] D. Leijen, Koka: Programming with Row Polymorphic Effect Types. <em>Electronic Proceedings in Theoretical Computer Science</em>, <strong>153</strong> (2014) 100–126. <a href="https://doi.org/10.4204/eptcs.153.8" class="bare">https://doi.org/10.4204/eptcs.153.8</a>.</p>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-03-24 23:17:47 -0500
+Last updated 2021-03-24 23:33:39 -0500
 </div>
 </div>
 <script type="text/x-mathjax-config">
