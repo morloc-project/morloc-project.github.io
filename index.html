@@ -558,13 +558,18 @@ pre.pygments .tok-il { color: #666666 } /* Literal.Number.Integer.Long */
 <li><a href="#_let_polymorphism">5.4. Let polymorphism</a></li>
 </ul>
 </li>
-<li><a href="#_in_development">6. In Development</a></li>
-<li><a href="#_index_and_refinement_types">7. Index and Refinement types</a>
+<li><a href="#_in_development">6. In Development</a>
 <ul class="sectlevel2">
-<li><a href="#_how_are_the_types_used">7.1. How are the types used</a></li>
-<li><a href="#_additional_typing_examples">7.2. Additional typing examples</a></li>
-<li><a href="#_typing_and_test_generation">7.3. Typing and test generation</a></li>
-<li><a href="#_typing_and_performance_modeling">7.4. Typing and performance modeling</a></li>
+<li><a href="#_index_and_refinement_types">6.1. Index and Refinement types</a>
+<ul class="sectlevel3">
+<li><a href="#_how_are_the_types_used">6.1.1. How are the types used</a></li>
+<li><a href="#_additional_typing_examples">6.1.2. Additional typing examples</a></li>
+<li><a href="#_typing_and_test_generation">6.1.3. Typing and test generation</a></li>
+<li><a href="#_typing_and_performance_modeling">6.1.4. Typing and performance modeling</a></li>
+<li><a href="#_another_discussion">6.1.5. Another discussion</a></li>
+</ul>
+</li>
+<li><a href="#_generating_user_interfaces">6.2. Generating user interfaces</a></li>
 </ul>
 </li>
 <li><a href="#_references">References</a></li>
@@ -1886,12 +1891,8 @@ terms). This follows the practice argued for in [<a href="#vytiniotis2010let">2<
 <div class="sect1">
 <h2 id="_in_development">6. In Development</h2>
 <div class="sectionbody">
-
-</div>
-</div>
-<div class="sect1">
-<h2 id="_index_and_refinement_types">7. Index and Refinement types</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_index_and_refinement_types">6.1. Index and Refinement types</h3>
 <div class="paragraph">
 <p><strong>Nothing here has been implemented yet</strong></p>
 </div>
@@ -2009,8 +2010,8 @@ would leave some elements untyped.</p>
 <span class="tok-nf">reverse</span> <span class="tok-ow">::</span> <span class="tok-p">{</span> <span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">ys</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span> <span class="tok-o">|</span> <span class="tok-n">len</span> <span class="tok-n">xs</span> <span class="tok-ow">=</span> <span class="tok-n">len</span> <span class="tok-n">ys</span> <span class="tok-p">}</span></code></pre>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_how_are_the_types_used">7.1. How are the types used</h3>
+<div class="sect3">
+<h4 id="_how_are_the_types_used">6.1.1. How are the types used</h4>
 <div class="paragraph">
 <p>The system f layer of the morloc type system is statically typed. Typeclasses,
 when they are added, will be statically typed as well.</p>
@@ -2024,8 +2025,8 @@ functions, will not always be checkable statically, and instead will generate
 <p>How will we divide what can and cannot be statically checked?</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_additional_typing_examples">7.2. Additional typing examples</h3>
+<div class="sect3">
+<h4 id="_additional_typing_examples">6.1.2. Additional typing examples</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">align</span> <span class="tok-ow">::</span> <span class="tok-p">{</span> <span class="tok-p">[</span><span class="tok-n">xs</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-kt">Char</span><span class="tok-p">]]</span><span class="tok-n">_n</span> <span class="tok-o">|</span> <span class="tok-n">len</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-o">&gt;</span> <span class="tok-n">k1</span><span class="tok-p">,</span> <span class="tok-mi">0</span> <span class="tok-o">&lt;</span> <span class="tok-n">i</span> <span class="tok-o">&lt;=</span> <span class="tok-n">m</span> <span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">{</span> <span class="tok-p">[</span><span class="tok-n">ys</span><span class="tok-kt">:</span><span class="tok-p">[</span><span class="tok-kt">Char</span><span class="tok-p">]]</span><span class="tok-n">_n</span> <span class="tok-o">|</span> <span class="tok-n">len</span> <span class="tok-n">ys</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span> <span class="tok-ow">=</span> <span class="tok-n">k2</span><span class="tok-p">}</span>
@@ -2054,8 +2055,8 @@ functions, will not always be checkable statically, and instead will generate
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_typing_and_test_generation">7.3. Typing and test generation</h3>
+<div class="sect3">
+<h4 id="_typing_and_test_generation">6.1.3. Typing and test generation</h4>
 <div class="paragraph">
 <p>One goal of morloc is to be able to generate test data from the type signatures
 and ensure that running the functions on the generated data 1) doesn&#8217;t fail at
@@ -2066,8 +2067,8 @@ output.</p>
 <p>The goal is essentially to add property testing to the type signatures.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_typing_and_performance_modeling">7.4. Typing and performance modeling</h3>
+<div class="sect3">
+<h4 id="_typing_and_performance_modeling">6.1.4. Typing and performance modeling</h4>
 <div class="paragraph">
 <p>If data can be generated based on the type signatures, and if functions are
 given that map from input data to model features, then a performance model can
@@ -2093,6 +2094,285 @@ Then a model can be made that predicts runtime and memory usage from the
 features.</p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_another_discussion">6.1.5. Another discussion</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-p">[[</span><span class="tok-kt">Char</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">m_i</span><span class="tok-p">}]</span><span class="tok-n">_n</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Matrix_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">,</span><span class="tok-n">m</span><span class="tok-p">}</span> <span class="tok-kt">Char</span>
+
+<span class="tok-p">[[</span><span class="tok-kt">Char</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">m_i</span><span class="tok-p">}]</span><span class="tok-n">_n</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Matrix_</span><span class="tok-p">{</span><span class="tok-n">n</span><span class="tok-p">,</span><span class="tok-n">m</span> <span class="tok-o">&gt;=</span> <span class="tok-n">m_i</span><span class="tok-p">}</span> <span class="tok-kt">Char</span>
+
+<span class="tok-p">[[</span><span class="tok-kt">Char</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">m_i</span><span class="tok-p">}]</span><span class="tok-n">_n</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[[</span><span class="tok-kt">Char</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">m</span> <span class="tok-o">|</span> <span class="tok-n">m</span> <span class="tok-o">&gt;=</span> <span class="tok-n">m_i</span><span class="tok-p">}]</span><span class="tok-n">_n</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>    xs:[...]_{5}
+ --------------------
+    len xs = 5
+
+    xs:[...]_n
+ --------------------
+    exists Nat n
+    let n = len xs    -- bind n to the first dimension of xs
+
+    x:Array_{n,m} a
+ --------------------
+    exists Nat n
+    let n = nrow x
+    exists Nat m
+    let m = ncol x
+
+    xs:[...]_{n &gt; 5}
+ --------------------
+    exists Nat n
+    n = len xs
+    n &gt; 5
+
+    x:Array_{n,m &gt; 5} a
+ --------------------
+    exists Nat n
+    n = nrow x
+    exists Nat m
+    m = ncol x
+    m &gt; 5</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Exactly 1 value is available to be bound in each dimensional slot. The
+expression <code>n</code> uses one value, so this one value MUST be the row dimension. <code>m
+&gt; 5</code> is in the column dimension slot and defines one variable, <code>m</code>, so <code>m</code> must
+be the column dimension.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>    xs:[...]_{n &gt; m}
+ --------------------
+    ! cannot resolve</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here the length dimension slot has two variables defined, but there is only one slot, so an error is raised.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>    xs:[...]_{n &gt; m}
+    ys:[...]_{m &gt; 5}
+ --------------------
+    exists Nat n
+    exists Nat m
+    -- cannot resolve {n &gt; m}, so continue
+    m = len ys
+    m &gt; 5
+    -- now backtrack
+    n = len xs
+    n &gt; m
+
+    xs:[...]_{m &gt; n} -&gt; ys:[...]_{m &gt; p} -&gt; zs:[...]_{p}
+ ----------------------------
+    -- same thing, just requires 3 loops
+
+    xs:[...]_{n &gt; m}
+    ys:[...]_{m &lt; n}
+ --------------------
+    exists Nat n
+    exists Nat m
+    -- cannot resolve {n &gt; m} so contineu
+    -- cannot resolve {m &gt; n} so backtrack
+    ... -- infinite loop, break with a raised error when a loop resolves nothing</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The law of relevance, any statement in the index clause must be about the index of the type.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code><span></span>    xs:[...]_n -&gt; ys:[...]_n
+ ----------------------------
+    exists Nat n
+    n = len xs
+    n = len ys
+
+    xs:[...]_n -&gt; ys:[...]_{n &gt; 5}
+ ----------------------------
+    exists Nat n
+    n = len xs
+    n = len ys
+    n &gt; 5
+
+
+    xs:[ys:[...]_n]
+ --------------------
+    forall ys
+        len ys = n
+
+    xs:[ys:[...]_{n_i; n_i &lt; 5}]
+ --------------------
+    forall i in</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_generating_user_interfaces">6.2. Generating user interfaces</h3>
+<div class="paragraph">
+<p>There are several types of user interfaces:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A command line utility</p>
+</li>
+<li>
+<p>A programming library</p>
+</li>
+<li>
+<p>A web API (e.g., a REST interface)</p>
+</li>
+<li>
+<p>A browser or cellphone app</p>
+</li>
+<li>
+<p>A graphical user interface on a PC</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>I will go through each of these in detail, but first there are a few missing
+features from morloc that will be required to generate any of these.</p>
+</div>
+<div class="paragraph">
+<p><strong>parameterization</strong>. Currently all function arguments are positional. This can
+work fine in languages like Haskell, where parameterization is usually passed
+in either a Reader monad or a record. But in languages like Python or R, and in
+command line utilities and node-based programming frameworks (like Blender
+shader specifications), positional arguments and parameters are dealt with
+differently. One solution would be to add all parameters as a record in the
+first positional argument. The record would be interpreted as the list of
+keyword arguments in languages that support them and would be treated as a
+normal record in languages that don&#8217;t.</p>
+</div>
+<div class="paragraph">
+<p><strong>passing by filename</strong>. Passing data between languages in JSON form is
+convenient, but limited. Binary data, such as images or music, would better be
+passed as files or binary globs. Large data that is not in memory would better
+passed as files or references to database objects. Any data that is threaded
+through a pool, but not directly used, should be passed as reference to avoid
+unnecessary (de)serialization.</p>
+</div>
+<div class="paragraph">
+<p><strong>Documentation</strong>. There is nothing novel that needs to be done here. I just
+need a basic Don Knuth literate programming system similar to Javadocs, Hadock
+and every other programming language. I&#8217;ll probably model my system after
+Haddock. The documentation can be leveraged into man pages and usage statements
+for the CLI utilities, transferred as documentation in programmatic libraries,
+built into docs for web APIs, GUIs, and everything else.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;ll will walk through each of these and outline what morloc <strong>should</strong> do with respect to generating the UI.</p>
+</div>
+<div class="paragraph">
+<div class="title">Command line utility</div>
+<p>This is what <code>morloc</code> currently generates. Command line utilities are deeply
+formulaic and many frameworks exist to generate them from minimal documentation
+and type annotations. What is currently missing from morloc-generated CLI is
+clean handling for parameters (flags, keyword arguments), passing data by
+"reference" (through filenames), conventions for STDIN/STDOUT/STDERR
+piping, and a documentation system.</p>
+</div>
+<div class="paragraph">
+<p>Modules that are intended to be used as CLI tools (or other UIs) will probably
+be written in a different style than modules intended to be used as libraries.
+The key difference is that the functions in modules that will be compiled into
+UIs will usually be called directly rather than composed together. CLIs often
+have many flags and parameters that direct branching determining which function
+to call.</p>
+</div>
+<div class="paragraph">
+<p>Below is an example that illustrates this idea:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-kr">import</span> <span class="tok-nn">bio</span> <span class="tok-p">(</span><span class="tok-n">aligner</span><span class="tok-p">)</span>
+
+<span class="tok-kr">type</span> <span class="tok-kt">AlignmentFormat</span> <span class="tok-ow">=</span> <span class="tok-n">s</span><span class="tok-kt">:String</span> <span class="tok-kr">where</span>
+    <span class="tok-n">s</span> <span class="tok-kr">in</span> <span class="tok-p">{</span><span class="tok-s">&quot;fasta&quot;</span><span class="tok-p">,</span> <span class="tok-s">&quot;clustalw&quot;</span><span class="tok-p">,</span> <span class="tok-s">&quot;stockholm&quot;</span><span class="tok-p">}</span>
+
+<span class="tok-kr">type</span> <span class="tok-kt">SequenceFormat</span> <span class="tok-ow">=</span> <span class="tok-n">s</span><span class="tok-kt">:String</span> <span class="tok-kr">where</span>
+    <span class="tok-n">s</span> <span class="tok-kr">in</span> <span class="tok-p">{</span><span class="tok-s">&quot;fasta&quot;</span><span class="tok-p">,</span> <span class="tok-s">&quot;twobit&quot;</span><span class="tok-p">}</span>
+
+<span class="tok-nf">parameter</span> <span class="tok-kt">AlignOpt</span> <span class="tok-ow">=</span>
+  <span class="tok-p">{</span> <span class="tok-s">&quot;output-format|o&quot;</span> <span class="tok-ow">::</span> <span class="tok-kt">AlignmentFormat</span> <span class="tok-o">?</span> <span class="tok-s">&quot;fasta&quot;</span>
+  <span class="tok-p">,</span> <span class="tok-s">&quot;intput-format|i&quot;</span> <span class="tok-ow">::</span> <span class="tok-kt">SequenceFormat</span> <span class="tok-o">?</span> <span class="tok-s">&quot;fasta&quot;</span>
+  <span class="tok-p">}</span>
+
+<span class="tok-nf">align</span> <span class="tok-ow">::</span> <span class="tok-kt">AlignOpt</span> <span class="tok-ow">-&gt;</span> <span class="tok-kt">Filename</span> <span class="tok-ow">-&gt;</span> <span class="tok-nb">()</span> <span class="tok-kt">Filename</span>
+<span class="tok-nf">align</span> <span class="tok-n">opt</span> <span class="tok-n">fi</span> <span class="tok-n">fo</span> <span class="tok-ow">=</span> <span class="tok-n">writer</span> <span class="tok-p">(</span><span class="tok-n">aligner</span> <span class="tok-p">(</span><span class="tok-n">reader</span> <span class="tok-n">fi</span><span class="tok-p">))</span> <span class="tok-n">fo</span> <span class="tok-kr">where</span>
+    <span class="tok-n">reader</span> <span class="tok-ow">=</span> <span class="tok-kr">case</span> <span class="tok-n">opt</span><span class="tok-p">[</span><span class="tok-s">&quot;input-format&quot;</span><span class="tok-p">]</span> <span class="tok-kr">of</span>
+        <span class="tok-s">&quot;fasta&quot;</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">readFasta</span>
+        <span class="tok-s">&quot;twobit&quot;</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">readTwoBit</span>
+    <span class="tok-n">writer</span> <span class="tok-ow">=</span> <span class="tok-kr">case</span> <span class="tok-n">opt</span><span class="tok-p">[</span><span class="tok-s">&quot;output-format&quot;</span><span class="tok-p">]</span> <span class="tok-kr">of</span>
+        <span class="tok-s">&quot;fasta&quot;</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">writeFasta</span>
+        <span class="tok-s">&quot;clustalw&quot;</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">writeClustalW</span>
+        <span class="tok-s">&quot;stockholm&quot;</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">writeStockholm</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here the generated command line tool has options for specifying the input and
+output formats of the sequence files. This approach would not normally be used
+in a library, since it would be easier to just export all the readers and
+writers and let the user compose them.</p>
+</div>
+<div class="paragraph">
+<p>The example also uses some experimental syntax that is not yet implemented in
+morloc. The records have default values <code>? "fasta"</code> and specify short options
+<code>|o</code> in the string key names. The "record" is also not a record, but rather a
+string map.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">parameter</span> <span class="tok-kt">NormOpt</span> <span class="tok-ow">=</span>
+  <span class="tok-p">{</span> <span class="tok-s">&quot;verbose|v&quot;</span> <span class="tok-ow">::</span> <span class="tok-kt">Bool</span> <span class="tok-o">?</span> <span class="tok-kt">False</span>
+  <span class="tok-p">,</span> <span class="tok-s">&quot;mean|m&quot;</span> <span class="tok-ow">::</span> <span class="tok-kt">Num</span> <span class="tok-o">?</span> <span class="tok-mi">0</span>
+  <span class="tok-p">,</span> <span class="tok-s">&quot;stddev|s&quot;</span> <span class="tok-ow">::</span> <span class="tok-kt">Num</span> <span class="tok-o">?</span> <span class="tok-mi">1</span>
+  <span class="tok-p">}</span>
+
+<span class="tok-nf">norm</span> <span class="tok-ow">::</span> <span class="tok-kt">NormOpt</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">i</span><span class="tok-kt">:Int</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[</span><span class="tok-kt">Num</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">i</span><span class="tok-p">}</span>
+
+<span class="tok-nf">quiet_norm</span> <span class="tok-ow">=</span> <span class="tok-n">norm</span> <span class="tok-p">(</span><span class="tok-kt">NormOpt</span> <span class="tok-o">/</span> <span class="tok-p">{</span><span class="tok-n">verbose</span> <span class="tok-ow">=</span> <span class="tok-kt">False</span><span class="tok-p">})</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here <code>quiet_norm</code> will have the type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">quiet_norm</span> <span class="tok-ow">::</span> <span class="tok-p">{</span><span class="tok-s">&quot;mean|m&quot;</span> <span class="tok-ow">::</span> <span class="tok-kt">Num</span> <span class="tok-o">?</span> <span class="tok-mi">0</span><span class="tok-p">,</span> <span class="tok-s">&quot;stddev|s&quot;</span> <span class="tok-ow">::</span> <span class="tok-kt">Num</span> <span class="tok-o">?</span> <span class="tok-mi">1</span><span class="tok-p">}</span> <span class="tok-ow">-&gt;</span> <span class="tok-n">i</span><span class="tok-kt">:Int</span> <span class="tok-ow">-&gt;</span> <span class="tok-p">[</span><span class="tok-kt">Num</span><span class="tok-p">]</span><span class="tok-kr">_</span><span class="tok-p">{</span><span class="tok-n">i</span><span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Why use "/" for partial application? Because dividing by a term removes
+it from an equation.</p>
+</div>
+<div class="paragraph">
+<p>Another example where output type varies with parameter</p>
+</div>
+<div class="paragraph">
+<div class="title">Programmatic library</div>
+<p>This is easy. Already morloc generates the pools for each language and the
+manifold nexus calls the pools. Generating a library that can be imported into
+other languages is actually an easier problem. The compiler would fix the first
+call in each exported composition to the desired target language. Then
+typechecking and intermediate representation generation would proceed as it
+currently does. The final code generation step would not generate a manifold
+nexus and instead just make the one-language pool. It might need to generate a
+little more package boilerplate than is currently required, but this is usually
+pretty formulaic, all info required for this process is already in the system.
+Almost, the programmer meta-data is currently missing. That is, the author,
+maintainer, copyright, license information and such. But this is an easy thing
+to add.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -2109,7 +2389,7 @@ features.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-03-02 08:44:11 -0600
+Last updated 2021-03-24 23:17:47 -0500
 </div>
 </div>
 <script type="text/x-mathjax-config">

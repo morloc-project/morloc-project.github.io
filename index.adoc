@@ -9,6 +9,7 @@
 :bibtex-style: cambridge-university-press-numeric.csl
 :bibtex-order: appearance
 :toc: left
+:toclevels: 4
 
 
 [latexmath]
@@ -76,6 +77,8 @@ include::{includedir}/type-specification.asc[]
 == In Development
 
 include::{includedir}/refinement-types.asc[]
+
+include::{includedir}/generating-user-interfaces.asc[]
 
 // the module system and environment
 
