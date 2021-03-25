@@ -84,10 +84,6 @@ include::{includedir}/effects.asc[]
 
 // the module system and environment
 
-// // TODO: salvage the goods from this file (there is a lot of good)
-// include::{includedir}/architecture.asc[]
-// include::{includedir}/tech-tree.asc[]
-
 // = The Future
 //
 // include::{includedir}/unsettled-issues.asc[]
