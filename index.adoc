@@ -30,11 +30,8 @@
 
 == What is `morloc`?
 
-`morloc` is a functional programming language where functions are imported from
-foreign languages and unified through a common type system. The compiler
-generates the code needed to compose functions across languages and also to
-direct automation of mundane tasks such as data validation, type/format
-conversions, data caching, distributed computing, and file reading/writing.
+`morloc` is a strongly-typed functional programming language where functions are
+imported from foreign languages and unified through a common type system.
 
 The ultimate purpose of the Morloc system is to serve as the foundation for a
 universal library of functions. Each function in the library has a universal
@@ -44,16 +41,11 @@ type that aligns with the universal type. The Morloc compiler takes the
 specification for a program, written as a composition of typed functions, and
 generates an optimized program.
 
-Morloc is a query language that takes a program specification and searches
-against a function database, returning an optimized composition of functions.
-The functions may be selected all from one language or from several.
+Morloc may be viewed as a query language that takes a program specification and
+searches against a function database, returning an optimized composition of
+functions. The functions may be selected all from one language or from several.
 
 == Getting Started
-
-```
-export hello
-hello = "Hello world!!!"
-```
 
 include::{includedir}/examples.asc[]
 
