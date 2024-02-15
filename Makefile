@@ -1,5 +1,5 @@
 all:
-	asciidoctor -r asciidoctor-bibtex --doctype=book index.adoc
+	bash build.sh
 
 clean:
 	rm -r *pdf

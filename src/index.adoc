@@ -1,15 +1,24 @@
 = Morloc Technical Manual
-:source-highlighter: pygments
-:pygments-style: emacs
-:imagesdir: images
-:includedir: sections
-:stem: latexmath
-:sectnums:
+:author: Zebulun Arendsee
 :bibtex-file: references.bib
-:bibtex-style: cambridge-university-press-numeric.csl
 :bibtex-order: appearance
+:bibtex-style: cambridge-university-press-numeric.csl
+:docinfo: shared
+:favicon: ./static/img/favicon.ico
+:figure-caption!:
+:highlightjs-theme: github-light-dark
+:highlightjsdir: ./static/highlight
+:icons: image
+:iconsdir: ./static/img/admonition_icons
+:imagesdir: ./static/img
+:nofooter:
+:sectanchors:
+:sectnums:
+:source-highlighter: highlight.js
+:stem: latexmath
 :toc: left
 :toclevels: 4
+:includedir: content
 
 
 [latexmath]
@@ -33,17 +42,12 @@
 `morloc` is a strongly-typed functional programming language where functions are
 imported from foreign languages and unified through a common type system.
 
-The ultimate purpose of the Morloc system is to serve as the foundation for a
-universal library of functions. Each function in the library has a universal
-type that specifies how the function relates to other functions. Each function
-has zero or more implementations. Each implementation has a language-specific
-type that aligns with the universal type. The Morloc compiler takes the
-specification for a program, written as a composition of typed functions, and
-generates an optimized program.
-
-Morloc may be viewed as a query language that takes a program specification and
-searches against a function database, returning an optimized composition of
-functions. The functions may be selected all from one language or from several.
+This language is designed to serve serve as the foundation for a universal
+library of functions. Each function in the library has one universal type and
+zero or more implementations. An implementation may be either a function sourced
+from a foreign language or a composition of `morloc` functions. The `morloc`
+compiler takes the specification for a program, written as a composition of
+typed functions, and generates an optimized program.
 
 == Getting Started
 
@@ -57,6 +61,10 @@ include::{includedir}/examples.asc[]
 == Syntax and Features
 
 include::{includedir}/features.asc[]
+
+== Language Interoperability
+
+include::{includedir}/serialization.asc[]
 
 == Code Generation and Optimization
 
@@ -102,6 +110,11 @@ include::{includedir}/effects.asc[]
 // include::{includedir}/LOC.asc[]
 
 
+== Acknowledgements
+
+This documentation page was built with Asciidocs -- the best markdown language ever -- and the link:https://harshkapadia2.github.io/asciidoctor-jet/[asciidoctor-jet] template made by Harsh Kapadia.
+
+
 
 [bibliography]
 = References
@@ -122,3 +135,16 @@ bibliography::[]
 // include::{includedir}/manifolds-and-codegen.asc[]
 //
 // include::{includedir}/modules.asc[]
+
+// DO NOT remove the HTML block below as it is required for the PWA install prompt and the 'back to top' button.
+++++
+<div class="pwa-install-div hidden">
+	<div id="pwa-install-text">Ready for offline use!</div>
+	<button id="pwa-install-btn">Install</button>
+	<button id="pwa-install-dismiss" aria-label="Dismiss PWA install prompt">
+		<img src="static/img/clear_cross.svg" alt="X">
+	</button>
+</div>
+
+<button class="btn hidden back-to-top-btn" aria-label="Scroll to top"><img src="static/img/up-arrow.svg" alt="Top"></button>
+++++
