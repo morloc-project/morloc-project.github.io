@@ -66,13 +66,13 @@ include::{includedir}/features.asc[]
 
 include::{includedir}/serialization.asc[]
 
-== Code Generation and Optimization
-
-include::{includedir}/code-generation.asc[]
-
-== Specification 
-
-include::{includedir}/type-specification.asc[]
+// == Code Generation and Optimization
+//
+// include::{includedir}/code-generation.asc[]
+//
+// == Specification
+//
+// include::{includedir}/type-specification.asc[]
 
 == In Development
 
