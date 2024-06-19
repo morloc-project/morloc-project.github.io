@@ -74,13 +74,13 @@ include::{includedir}/serialization.asc[]
 //
 // include::{includedir}/type-specification.asc[]
 
-== In Development
-
-include::{includedir}/refinement-types.asc[]
-
-include::{includedir}/generating-user-interfaces.asc[]
-
-include::{includedir}/effects.asc[]
+// == In Development
+//
+// include::{includedir}/refinement-types.asc[]
+//
+// include::{includedir}/generating-user-interfaces.asc[]
+//
+// include::{includedir}/effects.asc[]
 
 // the module system and environment
 
