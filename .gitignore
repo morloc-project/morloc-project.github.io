@@ -1,7 +1,6 @@
 *~
 /_site/
 /.bundle/
-build/
 /tmp/
 *.bundle
 Gemfile.lock
