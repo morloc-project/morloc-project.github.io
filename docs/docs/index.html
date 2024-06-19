@@ -673,8 +673,8 @@ passing JSON in files is also accepted. For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ echo '[1,2,3]' &gt; json-list.txt
-$ ./nexus.py sumOfSquares json-list.txt
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ echo '[1,2,3]' &gt; list.json
+$ ./nexus.py sumOfSquares list.json
 14</code></pre>
 </div>
 </div>
@@ -688,7 +688,7 @@ $ ./nexus.py sumOfSquares json-list.txt
 </div>
 </div>
 <div class="paragraph">
-<p>Or STDIN can be read</p>
+<p>Or STDIN can be read with the explicit STDIN path:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -697,8 +697,7 @@ $ ./nexus.py sumOfSquares json-list.txt
 </div>
 </div>
 <div class="paragraph">
-<p>More direct support for reading STDIN is not yet supported. In the future it may
-be added, with the STDIN data being serving as the first argument to the function.</p>
+<p>Use of STDIN without the path is not yet supported.</p>
 </div>
 </div>
 <div class="sect2">
