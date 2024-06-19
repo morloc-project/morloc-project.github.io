@@ -12,7 +12,6 @@ mkdir -p "${script_dir}/docs/docs";
 # Copy files to the 'docs' directory
 for path in							\
   "index.html" \
-	"static"						\
 	"manifest.webmanifest"			\
 	"robots.txt"					\
 	"service-worker.js"				\
@@ -21,6 +20,7 @@ for path in							\
 done;
 
 # Build site
+cp -r "${script_dir}/src/static" "${script_dir}/docs/docs"
 asciidoctor -r asciidoctor-bibtex --doctype=book "${script_dir}/src/index.adoc" -a webfonts! -o "${script_dir}/docs/docs/index.html"
 
 # Lazy load images
