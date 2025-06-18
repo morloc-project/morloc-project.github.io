@@ -42,21 +42,21 @@
 `morloc` is a strongly-typed functional programming language where functions are
 imported from foreign languages and unified through a common type system.
 
-This language is designed to serve serve as the foundation for a universal
+This language is designed to serve as the foundation for a universal
 library of functions. Each function in the library has one universal type and
 zero or more implementations. An implementation may be either a function sourced
 from a foreign language or a composition of `morloc` functions. The `morloc`
 compiler takes the specification for a program, written as a composition of
 typed functions, and generates an optimized program.
 
-== Getting Started
-
-include::{includedir}/examples.asc[]
-
 // = Philosophy
 // // include::{includedir}/motivation.asc[]
 //
 // include::{includedir}/types.asc[]
+
+== Getting Started
+
+include::{includedir}/getting-started.asc[]
 
 == Syntax and Features
 
@@ -65,6 +65,14 @@ include::{includedir}/features.asc[]
 == Language Interoperability
 
 include::{includedir}/serialization.asc[]
+
+== Q&A
+
+include::{includedir}/questions-and-answers.asc[]
+
+== Contact
+
+include::{includedir}/contact.asc[]
 
 // == Code Generation and Optimization
 //

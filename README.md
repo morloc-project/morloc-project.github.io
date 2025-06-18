@@ -1,17 +1,8 @@
 = Morloc Technical Documentation
 
-To compile this documentation run `make`.
+This site is built using asciidocs for markdown. This is compatible with LaTeX
+and bibtex for references. And has completely kickass tables.
 
-You will need to install `asciidoctor` and `asciidoctor-bibtex`.
-
-## Installation
-
-Install asciidoctor, on arch it is `pacman -Ss asciidoctor`, for other systems,
-figure it out for yourself.
-
-Then install Ruby gems for bibtex and syntax highlighting:
-
-```
-gem install asciidoctor-bibtex
-gem install pygments.rb
-```
+To compile this documentation run `make build` to create (or pull) the required
+image. Then call `make` to build the site. `make shell` will put you in a shell
+where you can play with dependencies and whatever.

@@ -487,21 +487,24 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_what_is_morloc">1. What is <code>morloc</code>?</a></li>
 <li><a href="#_getting_started">2. Getting Started</a>
 <ul class="sectlevel2">
-<li><a href="#_hello_world">2.1. Hello world!</a></li>
-<li><a href="#_single_language_function_composition">2.2. Single language function composition</a></li>
-<li><a href="#_composition_between_languages">2.3. Composition between languages</a></li>
+<li><a href="#_install_the_compiler">2.1. Install the compiler</a></li>
+<li><a href="#_say_hello">2.2. Say hello</a></li>
+<li><a href="#_compose_functions_across_languages">2.3. Compose functions across languages</a></li>
+<li><a href="#_one_term_may_have_many_definitions">2.4. One term may have many definitions</a></li>
+<li><a href="#_overload_terms_with_typeclasses">2.5. Overload terms with typeclasses</a></li>
+<li><a href="#_pass_types_between_languages">2.6. Pass types between languages</a></li>
+<li><a href="#_a_longer_example">2.7. A longer example</a></li>
 </ul>
 </li>
 <li><a href="#_syntax_and_features">3. Syntax and Features</a>
 <ul class="sectlevel2">
-<li><a href="#_primitives_and_containers">3.1. Primitives and containers</a></li>
+<li><a href="#_basic_data_types">3.1. Basic data types</a></li>
 <li><a href="#_functions">3.2. Functions</a></li>
 <li><a href="#_type_signatures_and_type_functions">3.3. Type signatures and type functions</a></li>
 <li><a href="#_sourcing_functions">3.4. Sourcing functions</a></li>
-<li><a href="#_records_objects_and_tables">3.5. Records, objects, and tables</a></li>
-<li><a href="#_modules">3.6. Modules</a></li>
-<li><a href="#_ad_hoc_polymorphism_overloading_and_type_classes">3.7. Ad hoc polymorphism (overloading and type classes)</a></li>
-<li><a href="#_core_libraries">3.8. Core libraries</a></li>
+<li><a href="#_modules">3.5. Modules</a></li>
+<li><a href="#_ad_hoc_polymorphism_overloading_and_type_classes">3.6. Ad hoc polymorphism (overloading and type classes)</a></li>
+<li><a href="#_core_libraries">3.7. Core libraries</a></li>
 </ul>
 </li>
 <li><a href="#_language_interoperability">4. Language Interoperability</a>
@@ -510,7 +513,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_serialization">4.2. Serialization</a></li>
 </ul>
 </li>
-<li><a href="#_acknowledgements">5. Acknowledgements</a></li>
+<li><a href="#_qa">5. Q&amp;A</a>
+<ul class="sectlevel2">
+<li><a href="#_what_about_object_oriented_programming">5.1. What about object-oriented programming?</a></li>
+</ul>
+</li>
+<li><a href="#_contact">6. Contact</a></li>
+<li><a href="#_acknowledgements">7. Acknowledgements</a></li>
 <li><a href="#_references">References</a></li>
 </ul>
 </div>
@@ -544,7 +553,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 imported from foreign languages and unified through a common type system.</p>
 </div>
 <div class="paragraph">
-<p>This language is designed to serve serve as the foundation for a universal
+<p>This language is designed to serve as the foundation for a universal
 library of functions. Each function in the library has one universal type and
 zero or more implementations. An implementation may be either a function sourced
 from a foreign language or a composition of <code>morloc</code> functions. The <code>morloc</code>
@@ -557,21 +566,113 @@ typed functions, and generates an optimized program.</p>
 <h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>2. Getting Started</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_hello_world"><a class="anchor" href="#_hello_world"></a>2.1. Hello world!</h3>
+<h3 id="_install_the_compiler"><a class="anchor" href="#_install_the_compiler"></a>2.1. Install the compiler</h3>
+<div class="paragraph">
+<p>The easiest way to start using <code>morloc</code> is through containers. I recommend using
+podman, since it doesn&#8217;t require a daemon or sudo access. But Docker,
+Singularity, and other container engines are fine as well.</p>
+</div>
+<div class="paragraph">
+<p>An image with the morloc executable and batteries included can be retrieved
+from the GitHub container registry as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ podman pull ghcr.io/morloc-project/morloc/morloc-full:0.53.7</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>v0.53.7</code> may be replaced with the desired <code>morloc</code> version.</p>
+</div>
+<div class="paragraph">
+<p>Now you can enter a shell with a full working installation of <code>morloc</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ podman run --shm-size=4g \
+             -v $HOME:$HOME \
+             -w $PWD \
+             -e HOME=$HOME \
+             -it ghcr.io/morloc-project/morloc/morloc-full:0.53.7 \
+             /bin/bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>--shm-size=4g</code> option sets the shared memory space to 4GB. <code>morloc</code> uses
+shared memory for communication between languages, but containers often limit
+the shared memory space to 64MB by default.</p>
+</div>
+<div class="paragraph">
+<p>Alternatively, you can set up a script to run commands in a <code>morloc</code> environment:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">podman run --rm \
+           --shm-size=4g \
+           -e HOME=$HOME \
+           -v $HOME/.morloc:$HOME/.morloc \
+           -v $PWD:$HOME \
+           -w $HOME \
+           ghcr.io/morloc-project/morloc/morloc-full:0.53.7 "$@"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Name this script <code>menv</code>, for "morloc environment", make it executable, and place
+it in your PATH. The script will mount your current working directory and your
+<code>morloc</code> home directory, allowing you to run commands in a morloc-compatible
+environment.</p>
+</div>
+<div class="paragraph">
+<p>You can can run commands like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ menv morloc --version      # get the current morloc version
+$ menv morloc -h             # list morloc commands
+$ menv morloc init -f        # setup the morloc environment
+$ menv morloc install types  # install a morloc module
+$ menv morloc make foo.loc   # compile a local morloc module</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The generated executables may not work on your system since they were compiled
+inside the container, but you can run them in the container environemtn as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ menv ./nexus foo 1 2 3</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>More advanced solutions with richer dependency handling will be introduced in
+the future, but for now this allows easy experimentation with the language in a
+safe(ish) sandbox.</p>
+</div>
+<div class="paragraph">
+<p>The <code>menv morloc</code> or <code>menv ./nexus</code> syntax is a bit verbose, but I&#8217;ll let you
+play with alternative aliases. The conventions here are still fluid. Let me know
+if you find something better and or if you find bugs in this approach.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>2.2. Say hello</h3>
+<div class="paragraph">
+<p>The inevitable "Hello World" case is implemented in <code>morloc</code> like so:</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-morloc hljs" data-lang="morloc">module main (hello)
-hello = "Hello World"</code></pre>
+hello = "Hello up there"</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The module named <code>main</code> exports the term <code>hello</code> which is assigned the string
-value of "Hello World".</p>
+<p>The module named <code>main</code> exports the term <code>hello</code> which is assigned to a literal
+string value.</p>
 </div>
 <div class="paragraph">
-<p>Paste this into a file (e.g. "hello.loc") and then it can be imported by other
-<code>morloc</code> modules or directly compiled into a program where every exported term
-is a subcommand.</p>
+<p>Paste code this into a file (e.g. "hello.loc") and then it can be imported by
+other <code>morloc</code> modules or directly compiled into a program where every exported
+term is a subcommand.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -579,19 +680,17 @@ is a subcommand.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>This will generate a single file named "nexus.py". The nexus is the command line
-user interface to the commands exported from the module. For this simple
-example, it is the only generated file. Currently the UI is written in Python,
-though I will likely move to a compiled language in the future to avoid Python&#8217;s
-overhead.</p>
+<p>This command will produce two files: a C program, <code>nexus.c</code>, and its compiled
+binary, <code>nexus</code>. The <code>nexus</code> is the command line user interface to the commands
+exported from the module.</p>
 </div>
 <div class="paragraph">
-<p>Calling "nexus.py" with no arguments or with the <code>-h</code> flag, will print a help
+<p>Calling <code>nexus</code> with no arguments or with the <code>-h</code> flag, will print a help
 message:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ ./nexus.py -h
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ ./nexus -h
 The following commands are exported:
   hello
     return: Str</code></pre>
@@ -602,215 +701,457 @@ The following commands are exported:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ ./nexus.py hello
-Hello World</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ ./nexus hello
+Hello up there</code></pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_single_language_function_composition"><a class="anchor" href="#_single_language_function_composition"></a>2.2. Single language function composition</h3>
+<h3 id="_compose_functions_across_languages"><a class="anchor" href="#_compose_functions_across_languages"></a>2.3. Compose functions across languages</h3>
 <div class="paragraph">
-<p>The following code uses only C++ functions (<code>fold</code>, <code>map</code>, <code>add</code> and <code>mul</code>).</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-morloc hljs" data-lang="morloc">module main (sumOfSquares)
-
-import cppbase (fold, map, add, mul)
-
-square x = mul x x
-
-sumOfSquares xs = fold add 0.0 (map square xs)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>If this script is pasted into the file "example-1.loc", it can be compiled as
+<p>In <code>morloc</code>, you can import functions from many languages and compose them under
+a common type system. The syntax for importing functions from source files is as
 follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">morloc install cppbase
-morloc make example-1.loc</code></pre>
+<pre class="highlightjs highlight"><code class="language-none hljs">source Cpp from "foo.hpp" ("map", "sum", "snd")
+source Py from "foo.py" ("map", "sum", "snd")</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>install</code> command clones the <code>cppbase</code> repo from github into the
-local directory <code>~/.morloc/lib</code>. The <code>make</code> command will generate a file named
-<code>nexus.py</code>, which is an executable interface to the exported functions.</p>
-</div>
-<div class="paragraph">
-<p>You can see the exported functions and their input and output types:</p>
+<p>This brings the functions <code>map</code>, <code>sum</code>, and <code>snd</code> into scope in the <code>morloc</code>
+script. Each of these functions must be defined in the C++ and Python
+scripts. For Python, since <code>map</code> and <code>sum</code> are builtins, only <code>snd</code> needs to be
+defined. So the <code>foo.py</code> function only requires the following two lines:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ ./nexus.py -h
-The following commands are exported:
-  sumOfSquares
-    param 1: List Real
-    return: Real</code></pre>
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">def snd(pair):
+    return pair</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Then you can call the exported functions:</p>
+<p>The C++ file, <code>foo.hpp</code>, may be implemented as a simple header file with generic
+implementations of the three required functions.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ ./nexus.py sumOfSquares [1,2,3]
-14</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The compiling process generates three files. The <code>nexus.py</code> interface script, a
-<code>pool.cpp</code> file containing auto-generated code wrapping the imported <code>C++</code>
-functions and their compositions, and the executable <code>pool-cpp.out</code>. The nexus
-script parses the users commands and dispatches them to the executables.</p>
-</div>
-<div class="paragraph">
-<p>All arguments passed from the user to a <code>morloc</code> nexus are in JSON format. In
-the case above, <code>[1,2,3]</code> is a JSON list of numbers. However, passing JSON on
-the command line can be tedious, especially where strings are concerned, so
-passing JSON in files is also accepted. For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ echo '[1,2,3]' &gt; list.json
-$ ./nexus.py sumOfSquares list.json
-14</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Bash file substitution is also accepted:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ ./nexus.py sumOfSquares &lt;(echo '[1,2,3]')
-14</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Or STDIN can be read with the explicit STDIN path:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">$ echo '[1,2,3]' | ./nexus.py sumOfSquares /dev/stdin
-14</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Use of STDIN without the path is not yet supported.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_composition_between_languages"><a class="anchor" href="#_composition_between_languages"></a>2.3. Composition between languages</h3>
-<div class="paragraph">
-<p><code>morloc</code> can compose functions across languages. For example</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-morloc hljs" data-lang="morloc">module main (fibplot)
+<pre class="highlightjs highlight"><code class="language-C++ hljs" data-lang="C++">#pragma once
+#include &lt;vector&gt;
+#include &lt;tuple&gt;
 
-import math (fibonacci)
-import rbase (plotVectorPDF, ints2reals)
+// map :: (a -&gt; b) -&gt; [a] -&gt; [b]
+template &lt;typename A, typename B, typename F&gt;
+std::vector&lt;B&gt; map(F f, const std::vector&lt;A&gt;&amp; xs) {
+    std::vector&lt;B&gt; result;
+    result.reserve(xs.size());
+    for (const auto&amp; x : xs) {
+        result.push_back(f(x));
+    }
+    return result;
+}
 
-fibplot n = plotVectorPDF (ints2reals (fibonacci n)) "fibonacci-plot.pdf"</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The <code>fibplot</code> function calculates Fibonacci numbers using a C++ function and
-plots it using an R function.</p>
-</div>
-<div class="paragraph">
-<p><code>plotVectorPDF</code> is defined in the <code>morloc</code> module <code>rbase</code> (<a href="https://github.com/morloclib/rbase" class="bare">https://github.com/morloclib/rbase</a>). The <code>morloc</code> module
-contains the following files:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">README.md
-package.yaml
-main.loc
-core.R
-rbase.R</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The <code>main.loc</code> file contains <code>morloc</code> function signatures, compositions, and
-export statements. The <code>core.R</code> and <code>rbase.R</code> files contain R source code.
-<code>rbase.R</code> contains the general serialization functions required for R
-interoperability with other languages. The <code>core.R</code> file contains mostly core
-utilities that are common between languages (<code>map</code>, <code>zip</code>, <code>fold</code>, <code>add</code>,
-<code>sub</code>, etc). <code>ints2reals</code> is an alias for the base R function <code>as.numeric</code>.
-<code>plotPDF</code> is a wrapper around the generic R plot function, as shown below:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-r hljs" data-lang="r">plotVectorPDF &lt;- function(x, filename){
-  pdf(filename)
-  plot(x)
-  dev.off()
+// snd :: (a, b) -&gt; b
+template &lt;typename A, typename B&gt;
+B snd(const std::tuple&lt;A, B&gt;&amp; p) {
+    return std::get&lt;1&gt;(p);
+}
+
+// sum :: [a] -&gt; a
+template &lt;typename A&gt;
+A sum(const std::vector&lt;A&gt;&amp; xs) {
+    A total = A{0};
+    for (const auto&amp; x : xs) {
+        total += x;
+    }
+    return total;
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This is a perfectly normal R function with no extra boilerplate. It takes an
-arbitrary input <code>x</code> and a filename, passes <code>x</code> to the generic plot function,
-and writes the result to a PDF with the name <code>filename</code>.</p>
-</div>
-<div class="paragraph">
-<p>The <code>main.loc</code> file contains the type general type signature for this function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-morloc hljs" data-lang="morloc">plotVectorPDF :: [Real] -&gt; Str -&gt; ()</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The first signature is the general type, the second is the concrete, R-specific
-type.</p>
-</div>
-<div class="paragraph">
-<p>Similarly the <code>fibonacci</code> <code>C++</code> function has the type:</p>
+<p>Note that these implementations are completely independent of <code>morloc</code> --- they
+have no special constraints, they operate on perfectly normal native data
+structures, and their usage is not limited to the <code>morloc</code> ecosystem. The
+<code>morloc</code> compiler is responsible for mapping data between the languages. But to
+do this, <code>morloc</code> needs a little information about the function types. This is
+provided by the general type signatures, like so:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-morloc hljs" data-lang="morloc">fibonacci :: Int -&gt; List Int</code></pre>
+<pre class="highlightjs highlight"><code class="language-none hljs">map a b :: (a -&gt; b) -&gt; [a] -&gt; [b]
+snd a b :: (a, b) -&gt; b
+sum :: [Real] -&gt; Real</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The general type, <code>Int &#8594; List Int</code>, describes a function that takes an integer
-and returns a list of integers. <code>List Int</code> could be written equivalently as
-<code>[Int]</code>.</p>
+<p>The syntax for these type signatures is inspired by Haskell, with the exception
+that generic terms (<code>a</code> and <code>b</code> here) must be declared on the left. Square
+brackets represent homogenous lists and parenthesized, comma-separated values
+represent tuples, and arrows represent functions. In the <code>map</code> type, <code>(a &#8594; b)</code>
+is a function from generic value <code>a</code> to generic value <code>b</code>;  <code>[a]</code> is the input
+list of initial values; <code>[b]</code> is the output list of transformed values.</p>
 </div>
 <div class="paragraph">
-<p>A concrete type signature can be inferred from the concrete signature but
-evaluating type functions provided in the libraries:</p>
+<p>Removing the syntactic sugar for lists and tuples, the signatures may be written
+as:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-morloc hljs" data-lang="morloc">type Cpp =&gt; Int = "int"
-type Cpp =&gt; List a = "std::vector&lt;$1&gt;" a</code></pre>
+<pre class="highlightjs highlight"><code class="language-none hljs">map a b :: (a -&gt; b) -&gt; List a -&gt; List b
+snd a b :: Tuple2 a b -&gt; b
+sum :: List Real -&gt; Real</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>After recursively applying these two type functions, the general type evaluates to the concrete type:</p>
+<p>These signatures provide the <strong>general</strong> types of the functions. But one general
+type may map to multiple <strong>native</strong>, language-specific types. So we need to
+provide an explicit mapping from general to native types.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-morloc hljs" data-lang="morloc">fibonacci :: "int" -&gt; "std::vector&lt;$1&gt;" "int"</code></pre>
+<pre class="highlightjs highlight"><code class="language-none hljs">type Cpp =&gt; List a = "std::vector&lt;$1&gt;" a
+type Cpp =&gt; Tuple2 a b = "std::tuple&lt;$1,$2&gt;" a b
+type Cpp =&gt; Real = "double"
+type Py =&gt; List a = "list" a
+type Py =&gt; Tuple2 a b = "tuple" a b
+type Py =&gt; Real = "float"</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>"std::vector&lt;$1&gt;" "int"</code> aligns to <code>List Int</code> (or equivalently, <code>[Int]</code>). The
-type that is used in <code>C++</code> prototypes and type annotations is generated from the
-concrete type via macro expansion into the type constructor: <code>int</code> replaces <code>$1</code>
-yielding the concrete type <code>std::vector&lt;int&gt;</code>.</p>
+<p>These type functions guide the synthesis of native types from general
+types. Take the C mapping for `List a` as an example. The basic C list type
+is <code>vector</code> from the standard template library. After the <code>morloc</code> typechecker
+has solved for the type of the generic parameter <code>a</code>, and recursively converted
+it to <code>C`, its type will be substituted for `$1`. So if `a` is inferred to be
+a `Real`, it will map to the C `double</code>, and then be substituted into the list
+type yielding <code>std::vector&lt;double&gt;</code>. This type will be used in the generated C++
+code.</p>
 </div>
 <div class="paragraph">
-<p>The fibonacci function itself is a normal C++ function with the prototype:</p>
+<p>Functions can be composed:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">std::vector&lt;int&gt; fibonacci(int n)</code></pre>
+<pre class="highlightjs highlight"><code class="language-none hljs">sumSnd xs = sum (map snd xs)</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>These <code>morloc</code> compositions will be internally rewritten in terms of the native
+imported functions, for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">\xs -&gt; sum (map snd xs)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So in the final form, all functions in <code>morloc</code> are imported from foreign languages.</p>
+</div>
+<div class="paragraph">
+<p><code>morloc</code> also supports partial application, eta reduction, and the dot-operator
+for composition. So <code>sumSnd</code> can be simplified to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">sumSnd = sum . map snd</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>But what code is generated from this? Remember, we imported functions in Pythong
+<strong>and</strong> C++ for each of the three native functions above. This problem is
+addressed in the next section.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>2.4. One term may have many definitions</h3>
+<div class="paragraph">
+<p><code>morloc</code> supports a kind of <strong>language</strong> or <strong>implementation</strong> polymorphism. Each
+term may have many definitions. For example, the function <code>mean</code> has three
+definitions below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">import base (sum, div, size, fold, add)
+import types
+source Cpp from "mean.hpp" ("mean")
+mean :: [Real] -&gt; Real
+mean xs = div (sum xs) (size xs)
+mean xs = div (fold 0 add xs) (size xs)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>mean</code> is sourced directly from <code>C++</code>, it is defined in terms of the <code>sum</code>
+function, and it is defined more generally with <code>sum</code> written as a fold
+operation. The <code>morloc</code> compiler is responsible for deciding which
+implementation to use.</p>
+</div>
+<div class="paragraph">
+<p>The equals operator in <code>morloc</code> indicates functional substitutability. When you
+say a term is "equal" to something, you are giving the compiler an option for
+what may be substituted for the term. The function <code>mean</code>, for example, has many
+functionally equivalent definitions. They may be in different languages, or they
+may be more optimal in different situations.</p>
+</div>
+<div class="paragraph">
+<p>Now this ability to simply state that two things are the same can be abused. The
+following statement is syntactically allowed in <code>morloc</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">x = 1
+x = 2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>What is <code>x</code> after this code is run? It is 1 <strong>or</strong> 2. The latter definition does
+not mask the former, it <strong>appends</strong> the former. Now in this case, the two values
+are certainly not substitutable. <code>morloc</code> has a simple <strong>value checker</strong> that will
+catch this type of primitive contradition. However, the value checker cannot yet
+catch more nuanced errors, such as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">x = div 1 (add 1 1)
+x = div 2 1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case, the type checker cannot check whithin the implementation of <code>add</code>,
+so it cannot know that there is a contradiction. For this reason, some care is
+needed in making these definitions.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>2.5. Overload terms with typeclasses</h3>
+<div class="paragraph">
+<p>In addition to language polymorphism, <code>morloc</code> offers more traditional ad hoc
+polymorphism over types. Here typeclasses may be defined and type-specific
+instances may be given. This idea is similar to typeclasses in Haskell, traits
+in Rust, interfaces in Java, and concepts in <code>C++</code>.</p>
+</div>
+<div class="paragraph">
+<p>In the example below, <code>Addable</code> and <code>Foldable</code> classes are defined and used to
+create a polymorphic <code>sum</code> function.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">class Addable a where
+    zero a :: a
+    add a :: a -&gt; a -&gt; a
+
+instance Addable Int where
+    source Py "arithmetic.py" ("add")
+    source Cpp "arithmetic.hpp" ("add")
+    zero = 0
+
+instance Addable Real where
+    source Py "arithmetic.py" ("add")
+    source Cpp "arithmetic.hpp" ("add")
+    zero = 0.0
+
+class Foldable f where
+    foldr a b :: (a -&gt; b -&gt; b) -&gt; b -&gt; f a -&gt; b
+
+instance Foldable List where
+    source Py "foldable.py" ("foldr")
+    source Cpp "foldable.hpp" ("foldr")
+
+sum = foldr add zero</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The instances may import implementations for many languages.</p>
+</div>
+<div class="paragraph">
+<p>The native functions may themselves be polymorphic, so the imported
+implementations may be repeated across many instances. For example, the Python
+<code>add</code> may be written as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">def add(x, y):
+    return x + y</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And the C++ add as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-cpp hljs" data-lang="cpp">template &lt;class A&gt;
+A add(A x, A y){
+    return x + y;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pass_types_between_languages"><a class="anchor" href="#_pass_types_between_languages"></a>2.6. Pass types between languages</h3>
+<div class="paragraph">
+<p>Up to now we have ignored the method <code>morloc</code> uses to allow communication
+between languages. We&#8217;ve simply asserted that there was a "common type
+system". We&#8217;ll now give a quick peak into how all this works (finer details will
+be reserved for technical sections later on).</p>
+</div>
+<div class="paragraph">
+<p>Every <code>morloc</code> general type maps unambiguously to a binary form that consists of
+several fixed-width literal types, a list container, and a tuple container. The
+literal types include a unit type, a boolean, signed integers (8, 16, 32, and 64
+bit), unsigned integers (8, 16, 32, and 64 bit), and IEEE floats (32 and 64 bit). The
+list container is represented by a 64-bit size integer and a pointer to an
+unboxed vector. The tuple is represented as a set of values in contiguous
+memory.</p>
+</div>
+<div class="paragraph">
+<p>Here is an example of how the type <code>([UInt8], Bool)</code>, with the value <code>([3,4,5],True)</code>,  might be laid out in memory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">---
+03 00 00 00 00 00 00 00 00 -- first tuple element, specifies list length (little-endian)
+30 00 00 00 00 00 00 00 00 -- first tuple element, pointer to list
+01 00 00 00 00 00 00 00 00 -- second tuple element, with 0-padding
+03 04 05                   -- 8-bit values of 3, 4, and 5
+---</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Records are represented as tuples. The names for each field are stored only in
+the type schemas. <code>morloc</code> also supports tables, which are just records where
+the field types correspond to the column types and where fields are all
+equal-length lists. Records and tables may be defined as shown below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">record Person = Person { name :: Str, age :: UInt8 }
+table People = People { name :: Str, age :: Int }
+
+alice = { name = "Alice", age = 27 }
+students = { name = ["Alice", "Bob"], age = [27, 25] }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>morloc</code> type signatures can be translated to schema strings that may be
+parsed by a foundational <code>morloc</code> C library into a type structure. Every
+supported language in the <code>morloc</code> ecosystem must provide a library that wraps
+this <code>morloc</code> C library and translates to/from <code>morloc</code> binary given the
+<code>morloc</code> type schema.</p>
+</div>
+<div class="paragraph">
+<p>By itself, this system allows any type that is comprised entirely of literals,
+lists, and tuples to be translated between languages. But what about types that
+do not break down cleanly into these forms? For example, consider the
+parameterized <code>Map k v</code> type that represents a collection with keys of generic
+type <code>k</code> and values of generic type <code>v</code>. This type may have many
+representations, including a list of pairs, a pair of columns, a binary tree,
+and a hashmap. In order for <code>morloc</code> to know how to convert all <code>Map</code> types in
+all languages to one form, it must know how to express <code>Map</code> type in terms of
+more primitive types. The user can provide this information by defining
+instances of the <code>Packable</code> typeclass for <code>Map</code>. This typeclass defines two
+functions, <code>pack</code> and <code>unpack</code>, that construct and deconstruct a complex type.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">class Packable a b where
+    pack a b :: a -&gt; b
+    unpack a b :: b -&gt; a</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>Map</code> type for Python and C++ may be defined as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">type Py =&gt; Map key val = "dict" key val
+type Cpp =&gt; Map key val = "std::map&lt;$1,$2&gt;" key val
+instance Packable ([a],[b]) (Map a b) where
+    source Cpp from "map-packing.hpp" ("pack", "unpack")
+    source Py from "map-packing.py" ("pack", "unpack")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>morloc</code> user never needs to directly apply the <code>pack</code> and <code>unpack</code>
+functions. Rather, these are used by the compiler within the generated code. The
+compiler constructs a serialization tree from the general type and from this
+trees generates the native code needed to (un)pack types recursively until only
+primitive types remain. These may then be directly translated to <code>morloc</code> binary
+using the language-specific binding libraries.</p>
+</div>
+<div class="paragraph">
+<p>In some cases, the native type may not be as generic as the general type. Or you
+may want to add specialized (un)packers. In such cases, you can define more
+specialized instances of <code>Packable</code>. For example, if the <code>R</code> <code>Map</code> type is
+defined as an <code>R</code> list, then keys can only be strings. Any other type should
+raise an error. So we can write:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">type R =&gt; Map key val = "list" key val
+instance Packable ([Str],[b]) (Map Str b) where
+source R from "map-packing.R" ("pack", "unpack")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now whenever the key generic type of <code>Map</code> is inferred to be anything other than
+a string, all R implementations will be pruned.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_a_longer_example"><a class="anchor" href="#_a_longer_example"></a>2.7. A longer example</h3>
+<div class="paragraph">
+<p>Here is an example showing a parallel map function written in Python that calls C++ functions.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">module m (sumOfSums)
+
+import types (List, Real)
+
+source Py from "foo.py" ("pmap")
+source Cpp from "foo.hpp" ("sum")
+
+pmap a b :: (a -&gt; b) -&gt; [a] -&gt; [b]
+sum :: [Real] -&gt; Real
+
+sumOfSums = sum . pmap sum</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This <code>morloc</code> script exports a function that sums a list of lists of real
+numbers. The sum function is implemented in <code>C++</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-C++ hljs" data-lang="C++">#pragma one
+#include &lt;vector&gt;
+
+double sum(const std::vector&lt;double&gt;&amp; vec) {
+    double sum = 0.0;
+    for (double value : vec) {
+        sum += value;
+    }
+    return sum;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The parallel <code>pmap</code> function is written in Python:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">import multiprocessing as mp
+
+def pmap(f, xs):
+    with mp.Pool() as pool:
+        results = pool.map(f, xs)
+    return results</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>morloc</code> the inner summation jobs will be run in parallel. The <code>pmap</code> function
+has the same signature as the non-parallel <code>map</code> function, so can serve as a
+drop-in replacement.</p>
 </div>
 </div>
 </div>
@@ -819,21 +1160,159 @@ yielding the concrete type <code>std::vector&lt;int&gt;</code>.</p>
 <h2 id="_syntax_and_features"><a class="anchor" href="#_syntax_and_features"></a>3. Syntax and Features</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_primitives_and_containers"><a class="anchor" href="#_primitives_and_containers"></a>3.1. Primitives and containers</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-none hljs">data : True | False
-     | number
-     | string
-     | [data, ...]       -- lists
-     | (data, ...)       -- tuples
-     | {x = data, ...}   -- records</code></pre>
+<h3 id="_basic_data_types"><a class="anchor" href="#_basic_data_types"></a>3.1. Basic data types</h3>
+<div class="paragraph">
+<p>Here we&#8217;ll cover the basic <code>morloc</code> data types that directly map to <code>morloc</code>
+binary. For these types, there are fairly direct representations in most
+languages. The basic types are listed below:</p>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 16.6666%;">
+<col style="width: 33.3333%;">
+<col style="width: 16.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Domain</th>
+<th class="tableblock halign-left valign-top">Schema</th>
+<th class="tableblock halign-left valign-top">Width (bytes)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">z</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True</code> | <code>False</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">b</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UInt8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\([0,2^{8})\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">u1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UInt16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\([0,2^{16})\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">u2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UInt32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\([0,2^{32})\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">u4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UInt64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\([0,2^{64})\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">u8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Int8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\([-2^{7},2^{7})\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Int16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\([-2^{15},2^{15})\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Int32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\([-2^{31},2^{31})\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Int64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\([-2^{63},2^{63})\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">i8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Float32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IEEE float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">f4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Float64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IEEE double</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">f8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List x</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">het lists</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a{x}</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(16 + n \Vert a \Vert \)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tuple2 x1 x2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2-ples</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">t2{x1}{x2}</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\Vert a \Vert + \Vert b \Vert\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">TupleX \(\ t_i\ ...\ t_k\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">k-ples</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(tkt_1\ ...\ t_k\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\sum_i^k \Vert t_i \Vert\)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\{ f_1 :: t_1,\ ... \ , f_k :: t_k \}\)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">records</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(mk \Vert f_1 \Vert f_1 t_1\ ...\ \Vert f_k \Vert f_k t_k \)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">\(\sum_i^k \Vert t_i \Vert\)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>All basic types may be written to a schema that is used internally to direct
+conversions between <code>morloc</code> binary and native basic types. The schema values
+are shown in the table above. For example, the type <code>[(Bool, [Int8])]</code> would
+have the schema <code>at2bai1</code>. You will not usually have to worry about these
+schemas, since they are mostly used internally. They are worth knowing, though,
+since they appear in low-level tests, generated source code, and binary data
+packets (which are fun reading).</p>
 </div>
 <div class="paragraph">
-<p>As for as <code>morloc</code> is concerned, <code>number</code> is of arbitrary length and precision.
-Strings are double quoted and support escapes. In the future, I will add
-support for string interpolation.</p>
+<p>A <code>record</code> is a named, heterogenous list such as a <code>struct</code> in C, a <code>dict</code> in
+Python, or a <code>list</code> in R. The type of the record exactly describes the data
+stored in the record (in contrast to parameterized types like <code>[a]</code> or <code>Map a b</code>).</p>
+</div>
+<div class="paragraph">
+<p>A <code>table</code> is like a record where all types are replaced by lists of that type.
+But <code>table</code> is not just syntactic sugar for a record of lists, the <code>table</code>
+annotation is passed with the record through the compiler all the way to the
+translator, where the language-specific serialization functions may have
+special handling for tables.</p>
+</div>
+<div class="paragraph">
+<p>Both are defined in similar ways.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-morloc hljs" data-lang="morloc">record (PersonRec a) = PersonRec {name :: Str, age :: Int}
+record Cpp =&gt; PersonRec a = "MyObj"
+
+table (PersonTbl a) = PersonObj {name :: Str, age :: Int}
+table R =&gt; PersonTbl a = "data.frame"
+table Cpp =&gt; PersonTbl a = "struct"</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -939,55 +1418,7 @@ usually be caught by the foreign language compiler.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_records_objects_and_tables"><a class="anchor" href="#_records_objects_and_tables"></a>3.5. Records, objects, and tables</h3>
-<div class="paragraph">
-<p>Support of records, objects and tables in <code>morloc</code> is still immature.</p>
-</div>
-<div class="paragraph">
-<p><code>records</code>, <code>objects</code> and <code>tables</code> are all defined with the same syntax (for
-now) but have different meanings.</p>
-</div>
-<div class="paragraph">
-<p>A <code>record</code> is a named, heterogenous list such as a <code>struct</code> in C, a <code>dict</code> in
-Python, or a <code>list</code> in R. The type of the record exactly describes the data
-stored in the record (in contrast to parameterized types like <code>[a]</code> or <code>Map a b</code>).</p>
-</div>
-<div class="paragraph">
-<p>A <code>table</code> is like a record where all types are replaced by lists of that type.
-But <code>table</code> is not just syntactic sugar for a record of lists, the <code>table</code>
-annotation is passed with the record through the compiler all the way to the
-translator, where the language-specific serialization functions may have
-special handling for tables.</p>
-</div>
-<div class="paragraph">
-<p>An <code>object</code> is a record with baggage. It is a special case of an OOP class
-where all arguments passed to the constructor can be accessed as public fields.</p>
-</div>
-<div class="paragraph">
-<p>All three are defined in similar ways.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-morloc hljs" data-lang="morloc">record (PersonRec a) = PersonRec {name :: Str, age :: Int}
-record Cpp =&gt; PersonRec a = "MyObj"
-
-table (PersonTbl a) = PersonObj {name :: Str, age :: Int}
-table R =&gt; PersonTbl a = "data.frame"
-table Cpp =&gt; PersonTbl a = "struct"
-
-record (PersonRec a) = PersonRec {name :: Str, age :: Int}
-object Cpp =&gt; PersonRec a = "MyObj"</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Notice that <code>object</code> is undefined for general types, since they don&#8217;t check
-luggage. Also note the difference between the type constructor (e.g.
-<code>PersonRec</code>) and the data constructor (e.g., <code>"MyObj"</code>). The latter corresponds
-to the class constructor in the OOP language.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_modules"><a class="anchor" href="#_modules"></a>3.6. Modules</h3>
+<h3 id="_modules"><a class="anchor" href="#_modules"></a>3.5. Modules</h3>
 <div class="paragraph">
 <p>A module includes all the code defined under the <code>import &lt;module_name&gt;</code>
 statement. It can be imported with the <code>import</code> command.</p>
@@ -1029,7 +1460,7 @@ function. The compiler will choose which to use.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ad_hoc_polymorphism_overloading_and_type_classes"><a class="anchor" href="#_ad_hoc_polymorphism_overloading_and_type_classes"></a>3.7. Ad hoc polymorphism (overloading and type classes)</h3>
+<h3 id="_ad_hoc_polymorphism_overloading_and_type_classes"><a class="anchor" href="#_ad_hoc_polymorphism_overloading_and_type_classes"></a>3.6. Ad hoc polymorphism (overloading and type classes)</h3>
 <div class="paragraph">
 <p><code>morloc</code> supports ad hoc polymorphism, where instances of a function may be
 defined for multiple types.</p>
@@ -1107,7 +1538,7 @@ instance Packable [(Int,b)] (Map Int b) where
 </div>
 </div>
 <div class="sect2">
-<h3 id="_core_libraries"><a class="anchor" href="#_core_libraries"></a>3.8. Core libraries</h3>
+<h3 id="_core_libraries"><a class="anchor" href="#_core_libraries"></a>3.7. Core libraries</h3>
 <div class="paragraph">
 <p>Each supported language has a base library that roughly corresponds to the
 Haskell prelude. They have functions for mapping over lists, working with
@@ -1255,7 +1686,61 @@ the way down.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_acknowledgements"><a class="anchor" href="#_acknowledgements"></a>5. Acknowledgements</h2>
+<h2 id="_qa"><a class="anchor" href="#_qa"></a>5. Q&amp;A</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>5.1. What about object-oriented programming?</h3>
+<div class="paragraph">
+<p>An "object" is a somewhat loaded term in the programming world. As far as
+<code>morloc</code> is concerned, an object is a thing that contains data and possibly
+other unknown stuff, such as hidden fields and methods. All types in <code>morloc</code>
+have must forms that are transferable between languages. Methods do not easily
+transfer; at least they cannot be written to <code>morloc</code> binary. However, it is
+possible to convey class-like APIs through typeclasses. Hidden fields are more
+challenging since, by design, they are not accessible. So objects cannot
+generally be directly represented in the <code>morloc</code> ecosystem.</p>
+</div>
+<div class="paragraph">
+<p>Objects that have a clear "plain old data" representation can be handled by
+<code>morloc</code>. These objects, and their component types, must have no vital hidden
+data, no vital state, and no required methods. Examples of these are all the
+basic Python types (<code>int</code>, <code>float</code>, <code>list</code>, <code>dict</code>, etc) and many C++ types such
+as the standard vector and tuple types. When these objects are passed between
+languages, they are reduced to their pure data.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_contact"><a class="anchor" href="#_contact"></a>6. Contact</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is a young project and any brave early users are highly valued. Feel free
+to contact me for any reason!</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>email: <a href="mailto:zbwrnz@gmail.com">zbwrnz@gmail.com</a></p>
+</li>
+<li>
+<p>discord: <a href="https://discord.gg/dyhKd9sJfF" class="bare">https://discord.gg/dyhKd9sJfF</a>.</p>
+</li>
+<li>
+<p>X: <a href="https://x.com/morlocproject" class="bare">https://x.com/morlocproject</a></p>
+</li>
+<li>
+<p>BlueSky: <a href="https://bsky.app/profile/morloc-project.bsky.social" class="bare">https://bsky.app/profile/morloc-project.bsky.social</a></p>
+</li>
+<li>
+<p>github: <a href="https://github.com/morloc-project/morloc" class="bare">https://github.com/morloc-project/morloc</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_acknowledgements"><a class="anchor" href="#_acknowledgements"></a>7. Acknowledgements</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This documentation page was built with Asciidocs&#8201;&#8212;&#8201;the best markdown language ever&#8201;&#8212;&#8201;and the <a href="https://harshkapadia2.github.io/asciidoctor-jet/">asciidoctor-jet</a> template made by Harsh Kapadia.</p>

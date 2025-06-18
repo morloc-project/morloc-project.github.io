@@ -1,15 +1,11 @@
 all:
-	bash build.sh
+	podman run -v .:/documents -w /documents ghcr.io/morloc-project/morloc/morloc-docs bash build.sh
+
+build:
+	podman build --no-cache --force-rm -t ghcr.io/morloc-project/morloc/morloc-docs .
+
+shell:
+	podman run -v ${PWD}:/documents -it ghcr.io/morloc-project/morloc/morloc-docs bash
 
 clean:
 	rm -r *pdf
-
-setup:
-	## can also try uninstalling stuff ... yay
-	# gem uninstall asciidoctor-bibtex
-	## installing these might help, just look through the --trace output and see what is missing
-	# gem install rdoc
-	# gem install rxml
-	# gem install bibtex-ruby
-	# gem install pygments.rb
-	gem install asciidoctor-bibtex
