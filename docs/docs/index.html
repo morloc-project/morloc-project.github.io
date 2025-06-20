@@ -493,45 +493,45 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_scrap_your_applications">2.4. Scrap your applications</a></li>
 <li><a href="#_scrap_your_bespoke_data_formats">2.5. Scrap your bespoke data formats</a></li>
 <li><a href="#_design_universal_libraries">2.6. Design universal libraries</a></li>
-<li><a href="#_want_to_be_deviant">2.7. Want to be deviant?</a></li>
 </ul>
 </li>
-<li><a href="#_getting_started">3. Getting Started</a>
+<li><a href="#_current_status">3. Current status</a></li>
+<li><a href="#_getting_started">4. Getting Started</a>
 <ul class="sectlevel2">
-<li><a href="#_install_the_compiler">3.1. Install the compiler</a></li>
-<li><a href="#_say_hello">3.2. Say hello</a></li>
-<li><a href="#_compose_functions_across_languages">3.3. Compose functions across languages</a></li>
-<li><a href="#_one_term_may_have_many_definitions">3.4. One term may have many definitions</a></li>
-<li><a href="#_overload_terms_with_typeclasses">3.5. Overload terms with typeclasses</a></li>
-<li><a href="#_pass_types_between_languages">3.6. Pass types between languages</a></li>
-<li><a href="#_a_longer_example">3.7. A longer example</a></li>
+<li><a href="#_install_the_compiler">4.1. Install the compiler</a></li>
+<li><a href="#_say_hello">4.2. Say hello</a></li>
+<li><a href="#_compose_functions_across_languages">4.3. Compose functions across languages</a></li>
+<li><a href="#_one_term_may_have_many_definitions">4.4. One term may have many definitions</a></li>
+<li><a href="#_overload_terms_with_typeclasses">4.5. Overload terms with typeclasses</a></li>
+<li><a href="#_pass_types_between_languages">4.6. Pass types between languages</a></li>
+<li><a href="#_a_longer_example">4.7. A longer example</a></li>
 </ul>
 </li>
-<li><a href="#_syntax_and_features">4. Syntax and Features</a>
+<li><a href="#_syntax_and_features">5. Syntax and Features</a>
 <ul class="sectlevel2">
-<li><a href="#_basic_data_types">4.1. Basic data types</a></li>
-<li><a href="#_functions">4.2. Functions</a></li>
-<li><a href="#_type_signatures_and_type_functions">4.3. Type signatures and type functions</a></li>
-<li><a href="#_sourcing_functions">4.4. Sourcing functions</a></li>
-<li><a href="#_modules">4.5. Modules</a></li>
-<li><a href="#_ad_hoc_polymorphism_overloading_and_type_classes">4.6. Ad hoc polymorphism (overloading and type classes)</a></li>
-<li><a href="#_core_libraries">4.7. Core libraries</a></li>
+<li><a href="#_basic_data_types">5.1. Basic data types</a></li>
+<li><a href="#_functions">5.2. Functions</a></li>
+<li><a href="#_type_signatures_and_type_functions">5.3. Type signatures and type functions</a></li>
+<li><a href="#_sourcing_functions">5.4. Sourcing functions</a></li>
+<li><a href="#_modules">5.5. Modules</a></li>
+<li><a href="#_ad_hoc_polymorphism_overloading_and_type_classes">5.6. Ad hoc polymorphism (overloading and type classes)</a></li>
+<li><a href="#_core_libraries">5.7. Core libraries</a></li>
 </ul>
 </li>
-<li><a href="#_language_interoperability">5. Language Interoperability</a>
+<li><a href="#_language_interoperability">6. Language Interoperability</a>
 <ul class="sectlevel2">
-<li><a href="#_type_inference">5.1. Type inference</a></li>
-<li><a href="#_serialization">5.2. Serialization</a></li>
+<li><a href="#_type_inference">6.1. Type inference</a></li>
+<li><a href="#_serialization">6.2. Serialization</a></li>
 </ul>
 </li>
-<li><a href="#_qa">6. Q&amp;A</a>
+<li><a href="#_qa">7. Q&amp;A</a>
 <ul class="sectlevel2">
-<li><a href="#_what_about_object_oriented_programming">6.1. What about object-oriented programming?</a></li>
+<li><a href="#_what_about_object_oriented_programming">7.1. What about object-oriented programming?</a></li>
 </ul>
 </li>
-<li><a href="#_status_of_morloc">7. Status of <code>morloc</code></a></li>
-<li><a href="#_contact">8. Contact</a></li>
-<li><a href="#_acknowledgements">9. Acknowledgements</a></li>
+<li><a href="#_status_of_morloc">8. Status of <code>morloc</code></a></li>
+<li><a href="#_contact">9. Contact</a></li>
+<li><a href="#_acknowledgements">10. Acknowledgements</a></li>
 <li><a href="#_references">References</a></li>
 </ul>
 </div>
@@ -564,11 +564,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>morloc</code> is a strongly-typed functional programming language where functions are
 imported from foreign languages and unified through a common type system. This
 language is designed to serve as the foundation for a universal library of
-functions. Each function in the library has one universal type and zero or more
+functions. Each function in the library has one general type and zero or more
 implementations. An implementation may be either a function sourced from a
-foreign language or a composition of <code>morloc</code> functions. The <code>morloc</code> compiler
-takes your program, written as a composition of typed functions, and generates
-an optimized program.</p>
+foreign language or a composition of such functions. All interop code is
+generated by the <code>morloc</code> compiler.</p>
 </div>
 </div>
 </div>
@@ -604,7 +603,7 @@ it hard to benchmark similar tools wrapped in applications with varying input
 formats, input validation costs, or startup overhead? In <code>morloc</code>, functions
 with the same general type signature can be swapped in and out for benchmarking
 and testing. The same test suites and test cases will work across all supported
-languages because since inputs/output of all functions of the same type share
+languages because inputs/output of all functions of the same type share
 equivalent <code>morloc</code> binary forms, making validation and comparison easy.</p>
 </div>
 </div>
@@ -613,18 +612,20 @@ equivalent <code>morloc</code> binary forms, making validation and comparison ea
 <div class="paragraph">
 <p>Tired of writing wrappers, CLIs, APIs, and bindings for every tool? With morloc,
 just write clean functions and compositions&#8201;&#8212;&#8201;the compiler can generate the
-rest.</p>
+rest. Rather than porting and maintaining a complex application, with all its
+fragile interfaces and idiosyncracies, you can focus on the algorithms.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_scrap_your_bespoke_data_formats"><a class="anchor" href="#_scrap_your_bespoke_data_formats"></a>2.5. Scrap your bespoke data formats</h3>
 <div class="paragraph">
-<p>Are you used to chaining tools with text files (think bioinformatics pipelines)?
-Maybe you even thought this was "the UNIX way" and therefore a "good thing". But
-after writing your hundreth GFF parser that builds gene models from
+<p>Are you accustomed to chaining tools with text files (think bioinformatics
+pipelines)? Maybe you even thought this was "the UNIX way" and therefore a "good
+thing". But after writing your hundreth GFF parser that builds gene models from
 inconsistently formatted attribute fields, maybe you&#8217;ve started to have
-doubts. <code>morloc</code> lets you drop the fragile formats. Instead, define clear,
-unambiguous data structures and share them natively across languages</p>
+doubts. <code>morloc</code> lets you drop the fragile formats. Instead, compose functions
+that share clear, unambiguous data structures that can be serialized
+unambiguously to JSON, MessagePack or <code>morloc</code> binary format.</p>
 </div>
 </div>
 <div class="sect2">
@@ -639,33 +640,62 @@ correctness). This makes it possible to build safe, verifiable, and even
 AI-assisted compositions.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_want_to_be_deviant"><a class="anchor" href="#_want_to_be_deviant"></a>2.7. Want to be deviant?</h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_current_status"><a class="anchor" href="#_current_status"></a>3. Current status</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>Why is Python so popular? Simple. It is easy to learn, leading to high early
-adoption. After early adoption, positive feedback took over: Python teams
-encourage new members to use Python, growing communities create more
-high-quality libraries that attract more users. So, apart from the language&#8217;s
-natural charms, its success came from social cohesive forces and ecosystem
-depth. <code>morloc</code> weakens both these forces by letting teams more
-easily work in polyglot settings and by sharing ecosystems and libraries across
-languages.</p>
+<p><code>morloc</code> is under heavy development in several areas:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>language support - <code>morloc</code> currently supports only three languages: <code>C++</code>,
+Python, and R. Before adding more, we need to further streamline the language
+onboarding process.</p>
+</li>
+<li>
+<p>syntax - we&#8217;ll soon let users define operators, add import namespaces, and more</p>
+</li>
+<li>
+<p>type system - there is lots to do here - sum types, effect handling (for
+better laziness and mutation support)</p>
+</li>
+<li>
+<p>performance - <code>morloc</code> is pretty fast already, but there the shared library
+implementation is pretty immature (e.g., we need a proper defragmentation
+algorithm) and the language binders leak memory</p>
+</li>
+<li>
+<p>scaling - <code>morloc</code> has <strong>very</strong> experimental support for remote job submission,
+or at least the suggestion of support. This needs to be tested and
+completed. But I think the foundation is solid.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>You can write all your heavy algorithmic code in a fast language like C and your
-more mundane code in Python. Write heavy-duty code in C, glue code in Python, or use
-specialized languages like BUGS/JAGS for Bayesian models or Futhark for
-high-performance computing. The goal: make the programming world more welcoming
-to all the weird and wonderful languages out there.</p>
+<p>Is <code>morloc</code> ready for production? Maybe, do you like danger? <code>morloc</code> currently
+has some sharp corners and new versions may make breaking changes. So <code>morloc</code>
+is currently most appropriate for adventorous first adopters who can solve
+problems and write clear issue reports. I recon <code>morloc</code> is around one year
+full-time work from v1.0.</p>
 </div>
+<div class="paragraph">
+<p>There is one island of stability, though. The native functions <code>morloc</code> imports
+are fully independent of <code>morloc</code>. So for a given <code>morloc</code> program, most of your
+code will be pure functions in native languages (e.g., Python, <code>C++</code>, or
+R). This code will never have to change between <code>morloc</code> versions. Where
+<code>morloc</code> will change is in how it describes these native functions, the syntax
+it uses to compose them, and the particulars of code generation.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>3. Getting Started</h2>
+<h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>4. Getting Started</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_install_the_compiler"><a class="anchor" href="#_install_the_compiler"></a>3.1. Install the compiler</h3>
+<h3 id="_install_the_compiler"><a class="anchor" href="#_install_the_compiler"></a>4.1. Install the compiler</h3>
 <div class="paragraph">
 <p>The easiest way to start using <code>morloc</code> is through containers. I recommend using
 podman, since it doesn&#8217;t require a daemon or sudo access. But Docker,
@@ -754,7 +784,7 @@ if you find something better and or if you find bugs in this approach.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>3.2. Say hello</h3>
+<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>4.2. Say hello</h3>
 <div class="paragraph">
 <p>The inevitable "Hello World" case is implemented in <code>morloc</code> like so:</p>
 </div>
@@ -806,7 +836,7 @@ Hello up there</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_compose_functions_across_languages"><a class="anchor" href="#_compose_functions_across_languages"></a>3.3. Compose functions across languages</h3>
+<h3 id="_compose_functions_across_languages"><a class="anchor" href="#_compose_functions_across_languages"></a>4.3. Compose functions across languages</h3>
 <div class="paragraph">
 <p>In <code>morloc</code>, you can import functions from many languages and compose them under
 a common type system. The syntax for importing functions from source files is as
@@ -869,7 +899,7 @@ A sum(const std::vector&lt;A&gt;&amp; xs) {
 </div>
 </div>
 <div class="paragraph">
-<p>Note that these implementations are completely independent of <code>morloc</code> --- they
+<p>Note that these implementations are completely independent of <code>morloc</code>&#8201;&#8212;&#8201;they
 have no special constraints, they operate on perfectly normal native data
 structures, and their usage is not limited to the <code>morloc</code> ecosystem. The
 <code>morloc</code> compiler is responsible for mapping data between the languages. But to
@@ -903,7 +933,7 @@ sum :: List Real -&gt; Real</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>These signatures provide the <strong>general</strong> types of the functions. But one general
+<p>These signatures provide the <strong>general types</strong> of the functions. But one general
 type may map to multiple <strong>native</strong>, language-specific types. So we need to
 provide an explicit mapping from general to native types.</p>
 </div>
@@ -963,7 +993,7 @@ addressed in the next section.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>3.4. One term may have many definitions</h3>
+<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>4.4. One term may have many definitions</h3>
 <div class="paragraph">
 <p><code>morloc</code> supports a kind of <strong>language</strong> or <strong>implementation</strong> polymorphism. Each
 term may have many definitions. For example, the function <code>mean</code> has three
@@ -1022,7 +1052,7 @@ needed in making these definitions.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>3.5. Overload terms with typeclasses</h3>
+<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>4.5. Overload terms with typeclasses</h3>
 <div class="paragraph">
 <p>In addition to language polymorphism, <code>morloc</code> offers more traditional ad hoc
 polymorphism over types. Here typeclasses may be defined and type-specific
@@ -1086,7 +1116,7 @@ A add(A x, A y){
 </div>
 </div>
 <div class="sect2">
-<h3 id="_pass_types_between_languages"><a class="anchor" href="#_pass_types_between_languages"></a>3.6. Pass types between languages</h3>
+<h3 id="_pass_types_between_languages"><a class="anchor" href="#_pass_types_between_languages"></a>4.6. Pass types between languages</h3>
 <div class="paragraph">
 <p>Up to now we have ignored the method <code>morloc</code> uses to allow communication
 between languages. We&#8217;ve simply asserted that there was a "common type
@@ -1197,7 +1227,7 @@ a string, all R implementations will be pruned.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_a_longer_example"><a class="anchor" href="#_a_longer_example"></a>3.7. A longer example</h3>
+<h3 id="_a_longer_example"><a class="anchor" href="#_a_longer_example"></a>4.7. A longer example</h3>
 <div class="paragraph">
 <p>Here is an example showing a parallel map function written in Python that calls C++ functions.</p>
 </div>
@@ -1256,10 +1286,10 @@ drop-in replacement.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_syntax_and_features"><a class="anchor" href="#_syntax_and_features"></a>4. Syntax and Features</h2>
+<h2 id="_syntax_and_features"><a class="anchor" href="#_syntax_and_features"></a>5. Syntax and Features</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_basic_data_types"><a class="anchor" href="#_basic_data_types"></a>4.1. Basic data types</h3>
+<h3 id="_basic_data_types"><a class="anchor" href="#_basic_data_types"></a>5.1. Basic data types</h3>
 <div class="paragraph">
 <p>Here we&#8217;ll cover the basic <code>morloc</code> data types that directly map to <code>morloc</code>
 binary. For these types, there are fairly direct representations in most
@@ -1417,7 +1447,7 @@ table Cpp =&gt; PersonTbl a = "struct"</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_functions"><a class="anchor" href="#_functions"></a>4.2. Functions</h3>
+<h3 id="_functions"><a class="anchor" href="#_functions"></a>5.2. Functions</h3>
 <div class="paragraph">
 <p>Function definition follows Haskell syntax.</p>
 </div>
@@ -1447,7 +1477,7 @@ table Cpp =&gt; PersonTbl a = "struct"</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_type_signatures_and_type_functions"><a class="anchor" href="#_type_signatures_and_type_functions"></a>4.3. Type signatures and type functions</h3>
+<h3 id="_type_signatures_and_type_functions"><a class="anchor" href="#_type_signatures_and_type_functions"></a>5.3. Type signatures and type functions</h3>
 <div class="paragraph">
 <p>General type declarations also follow Haskell syntax:</p>
 </div>
@@ -1490,7 +1520,7 @@ that can be done with these functions that I am just beginning to explore.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_sourcing_functions"><a class="anchor" href="#_sourcing_functions"></a>4.4. Sourcing functions</h3>
+<h3 id="_sourcing_functions"><a class="anchor" href="#_sourcing_functions"></a>5.4. Sourcing functions</h3>
 <div class="paragraph">
 <p>Sourcing a function from a foreign language is done as follows:</p>
 </div>
@@ -1519,7 +1549,7 @@ usually be caught by the foreign language compiler.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modules"><a class="anchor" href="#_modules"></a>4.5. Modules</h3>
+<h3 id="_modules"><a class="anchor" href="#_modules"></a>5.5. Modules</h3>
 <div class="paragraph">
 <p>A module includes all the code defined under the <code>import &lt;module_name&gt;</code>
 statement. It can be imported with the <code>import</code> command.</p>
@@ -1561,7 +1591,7 @@ function. The compiler will choose which to use.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ad_hoc_polymorphism_overloading_and_type_classes"><a class="anchor" href="#_ad_hoc_polymorphism_overloading_and_type_classes"></a>4.6. Ad hoc polymorphism (overloading and type classes)</h3>
+<h3 id="_ad_hoc_polymorphism_overloading_and_type_classes"><a class="anchor" href="#_ad_hoc_polymorphism_overloading_and_type_classes"></a>5.6. Ad hoc polymorphism (overloading and type classes)</h3>
 <div class="paragraph">
 <p><code>morloc</code> supports ad hoc polymorphism, where instances of a function may be
 defined for multiple types.</p>
@@ -1639,7 +1669,7 @@ instance Packable [(Int,b)] (Map Int b) where
 </div>
 </div>
 <div class="sect2">
-<h3 id="_core_libraries"><a class="anchor" href="#_core_libraries"></a>4.7. Core libraries</h3>
+<h3 id="_core_libraries"><a class="anchor" href="#_core_libraries"></a>5.7. Core libraries</h3>
 <div class="paragraph">
 <p>Each supported language has a base library that roughly corresponds to the
 Haskell prelude. They have functions for mapping over lists, working with
@@ -1666,16 +1696,16 @@ not impractical. In the future, more selective approaches may be used.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_language_interoperability"><a class="anchor" href="#_language_interoperability"></a>5. Language Interoperability</h2>
+<h2 id="_language_interoperability"><a class="anchor" href="#_language_interoperability"></a>6. Language Interoperability</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_type_inference"><a class="anchor" href="#_type_inference"></a>5.1. Type inference</h3>
+<h3 id="_type_inference"><a class="anchor" href="#_type_inference"></a>6.1. Type inference</h3>
 <div class="paragraph">
 <p>TODO</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_serialization"><a class="anchor" href="#_serialization"></a>5.2. Serialization</h3>
+<h3 id="_serialization"><a class="anchor" href="#_serialization"></a>6.2. Serialization</h3>
 <div class="paragraph">
 <p>TODO</p>
 </div>
@@ -1683,10 +1713,10 @@ not impractical. In the future, more selective approaches may be used.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_qa"><a class="anchor" href="#_qa"></a>6. Q&amp;A</h2>
+<h2 id="_qa"><a class="anchor" href="#_qa"></a>7. Q&amp;A</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>6.1. What about object-oriented programming?</h3>
+<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>7.1. What about object-oriented programming?</h3>
 <div class="paragraph">
 <p>An "object" is a somewhat loaded term in the programming world. As far as
 <code>morloc</code> is concerned, an object is a thing that contains data and possibly
@@ -1709,7 +1739,7 @@ languages, they are reduced to their pure data.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_status_of_morloc"><a class="anchor" href="#_status_of_morloc"></a>7. Status of <code>morloc</code></h2>
+<h2 id="_status_of_morloc"><a class="anchor" href="#_status_of_morloc"></a>8. Status of <code>morloc</code></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><code>morloc</code> is still a young language with many sharp edges. This may make
@@ -1734,7 +1764,7 @@ community.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_contact"><a class="anchor" href="#_contact"></a>8. Contact</h2>
+<h2 id="_contact"><a class="anchor" href="#_contact"></a>9. Contact</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This is a young project and any brave early users are highly valued. Feel free
@@ -1762,7 +1792,7 @@ to contact me for any reason!</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_acknowledgements"><a class="anchor" href="#_acknowledgements"></a>9. Acknowledgements</h2>
+<h2 id="_acknowledgements"><a class="anchor" href="#_acknowledgements"></a>10. Acknowledgements</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This documentation page was built with Asciidocs&#8201;&#8212;&#8201;the best markdown language ever&#8201;&#8212;&#8201;and the <a href="https://harshkapadia2.github.io/asciidoctor-jet/">asciidoctor-jet</a> template made by Harsh Kapadia.</p>
