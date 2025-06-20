@@ -40,23 +40,92 @@
 == What is `morloc`?
 
 `morloc` is a strongly-typed functional programming language where functions are
-imported from foreign languages and unified through a common type system.
+imported from foreign languages and unified through a common type system. This
+language is designed to serve as the foundation for a universal library of
+functions. Each function in the library has one universal type and zero or more
+implementations. An implementation may be either a function sourced from a
+foreign language or a composition of `morloc` functions. The `morloc` compiler
+takes your program, written as a composition of typed functions, and generates
+an optimized program.
 
-This language is designed to serve as the foundation for a universal
-library of functions. Each function in the library has one universal type and
-zero or more implementations. An implementation may be either a function sourced
-from a foreign language or a composition of `morloc` functions. The `morloc`
-compiler takes the specification for a program, written as a composition of
-typed functions, and generates an optimized program.
+== Why `morloc`?
 
-// = Philosophy
-// // include::{includedir}/motivation.asc[]
-//
-// include::{includedir}/types.asc[]
+=== Compose functions across languages under a common type system
+
+`morloc` allows functions from polyglot libraries to be composed in a simple
+functional language. The focus isn’t on classic interoperability (like calling C
+from Python), or serialization (like sending JSON between programs) -- though
+morloc implementations may use these under the hood. Instead, you define types,
+import implementations, and compose everything together to build complex
+programs. The compiler invisibly generates any required interop code.
+
+=== Write in your favorite language, share with everyone
+
+Do you *want* to write in language X but *have* to write in language Y because
+everyone in your team does or because your expected users do? Love C for
+algorithms, R for statistics, but don’t want to write full apps in either?
+`morloc` lets you mix and match, so you can use each language where it shines,
+with no bindings or boilerplate.
+
+=== Run benchmarks and tests across languages
+
+Tired of learning new benchmark and testing suites across all your languages? Is
+it hard to benchmark similar tools wrapped in applications with varying input
+formats, input validation costs, or startup overhead? In `morloc`, functions
+with the same general type signature can be swapped in and out for benchmarking
+and testing. The same test suites and test cases will work across all supported
+languages because since inputs/output of all functions of the same type share
+equivalent `morloc` binary forms, making validation and comparison easy.
+
+=== Scrap your applications
+
+Tired of writing wrappers, CLIs, APIs, and bindings for every tool? With morloc,
+just write clean functions and compositions -- the compiler can generate the
+rest.
+
+=== Scrap your bespoke data formats
+
+Are you used to chaining tools with text files (think bioinformatics pipelines)?
+Maybe you even thought this was "the UNIX way" and therefore a "good thing". But
+after writing your hundreth GFF parser that builds gene models from
+inconsistently formatted attribute fields, maybe you've started to have
+doubts. `morloc` lets you drop the fragile formats. Instead, define clear,
+unambiguous data structures and share them natively across languages
+
+=== Design universal libraries
+
+Tired of reimplementing everything in every language? In `morloc`, we can define
+functions, typeclasses, and hierarchies of types. Then build universal,
+(optionally) polyglot libraries that compose across language boundaries. These
+libraries may be searched by type as well as metadata (ranging from mundane
+licensing info to exotic empirical models of performance and certificates of
+correctness). This makes it possible to build safe, verifiable, and even
+AI-assisted compositions.
+
+=== Want to be deviant?
+
+Why is Python so popular? Simple. It is easy to learn, leading to high early
+adoption. After early adoption, positive feedback took over: Python teams
+encourage new members to use Python, growing communities create more
+high-quality libraries that attract more users. So, apart from the language's
+natural charms, its success came from social cohesive forces and ecosystem
+depth. `morloc` weakens both these forces by letting teams more
+easily work in polyglot settings and by sharing ecosystems and libraries across
+languages. 
+
+You can write all your heavy algorithmic code in a fast language like C and your
+more mundane code in Python. Write heavy-duty code in C, glue code in Python, or use
+specialized languages like BUGS/JAGS for Bayesian models or Futhark for
+high-performance computing. The goal: make the programming world more welcoming
+to all the weird and wonderful languages out there.
+
+
 
 == Getting Started
 
 include::{includedir}/getting-started.asc[]
+
+// include::{includedir}/motivation.asc[]
 
 == Syntax and Features
 
@@ -69,6 +138,25 @@ include::{includedir}/serialization.asc[]
 == Q&A
 
 include::{includedir}/questions-and-answers.asc[]
+
+
+== Status of `morloc`
+
+`morloc` is still a young language with many sharp edges. This may make
+development with `morloc` challenging, but it also means that you, as an early
+adopter, have a chance to make major contributions to the language.
+
+"How can I help?"
+
+Thanks for asking! Check out the discord channel (https://discord.gg/dyhKd9sJfF)
+for updates on specific current goals. But in general, just play around with the
+language and try to make things. And don't give up. If you can't figure out how
+to implement something, if you find a bug, if you want a feature, if
+documentation is sparse or error messages are confusing, please reach out to me
+or the folks on discord.
+
+I have grand dreams for this language, but I can't do it without the help of the
+community.
 
 == Contact
 
