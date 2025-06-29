@@ -120,7 +120,7 @@ AI-assisted compositions.
 
 `morloc` is under heavy development in several areas:
 
- * language support - `morloc` currently supports only three languages: `C++`,
+ * language support - `morloc` currently supports only three languages: {Cpp},
    Python, and R. Before adding more, we need to further streamline the language
    onboarding process.
 
@@ -145,7 +145,7 @@ full-time work from v1.0.
 
 There is one island of stability, though. The native functions `morloc` imports
 are fully independent of `morloc`. So for a given `morloc` program, most of your
-code will be pure functions in native languages (e.g., Python, `C++`, or
+code will be pure functions in native languages (e.g., Python, {cpp}, or
 R). This code will never have to change between `morloc` versions. Where
 `morloc` will change is in how it describes these native functions, the syntax
 it uses to compose them, and the particulars of code generation.
