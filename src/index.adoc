@@ -37,7 +37,7 @@
 \]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-== What is `morloc`?
+== Intro 
 
 `morloc` is a strongly-typed functional programming language where functions are
 imported from foreign languages and unified through a common type system. This
