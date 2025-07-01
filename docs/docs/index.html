@@ -710,45 +710,52 @@ paper for details (<a href="https://www.zebulun-arendsee.com/images/morloc-paper
 <div class="ulist">
 <ul>
 <li>
-<p><strong>language support</strong> - we need to further standardize the language onboarding
+<p><strong>language support</strong> – We need to further standardize the language onboarding
 process and then start adding new languages beyond the three that are
-currently supported (Python, R and C&#43;&#43;)</p>
+currently supported (Python, R, and C&#43;&#43;)</p>
 </li>
 <li>
-<p><strong>type system</strong> - there is lots to do here: sum types, effect handling,
+<p><strong>type system</strong> – There’s lots to do here: sum types, effect handling,
 constraints, extensible records</p>
 </li>
 <li>
-<p><strong>performance</strong> - the shared library implementation lacks proper memory
-defragmentation and there is some unnecessary memory copying between
+<p><strong>performance</strong> – The shared library implementation lacks proper memory
+defragmentation, and there is some unnecessary memory copying between
 languages</p>
 </li>
 <li>
-<p><strong>scaling</strong> - I&#8217;ve implemented some of the infrastructure and syntax for remote
+<p><strong>scaling</strong> – I’ve implemented some of the infrastructure and syntax for remote
 job submission, but more work is needed before it can be used in practice</p>
 </li>
 <li>
-<p><strong>syntax</strong> - pattern matching, custom operators, namespaces, string interpolation, and more</p>
+<p><strong>syntax</strong> – Pattern matching, custom operators, namespaces, string
+interpolation, and more are on the roadmap</p>
 </li>
 <li>
-<p><strong>tooling</strong> - need a linter, debugger, dependency manager, and better backend
-generators that generates richer CLI programs or APIs</p>
+<p><strong>tooling</strong> – We need a linter, debugger, dependency manager, and better
+backend generators that produce better CLI usage statements and programmatic APIs</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>There is one island of stability, though. The native functions Morloc imports
-are fully independent of Morloc. For a given Morloc program, most of your
+<p>There is one island of stability, though: the native functions Morloc imports
+are fully independent of Morloc itself. For a given Morloc program, most of your
 code will be pure functions in native languages (e.g., Python, C&#43;&#43;, or
-R). This code will never have to change between Morloc versions. Where
-Morloc will change is in how it describes these native functions, the syntax
-it uses to compose them, and the particulars of code generation.</p>
+R). This code will never have to change between Morloc versions. Where Morloc
+will change is in how it describes these native functions, the syntax it uses to
+compose them, and the particulars of code generation.</p>
 </div>
 <div class="paragraph">
-<p>Is Morloc ready for production? Maybe. Currently, Morloc has many sharp edges
-and new versions may make breaking changes. So Morloc is currently most
-appropriate for adventorous first adopters who can solve problems and write
-clear issue reports. Morloc may be around one year full-time work from v1.0.</p>
+<p>Is Morloc ready for production? Maybe. Currently, Morloc has many sharp edges,
+and new versions may introduce breaking changes. So Morloc is most appropriate
+right now for adventurous first adopters who can solve problems and write clear
+issue reports. Morloc may be about one year of full-time work away from v1.0.</p>
+</div>
+<div class="paragraph">
+<p><strong>Want to contribute?</strong> The most helpful thing you can do is join the community (see
+the Contact section), try out Morloc, and offer feedback on social media or via
+GitHub issue reports. The community is just starting, and the language is young,
+so you can strongly influence how the system evolves.</p>
 </div>
 </div>
 </div>
