@@ -86,9 +86,7 @@ class MorlocLexer(RegexLexer):
                 "importList",
             ),
             # general constructors
-            (r"(object|table|record)(\s+)([A-Z]\w+)(\s*)(=)",
-             bygroups(Keyword.Reserved, Whitespace, Name, Whitespace,
-                      Operator.Word)),
+            (r"^(object|table|record)(\s+)", bygroups(Keyword.Reserved, Whitespace)),
 
             #  Identifiers
             (r"[" + uni.Ll + r"][\w']*", Name),
