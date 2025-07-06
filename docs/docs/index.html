@@ -583,16 +583,16 @@ pre.pygments .tok-il { color: #666 } /* Literal.Number.Integer.Long */
 <ul class="sectlevel2">
 <li><a href="#_functions">5.1. Functions</a></li>
 <li><a href="#_sourcing_functions">5.2. Sourcing functions</a></li>
-<li><a href="#_mapping_general_types_to_native_types">5.3. Mapping general types to native types</a></li>
-<li><a href="#_type_hierarchies">5.4. Type hierarchies</a></li>
-<li><a href="#_one_term_may_have_many_definitions">5.5. One term may have many definitions</a></li>
-<li><a href="#_overload_terms_with_typeclasses">5.6. Overload terms with typeclasses</a></li>
-<li><a href="#_binary_forms">5.7. Binary forms</a></li>
-<li><a href="#_passing_types_between_languages">5.8. Passing types between languages</a></li>
-<li><a href="#_compose_functions_across_languages">5.9. Compose functions across languages</a></li>
-<li><a href="#_modules">5.10. Modules</a></li>
-<li><a href="#_user_arguments">5.11. User arguments</a></li>
-<li><a href="#_records_and_tables">5.12. Records and tables</a></li>
+<li><a href="#_modules">5.3. Modules</a></li>
+<li><a href="#_user_arguments">5.4. User arguments</a></li>
+<li><a href="#_mapping_general_types_to_native_types">5.5. Mapping general types to native types</a></li>
+<li><a href="#_records_and_tables">5.6. Records and tables</a></li>
+<li><a href="#_type_hierarchies">5.7. Type hierarchies</a></li>
+<li><a href="#_one_term_may_have_many_definitions">5.8. One term may have many definitions</a></li>
+<li><a href="#_overload_terms_with_typeclasses">5.9. Overload terms with typeclasses</a></li>
+<li><a href="#_binary_forms">5.10. Binary forms</a></li>
+<li><a href="#_passing_types_between_languages">5.11. Passing types between languages</a></li>
+<li><a href="#_compose_functions_across_languages">5.12. Compose functions across languages</a></li>
 <li><a href="#_the_universal_library">5.13. The universal library</a></li>
 </ul>
 </li>
@@ -1240,7 +1240,82 @@ usually be caught by the foreign language compiler.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_mapping_general_types_to_native_types"><a class="anchor" href="#_mapping_general_types_to_native_types"></a>5.3. Mapping general types to native types</h3>
+<h3 id="_modules"><a class="anchor" href="#_modules"></a>5.3. Modules</h3>
+<div class="paragraph">
+<p>A module includes all the code defined under the <code>import &lt;module_name&gt;</code>
+statement. It can be imported with the <code>import</code> command.</p>
+</div>
+<div class="paragraph">
+<p>The following module defines the constant <code>x</code> and exports it.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)</span>
+<span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-mi">42</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Another module can import <code>Foo</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)</span>
+
+<span class="tok-ow">...</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A term may be imported from multiple modules. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">cppbase</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">pybase</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">rbase</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This module imports that C&#43;&#43;, Python, and R <code>add</code> functions and exports all
+of them. Modules that import <code>add</code> will import three different versions of the
+function. The compiler will choose which to use.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_user_arguments"><a class="anchor" href="#_user_arguments"></a>5.4. User arguments</h3>
+<div class="paragraph">
+<p>User data is passed to Morloc executables as positional arguments to the
+specified function subcommand. The argument may be a literal JSON string or a
+filename. For files, the format may be JSON, MessagePack, or Morloc binary
+format. The Morloc nexus first checks for a ".json" extension, if found, the
+nexus attempts to parse the file as JSON. Next the nexus checks for a ".mpk" or
+".msgpack" extension, and if found it attempts to parse the file as a
+MessagePack file. If neither extension is found, it attempts to parse the file
+first as Morloc binary, then as MessagePack, and finally as JSON. See the
+<code>parse_cli_data_argument</code> function in <code>morloc.h</code> for details.</p>
+</div>
+<div class="paragraph">
+<p>Passing literal JSON on the command line can be a little unintuitive since extra
+quoting may be required. Here are a few examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="bash"><span></span><span class="tok-c1"># The Bash shell removes the outer quotes, so double quoting is required</span>
+morloc<span class="tok-w"> </span>foo<span class="tok-w"> </span><span class="tok-s1">&#39;&quot;this is a literal string&quot;&#39;</span>
+
+<span class="tok-c1"># Single quotes are lists is fine, still need to quote inner strings</span>
+morloc<span class="tok-w"> </span>bar<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;asdf&quot;, &quot;df&quot;]&#39;</span>
+
+<span class="tok-c1"># By default, output is written to JSON format</span>
+morloc<span class="tok-w"> </span>baz<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span><span class="tok-m">3</span><span class="tok-w"> </span>&gt;<span class="tok-w"> </span>baz.json
+
+<span class="tok-c1"># The output can be directly read by a downstream morloc program</span>
+morloc<span class="tok-w"> </span>bif<span class="tok-w"> </span>baz.json</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mapping_general_types_to_native_types"><a class="anchor" href="#_mapping_general_types_to_native_types"></a>5.5. Mapping general types to native types</h3>
 <div class="paragraph">
 <p>When a function is sourced from a foreign language, Morloc needs to know how
 Morloc general types map to the function&#8217;s native types. This information is
@@ -1286,27 +1361,124 @@ illegal in the Morloc language.</p>
 into the native type. So the Morloc type <code>List Int32</code> would translate to
 <code>std::vector&lt;uint32&gt;</code> in C&#43;&#43;.</p>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_records_and_tables"><a class="anchor" href="#_records_and_tables"></a>5.6. Records and tables</h3>
 <div class="paragraph">
-<p>Records and tables are defined in similar ways:</p>
+<p>Morloc has dedicated support for defining records and tables.</p>
+</div>
+<div class="paragraph">
+<p>Here is a record example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">PersonRec</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">PersonRec</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">info</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">}</span>
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">PersonRec</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;dict&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">PersonRec</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;MyObj&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">incAge</span><span class="tok-p">)</span>
 
-<span class="tok-kr">table</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">PersonTbl</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">PersonObj</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">}</span>
-<span class="tok-kr">table</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">PersonTbl</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;data.frame&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
-<span class="tok-kr">table</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">PersonTbl</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;struct&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-p">)</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;incAge&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">Person</span>
+<span class="tok-w">    </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Str</span>
+<span class="tok-w">    </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
+
+<span class="tok-c1">-- Increment the person&#39;s age</span>
+<span class="tok-n">incAge</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The native forms for the record-like types only need to specify the native type
-of the container (e.g., a <code>dict</code> in Python).</p>
+<p>Where the "foo.R" file contains the function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">incAge</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">person</span><span class="tok-p">){</span>
+<span class="tok-w">    </span><span class="tok-n">person</span><span class="tok-o">$</span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">person</span><span class="tok-o">$</span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-m">1</span>
+<span class="tok-w">    </span><span class="tok-n">person</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This may be compiles and run as so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>foo.loc
+$<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>incAge<span class="tok-w"> </span><span class="tok-s1">&#39;{name:&quot;Alice&quot;,age:32}&#39;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Tables are similar, but all fields are lists of equal length:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">readPeople</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">addPeople</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-p">)</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;people-tables.R&quot;</span>
+<span class="tok-w">   </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;read.delim&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">readPeople</span>
+<span class="tok-w">   </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;addPeople&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-kr">table</span><span class="tok-w"> </span><span class="tok-n">People</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">People</span>
+<span class="tok-w">    </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Str</span>
+<span class="tok-w">    </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
+
+<span class="tok-n">readPeople</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Filename</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">People</span>
+<span class="tok-n">addPeople</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">People</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">People</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With "people-tables.R" containing:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">addPeople</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">names</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">ages</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">df</span><span class="tok-p">){</span>
+<span class="tok-w">    </span><span class="tok-nf">rbind</span><span class="tok-p">(</span><span class="tok-n">df</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nf">data.frame</span><span class="tok-p">(</span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">names</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ages</span><span class="tok-p">))</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This can be compiled and run as so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="bash"><span></span><span class="tok-c1"># read a tab-delimited file containing person rows</span>
+./nexus<span class="tok-w"> </span>readPeople<span class="tok-w"> </span>data.tab<span class="tok-w"> </span>&gt;<span class="tok-w"> </span>people.json
+
+<span class="tok-c1"># add a row to the table</span>
+./nexus<span class="tok-w"> </span>addPeople<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;Eve&quot;]&#39;</span><span class="tok-w"> </span><span class="tok-s1">&#39;[99]&#39;</span><span class="tok-w"> </span>people.json</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The record and table types are currently excessively strict. Defining functions
+that add or remove fields/columns requires defining entirely new
+records/tables. Generic funtions for operations such as removing lists of
+columns cannot be defined at all. Future versions of Morloc will have more
+flexible tables, but for now most operations should be done in coarser
+functions. Alternatively, custom non-parameterized tabular/record types may be
+defined.</p>
+</div>
+<div class="paragraph">
+<p>The case study in the Morloc
+<a href="https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf">paper</a> uses a
+<code>JsonObj</code> type that represents an arbitrarily nested object that serializes
+to/from JSON. In Python, it deserializes to a <code>dict</code> object; in R, to a <code>list</code>
+objects; and in C to an <code>ordered_json</code> object from from
+(<a href="https://github.com/nlohmann)">Niels Lohmann&#8217;s json package</a>.</p>
+</div>
+<div class="paragraph">
+<p>A similar approach could be used to define a non-parameterized table type that
+serialized to CSV or some binary type (such as Parquet).</p>
+</div>
+<div class="paragraph">
+<p>These non-parameterized solutions are flexible and easy to use, but lack the
+reliability of the typed structures.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.4. Type hierarchies</h3>
+<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.7. Type hierarchies</h3>
 <div class="paragraph">
 <p>In some cases, there is a single obvious native type for a given Morloc general
 type. For example, most languages have exactly only one reasonable way to
@@ -1354,7 +1526,7 @@ to implement specialized behavior for more efficient conversion to binary.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.5. One term may have many definitions</h3>
+<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.8. One term may have many definitions</h3>
 <div class="paragraph">
 <p>Morloc supports what might be called <em>term polymorphism</em>. Each
 term may have many definitions. For example, the function <code>mean</code> has three
@@ -1413,7 +1585,7 @@ needed in making these definitions.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.6. Overload terms with typeclasses</h3>
+<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.9. Overload terms with typeclasses</h3>
 <div class="paragraph">
 <p>In addition to term polymorphism, Morloc offers more traditional ad hoc
 polymorphism over types. Here typeclasses may be defined and type-specific
@@ -1483,7 +1655,7 @@ is crucial to the grand structure of the future Morloc library.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.7. Binary forms</h3>
+<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.10. Binary forms</h3>
 <div class="paragraph">
 <p>Every Morloc general type maps unambiguously to a binary form that consists of
 several fixed-width literal types, a list container, and a tuple container. The
@@ -1668,7 +1840,7 @@ Morloc type schema.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_passing_types_between_languages"><a class="anchor" href="#_passing_types_between_languages"></a>5.8. Passing types between languages</h3>
+<h3 id="_passing_types_between_languages"><a class="anchor" href="#_passing_types_between_languages"></a>5.11. Passing types between languages</h3>
 <div class="paragraph">
 <p>Types that are composed entirely of Morloc primitives, lists, tuples, records
 and tables may be directly and unambiguously translated to Morloc binary forms
@@ -1730,7 +1902,7 @@ a string, all R implementations will be pruned.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_compose_functions_across_languages"><a class="anchor" href="#_compose_functions_across_languages"></a>5.9. Compose functions across languages</h3>
+<h3 id="_compose_functions_across_languages"><a class="anchor" href="#_compose_functions_across_languages"></a>5.12. Compose functions across languages</h3>
 <div class="paragraph">
 <p>In Morloc, you can import functions from many languages and compose them under
 a common type system. The syntax for importing functions from source files is as
@@ -1850,196 +2022,6 @@ it to C&#43;&#43;, its type will be substituted for <code>$1</code>. So if <code
 a <code>Real</code>, it will map to the C&#43;&#43; <code>double</code>, and then be substituted into the list
 type yielding <code>std::vector&lt;double&gt;</code>. This type will be used in the generated C&#43;&#43;
 code.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_modules"><a class="anchor" href="#_modules"></a>5.10. Modules</h3>
-<div class="paragraph">
-<p>A module includes all the code defined under the <code>import &lt;module_name&gt;</code>
-statement. It can be imported with the <code>import</code> command.</p>
-</div>
-<div class="paragraph">
-<p>The following module defines the constant <code>x</code> and exports it.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)</span>
-<span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-mi">42</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Another module can import <code>Foo</code>:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>import Foo (x)
-
-...</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>A term may be imported from multiple modules. For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">cppbase</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">pybase</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">rbase</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">)</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This module imports that C&#43;&#43;, Python, and R <code>add</code> functions and exports all
-of them. Modules that import <code>add</code> will import three different versions of the
-function. The compiler will choose which to use.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_user_arguments"><a class="anchor" href="#_user_arguments"></a>5.11. User arguments</h3>
-<div class="paragraph">
-<p>User data is passed to Morloc executables as positional arguments to the
-specified function subcommand. The argument may be a literal JSON string or a
-filename. For files, the format may be JSON, MessagePack, or Morloc binary
-format. The Morloc nexus first checks for a ".json" extension, if found, the
-nexus attempts to parse the file as JSON. Next the nexus checks for a ".mpk" or
-".msgpack" extension, and if found it attempts to parse the file as a
-MessagePack file. If neither extension is found, it attempts to parse the file
-first as Morloc binary, then as MessagePack, and finally as JSON. See the
-<code>parse_cli_data_argument</code> function in <code>morloc.h</code> for details.</p>
-</div>
-<div class="paragraph">
-<p>Passing literal JSON on the command line can be a little unintuitive since extra
-quoting may be required. Here are a few examples:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span><span class="tok-c1"># The Bash shell removes the outer quotes, so double quoting is required</span>
-morloc<span class="tok-w"> </span>foo<span class="tok-w"> </span><span class="tok-s1">&#39;&quot;this is a literal string&quot;&#39;</span>
-
-<span class="tok-c1"># Single quotes are lists is fine, still need to quote inner strings</span>
-morloc<span class="tok-w"> </span>bar<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;asdf&quot;, &quot;df&quot;]&#39;</span>
-
-<span class="tok-c1"># By default, output is written to JSON format</span>
-morloc<span class="tok-w"> </span>baz<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span><span class="tok-m">3</span><span class="tok-w"> </span>&gt;<span class="tok-w"> </span>baz.json
-
-<span class="tok-c1"># The output can be directly read by a downstream morloc program</span>
-morloc<span class="tok-w"> </span>bif<span class="tok-w"> </span>baz.json</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_records_and_tables"><a class="anchor" href="#_records_and_tables"></a>5.12. Records and tables</h3>
-<div class="paragraph">
-<p>Morloc has dedicated support for defining records and tables.</p>
-</div>
-<div class="paragraph">
-<p>Here is a record example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">incAge</span><span class="tok-p">)</span>
-
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-p">)</span>
-
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;incAge&quot;</span><span class="tok-p">)</span>
-
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">Person</span>
-<span class="tok-w">    </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Str</span>
-<span class="tok-w">    </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
-<span class="tok-w">    </span><span class="tok-p">}</span>
-
-<span class="tok-c1">-- Increment the person&#39;s age</span>
-<span class="tok-n">incAge</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Where the "foo.R" file contains the function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">incAge</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">person</span><span class="tok-p">){</span>
-<span class="tok-w">    </span><span class="tok-n">person</span><span class="tok-o">$</span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">person</span><span class="tok-o">$</span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-m">1</span>
-<span class="tok-w">    </span><span class="tok-n">person</span>
-<span class="tok-p">}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This may be compiles and run as so:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>foo.loc
-$<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>incAge<span class="tok-w"> </span><span class="tok-s1">&#39;{name:&quot;Alice&quot;,age:32}&#39;</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Tables are similar, but all fields are lists of equal length:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">readPeople</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">addPeople</span><span class="tok-p">)</span>
-
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-p">)</span>
-
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;people-tables.R&quot;</span>
-<span class="tok-w">   </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;read.delim&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">readPeople</span>
-<span class="tok-w">   </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;addPeople&quot;</span><span class="tok-p">)</span>
-
-<span class="tok-kr">table</span><span class="tok-w"> </span><span class="tok-n">People</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">People</span>
-<span class="tok-w">    </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Str</span>
-<span class="tok-w">    </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
-<span class="tok-w">    </span><span class="tok-p">}</span>
-
-<span class="tok-n">readPeople</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Filename</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">People</span>
-<span class="tok-n">addPeople</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">People</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">People</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>With "people-tables.R" containing:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">addPeople</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">names</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">ages</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">df</span><span class="tok-p">){</span>
-<span class="tok-w">    </span><span class="tok-nf">rbind</span><span class="tok-p">(</span><span class="tok-n">df</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nf">data.frame</span><span class="tok-p">(</span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">names</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">ages</span><span class="tok-p">))</span>
-<span class="tok-p">}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This can be compiled and run as so:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span><span class="tok-c1"># read a tab-delimited file containing person rows</span>
-./nexus<span class="tok-w"> </span>readPeople<span class="tok-w"> </span>data.tab<span class="tok-w"> </span>&gt;<span class="tok-w"> </span>people.json
-
-<span class="tok-c1"># add a row to the table</span>
-./nexus<span class="tok-w"> </span>addPeople<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;Eve&quot;]&#39;</span><span class="tok-w"> </span><span class="tok-s1">&#39;[99]&#39;</span><span class="tok-w"> </span>people.json</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The record and table types are currently excessively strict. Defining functions
-that add or remove fields/columns requires defining entirely new
-records/tables. Generic funtions for operations such as removing lists of
-columns cannot be defined at all. Future versions of Morloc will have more
-flexible tables, but for now most operations should be done in coarser
-functions. Alternatively, custom non-parameterized tabular/record types may be
-defined.</p>
-</div>
-<div class="paragraph">
-<p>The case study in the Morloc
-<a href="https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf">paper</a> uses a
-<code>JsonObj</code> type that represents an arbitrarily nested object that serializes
-to/from JSON. In Python, it deserializes to a <code>dict</code> object; in R, to a <code>list</code>
-objects; and in C to an <code>ordered_json</code> object from from
-(<a href="https://github.com/nlohmann)">Niels Lohmann&#8217;s json package</a>.</p>
-</div>
-<div class="paragraph">
-<p>A similar approach could be used to define a non-parameterized table type that
-serialized to CSV or some binary type (such as Parquet).</p>
-</div>
-<div class="paragraph">
-<p>These non-parameterized solutions are flexible and easy to use, but lack the
-reliability of the typed structures.</p>
 </div>
 </div>
 <div class="sect2">
@@ -2232,11 +2214,10 @@ languages, they are reduced to their pure data.</p>
 <h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>6.8. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
 <div class="paragraph">
 <p>While the Morlocks of Wellian fame are best known for their culinary
-preferences, I maintain that Wells misrepresented them. And even if they were as
-Wells claimed, we should remember that we are not so kind to our own
-Eloi. Setting all that aside, the Morlocks worked below to maintain the machines
-that simplified life above. It was for this quality that Morloc adapts their
-name.</p>
+preferences, I think Wells misrepresented them. And even if he didn&#8217;t, we don&#8217;t
+treat our own Eloi any better. Meat choices aside, the Morlocks worked below to
+maintain the machines that simplified life above. That&#8217;s why the Morloc language
+adapts their name.</p>
 </div>
 </div>
 <div class="sect2">
@@ -2269,7 +2250,7 @@ to contact me for any reason!</p>
 <p>BlueSky: <a href="https://bsky.app/profile/morloc-project.bsky.social" class="bare">https://bsky.app/profile/morloc-project.bsky.social</a></p>
 </li>
 <li>
-<p>email: <a href="mailto:zbwrnz@gmail.com">zbwrnz@gmail.com</a></p>
+<p>email: <a href="mailto:z@morloc.io">z@morloc.io</a></p>
 </li>
 </ul>
 </div>
