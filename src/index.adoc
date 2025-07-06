@@ -1,4 +1,4 @@
-= Morloc Technical Manual
+= Morloc Manual
 :author: Zebulun Arendsee
 :bibtex-file: references.bib
 :bibtex-order: appearance

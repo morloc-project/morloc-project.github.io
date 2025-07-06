@@ -7,7 +7,7 @@
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="Zebulun Arendsee">
 <link rel="icon" type="image/x-icon" href="./static/img/favicon.ico">
-<title>Morloc Technical Manual</title>
+<title>Morloc Manual</title>
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
 /* Uncomment the following line when using as a custom stylesheet */
@@ -551,7 +551,7 @@ pre.pygments .tok-il { color: #666 } /* Literal.Number.Integer.Long */
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>Morloc Technical Manual</h1>
+<h1>Morloc Manual</h1>
 <div class="details">
 <span id="author" class="author">Zebulun Arendsee</span><br>
 </div>
@@ -596,10 +596,15 @@ pre.pygments .tok-il { color: #666 } /* Literal.Number.Integer.Long */
 </li>
 <li><a href="#_qa">6. Q&amp;A</a>
 <ul class="sectlevel2">
-<li><a href="#_what_about_object_oriented_programming">6.1. What about object-oriented programming?</a></li>
+<li><a href="#_i_only_use_one_language_is_morloc_still_useful">6.1. I only use one language, is Morloc still useful?</a></li>
 <li><a href="#_is_this_just_a_bioinformatics_workflow_language">6.2. Is this just a bioinformatics workflow language?</a></li>
-<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">6.3. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
-<li><a href="#_wait_i_have_more_questions">6.4. Wait! I have more questions!</a></li>
+<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats">6.3. Do you really want to deprecate all the bioinformatics formats?</a></li>
+<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications">6.4. Do you really want to deprecate all the bioinformatics applications?</a></li>
+<li><a href="#_do_you_want_to_deprecate_the_conventional_workflow_languages">6.5. Do you want to deprecate the conventional workflow languages?</a></li>
+<li><a href="#_does_morloc_allow_function_specific_environments">6.6. Does Morloc allow function-specific environments?</a></li>
+<li><a href="#_what_about_object_oriented_programming">6.7. What about object-oriented programming?</a></li>
+<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">6.8. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
+<li><a href="#_wait_i_have_more_questions">6.9. Wait! I have more questions!</a></li>
 </ul>
 </li>
 <li><a href="#_contact">7. Contact</a></li>
@@ -1470,9 +1475,9 @@ implementations may be repeated across many instances. For example, the Python
 </div>
 <div class="paragraph">
 <p>Typeclasses work currently, but they are not yet in their final form. They
-cannot be directly imported and they are not represented directly in type
-functions. I would be happy to hear your thoughts on Morloc typeclasses. Getting
-them right is crucial to the grand structure of the future Morloc library.</p>
+cannot be directly imported and they are not explicit in type signatures. I
+would be happy to hear your thoughts on Morloc typeclasses. Getting them right
+is crucial to the grand structure of the future Morloc library.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1915,7 +1920,145 @@ inferred by usage.</p>
 <h2 id="_qa"><a class="anchor" href="#_qa"></a>6. Q&amp;A</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>6.1. What about object-oriented programming?</h3>
+<h3 id="_i_only_use_one_language_is_morloc_still_useful"><a class="anchor" href="#_i_only_use_one_language_is_morloc_still_useful"></a>6.1. I only use one language, is Morloc still useful?</h3>
+<div class="paragraph">
+<p>Yes, Morloc remains useful even if you only use one programming language.</p>
+</div>
+<div class="paragraph">
+<p>While Morloc is designed to allow polyglot development, its core benefits also
+apply to single-language projects. In the Morloc ecosystem, you may continue
+working in your preferred language, but focus shifts to writing libraries
+instead of standalone applications.</p>
+</div>
+<div class="paragraph">
+<p>Morloc lets you compose these functions and automatically generate applications
+from them, offering several advantages:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Broader usability</strong>: Your functions can be easily reused and easily accessed
+by other language communities.</p>
+</li>
+<li>
+<p><strong>Improved testing and benchmarking</strong>: Functions can be integrated into
+language-agnostic testing and benchmarking frameworks.</p>
+</li>
+<li>
+<p><strong>Future-proofing</strong>: If you ever need to migrate to a new language, Morloc’s
+type annotations and documentation carry over—only the implementation needs
+to change.</p>
+</li>
+<li>
+<p><strong>Better workflows</strong>: Especially in fields like bioinformatics, Morloc shifts
+workflows from chaining applications and files to composing typed functions
+and native data structures, making pipelines more robust and easier to
+validate.</p>
+</li>
+<li>
+<p><strong>No more format parsing</strong>: Morloc data structures replace bespoke file formats
+and offer efficient serialization.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Morloc’s goal isn’t to force polyglot programming, but to encourage modular,
+library-centric development. Most users will still work in their language of
+choice, but gain the ability to compose, share, and extend functionality more
+easily. Even if you never mix languages, Morloc provides a strong framework for
+building, composing, and maintaining robust software in your chosen language.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_is_this_just_a_bioinformatics_workflow_language"><a class="anchor" href="#_is_this_just_a_bioinformatics_workflow_language"></a>6.2. Is this just a bioinformatics workflow language?</h3>
+<div class="paragraph">
+<p>No. The Morloc paper
+<a href="https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf">pre-released here</a>,
+is focused on bioinformatics applications. As discussed at length in the paper,
+Morloc addresses systematic flaws in the traditional approaches to building
+bioinformatics workflows. Given the need, and also given my personal background,
+bioinformatics is a good place to start. However, Morloc can be more broadly
+applied to any functional problem.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"></a>6.3. Do you really want to deprecate all the bioinformatics formats?</h3>
+<div class="paragraph">
+<p>Yes, with the possible exception of a specialized binary formats which may offer
+performance benefits.</p>
+</div>
+<div class="paragraph">
+<p>For human-readable semi-structured formats, I think only two are necessary. A
+tabular format (e.g., CSV) and a tree format (e.g., JSON).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"></a>6.4. Do you really want to deprecate all the bioinformatics applications?</h3>
+<div class="paragraph">
+<p>Yes, with the exception of interactive graphical applications.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_do_you_want_to_deprecate_the_conventional_workflow_languages"><a class="anchor" href="#_do_you_want_to_deprecate_the_conventional_workflow_languages"></a>6.5. Do you want to deprecate the conventional workflow languages?</h3>
+<div class="paragraph">
+<p>Not entirely. They do offer good scaling support that Morloc cannot yet
+match. Some also support GUIs which offer an intuitive and valuable way to
+visualize and create workflows from coarse components.</p>
+</div>
+<div class="paragraph">
+<p>Hybrid solutions are possible. Conventional workflow languages can wrap Morloc
+compiled applications and pass Morloc generated data in place of bespoke
+bioinformatics formats.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_does_morloc_allow_function_specific_environments"><a class="anchor" href="#_does_morloc_allow_function_specific_environments"></a>6.6. Does Morloc allow function-specific environments?</h3>
+<div class="paragraph">
+<p>No, unlike workflow managers such as Snakemake and Nextflow, Morloc does not
+offer function-specific environments. This is a deliberate design choice.</p>
+</div>
+<div class="paragraph">
+<p>Dependency resolution is a hard and heavily researched problem. The general goal
+of dependency solvers is to find <strong>one</strong> set of dependencies that satisfies the
+<strong>entire</strong> program. The bioinformatics community often gives up on finding unified
+environments and instead runs each function in its independent environment. With
+every function running in its own container, all dependency issues are
+encapsulated and all functions may be executed from one manager. But this comes
+at a heavy cost. Each application must be wrapped in a script, the script must
+be executed via an expensive system call into the container, and data must be
+serialized and sent to the container. This approach is reasonable for workflows
+with a small number of heavy components. But from a programming language
+perspective, wrapping every function call in its own environment is inefficient
+and opaque.</p>
+</div>
+<div class="paragraph">
+<p>Morloc is designed not to hide problems in boxes, but rather to solve the root
+problem. Conventional workflow languages attempt to simplify workflows design by
+layering frameworks over the functions. The Morloc approach is the exact
+opposite. First delete everything unnecessary from all applications and lift
+their light algorithmic cores into clean, well-typed libraries. Then build
+upwards through composition of these pure functions --- and judicious use of
+impure ones --- to create efficient, reliable, and composable tools.</p>
+</div>
+<div class="paragraph">
+<p>Now, if you really do need to run something in a container, you can just make a
+function that wraps a call to a container and then use it just as you would any
+other function. You could even write a wrapper function that takes a record with
+all the metadata needed for a conda environment and execute its function within
+that environment. We can do this through libraries, so there is no need to
+hardcode this pattern into the Morloc language itself.</p>
+</div>
+<div class="paragraph">
+<p>The reproducibility of Morloc workflows may be ensured by running the entire
+Morloc program in an environment or container, with a single set of
+dependencies. The specific Morloc compiler version can be specified and modules
+may be imported using their git hashes. This is done in the current Morloc
+examples (see the Dockerfile in the workflow-comparisons folder of
+<a href="https://github.com/morloc-project/examples" class="bare">https://github.com/morloc-project/examples</a>).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>6.7. What about object-oriented programming?</h3>
 <div class="paragraph">
 <p>An "object" is a somewhat loaded term in the programming world. As far as
 Morloc is concerned, an object is a thing that contains data and possibly
@@ -1936,19 +2079,7 @@ languages, they are reduced to their pure data.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_is_this_just_a_bioinformatics_workflow_language"><a class="anchor" href="#_is_this_just_a_bioinformatics_workflow_language"></a>6.2. Is this just a bioinformatics workflow language?</h3>
-<div class="paragraph">
-<p>No. The Morloc paper <a href="https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf">pre-released
-here</a>, is focused
-on bioinformatics applications. As discussed at length in the paper, Morloc
-addresses systematic flaws in the traditional approaches to building
-bioinformatics workflows. Given the need, and also given my personal background,
-it is a good place to start. However, Morloc can be more broadly applied to
-any functional problem.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>6.3. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
+<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>6.8. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
 <div class="paragraph">
 <p>While the Morlocks of Wellian fame are best known for their culinary
 preferences, I maintain that Wells misrepresented them. And even if they were as
@@ -1959,7 +2090,7 @@ name.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>6.4. Wait! I have more questions!</h3>
+<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>6.9. Wait! I have more questions!</h3>
 <div class="paragraph">
 <p>Great! Look me up on Discord (link below) and we can chat.</p>
 </div>
