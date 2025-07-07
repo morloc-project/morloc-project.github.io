@@ -7,6 +7,7 @@ To compile this documentation run `make build` to create (or pull) the required
 image. Then call `make` to build the site. `make shell` will put you in a shell
 where you can play with dependencies and whatever.
 
+
 ```
 pygmentize -S default -f html -a .pygments > pygments-light.css
 pygmentize -S github-dark -f html -a .pygments > pygments-dark.css
