@@ -1019,7 +1019,7 @@ ad hoc textual formats.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code><span></span>$ morloc make main.loc
-$ ./nexus rollAdj
+$ ./nexus rollAdv
 &quot;You rolled a 20&quot;</code></pre>
 </div>
 </div>
@@ -1042,7 +1042,7 @@ being sourced from different languages:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rollAdj</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">dnd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rollAdv</span><span class="tok-p">)</span>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span>
 
@@ -1054,7 +1054,7 @@ being sourced from different languages:</p>
 <span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
 <span class="tok-n">narrate</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Str</span>
 
-<span class="tok-n">rollAdj</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">narrate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">))</span></code></pre>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">narrate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1163,6 +1163,27 @@ is implemented in C&#43;&#43;:</p>
 <p>The inner summation jobs will be run in parallel. The <code>pmap</code> function has the
 same signature as the non-parallel <code>map</code> function, so can serve as a drop-in
 replacement.</p>
+</div>
+<div class="paragraph">
+<p>This can be compiled and run with the lists being provided in JSON format:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
+$<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>sumOfSums<span class="tok-w"> </span><span class="tok-s1">&#39;[[1,2],[3,4,5]]&#39;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>types</code> module contains definitions such as below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;std::vector&lt;$1&gt;&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;list&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;double&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;float&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
+</div>
 </div>
 </div>
 </div>
