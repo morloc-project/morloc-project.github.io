@@ -1014,19 +1014,12 @@ integers, lists, and strings&#8201;&#8212;&#8201;they are not Morloc-specific se
 ad hoc textual formats.</p>
 </div>
 <div class="paragraph">
-<p>We can compile this program as so:</p>
+<p>We can compile and run this program as so:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>morloc make main.loc</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>And run it:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code><span></span>$ ./nexus rollAdj
+<pre class="pygments highlight"><code><span></span>$ morloc make main.loc
+$ ./nexus rollAdj
 &quot;You rolled a 20&quot;</code></pre>
 </div>
 </div>
@@ -1055,7 +1048,7 @@ being sourced from different languages:</p>
 
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;roll&quot;</span><span class="tok-p">)</span>
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;max&quot;</span><span class="tok-p">)</span>
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;narrate&quot;</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;narrate&quot;</span><span class="tok-p">)</span>
 
 <span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span>
 <span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
