@@ -30,4 +30,4 @@ cp syntax/css/*.css docs/docs/static/css
 # Lazy load images
 sed -i -e 's/<img/<img loading="lazy"/g' "${script_dir}/docs/docs/index.html"
 
-echo "Asciidoctor Jet site build complete!"
+echo "Morloc Manual site build complete!"
