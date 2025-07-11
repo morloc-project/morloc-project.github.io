@@ -533,6 +533,44 @@ pre.pygments .tok-il { color: #666 } /* Literal.Number.Integer.Long */
 
 <script defer src="static/js/script.js"></script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  document.querySelectorAll('pre > code').forEach(function(codeBlock) {
+    var isConsole = codeBlock.getAttribute('data-lang') === 'console';
+
+    var button = document.createElement('button');
+    button.className = 'copy-button';
+    button.type = 'button';
+    button.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+        class="copy-icon">
+        <path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path>
+      </svg>
+    `;
+
+    button.addEventListener('click', function() {
+      let text = codeBlock.innerText;
+      if (isConsole) {
+        text = text.split('\n').map(line => line.replace(/^\$\s/, '')).join('\n');
+      }
+      navigator.clipboard.writeText(text).then(function() {
+        button.classList.add('copied');
+        setTimeout(function() { button.classList.remove('copied'); }, 300);
+      });
+    });
+
+    var pre = codeBlock.parentNode.parentNode;
+    pre.style.position = 'relative';
+    button.style.position = 'absolute';
+    button.style.top = '0.5em';
+    button.style.right = '0.5em';
+    pre.appendChild(button);
+  });
+});
+</script>
+
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
@@ -547,7 +585,6 @@ pre.pygments .tok-il { color: #666 } /* Literal.Number.Integer.Long */
 <link rel="apple-touch-icon" href="static/img/icon-192.png" />
 
 <link rel="manifest" href="manifest.webmanifest" />
-
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
@@ -572,11 +609,12 @@ pre.pygments .tok-il { color: #666 } /* Literal.Number.Integer.Long */
 <li><a href="#_getting_started">4. Getting Started</a>
 <ul class="sectlevel2">
 <li><a href="#_install_the_compiler">4.1. Install the compiler</a></li>
-<li><a href="#_setting_up_ides">4.2. Setting up IDEs</a></li>
-<li><a href="#_say_hello">4.3. Say hello</a></li>
-<li><a href="#_dice_rolling">4.4. Dice rolling</a></li>
-<li><a href="#_polyglot_dice_rolling">4.5. Polyglot dice rolling</a></li>
-<li><a href="#_parallelism_example">4.6. Parallelism example</a></li>
+<li><a href="#_installing_from_source">4.2. Installing from source</a></li>
+<li><a href="#_setting_up_ides">4.3. Setting up IDEs</a></li>
+<li><a href="#_say_hello">4.4. Say hello</a></li>
+<li><a href="#_dice_rolling">4.5. Dice rolling</a></li>
+<li><a href="#_polyglot_dice_rolling">4.6. Polyglot dice rolling</a></li>
+<li><a href="#_parallelism_example">4.7. Parallelism example</a></li>
 </ul>
 </li>
 <li><a href="#_syntax_and_features">5. Syntax and Features</a>
@@ -771,6 +809,18 @@ so you can strongly influence how the system evolves.</p>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_install_the_compiler"><a class="anchor" href="#_install_the_compiler"></a>4.1. Install the compiler</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="./static/img/admonition_icons/warning.png" alt="Warning">
+</td>
+<td class="content">
+Not well tested
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>The easiest way to start using Morloc is through containers. I recommend using
 podman, since it doesn&#8217;t require a daemon or sudo access. But Docker,
@@ -782,7 +832,7 @@ from the GitHub container registry as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>podman<span class="tok-w"> </span>pull<span class="tok-w"> </span>ghcr.io/morloc-project/morloc/morloc-full:0.53.7</code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>pull<span class="tok-w"> </span>ghcr.io/morloc-project/morloc/morloc-full:0.53.7</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -793,7 +843,7 @@ from the GitHub container registry as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>podman<span class="tok-w"> </span>run<span class="tok-w"> </span>--shm-size<span class="tok-o">=</span>4g<span class="tok-w"> </span><span class="tok-se">\</span>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>run<span class="tok-w"> </span>--shm-size<span class="tok-o">=</span>4g<span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">             </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>:<span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">             </span>-w<span class="tok-w"> </span><span class="tok-nv">$PWD</span><span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">             </span>-e<span class="tok-w"> </span><span class="tok-nv">HOME</span><span class="tok-o">=</span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
@@ -833,11 +883,11 @@ run commands in a morloc-compatible environment.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>--version<span class="tok-w">             </span><span class="tok-c1"># get the current morloc version</span>
-$<span class="tok-w"> </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>-h<span class="tok-w">                    </span><span class="tok-c1"># list morloc commands</span>
-$<span class="tok-w"> </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>init<span class="tok-w"> </span>-f<span class="tok-w">               </span><span class="tok-c1"># setup the morloc environment</span>
-$<span class="tok-w"> </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>install<span class="tok-w"> </span>types<span class="tok-w">         </span><span class="tok-c1"># install a morloc module</span>
-$<span class="tok-w"> </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>foo<span class="tok-w"> </span>foo.loc<span class="tok-w">   </span><span class="tok-c1"># compile a local morloc module</span></code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>--version<span class="tok-w">             </span><span class="tok-c1"># get the current morloc version</span>
+<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>-h<span class="tok-w">                    </span><span class="tok-c1"># list morloc commands</span>
+<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>init<span class="tok-w"> </span>-f<span class="tok-w">               </span><span class="tok-c1"># setup the morloc environment</span>
+<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>install<span class="tok-w"> </span>types<span class="tok-w">         </span><span class="tok-c1"># install a morloc module</span>
+<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>foo<span class="tok-w"> </span>foo.loc<span class="tok-w">   </span><span class="tok-c1"># compile a local morloc module</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -848,7 +898,7 @@ it in the container environment as well:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>menv<span class="tok-w"> </span>./foo<span class="tok-w"> </span>bar<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span><span class="tok-m">3</span></code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>./foo<span class="tok-w"> </span>bar<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span><span class="tok-m">3</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -863,7 +913,100 @@ you find something better and or if you find bugs in this approach.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_setting_up_ides"><a class="anchor" href="#_setting_up_ides"></a>4.2. Setting up IDEs</h3>
+<h3 id="_installing_from_source"><a class="anchor" href="#_installing_from_source"></a>4.2. Installing from source</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="./static/img/admonition_icons/warning.png" alt="Warning">
+</td>
+<td class="content">
+Not well tested
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If you want to compile Morloc from source, but don&#8217;t want to install a Haskell
+environment, the following instructions may be helpful.</p>
+</div>
+<div class="paragraph">
+<p>First clone the Morloc repo:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>git<span class="tok-w"> </span>clone<span class="tok-w"> </span>https://github.com/morloc-project/morloc
+<span class="tok-gp">$ </span><span class="tok-nb">cd</span><span class="tok-w"> </span>morloc</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, you need a container to build Morloc. Create the following script in your
+PATH and name it <code>mtest</code> (or whatever you like):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="bash"><span></span>podman<span class="tok-w"> </span>run<span class="tok-w"> </span>--shm-size<span class="tok-o">=</span>4g<span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">           </span>--rm<span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">           </span>-e<span class="tok-w"> </span><span class="tok-nv">HOME</span><span class="tok-o">=</span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">           </span>-e<span class="tok-w"> </span><span class="tok-nv">PATH</span><span class="tok-o">=</span><span class="tok-s2">&quot;</span><span class="tok-nv">$HOME</span><span class="tok-s2">/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&quot;</span><span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>/.morloc:<span class="tok-nv">$HOME</span>/.morloc<span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>/.local/bin:<span class="tok-nv">$HOME</span>/.local/bin<span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$PWD</span>:<span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">           </span>-w<span class="tok-w"> </span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">           </span>ghcr.io/morloc-project/morloc/morloc-test:latest<span class="tok-w"> </span><span class="tok-s2">&quot;</span><span class="tok-nv">$@</span><span class="tok-s2">&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Swap out <code>podman</code> for whichever Docker-compatible container engine you prefer.</p>
+</div>
+<div class="paragraph">
+<p>This script will allow the image to alter your MORLOC_HOME directory and to
+install the Morloc executable locally (to <code>~/.local/bin</code>).</p>
+</div>
+<div class="paragraph">
+<p>With this container, you can build the Morloc executable:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>stack<span class="tok-w"> </span>install</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will build the morloc executable. The <code>stack</code> utility will install a
+Haskell compiler (ghc) in a local sandbox along with all required Haskell
+modules. This will take awhile the first time you run it.</p>
+</div>
+<div class="paragraph">
+<p>On success, <code>morloc</code> will not be installed. You can test the build like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>morloc<span class="tok-w"> </span>-h</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You may run the Morloc test suite from here as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>stack<span class="tok-w"> </span><span class="tok-nb">test</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And you can build Morloc programs:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>foo.loc
+<span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>foo<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span><span class="tok-m">3</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As before, you need to run the generated executable in your environment as well.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_setting_up_ides"><a class="anchor" href="#_setting_up_ides"></a>4.3. Setting up IDEs</h3>
 <div class="paragraph">
 <p>Editor support for Morloc is still a work in progress.</p>
 </div>
@@ -873,10 +1016,10 @@ follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>mkdir -p ~/.vim/syntax/
-mkdir -p ~/.vim/ftdetect/
-curl -o ~/.vim/syntax/loc.vim https://raw.githubusercontent.com/morloc-project/vimmorloc/main/loc.vim
-echo &#39;au BufRead,BufNewFile *.loc set filetype=loc&#39; &gt; ~/.vim/ftdetect/loc.vim</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mkdir<span class="tok-w"> </span>-p<span class="tok-w"> </span>~/.vim/syntax/
+<span class="tok-gp">$ </span>mkdir<span class="tok-w"> </span>-p<span class="tok-w"> </span>~/.vim/ftdetect/
+<span class="tok-gp">$ </span>curl<span class="tok-w"> </span>-o<span class="tok-w"> </span>~/.vim/syntax/loc.vim<span class="tok-w"> </span>https://raw.githubusercontent.com/morloc-project/vimmorloc/main/loc.vim
+<span class="tok-gp">$ </span><span class="tok-nb">echo</span><span class="tok-w"> </span><span class="tok-s1">&#39;au BufRead,BufNewFile *.loc set filetype=loc&#39;</span><span class="tok-w"> </span>&gt;<span class="tok-w"> </span>~/.vim/ftdetect/loc.vim</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -889,7 +1032,7 @@ into your VS code extensions folder:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>git<span class="tok-w"> </span>clone<span class="tok-w"> </span>https://github.com/morloc-project/vscode<span class="tok-w"> </span>~/.vscode-oss/extensions/morloc</code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>git<span class="tok-w"> </span>clone<span class="tok-w"> </span>https://github.com/morloc-project/vscode<span class="tok-w"> </span>~/.vscode-oss/extensions/morloc</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -899,7 +1042,7 @@ official VS Code package manager soon.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>4.3. Say hello</h3>
+<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>4.4. Say hello</h3>
 <div class="paragraph">
 <p>The inevitable "Hello World" case is implemented in Morloc like so:</p>
 </div>
@@ -920,7 +1063,7 @@ term is a subcommand.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>morloc make hello.loc</code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>hello.loc</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -934,10 +1077,10 @@ message:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>$ ./nexus -h
-The following commands are exported:
-  hello
-    return: Str</code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-h
+<span class="tok-go">The following commands are exported:</span>
+<span class="tok-go">  hello</span>
+<span class="tok-go">    return: Str</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -951,13 +1094,13 @@ input types are listed.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>$ ./nexus hello
-Hello up there</code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>hello
+<span class="tok-go">Hello up there</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dice_rolling"><a class="anchor" href="#_dice_rolling"></a>4.4. Dice rolling</h3>
+<h3 id="_dice_rolling"><a class="anchor" href="#_dice_rolling"></a>4.5. Dice rolling</h3>
 <div class="paragraph">
 <p>Let&#8217;s write a little program rolls a pair of 20-sided dice and prints the larger
 result. Here is the Morloc script:</p>
@@ -986,10 +1129,6 @@ takes two integers as arguments and returns a list of integers. The square
 brackets indicate lists. In the final line, we define the <code>rollAdv</code> function.</p>
 </div>
 <div class="paragraph">
-<p>Note that arguments passed to functions are separated by whitespace, so the
-mathematical function <code>f(x, y)</code> would be represented as <code>f x y</code>.</p>
-</div>
-<div class="paragraph">
 <p>The Python functions are sourced from the Python file "foo.py" with the
 following code:</p>
 </div>
@@ -1006,21 +1145,23 @@ following code:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Note that nothing about this code is particular to Morloc. One of Morloc&#8217;s core
-values is that foreign source code <em>never</em> needs to know anything about the
-Morloc ecosystem. Sourced code should always be nearly idiomatic code that uses
-normal data types. The inputs and outputs of these functions are natural Python
-integers, lists, and strings&#8201;&#8212;&#8201;they are not Morloc-specific serialized data or
-ad hoc textual formats.</p>
+<p>Nothing about this code is particular to Morloc.</p>
+</div>
+<div class="paragraph">
+<p>One of Morloc&#8217;s core values is that foreign source code <em>never</em> needs to know
+anything about the Morloc ecosystem. Sourced code should always be nearly
+idiomatic code that uses normal data types. The inputs and outputs of these
+functions are natural Python integers, lists, and strings&#8201;&#8212;&#8201;they are not
+Morloc-specific serialized data or ad hoc textual formats.</p>
 </div>
 <div class="paragraph">
 <p>We can compile and run this program as so:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span>$ morloc make main.loc
-$ ./nexus rollAdv
-&quot;You rolled a 20&quot;</code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>rollAdv
+<span class="tok-go">&quot;You rolled a 20&quot;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1035,7 +1176,7 @@ Morloc is uniquely valuable is in the polyglot setting.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_polyglot_dice_rolling"><a class="anchor" href="#_polyglot_dice_rolling"></a>4.5. Polyglot dice rolling</h3>
+<h3 id="_polyglot_dice_rolling"><a class="anchor" href="#_polyglot_dice_rolling"></a>4.6. Polyglot dice rolling</h3>
 <div class="paragraph">
 <p>In this next example, we rewrite the prior dice example with all three functions
 being sourced from different languages:</p>
@@ -1106,7 +1247,7 @@ between the languages. Exactly how this is done will be discussed later.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_parallelism_example"><a class="anchor" href="#_parallelism_example"></a>4.6. Parallelism example</h3>
+<h3 id="_parallelism_example"><a class="anchor" href="#_parallelism_example"></a>4.7. Parallelism example</h3>
 <div class="paragraph">
 <p>Here is an example showing a parallel map function written in Python that calls C&#43;&#43; functions.</p>
 </div>
@@ -1169,8 +1310,8 @@ replacement.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
-$<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>sumOfSums<span class="tok-w"> </span><span class="tok-s1">&#39;[[1,2],[3,4,5]]&#39;</span></code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>sumOfSums<span class="tok-w"> </span><span class="tok-s1">&#39;[[1,2],[3,4,5]]&#39;</span></code></pre>
 </div>
 </div>
 </div>
@@ -1219,9 +1360,9 @@ $<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>sumOfSums<span c
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="haskell"><span></span><span class="tok-nf">source</span><span class="tok-w"> </span><span class="tok-kt">Cpp</span><span class="tok-w"> </span><span class="tok-n">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.h&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;mlc_foo&quot;</span><span class="tok-w"> </span><span class="tok-n">as</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.h&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;mlc_foo&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-p">)</span>
 
-<span class="tok-nf">foo</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-kt">A</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-kt">B</span></code></pre>
+<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">A</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">B</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1405,8 +1546,8 @@ into the native type. So the Morloc type <code>List Int32</code> would translate
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>foo.loc
-$<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>incAge<span class="tok-w"> </span><span class="tok-s1">&#39;{name:&quot;Alice&quot;,age:32}&#39;</span></code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>foo.loc
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>incAge<span class="tok-w"> </span><span class="tok-s1">&#39;{name:&quot;Alice&quot;,age:32}&#39;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1468,7 +1609,7 @@ defined.</p>
 <code>JsonObj</code> type that represents an arbitrarily nested object that serializes
 to/from JSON. In Python, it deserializes to a <code>dict</code> object; in R, to a <code>list</code>
 objects; and in C to an <code>ordered_json</code> object from from
-(<a href="https://github.com/nlohmann)">Niels Lohmann&#8217;s json package</a>.</p>
+(<a href="https://github.com/nlohmann)">Niels Lohmann&#8217;s json package</a>).</p>
 </div>
 <div class="paragraph">
 <p>A similar approach could be used to define a non-parameterized table type that

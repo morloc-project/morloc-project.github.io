@@ -1,5 +1,5 @@
 body.dark pre.pygments .hll { background-color: #ebdbb2 }
-body.dark pre.pygments { background: #282828; color: #DDD }
+body.dark pre.pygments { background: #282828; color: #DDD; padding-top: 2em }
 body.dark pre.pygments .tok-c { color: #928374; font-style: italic } /* Comment */
 body.dark pre.pygments .tok-err { color: #282828; background-color: #FB4934 } /* Error */
 body.dark pre.pygments .tok-esc { color: #DDD } /* Escape */
@@ -24,7 +24,12 @@ body.dark pre.pygments .tok-gr { color: #FB4934 } /* Generic.Error */
 body.dark pre.pygments .tok-gh { color: #EBDBB2; font-weight: bold } /* Generic.Heading */
 body.dark pre.pygments .tok-gi { color: #282828; background-color: #B8BB26 } /* Generic.Inserted */
 body.dark pre.pygments .tok-go { color: #F2E5BC } /* Generic.Output */
-body.dark pre.pygments .tok-gp { color: #A89984 } /* Generic.Prompt */
+body.dark pre.pygments .tok-gp {
+  color: #A89984;        /* Generic.Prompt */
+  user-select: none;     /* Make prompt unselectable */
+  -webkit-user-select: none; /* For Safari */
+  -ms-user-select: none;     /* For IE/Edge */
+}
 body.dark pre.pygments .tok-gs { color: #DDD; font-weight: bold } /* Generic.Strong */
 body.dark pre.pygments .tok-gu { color: #EBDBB2; text-decoration: underline } /* Generic.Subheading */
 body.dark pre.pygments .tok-gt { color: #FB4934 } /* Generic.Traceback */

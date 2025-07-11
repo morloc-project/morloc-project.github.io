@@ -1,5 +1,5 @@
 pre.pygments .hll { background-color: #3c3836 }
-pre.pygments { background: #fbf1c7; }
+pre.pygments { background: #fbf1c7; padding-top: 2em !important}
 pre.pygments .tok-c { color: #928374; font-style: italic } /* Comment */
 pre.pygments .tok-err { color: #FBF1C7; background-color: #9D0006 } /* Error */
 pre.pygments .tok-k { color: #9D0006 } /* Keyword */
@@ -16,7 +16,12 @@ pre.pygments .tok-gr { color: #9D0006 } /* Generic.Error */
 pre.pygments .tok-gh { color: #3C3836; font-weight: bold } /* Generic.Heading */
 pre.pygments .tok-gi { color: #FBF1C7; background-color: #79740E } /* Generic.Inserted */
 pre.pygments .tok-go { color: #32302F } /* Generic.Output */
-pre.pygments .tok-gp { color: #7C6F64 } /* Generic.Prompt */
+pre.pygments .tok-gp {
+  color: #7C6F64;        /* Generic.Prompt */
+  user-select: none;     /* Make prompt unselectable */
+  -webkit-user-select: none; /* For Safari */
+  -ms-user-select: none;     /* For IE/Edge */
+}
 pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
 pre.pygments .tok-gu { color: #3C3836; text-decoration: underline } /* Generic.Subheading */
 pre.pygments .tok-gt { color: #9D0006 } /* Generic.Traceback */
