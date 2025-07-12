@@ -619,19 +619,20 @@ document.addEventListener("DOMContentLoaded", function() {
 </li>
 <li><a href="#_syntax_and_features">5. Syntax and Features</a>
 <ul class="sectlevel2">
-<li><a href="#_functions">5.1. Functions</a></li>
-<li><a href="#_sourcing_functions">5.2. Sourcing functions</a></li>
-<li><a href="#_modules">5.3. Modules</a></li>
-<li><a href="#_user_arguments">5.4. User arguments</a></li>
-<li><a href="#_mapping_general_types_to_native_types">5.5. Mapping general types to native types</a></li>
-<li><a href="#_records_and_tables">5.6. Records and tables</a></li>
-<li><a href="#_type_hierarchies">5.7. Type hierarchies</a></li>
-<li><a href="#_one_term_may_have_many_definitions">5.8. One term may have many definitions</a></li>
-<li><a href="#_overload_terms_with_typeclasses">5.9. Overload terms with typeclasses</a></li>
-<li><a href="#_binary_forms">5.10. Binary forms</a></li>
-<li><a href="#_passing_types_between_languages">5.11. Passing types between languages</a></li>
-<li><a href="#_compose_functions_across_languages">5.12. Compose functions across languages</a></li>
-<li><a href="#_the_universal_library">5.13. The universal library</a></li>
+<li><a href="#_sourcing_functions_from_foreign_languages">5.1. Sourcing functions from foreign languages</a></li>
+<li><a href="#_functions">5.2. Functions</a></li>
+<li><a href="#_recursion">5.3. Recursion</a></li>
+<li><a href="#_modules">5.4. Modules</a></li>
+<li><a href="#_user_arguments">5.5. User arguments</a></li>
+<li><a href="#_mapping_general_types_to_native_types">5.6. Mapping general types to native types</a></li>
+<li><a href="#_records_and_tables">5.7. Records and tables</a></li>
+<li><a href="#_type_hierarchies">5.8. Type hierarchies</a></li>
+<li><a href="#_one_term_may_have_many_definitions">5.9. One term may have many definitions</a></li>
+<li><a href="#_overload_terms_with_typeclasses">5.10. Overload terms with typeclasses</a></li>
+<li><a href="#_binary_forms">5.11. Binary forms</a></li>
+<li><a href="#_passing_types_between_languages">5.12. Passing types between languages</a></li>
+<li><a href="#_compose_functions_across_languages">5.13. Compose functions across languages</a></li>
+<li><a href="#_the_universal_library">5.14. The universal library</a></li>
 </ul>
 </li>
 <li><a href="#_qa">6. Q&amp;A</a>
@@ -1321,9 +1322,46 @@ replacement.</p>
 <h2 id="_syntax_and_features"><a class="anchor" href="#_syntax_and_features"></a>5. Syntax and Features</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_functions"><a class="anchor" href="#_functions"></a>5.1. Functions</h3>
+<h3 id="_sourcing_functions_from_foreign_languages"><a class="anchor" href="#_sourcing_functions_from_foreign_languages"></a>5.1. Sourcing functions from foreign languages</h3>
 <div class="paragraph">
-<p>Function definition follows Haskell syntax.</p>
+<p>Sourcing a function from a foreign language is done as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.h&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;mlc_foo&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-p">)</span>
+
+<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">A</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">B</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here we import a function named <code>mlc_foo</code> in the C&#43;&#43; source
+file <code>foo.h</code> and we give it the Morloc name <code>foo</code>. The function name in the
+foreign language may not be legal in Morloc, so quotations are
+required.</p>
+</div>
+<div class="paragraph">
+<p>All sourced functions require a type signature that describes their <em>general
+type</em>. This is required for type checking and downstream code generation.</p>
+</div>
+<div class="paragraph">
+<p>Currently Morloc treats language-specific functions as black boxes. The compiler
+does not parse the C&#43;&#43; code to insure the type the programmer wrote is
+correct. Checking a Morloc general type for a function against the source code
+may be possible with conventional static analysis. LLMs are also effective at
+both inferring Morloc types from source code and checking types against source
+code.</p>
+</div>
+<div class="paragraph">
+<p>For statically typed languages like C&#43;&#43;, incorrectly typed functions should be
+caught by the foreign language compiler. Also, when data is passed between
+languages, loaded into Morloc, or written, it is checked against the expected
+type schemas at runtime.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_functions"><a class="anchor" href="#_functions"></a>5.2. Functions</h3>
+<div class="paragraph">
+<p>Functions are defined with arguments seperated by whitespace:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1354,36 +1392,40 @@ replacement.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_sourcing_functions"><a class="anchor" href="#_sourcing_functions"></a>5.2. Sourcing functions</h3>
+<h3 id="_recursion"><a class="anchor" href="#_recursion"></a>5.3. Recursion</h3>
 <div class="paragraph">
-<p>Sourcing a function from a foreign language is done as follows:</p>
+<p>Recursion is <strong>not</strong> directly supported in Morloc. It may be in the future, but
+the implementation is complicated by inconsistent support for recursion in
+different languages. For example, Python has a recursion limit that can cause
+runtime crashes. Instead, recursive algorithms should be written as control
+fucntions in foreign languages.</p>
+</div>
+<div class="paragraph">
+<p>For example, the Morloc <code>bio</code> module contains many generic tree traversal
+algorithms. One is the <code>foldTree</code> function:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.h&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;mlc_foo&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-p">)</span>
-
-<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">A</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">B</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foldTree</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">  </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">RootedTree</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-n">l</span>
+<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Here we state that we are importing the function <code>mlc_foo</code> from the C&#43;&#43; source
-file <code>foo.h</code> and calling it <code>foo</code>. We then give it a general type signature.</p>
-</div>
-<div class="paragraph">
-<p>Currently Morloc treats language-specific functions as black boxes. The
-compiler does not parse the C&#43;&#43; code to insure the type the programmer wrote
-is correct. Checking a Morloc general type for a function against the source
-code may often be possible with conventional static analysis. LLMs are also
-quite effective at both inferring Morloc types from source code and checking
-types against source code.</p>
-</div>
-<div class="paragraph">
-<p>For statically typed languages like C&#43;&#43;, incorrectly typed functions will
-usually be caught by the foreign language compiler.</p>
+<p>Here the <code>RootedTree</code> type represents a phylogenetic tree with generic node
+(<code>n</code>), edge (<code>e</code>), and leaf (<code>l</code>) types. The <code>foldTree</code> function accepts two
+functions as arguments. The first <code>(l &#8594; a &#8594; a)</code>, reduces leaf values to the
+accumulator value. The second, reduces branch given the parent node, edge and
+current accumulator value. The strategy for implementing this function is
+decided in the foreign source code. The current C&#43;&#43; implementation is
+recursive, but iterative alternatives are possible.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modules"><a class="anchor" href="#_modules"></a>5.3. Modules</h3>
+<h3 id="_modules"><a class="anchor" href="#_modules"></a>5.4. Modules</h3>
 <div class="paragraph">
 <p>A module includes all the code defined under the <code>import &lt;module_name&gt;</code>
 statement. It can be imported with the <code>import</code> command.</p>
@@ -1425,7 +1467,7 @@ function. The compiler will choose which to use.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_user_arguments"><a class="anchor" href="#_user_arguments"></a>5.4. User arguments</h3>
+<h3 id="_user_arguments"><a class="anchor" href="#_user_arguments"></a>5.5. User arguments</h3>
 <div class="paragraph">
 <p>User data is passed to Morloc executables as positional arguments to the
 specified function subcommand. The argument may be a literal JSON string or a
@@ -1458,7 +1500,7 @@ morloc<span class="tok-w"> </span>bif<span class="tok-w"> </span>baz.json</code>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_mapping_general_types_to_native_types"><a class="anchor" href="#_mapping_general_types_to_native_types"></a>5.5. Mapping general types to native types</h3>
+<h3 id="_mapping_general_types_to_native_types"><a class="anchor" href="#_mapping_general_types_to_native_types"></a>5.6. Mapping general types to native types</h3>
 <div class="paragraph">
 <p>When a function is sourced from a foreign language, Morloc needs to know how
 Morloc general types map to the function&#8217;s native types. This information is
@@ -1506,7 +1548,7 @@ into the native type. So the Morloc type <code>List Int32</code> would translate
 </div>
 </div>
 <div class="sect2">
-<h3 id="_records_and_tables"><a class="anchor" href="#_records_and_tables"></a>5.6. Records and tables</h3>
+<h3 id="_records_and_tables"><a class="anchor" href="#_records_and_tables"></a>5.7. Records and tables</h3>
 <div class="paragraph">
 <p>Morloc has dedicated support for defining records and tables.</p>
 </div>
@@ -1621,7 +1663,7 @@ reliability of the typed structures.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.7. Type hierarchies</h3>
+<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.8. Type hierarchies</h3>
 <div class="paragraph">
 <p>In some cases, there is a single obvious native type for a given Morloc general
 type. For example, most languages have exactly only one reasonable way to
@@ -1669,7 +1711,7 @@ to implement specialized behavior for more efficient conversion to binary.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.8. One term may have many definitions</h3>
+<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.9. One term may have many definitions</h3>
 <div class="paragraph">
 <p>Morloc supports what might be called <em>term polymorphism</em>. Each
 term may have many definitions. For example, the function <code>mean</code> has three
@@ -1728,7 +1770,7 @@ needed in making these definitions.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.9. Overload terms with typeclasses</h3>
+<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.10. Overload terms with typeclasses</h3>
 <div class="paragraph">
 <p>In addition to term polymorphism, Morloc offers more traditional ad hoc
 polymorphism over types. Here typeclasses may be defined and type-specific
@@ -1798,7 +1840,7 @@ is crucial to the grand structure of the future Morloc library.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.10. Binary forms</h3>
+<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.11. Binary forms</h3>
 <div class="paragraph">
 <p>Every Morloc general type maps unambiguously to a binary form that consists of
 several fixed-width literal types, a list container, and a tuple container. The
@@ -1983,7 +2025,7 @@ Morloc type schema.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_passing_types_between_languages"><a class="anchor" href="#_passing_types_between_languages"></a>5.11. Passing types between languages</h3>
+<h3 id="_passing_types_between_languages"><a class="anchor" href="#_passing_types_between_languages"></a>5.12. Passing types between languages</h3>
 <div class="paragraph">
 <p>Types that are composed entirely of Morloc primitives, lists, tuples, records
 and tables may be directly and unambiguously translated to Morloc binary forms
@@ -2045,7 +2087,7 @@ a string, all R implementations will be pruned.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_compose_functions_across_languages"><a class="anchor" href="#_compose_functions_across_languages"></a>5.12. Compose functions across languages</h3>
+<h3 id="_compose_functions_across_languages"><a class="anchor" href="#_compose_functions_across_languages"></a>5.13. Compose functions across languages</h3>
 <div class="paragraph">
 <p>In Morloc, you can import functions from many languages and compose them under
 a common type system. The syntax for importing functions from source files is as
@@ -2168,7 +2210,7 @@ code.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_the_universal_library"><a class="anchor" href="#_the_universal_library"></a>5.13. The universal library</h3>
+<h3 id="_the_universal_library"><a class="anchor" href="#_the_universal_library"></a>5.14. The universal library</h3>
 <div class="paragraph">
 <p>A module may export types, typeclasses, and function signatures but no
 implementations. Such a module would be completely language agnostic. A powerful
