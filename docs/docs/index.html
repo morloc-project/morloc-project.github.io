@@ -635,20 +635,25 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_the_universal_library">5.14. The universal library</a></li>
 </ul>
 </li>
-<li><a href="#_qa">6. Q&amp;A</a>
+<li><a href="#_internals">6. Internals</a>
 <ul class="sectlevel2">
-<li><a href="#_i_only_use_one_language_is_morloc_still_useful">6.1. I only use one language, is Morloc still useful?</a></li>
-<li><a href="#_is_this_just_a_bioinformatics_workflow_language">6.2. Is this just a bioinformatics workflow language?</a></li>
-<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats">6.3. Do you really want to deprecate all the bioinformatics formats?</a></li>
-<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications">6.4. Do you really want to deprecate all the bioinformatics applications?</a></li>
-<li><a href="#_do_you_want_to_deprecate_the_conventional_workflow_languages">6.5. Do you want to deprecate the conventional workflow languages?</a></li>
-<li><a href="#_does_morloc_allow_function_specific_environments">6.6. Does Morloc allow function-specific environments?</a></li>
-<li><a href="#_what_about_object_oriented_programming">6.7. What about object-oriented programming?</a></li>
-<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">6.8. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
-<li><a href="#_wait_i_have_more_questions">6.9. Wait! I have more questions!</a></li>
+<li><a href="#_packet_protocols">6.1. Packet protocols</a></li>
 </ul>
 </li>
-<li><a href="#_contact">7. Contact</a></li>
+<li><a href="#_qa">7. Q&amp;A</a>
+<ul class="sectlevel2">
+<li><a href="#_i_only_use_one_language_is_morloc_still_useful">7.1. I only use one language, is Morloc still useful?</a></li>
+<li><a href="#_is_this_just_a_bioinformatics_workflow_language">7.2. Is this just a bioinformatics workflow language?</a></li>
+<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats">7.3. Do you really want to deprecate all the bioinformatics formats?</a></li>
+<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications">7.4. Do you really want to deprecate all the bioinformatics applications?</a></li>
+<li><a href="#_do_you_want_to_deprecate_the_conventional_workflow_languages">7.5. Do you want to deprecate the conventional workflow languages?</a></li>
+<li><a href="#_does_morloc_allow_function_specific_environments">7.6. Does Morloc allow function-specific environments?</a></li>
+<li><a href="#_what_about_object_oriented_programming">7.7. What about object-oriented programming?</a></li>
+<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">7.8. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
+<li><a href="#_wait_i_have_more_questions">7.9. Wait! I have more questions!</a></li>
+</ul>
+</li>
+<li><a href="#_contact">8. Contact</a></li>
 </ul>
 </div>
 </div>
@@ -1851,6 +1856,7 @@ unboxed vector. The tuple is represented as a set of values in contiguous
 memory. These basic types are listed below:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Morloc primitives</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 16.6666%;">
@@ -2234,10 +2240,334 @@ inferred by usage.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_qa"><a class="anchor" href="#_qa"></a>6. Q&amp;A</h2>
+<h2 id="_internals"><a class="anchor" href="#_internals"></a>6. Internals</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_i_only_use_one_language_is_morloc_still_useful"><a class="anchor" href="#_i_only_use_one_language_is_morloc_still_useful"></a>6.1. I only use one language, is Morloc still useful?</h3>
+<h3 id="_packet_protocols"><a class="anchor" href="#_packet_protocols"></a>6.1. Packet protocols</h3>
+<div class="paragraph">
+<p>A Morloc program compiles into a single "nexus" file and a "pool" file for each
+language. The nexus program accepts user input, dispatches to the pools, and
+formats results. The pools "pool" all functions from each specific
+language. When a command is sent to the nexus, it initializes the pools as
+background processes, pool daemons. Then the nexus sends the given information
+to the pool daemon that contains the top function in the composition.</p>
+</div>
+<div class="paragraph">
+<p>Data is passed between the nexus and between daemons using a combination of UNIX
+domain socket messages and shared memory storage.</p>
+</div>
+<div class="paragraph">
+<p>Packets follow a binary protocol that is defined in the <code>data/morloc.h</code> file in
+the main Morloc repository.</p>
+</div>
+<div class="paragraph">
+<p>Each packet has a 32-byte with the following fields:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Packet header specification</caption>
+<colgroup>
+<col style="width: 13.3333%;">
+<col style="width: 13.3333%;">
+<col style="width: 6.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Width</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>magic</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unsigned int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Morloc-specific constant: 6D F8 07 07 (mo-ding-ding)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>plain</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unsigned int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Morloc "plain" (see below for description)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unsigned int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Packet version</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>flavor</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unsigned int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metadata convention</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unsigned int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Evaluation mode (e.g., debug or verbose)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>command</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-byte union</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Packet description</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>offset</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unsigned int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">length of metadata block</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>length</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unsigned int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">length of the data payload</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The Morloc plain specifies membership in a special set of Morloc libraries that
+follows a certain set of conventions of requirements. This is broader than a
+namespace. An example of a plain would be a "Safe" plain where all functions are
+verified in some fashion. In this case, it may be required that any packets that
+are read into a program should also have been created by a member of the Safe
+plain. Handling for plains is not yet implemented.</p>
+</div>
+<div class="paragraph">
+<p>The <code>command</code> specifies the type of packet. There are currently three: <code>data</code>,
+<code>call</code>, and <code>ping</code>.</p>
+</div>
+<div class="paragraph">
+<p>A data packet represents data and how it is stored. These packets have three
+main uses. First, they are used to store arguments that are passed between the
+nexus and pool daemons. Second, they are transport data within the pools that
+has not been transformed into native structures. This allows data to be
+efficiently transferred between languages without being "naturalized" unless
+needed. Third, data packets may be written by the nexus as the output of a
+program.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. Data packet command field specification</caption>
+<colgroup>
+<col style="width: 13.3333%;">
+<col style="width: 13.3333%;">
+<col style="width: 6.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Width</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constant 0 - for "data" type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Source type (e.g., file, message, pointer to shared memory)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>format</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data format (e.g., JSON, MessagePack, Text, Voidstar)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compresssion</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Compression algorithm</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>encryption</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Encryption algorithm</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pass or fail status</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>padding</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char[2]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">zero-padding</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The <code>source</code> field states "where" the data is. It might be stored literally in
+the packet itself. It might be stored in a file, in which case the packet stores
+only the filename. It might be stored in the shared memory volumes, in which
+case the packet stores a relative pointer to the memory location. The <code>format</code>
+field stores the data type. It might be JSON data, MessagePack data, literal
+text (e.g., for error messages), or the Morloc binary (which I sometimes call
+Voidstar). The <code>compression</code> and <code>encryption</code> fields are not currently used. But
+in the future they will be needed to support packet-specific
+compression/encryption of payloads. The <code>status</code> field represents whether the
+producing computation failed. If so, then the packet may contain an error
+message.</p>
+</div>
+<div class="paragraph">
+<p>A call packet is sent from the nexus to a pool daemon or between daemons (for
+foreign calls). These packets specify the function to call and contain a
+contiguous list of data packets representing positional arguments as their
+payload.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. Call packet command field specification</caption>
+<colgroup>
+<col style="width: 13.3333%;">
+<col style="width: 13.3333%;">
+<col style="width: 6.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Width</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constant 1 - for "call" type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>entrypoint</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stores if the call is local or remote (or something else)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>padding</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char[2]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">zero-padding</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>midx</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unsigned int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ID for the function to call in the pool daemon</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The <code>entrypoint</code> field is currently used when a call packet is sent to a remote
+machine for execution.</p>
+</div>
+<div class="paragraph">
+<p>A ping packet is a header-only packet that is sent to check if some resource
+(such as a pool daemon) is up and running. The nexus will ping all pool daemons
+until it gets a response before sending them call instructions.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. Ping packet command field specification</caption>
+<colgroup>
+<col style="width: 13.3333%;">
+<col style="width: 13.3333%;">
+<col style="width: 6.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Width</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constant 2 - for "ping" type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>padding</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char[7]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">7</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 padding</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Metadata is stored in blocks that start with an 8-byte metadata header.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 6. Metadata block specification</caption>
+<colgroup>
+<col style="width: 13.3333%;">
+<col style="width: 13.3333%;">
+<col style="width: 6.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Width</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>magic</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char[3]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constant "mmh" string (Morloc Metadata Header)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">char</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metadata type (e.g., schema string or data hash)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">uint</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data format (e.g., JSON, MessagePack, Text, Voidstar)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Currently Morloc uses the metadata section to store data type schemas and to
+cache data hashes. In the future, these sections could be extended to store
+provenance data, benchmark data, environment info, runtime dags, or even raw
+inputs and code. The nexus can write data packets as a final output.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_qa"><a class="anchor" href="#_qa"></a>7. Q&amp;A</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_i_only_use_one_language_is_morloc_still_useful"><a class="anchor" href="#_i_only_use_one_language_is_morloc_still_useful"></a>7.1. I only use one language, is Morloc still useful?</h3>
 <div class="paragraph">
 <p>Yes, Morloc remains useful even if you only use one programming language.</p>
 </div>
@@ -2287,7 +2617,7 @@ building, composing, and maintaining robust software in your chosen language.</p
 </div>
 </div>
 <div class="sect2">
-<h3 id="_is_this_just_a_bioinformatics_workflow_language"><a class="anchor" href="#_is_this_just_a_bioinformatics_workflow_language"></a>6.2. Is this just a bioinformatics workflow language?</h3>
+<h3 id="_is_this_just_a_bioinformatics_workflow_language"><a class="anchor" href="#_is_this_just_a_bioinformatics_workflow_language"></a>7.2. Is this just a bioinformatics workflow language?</h3>
 <div class="paragraph">
 <p>No. The Morloc paper
 <a href="https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf">pre-released here</a>,
@@ -2299,7 +2629,7 @@ applied to any functional problem.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"></a>6.3. Do you really want to deprecate all the bioinformatics formats?</h3>
+<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"></a>7.3. Do you really want to deprecate all the bioinformatics formats?</h3>
 <div class="paragraph">
 <p>Yes, with the possible exception of a specialized binary formats which may offer
 performance benefits.</p>
@@ -2310,13 +2640,13 @@ tabular format (e.g., CSV) and a tree format (e.g., JSON).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"></a>6.4. Do you really want to deprecate all the bioinformatics applications?</h3>
+<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"></a>7.4. Do you really want to deprecate all the bioinformatics applications?</h3>
 <div class="paragraph">
 <p>Yes, with the exception of interactive graphical applications.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_do_you_want_to_deprecate_the_conventional_workflow_languages"><a class="anchor" href="#_do_you_want_to_deprecate_the_conventional_workflow_languages"></a>6.5. Do you want to deprecate the conventional workflow languages?</h3>
+<h3 id="_do_you_want_to_deprecate_the_conventional_workflow_languages"><a class="anchor" href="#_do_you_want_to_deprecate_the_conventional_workflow_languages"></a>7.5. Do you want to deprecate the conventional workflow languages?</h3>
 <div class="paragraph">
 <p>Not entirely. They do offer good scaling support that Morloc cannot yet
 match. Some also support GUIs which offer an intuitive and valuable way to
@@ -2329,7 +2659,7 @@ bioinformatics formats.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_does_morloc_allow_function_specific_environments"><a class="anchor" href="#_does_morloc_allow_function_specific_environments"></a>6.6. Does Morloc allow function-specific environments?</h3>
+<h3 id="_does_morloc_allow_function_specific_environments"><a class="anchor" href="#_does_morloc_allow_function_specific_environments"></a>7.6. Does Morloc allow function-specific environments?</h3>
 <div class="paragraph">
 <p>No, unlike workflow managers such as Snakemake and Nextflow, Morloc does not
 offer function-specific environments. This is a deliberate design choice.</p>
@@ -2375,7 +2705,7 @@ examples (see the Dockerfile in the workflow-comparisons folder of
 </div>
 </div>
 <div class="sect2">
-<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>6.7. What about object-oriented programming?</h3>
+<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>7.7. What about object-oriented programming?</h3>
 <div class="paragraph">
 <p>An "object" is a somewhat loaded term in the programming world. As far as
 Morloc is concerned, an object is a thing that contains data and possibly
@@ -2396,7 +2726,7 @@ languages, they are reduced to their pure data.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>6.8. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
+<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>7.8. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
 <div class="paragraph">
 <p>While the Morlocks of Wellian fame are best known for their culinary
 preferences, I think Wells misrepresented them. And even if he didn&#8217;t, we don&#8217;t
@@ -2406,7 +2736,7 @@ adapts their name.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>6.9. Wait! I have more questions!</h3>
+<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>7.9. Wait! I have more questions!</h3>
 <div class="paragraph">
 <p>Great! Look me up on Discord (link below) and we can chat.</p>
 </div>
@@ -2414,7 +2744,7 @@ adapts their name.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_contact"><a class="anchor" href="#_contact"></a>7. Contact</h2>
+<h2 id="_contact"><a class="anchor" href="#_contact"></a>8. Contact</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This is a young project and any brave early users are highly valued. Feel free
