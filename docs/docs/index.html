@@ -866,11 +866,13 @@ changes you make in the container (including the installation of Morloc
 modules) will be persistent across sessions.</p>
 </div>
 <div class="paragraph">
-<p>Alternatively, you can set up a script to run commands in a Morloc environment:</p>
+<p>You can set up a script to run commands in a Morloc environment. To do this,
+paste the following code into a file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>podman<span class="tok-w"> </span>run<span class="tok-w"> </span>--rm<span class="tok-w"> </span><span class="tok-se">\</span>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>mkdir<span class="tok-w"> </span>-p<span class="tok-w"> </span>~/.morloc
+podman<span class="tok-w"> </span>run<span class="tok-w"> </span>--rm<span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">           </span>--shm-size<span class="tok-o">=</span>4g<span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">           </span>-e<span class="tok-w"> </span><span class="tok-nv">HOME</span><span class="tok-o">=</span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>/.morloc:<span class="tok-nv">$HOME</span>/.morloc<span class="tok-w"> </span><span class="tok-se">\</span>
@@ -880,21 +882,52 @@ modules) will be persistent across sessions.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Name this script <code>menv</code>, for "morloc environment", make it executable (<code>chmod
-755 menv</code>), and place it in a bin folder on your PATH. The script will mount
-your current working directory and your Morloc home directory, allowing you to
-run commands in a morloc-compatible environment.</p>
+<p>Make it executable (<code>chmod 755 menv</code>) and place it in a bin folder on your PATH
+(e.g., <code>~/bin</code>). The script will mount your current working directory and your
+Morloc home directory, allowing you to run commands in a morloc-compatible
+environment.</p>
 </div>
 <div class="paragraph">
-<p>With this script, can run commands like so:</p>
+<p>With the <code>menv</code> script, can run commands like so:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>--version<span class="tok-w">             </span><span class="tok-c1"># get the current morloc version</span>
-<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>-h<span class="tok-w">                    </span><span class="tok-c1"># list morloc commands</span>
-<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>init<span class="tok-w"> </span>-f<span class="tok-w">               </span><span class="tok-c1"># setup the morloc environment</span>
-<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>install<span class="tok-w"> </span>types<span class="tok-w">         </span><span class="tok-c1"># install a morloc module</span>
-<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>foo<span class="tok-w"> </span>foo.loc<span class="tok-w">   </span><span class="tok-c1"># compile a local morloc module</span></code></pre>
+<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>-h<span class="tok-w">                    </span><span class="tok-c1"># list morloc commands</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This should print the Morloc version and usage info.</p>
+</div>
+<div class="paragraph">
+<p>Next you need to initialize the Morloc home directory:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>init<span class="tok-w"> </span>-f<span class="tok-w">               </span><span class="tok-c1"># setup the morloc environment</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will write required headers to your environment and build the required
+libraries.</p>
+</div>
+<div class="paragraph">
+<p>You can install Morloc modules as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>install<span class="tok-w"> </span>types<span class="tok-w">         </span><span class="tok-c1"># install a morloc module</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These modules will be retrieved from GitHub and written into Morloc home.</p>
+</div>
+<div class="paragraph">
+<p>You can compile Morloc programs within this container as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>foo<span class="tok-w"> </span>foo.loc<span class="tok-w">   </span><span class="tok-c1"># compile a local morloc module</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
