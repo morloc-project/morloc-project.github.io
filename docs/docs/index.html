@@ -619,20 +619,19 @@ document.addEventListener("DOMContentLoaded", function() {
 </li>
 <li><a href="#_syntax_and_features">5. Syntax and Features</a>
 <ul class="sectlevel2">
-<li><a href="#_sourcing_functions_from_foreign_languages">5.1. Sourcing functions from foreign languages</a></li>
+<li><a href="#_source_function_from_foreign_languages">5.1. Source function from foreign languages</a></li>
 <li><a href="#_functions">5.2. Functions</a></li>
-<li><a href="#_recursion">5.3. Recursion</a></li>
-<li><a href="#_modules">5.4. Modules</a></li>
-<li><a href="#_user_arguments">5.5. User arguments</a></li>
+<li><a href="#_modules">5.3. Modules</a></li>
+<li><a href="#_docstrings_and_toolboxes">5.4. Docstrings and toolboxes</a></li>
+<li><a href="#_user_arguments_and_outputs">5.5. User arguments and outputs</a></li>
 <li><a href="#_mapping_general_types_to_native_types">5.6. Mapping general types to native types</a></li>
 <li><a href="#_records_and_tables">5.7. Records and tables</a></li>
 <li><a href="#_type_hierarchies">5.8. Type hierarchies</a></li>
 <li><a href="#_one_term_may_have_many_definitions">5.9. One term may have many definitions</a></li>
 <li><a href="#_overload_terms_with_typeclasses">5.10. Overload terms with typeclasses</a></li>
 <li><a href="#_binary_forms">5.11. Binary forms</a></li>
-<li><a href="#_passing_types_between_languages">5.12. Passing types between languages</a></li>
-<li><a href="#_compose_functions_across_languages">5.13. Compose functions across languages</a></li>
-<li><a href="#_the_universal_library">5.14. The universal library</a></li>
+<li><a href="#_defining_non_primitive_types">5.12. Defining non-primitive types</a></li>
+<li><a href="#_the_universal_library">5.13. The universal library</a></li>
 </ul>
 </li>
 <li><a href="#_internals">6. Internals</a>
@@ -648,10 +647,11 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications">7.4. Do you really want to deprecate all the bioinformatics applications?</a></li>
 <li><a href="#_do_you_want_to_deprecate_the_conventional_workflow_languages">7.5. Do you want to deprecate the conventional workflow languages?</a></li>
 <li><a href="#_does_morloc_allow_function_specific_environments">7.6. Does Morloc allow function-specific environments?</a></li>
-<li><a href="#_what_about_object_oriented_programming">7.7. What about object-oriented programming?</a></li>
-<li><a href="#_is_morloc_still_relevant_when_ai_can_program_and_translate">7.8. Is Morloc still relevant when AI can program and translate?</a></li>
-<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">7.9. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
-<li><a href="#_wait_i_have_more_questions">7.10. Wait! I have more questions!</a></li>
+<li><a href="#_what_about_recursion">7.7. What about recursion?</a></li>
+<li><a href="#_what_about_object_oriented_programming">7.8. What about object-oriented programming?</a></li>
+<li><a href="#_is_morloc_still_relevant_when_ai_can_program_and_translate">7.9. Is Morloc still relevant when AI can program and translate?</a></li>
+<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">7.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
+<li><a href="#_wait_i_have_more_questions">7.11. Wait! I have more questions!</a></li>
 </ul>
 </li>
 <li><a href="#_contact">8. Contact</a></li>
@@ -839,11 +839,11 @@ from the GitHub container registry as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>pull<span class="tok-w"> </span>ghcr.io/morloc-project/morloc/morloc-full:0.53.7</code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>pull<span class="tok-w"> </span>ghcr.io/morloc-project/morloc/morloc-full:0.54.0</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>v0.53.7</code> may be replaced with the desired Morloc version.</p>
+<p>The <code>v0.54.0</code> may be replaced with the desired Morloc version.</p>
 </div>
 <div class="paragraph">
 <p>Now you can enter a shell with a full working installation of Morloc:</p>
@@ -854,7 +854,7 @@ from the GitHub container registry as follows:</p>
 <span class="tok-w">             </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>:<span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">             </span>-w<span class="tok-w"> </span><span class="tok-nv">$PWD</span><span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">             </span>-e<span class="tok-w"> </span><span class="tok-nv">HOME</span><span class="tok-o">=</span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">             </span>-it<span class="tok-w"> </span>ghcr.io/morloc-project/morloc/morloc-full:0.53.7<span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">             </span>-it<span class="tok-w"> </span>ghcr.io/morloc-project/morloc/morloc-full:0.54.0<span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">             </span>/bin/bash</code></pre>
 </div>
 </div>
@@ -876,7 +876,7 @@ modules) will be persistent across sessions.</p>
 <span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>/.morloc:<span class="tok-nv">$HOME</span>/.morloc<span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$PWD</span>:<span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">           </span>-w<span class="tok-w"> </span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>ghcr.io/morloc-project/morloc/morloc-full:0.53.7<span class="tok-w"> </span><span class="tok-s2">&quot;</span><span class="tok-nv">$@</span><span class="tok-s2">&quot;</span></code></pre>
+<span class="tok-w">           </span>ghcr.io/morloc-project/morloc/morloc-full:0.54.0<span class="tok-w"> </span><span class="tok-s2">&quot;</span><span class="tok-nv">$@</span><span class="tok-s2">&quot;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1335,40 +1335,126 @@ replacement.</p>
 <h2 id="_syntax_and_features"><a class="anchor" href="#_syntax_and_features"></a>5. Syntax and Features</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_sourcing_functions_from_foreign_languages"><a class="anchor" href="#_sourcing_functions_from_foreign_languages"></a>5.1. Sourcing functions from foreign languages</h3>
+<h3 id="_source_function_from_foreign_languages"><a class="anchor" href="#_source_function_from_foreign_languages"></a>5.1. Source function from foreign languages</h3>
 <div class="paragraph">
-<p>Sourcing a function from a foreign language is done as follows:</p>
+<p>In Morloc, you can import functions from many languages and compose them under
+a common type system. The syntax for importing functions from source files is as
+follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.h&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;mlc_foo&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;map&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;sum&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;snd&quot;</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;map&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;sum&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;snd&quot;</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This brings the functions <code>map</code>, <code>sum</code>, and <code>snd</code> into scope in the Morloc
+script. Each of these functions must be defined in the C&#43;&#43; and Python
+scripts. For Python, since <code>map</code> and <code>sum</code> are builtins, only <code>snd</code> needs to be
+defined. So the <code>foo.py</code> function only requires the following two lines:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">snd</span><span class="tok-p">(</span><span class="tok-n">pair</span><span class="tok-p">):</span>
+    <span class="tok-k">return</span> <span class="tok-n">pair</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The C&#43;&#43; file, <code>foo.hpp</code>, may be implemented as a simple header file with generic
+implementations of the three required functions.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="c++"><span></span><span class="tok-cp">#pragma once</span>
+<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;vector&gt;</span>
+<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;tuple&gt;</span>
 
-<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">A</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">B</span></code></pre>
+<span class="tok-c1">// map :: (a -&gt; b) -&gt; [a] -&gt; [b]</span>
+<span class="tok-k">template</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">A</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">B</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">F</span><span class="tok-o">&gt;</span>
+<span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-n">B</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">map</span><span class="tok-p">(</span><span class="tok-n">F</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-n">A</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-n">B</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-n">result</span><span class="tok-p">.</span><span class="tok-n">reserve</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">.</span><span class="tok-n">size</span><span class="tok-p">());</span>
+<span class="tok-w">    </span><span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-k">auto</span><span class="tok-o">&amp;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">result</span><span class="tok-p">.</span><span class="tok-n">push_back</span><span class="tok-p">(</span><span class="tok-n">f</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">));</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">;</span>
+<span class="tok-p">}</span>
+
+<span class="tok-c1">// snd :: (a, b) -&gt; b</span>
+<span class="tok-k">template</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">A</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">B</span><span class="tok-o">&gt;</span>
+<span class="tok-n">B</span><span class="tok-w"> </span><span class="tok-n">snd</span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">tuple</span><span class="tok-o">&lt;</span><span class="tok-n">A</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">B</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">get</span><span class="tok-o">&lt;</span><span class="tok-mi">1</span><span class="tok-o">&gt;</span><span class="tok-p">(</span><span class="tok-n">p</span><span class="tok-p">);</span>
+<span class="tok-p">}</span>
+
+<span class="tok-c1">// sum :: [a] -&gt; a</span>
+<span class="tok-k">template</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">A</span><span class="tok-o">&gt;</span>
+<span class="tok-n">A</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-n">A</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-n">A</span><span class="tok-w"> </span><span class="tok-n">total</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">A</span><span class="tok-p">{</span><span class="tok-mi">0</span><span class="tok-p">};</span>
+<span class="tok-w">    </span><span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-k">auto</span><span class="tok-o">&amp;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-n">total</span><span class="tok-w"> </span><span class="tok-o">+=</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">total</span><span class="tok-p">;</span>
+<span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Here we import a function named <code>mlc_foo</code> in the C&#43;&#43; source
-file <code>foo.h</code> and we give it the Morloc name <code>foo</code>. The function name in the
-foreign language may not be legal in Morloc, so quotations are
-required.</p>
+<p>Note that these implementations are completely independent of Morloc&#8201;&#8212;&#8201;they
+have no special constraints, they operate on perfectly normal native data
+structures, and their usage is not limited to the Morloc ecosystem. The
+Morloc compiler is responsible for mapping data between the languages. But to
+do this, Morloc needs a little information about the function types. This is
+provided by the general type signatures, like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">b</span><span class="tok-p">]</span>
+<span class="tok-n">snd</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span>
+<span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span></code></pre>
+</div>
 </div>
 <div class="paragraph">
-<p>All sourced functions require a type signature that describes their <em>general
-type</em>. This is required for type checking and downstream code generation.</p>
+<p>The syntax for these type signatures is inspired by Haskell, with the exception
+that generic terms (<code>a</code> and <code>b</code> here) must be declared on the left. Square
+brackets represent homogenous lists and parenthesized, comma-separated values
+represent tuples, and arrows represent functions. In the <code>map</code> type, <code>(a &#8594; b)</code>
+is a function from generic value <code>a</code> to generic value <code>b</code>;  <code>[a]</code> is the input
+list of initial values; <code>[b]</code> is the output list of transformed values.</p>
 </div>
 <div class="paragraph">
-<p>Currently Morloc treats language-specific functions as black boxes. The compiler
-does not parse the C&#43;&#43; code to insure the type the programmer wrote is
-correct. Checking a Morloc general type for a function against the source code
-may be possible with conventional static analysis. LLMs are also effective at
-both inferring Morloc types from source code and checking types against source
+<p>Removing the syntactic sugar for lists and tuples, the signatures may be written
+as:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">b</span>
+<span class="tok-n">snd</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Tuple2</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span>
+<span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These signatures provide the <em>general types</em> of the functions. But one general
+type may map to multiple <em>native</em>, language-specific types. So we need to
+provide an explicit mapping from general to native types.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;std::vector&lt;$1&gt;&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Tuple2</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;std::tuple&lt;$1,$2&gt;&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;double&quot;</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;list&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Tuple2</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;tuple&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;float&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These type functions guide the synthesis of native types from general
+types. Take the C&#43;&#43; mapping for <code>List a</code> as an example. The basic C&#43;&#43; list type
+is <code>vector</code> from the standard template library. After the Morloc typechecker
+has solved for the type of the generic parameter <code>a</code>, and recursively converted
+it to C&#43;&#43;, its type will be substituted for <code>$1</code>. So if <code>a</code> is inferred to be
+a <code>Real</code>, it will map to the C&#43;&#43; <code>double</code>, and then be substituted into the list
+type yielding <code>std::vector&lt;double&gt;</code>. This type will be used in the generated C&#43;&#43;
 code.</p>
-</div>
-<div class="paragraph">
-<p>For statically typed languages like C&#43;&#43;, incorrectly typed functions should be
-caught by the foreign language compiler. Also, when data is passed between
-languages, loaded into Morloc, or written, it is checked against the expected
-type schemas at runtime.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1405,40 +1491,7 @@ type schemas at runtime.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_recursion"><a class="anchor" href="#_recursion"></a>5.3. Recursion</h3>
-<div class="paragraph">
-<p>Recursion is <strong>not</strong> directly supported in Morloc. It may be in the future, but
-the implementation is complicated by inconsistent support for recursion in
-different languages. For example, Python has a recursion limit that can cause
-runtime crashes. Instead, recursive algorithms should be written as control
-fucntions in foreign languages.</p>
-</div>
-<div class="paragraph">
-<p>For example, the Morloc <code>bio</code> module contains many generic tree traversal
-algorithms. One is the <code>foldTree</code> function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foldTree</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-n">a</span>
-<span class="tok-w">  </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span>
-<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span>
-<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
-<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">RootedTree</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-n">l</span>
-<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Here the <code>RootedTree</code> type represents a phylogenetic tree with generic node
-(<code>n</code>), edge (<code>e</code>), and leaf (<code>l</code>) types. The <code>foldTree</code> function accepts two
-functions as arguments. The first <code>(l &#8594; a &#8594; a)</code>, reduces leaf values to the
-accumulator value. The second, reduces branch given the parent node, edge and
-current accumulator value. The strategy for implementing this function is
-decided in the foreign source code. The current C&#43;&#43; implementation is
-recursive, but iterative alternatives are possible.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_modules"><a class="anchor" href="#_modules"></a>5.4. Modules</h3>
+<h3 id="_modules"><a class="anchor" href="#_modules"></a>5.3. Modules</h3>
 <div class="paragraph">
 <p>A module includes all the code defined under the <code>import &lt;module_name&gt;</code>
 statement. It can be imported with the <code>import</code> command.</p>
@@ -1480,11 +1533,62 @@ function. The compiler will choose which to use.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_user_arguments"><a class="anchor" href="#_user_arguments"></a>5.5. User arguments</h3>
+<h3 id="_docstrings_and_toolboxes"><a class="anchor" href="#_docstrings_and_toolboxes"></a>5.4. Docstrings and toolboxes</h3>
+<div class="paragraph">
+<p>Morloc has early support for docstrings in comments that propagate to the
+generated CLI code.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;main.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;add&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;sum&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">--&#39; Add two floats</span>
+<span class="tok-n">add</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span>
+
+<span class="tok-c1">--&#39; Sum a list of floats</span>
+<span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The special comment <code>--'</code> introduces a docstring that is attached to the
+following type signature and will be propagated through to the code generated by
+the backend.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
+<span class="tok-gp">$ </span>./neuxs<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: ./nexus [OPTION]... COMMAND [ARG]...</span>
+
+<span class="tok-go">Nexus Options:</span>
+<span class="tok-go"> -h, --help            Print this help message</span>
+<span class="tok-go"> -o, --output-file     Print to this file instead of STDOUT</span>
+<span class="tok-go"> -f, --output-format   Output format [json|mpk|voidstar]</span>
+
+<span class="tok-go">Exported Commands:</span>
+<span class="tok-go">  add   Add two floats</span>
+<span class="tok-go">          param 1: Real</span>
+<span class="tok-go">          param 2: Real</span>
+<span class="tok-go">          return: Real</span>
+<span class="tok-go">  sum   Sum a list of floats</span>
+<span class="tok-go">          param 1: [Real]</span>
+<span class="tok-go">          return: Real</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_user_arguments_and_outputs"><a class="anchor" href="#_user_arguments_and_outputs"></a>5.5. User arguments and outputs</h3>
 <div class="paragraph">
 <p>User data is passed to Morloc executables as positional arguments to the
 specified function subcommand. The argument may be a literal JSON string or a
-filename. For files, the format may be JSON, MessagePack, or Morloc binary
+filename. For files, the format may be JSON, MessagePack, or Morloc binary (VoidStar)
 format. The Morloc nexus first checks for a ".json" extension, if found, the
 nexus attempts to parse the file as JSON. Next the nexus checks for a ".mpk" or
 ".msgpack" extension, and if found it attempts to parse the file as a
@@ -1499,17 +1603,33 @@ quoting may be required. Here are a few examples:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="bash"><span></span><span class="tok-c1"># The Bash shell removes the outer quotes, so double quoting is required</span>
-morloc<span class="tok-w"> </span>foo<span class="tok-w"> </span><span class="tok-s1">&#39;&quot;this is a literal string&quot;&#39;</span>
+$<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>foo<span class="tok-w"> </span><span class="tok-s1">&#39;&quot;this is a literal string&quot;&#39;</span>
 
 <span class="tok-c1"># Single quotes are lists is fine, still need to quote inner strings</span>
-morloc<span class="tok-w"> </span>bar<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;asdf&quot;, &quot;df&quot;]&#39;</span>
+$<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>bar<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;asdf&quot;, &quot;df&quot;]&#39;</span>
 
 <span class="tok-c1"># By default, output is written to JSON format</span>
-morloc<span class="tok-w"> </span>baz<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span><span class="tok-m">3</span><span class="tok-w"> </span>&gt;<span class="tok-w"> </span>baz.json
+$<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>baz<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span><span class="tok-m">3</span><span class="tok-w"> </span>&gt;<span class="tok-w"> </span>baz.json
 
 <span class="tok-c1"># The output can be directly read by a downstream morloc program</span>
-morloc<span class="tok-w"> </span>bif<span class="tok-w"> </span>baz.json</code></pre>
+$<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>bif<span class="tok-w"> </span>baz.json</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Data may be written to MessagePack or VoidStar via the <code>-f</code> argument:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>voidstar<span class="tok-w"> </span>head<span class="tok-w"> </span><span class="tok-s1">&#39;[[&quot;some&quot;,&quot;random&quot;],[&quot;data&quot;]]&#39;</span><span class="tok-w"> </span>&gt;<span class="tok-w"> </span>data.vs
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>json<span class="tok-w"> </span>head<span class="tok-w"> </span>data.vs<span class="tok-w"> </span>&gt;<span class="tok-w"> </span>data.json
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>mpk<span class="tok-w"> </span>reverse<span class="tok-w"> </span>data.json<span class="tok-w"> </span>&gt;<span class="tok-w"> </span>data.mpk
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>reverse<span class="tok-w"> </span>data.mpk
+<span class="tok-go">&quot;some&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The VoidStar format is the richest and is the only form that contains the schema
+describing the data.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1543,7 +1663,7 @@ illegal in the Morloc language.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>This can be automatically mapped to a C&#43;&#43; function with the prototype <code>uint32 addi(uint32 x)</code>.</p>
+<p>This can be automatically mapped to a C&#43;&#43; function with the prototype <code>int addi(int x, int y)</code>.</p>
 </div>
 <div class="paragraph">
 <p>Containers can be similarly mapped to native types:</p>
@@ -2039,7 +2159,7 @@ Morloc type schema.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_passing_types_between_languages"><a class="anchor" href="#_passing_types_between_languages"></a>5.12. Passing types between languages</h3>
+<h3 id="_defining_non_primitive_types"><a class="anchor" href="#_defining_non_primitive_types"></a>5.12. Defining non-primitive types</h3>
 <div class="paragraph">
 <p>Types that are composed entirely of Morloc primitives, lists, tuples, records
 and tables may be directly and unambiguously translated to Morloc binary forms
@@ -2101,130 +2221,7 @@ a string, all R implementations will be pruned.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_compose_functions_across_languages"><a class="anchor" href="#_compose_functions_across_languages"></a>5.13. Compose functions across languages</h3>
-<div class="paragraph">
-<p>In Morloc, you can import functions from many languages and compose them under
-a common type system. The syntax for importing functions from source files is as
-follows:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;map&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;sum&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;snd&quot;</span><span class="tok-p">)</span>
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;map&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;sum&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;snd&quot;</span><span class="tok-p">)</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This brings the functions <code>map</code>, <code>sum</code>, and <code>snd</code> into scope in the Morloc
-script. Each of these functions must be defined in the C&#43;&#43; and Python
-scripts. For Python, since <code>map</code> and <code>sum</code> are builtins, only <code>snd</code> needs to be
-defined. So the <code>foo.py</code> function only requires the following two lines:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">snd</span><span class="tok-p">(</span><span class="tok-n">pair</span><span class="tok-p">):</span>
-    <span class="tok-k">return</span> <span class="tok-n">pair</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The C&#43;&#43; file, <code>foo.hpp</code>, may be implemented as a simple header file with generic
-implementations of the three required functions.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="c++"><span></span><span class="tok-cp">#pragma once</span>
-<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;vector&gt;</span>
-<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;tuple&gt;</span>
-
-<span class="tok-c1">// map :: (a -&gt; b) -&gt; [a] -&gt; [b]</span>
-<span class="tok-k">template</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">A</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">B</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">F</span><span class="tok-o">&gt;</span>
-<span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-n">B</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">map</span><span class="tok-p">(</span><span class="tok-n">F</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-n">A</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-n">B</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">;</span>
-<span class="tok-w">    </span><span class="tok-n">result</span><span class="tok-p">.</span><span class="tok-n">reserve</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">.</span><span class="tok-n">size</span><span class="tok-p">());</span>
-<span class="tok-w">    </span><span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-k">auto</span><span class="tok-o">&amp;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">        </span><span class="tok-n">result</span><span class="tok-p">.</span><span class="tok-n">push_back</span><span class="tok-p">(</span><span class="tok-n">f</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">));</span>
-<span class="tok-w">    </span><span class="tok-p">}</span>
-<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">;</span>
-<span class="tok-p">}</span>
-
-<span class="tok-c1">// snd :: (a, b) -&gt; b</span>
-<span class="tok-k">template</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">A</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">B</span><span class="tok-o">&gt;</span>
-<span class="tok-n">B</span><span class="tok-w"> </span><span class="tok-n">snd</span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">tuple</span><span class="tok-o">&lt;</span><span class="tok-n">A</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">B</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">get</span><span class="tok-o">&lt;</span><span class="tok-mi">1</span><span class="tok-o">&gt;</span><span class="tok-p">(</span><span class="tok-n">p</span><span class="tok-p">);</span>
-<span class="tok-p">}</span>
-
-<span class="tok-c1">// sum :: [a] -&gt; a</span>
-<span class="tok-k">template</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-k">typename</span><span class="tok-w"> </span><span class="tok-nc">A</span><span class="tok-o">&gt;</span>
-<span class="tok-n">A</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-n">A</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-n">A</span><span class="tok-w"> </span><span class="tok-n">total</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">A</span><span class="tok-p">{</span><span class="tok-mi">0</span><span class="tok-p">};</span>
-<span class="tok-w">    </span><span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-k">auto</span><span class="tok-o">&amp;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">        </span><span class="tok-n">total</span><span class="tok-w"> </span><span class="tok-o">+=</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">;</span>
-<span class="tok-w">    </span><span class="tok-p">}</span>
-<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">total</span><span class="tok-p">;</span>
-<span class="tok-p">}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Note that these implementations are completely independent of Morloc&#8201;&#8212;&#8201;they
-have no special constraints, they operate on perfectly normal native data
-structures, and their usage is not limited to the Morloc ecosystem. The
-Morloc compiler is responsible for mapping data between the languages. But to
-do this, Morloc needs a little information about the function types. This is
-provided by the general type signatures, like so:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">b</span><span class="tok-p">]</span>
-<span class="tok-n">snd</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span>
-<span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The syntax for these type signatures is inspired by Haskell, with the exception
-that generic terms (<code>a</code> and <code>b</code> here) must be declared on the left. Square
-brackets represent homogenous lists and parenthesized, comma-separated values
-represent tuples, and arrows represent functions. In the <code>map</code> type, <code>(a &#8594; b)</code>
-is a function from generic value <code>a</code> to generic value <code>b</code>;  <code>[a]</code> is the input
-list of initial values; <code>[b]</code> is the output list of transformed values.</p>
-</div>
-<div class="paragraph">
-<p>Removing the syntactic sugar for lists and tuples, the signatures may be written
-as:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">b</span>
-<span class="tok-n">snd</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Tuple2</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span>
-<span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>These signatures provide the <em>general types</em> of the functions. But one general
-type may map to multiple <em>native</em>, language-specific types. So we need to
-provide an explicit mapping from general to native types.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;std::vector&lt;$1&gt;&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Tuple2</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;std::tuple&lt;$1,$2&gt;&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span>
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;double&quot;</span>
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;list&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span>
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Tuple2</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;tuple&quot;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span>
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;float&quot;</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>These type functions guide the synthesis of native types from general
-types. Take the C&#43;&#43; mapping for <code>List a</code> as an example. The basic C&#43;&#43; list type
-is <code>vector</code> from the standard template library. After the Morloc typechecker
-has solved for the type of the generic parameter <code>a</code>, and recursively converted
-it to C&#43;&#43;, its type will be substituted for <code>$1</code>. So if <code>a</code> is inferred to be
-a <code>Real</code>, it will map to the C&#43;&#43; <code>double</code>, and then be substituted into the list
-type yielding <code>std::vector&lt;double&gt;</code>. This type will be used in the generated C&#43;&#43;
-code.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_the_universal_library"><a class="anchor" href="#_the_universal_library"></a>5.14. The universal library</h3>
+<h3 id="_the_universal_library"><a class="anchor" href="#_the_universal_library"></a>5.13. The universal library</h3>
 <div class="paragraph">
 <p>A module may export types, typeclasses, and function signatures but no
 implementations. Such a module would be completely language agnostic. A powerful
@@ -2720,7 +2717,40 @@ examples (see the Dockerfile in the workflow-comparisons folder of
 </div>
 </div>
 <div class="sect2">
-<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>7.7. What about object-oriented programming?</h3>
+<h3 id="_what_about_recursion"><a class="anchor" href="#_what_about_recursion"></a>7.7. What about recursion?</h3>
+<div class="paragraph">
+<p>Recursion is <strong>not</strong> directly supported in Morloc. It may be in the future, but
+the implementation is complicated by inconsistent support for recursion in
+different languages. For example, Python has a recursion limit that can cause
+runtime crashes. Instead, recursive algorithms should be written as control
+fucntions in foreign languages.</p>
+</div>
+<div class="paragraph">
+<p>For example, the Morloc <code>bio</code> module contains many generic tree traversal
+algorithms. One is the <code>foldTree</code> function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foldTree</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">  </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">RootedTree</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-n">l</span>
+<span class="tok-w">  </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here the <code>RootedTree</code> type represents a phylogenetic tree with generic node
+(<code>n</code>), edge (<code>e</code>), and leaf (<code>l</code>) types. The <code>foldTree</code> function accepts two
+functions as arguments. The first <code>(l &#8594; a &#8594; a)</code>, reduces leaf values to the
+accumulator value. The second, reduces branch given the parent node, edge and
+current accumulator value. The strategy for implementing this function is
+decided in the foreign source code. The current C&#43;&#43; implementation is
+recursive, but iterative alternatives are possible.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>7.8. What about object-oriented programming?</h3>
 <div class="paragraph">
 <p>An "object" is a somewhat loaded term in the programming world. As far as
 Morloc is concerned, an object is a thing that contains data and possibly
@@ -2741,7 +2771,7 @@ languages, they are reduced to their pure data.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_is_morloc_still_relevant_when_ai_can_program_and_translate"><a class="anchor" href="#_is_morloc_still_relevant_when_ai_can_program_and_translate"></a>7.8. Is Morloc still relevant when AI can program and translate?</h3>
+<h3 id="_is_morloc_still_relevant_when_ai_can_program_and_translate"><a class="anchor" href="#_is_morloc_still_relevant_when_ai_can_program_and_translate"></a>7.9. Is Morloc still relevant when AI can program and translate?</h3>
 <div class="paragraph">
 <p><em>Maybe</em>. Morloc may serve as a system for functional composition, verification,
 and automation even when most functions are generated by machines.</p>
@@ -2852,7 +2882,7 @@ are composable and machine verifiable but entirely incomprehensible to humans.</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>7.9. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
+<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>7.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
 <div class="paragraph">
 <p>While the Morlocks of Wellian fame are best known for their culinary
 preferences, I think Wells misrepresented them. And even if he didn&#8217;t, we don&#8217;t
@@ -2862,7 +2892,7 @@ adapts their name.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>7.10. Wait! I have more questions!</h3>
+<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>7.11. Wait! I have more questions!</h3>
 <div class="paragraph">
 <p>Great! Look me up on Discord (link below) and we can chat.</p>
 </div>
