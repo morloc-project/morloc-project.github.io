@@ -192,6 +192,10 @@ include::{includedir}/getting-started.asc[]
 
 include::{includedir}/features.asc[]
 
+== Ecosystem
+
+include::{includedir}/ecosystem.asc[]
+
 == Internals
 
 include::{includedir}/internals.asc[]

@@ -632,31 +632,35 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_overload_terms_with_typeclasses">5.10. Overload terms with typeclasses</a></li>
 <li><a href="#_binary_forms">5.11. Binary forms</a></li>
 <li><a href="#_defining_non_primitive_types">5.12. Defining non-primitive types</a></li>
-<li><a href="#_the_universal_library">5.13. The universal library</a></li>
-<li><a href="#_plains_of_libraries">5.14. Plains of libraries</a></li>
 </ul>
 </li>
-<li><a href="#_internals">6. Internals</a>
+<li><a href="#_ecosystem">6. Ecosystem</a>
 <ul class="sectlevel2">
-<li><a href="#_packet_protocols">6.1. Packet protocols</a></li>
+<li><a href="#_the_universal_library">6.1. The universal library</a></li>
+<li><a href="#_plains_of_libraries">6.2. Plains of libraries</a></li>
 </ul>
 </li>
-<li><a href="#_qa">7. Q&amp;A</a>
+<li><a href="#_internals">7. Internals</a>
 <ul class="sectlevel2">
-<li><a href="#_i_only_use_one_language_is_morloc_still_useful">7.1. I only use one language, is Morloc still useful?</a></li>
-<li><a href="#_is_this_just_a_bioinformatics_workflow_language">7.2. Is this just a bioinformatics workflow language?</a></li>
-<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats">7.3. Do you really want to deprecate all the bioinformatics formats?</a></li>
-<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications">7.4. Do you really want to deprecate all the bioinformatics applications?</a></li>
-<li><a href="#_do_you_want_to_deprecate_the_conventional_workflow_languages">7.5. Do you want to deprecate the conventional workflow languages?</a></li>
-<li><a href="#_does_morloc_allow_function_specific_environments">7.6. Does Morloc allow function-specific environments?</a></li>
-<li><a href="#_what_about_recursion">7.7. What about recursion?</a></li>
-<li><a href="#_what_about_object_oriented_programming">7.8. What about object-oriented programming?</a></li>
-<li><a href="#_is_morloc_still_relevant_when_ai_can_program_and_translate">7.9. Is Morloc still relevant when AI can program and translate?</a></li>
-<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">7.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
-<li><a href="#_wait_i_have_more_questions">7.11. Wait! I have more questions!</a></li>
+<li><a href="#_packet_protocols">7.1. Packet protocols</a></li>
 </ul>
 </li>
-<li><a href="#_contact">8. Contact</a></li>
+<li><a href="#_qa">8. Q&amp;A</a>
+<ul class="sectlevel2">
+<li><a href="#_i_only_use_one_language_is_morloc_still_useful">8.1. I only use one language, is Morloc still useful?</a></li>
+<li><a href="#_is_this_just_a_bioinformatics_workflow_language">8.2. Is this just a bioinformatics workflow language?</a></li>
+<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats">8.3. Do you really want to deprecate all the bioinformatics formats?</a></li>
+<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications">8.4. Do you really want to deprecate all the bioinformatics applications?</a></li>
+<li><a href="#_do_you_want_to_deprecate_the_conventional_workflow_languages">8.5. Do you want to deprecate the conventional workflow languages?</a></li>
+<li><a href="#_does_morloc_allow_function_specific_environments">8.6. Does Morloc allow function-specific environments?</a></li>
+<li><a href="#_what_about_recursion">8.7. What about recursion?</a></li>
+<li><a href="#_what_about_object_oriented_programming">8.8. What about object-oriented programming?</a></li>
+<li><a href="#_is_morloc_still_relevant_when_ai_can_program_and_translate">8.9. Is Morloc still relevant when AI can program and translate?</a></li>
+<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">8.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
+<li><a href="#_wait_i_have_more_questions">8.11. Wait! I have more questions!</a></li>
+</ul>
+</li>
+<li><a href="#_contact">9. Contact</a></li>
 </ul>
 </div>
 </div>
@@ -1739,6 +1743,18 @@ into the native type. So the Morloc type <code>List Int32</code> would translate
 </div>
 <div class="sect2">
 <h3 id="_records_and_tables"><a class="anchor" href="#_records_and_tables"></a>5.7. Records and tables</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="./static/img/admonition_icons/important.png" alt="Important">
+</td>
+<td class="content">
+There is currently a bug in handling of records with complex fields. I&#8217;ll fix this soon.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Morloc has dedicated support for defining records and tables.</p>
 </div>
@@ -2277,8 +2293,13 @@ raise an error. So we can write:</p>
 a string, all R implementations will be pruned.</p>
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ecosystem"><a class="anchor" href="#_ecosystem"></a>6. Ecosystem</h2>
+<div class="sectionbody">
 <div class="sect2">
-<h3 id="_the_universal_library"><a class="anchor" href="#_the_universal_library"></a>5.13. The universal library</h3>
+<h3 id="_the_universal_library"><a class="anchor" href="#_the_universal_library"></a>6.1. The universal library</h3>
 <div class="paragraph">
 <p>A module may export types, typeclasses, and function signatures but no
 implementations. Such a module would be completely language agnostic. A powerful
@@ -2300,18 +2321,25 @@ inferred by usage.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_plains_of_libraries"><a class="anchor" href="#_plains_of_libraries"></a>5.14. Plains of libraries</h3>
-<div class="paragraph">
-<p>The concept of "plains" is central to the future organization of Morloc and is
-one of the primary reasons that I created it. The infrastructure for organizing
-plains is not yet created (coming soon), so the following discussion is
-speculative.</p>
+<h3 id="_plains_of_libraries"><a class="anchor" href="#_plains_of_libraries"></a>6.2. Plains of libraries</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="./static/img/admonition_icons/important.png" alt="Important">
+</td>
+<td class="content">
+The infrastructure for "plains" is not yet constructed, so the following is speculative
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
-<p>A <strong>plain</strong> is like a namespace for a community&#8217;s modules&#8212;&#8203;but instead of
-organizing by category or programming language, modules in a plain share a
-common philosophy about quality, trustworthiness, software design and the review
-process.</p>
+<p>The concept of "plains" is central to the future organization of Morloc and is
+one of the primary reasons that I created it. A <strong>plain</strong> is like a namespace for
+a community&#8217;s modules&#8212;&#8203;but instead of organizing by category or programming
+language, modules in a plain share a common philosophy about quality,
+trustworthiness, software design and the review process.</p>
 </div>
 <div class="paragraph">
 <p>Currently, the universe of functions is separated first by language and then by subject
@@ -2434,10 +2462,10 @@ different codebases to be specified.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_internals"><a class="anchor" href="#_internals"></a>6. Internals</h2>
+<h2 id="_internals"><a class="anchor" href="#_internals"></a>7. Internals</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_packet_protocols"><a class="anchor" href="#_packet_protocols"></a>6.1. Packet protocols</h3>
+<h3 id="_packet_protocols"><a class="anchor" href="#_packet_protocols"></a>7.1. Packet protocols</h3>
 <div class="paragraph">
 <p>A Morloc program compiles into a single "nexus" file and a "pool" file for each
 language. The nexus program accepts user input, dispatches to the pools, and
@@ -2758,10 +2786,10 @@ inputs and code. The nexus can write data packets as a final output.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_qa"><a class="anchor" href="#_qa"></a>7. Q&amp;A</h2>
+<h2 id="_qa"><a class="anchor" href="#_qa"></a>8. Q&amp;A</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_i_only_use_one_language_is_morloc_still_useful"><a class="anchor" href="#_i_only_use_one_language_is_morloc_still_useful"></a>7.1. I only use one language, is Morloc still useful?</h3>
+<h3 id="_i_only_use_one_language_is_morloc_still_useful"><a class="anchor" href="#_i_only_use_one_language_is_morloc_still_useful"></a>8.1. I only use one language, is Morloc still useful?</h3>
 <div class="paragraph">
 <p>Yes, Morloc remains useful even if you only use one programming language.</p>
 </div>
@@ -2818,7 +2846,7 @@ extend functionality more easily.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_is_this_just_a_bioinformatics_workflow_language"><a class="anchor" href="#_is_this_just_a_bioinformatics_workflow_language"></a>7.2. Is this just a bioinformatics workflow language?</h3>
+<h3 id="_is_this_just_a_bioinformatics_workflow_language"><a class="anchor" href="#_is_this_just_a_bioinformatics_workflow_language"></a>8.2. Is this just a bioinformatics workflow language?</h3>
 <div class="paragraph">
 <p>No. The Morloc paper
 <a href="https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf">pre-released here</a>,
@@ -2830,7 +2858,7 @@ applied to any functional problem.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"></a>7.3. Do you really want to deprecate all the bioinformatics formats?</h3>
+<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"></a>8.3. Do you really want to deprecate all the bioinformatics formats?</h3>
 <div class="paragraph">
 <p>Yes, with the possible exception of a specialized binary formats which may offer
 performance benefits.</p>
@@ -2841,13 +2869,13 @@ tabular format (e.g., CSV) and a tree format (e.g., JSON).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"></a>7.4. Do you really want to deprecate all the bioinformatics applications?</h3>
+<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"></a>8.4. Do you really want to deprecate all the bioinformatics applications?</h3>
 <div class="paragraph">
 <p>Yes, with the exception of interactive graphical applications.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_do_you_want_to_deprecate_the_conventional_workflow_languages"><a class="anchor" href="#_do_you_want_to_deprecate_the_conventional_workflow_languages"></a>7.5. Do you want to deprecate the conventional workflow languages?</h3>
+<h3 id="_do_you_want_to_deprecate_the_conventional_workflow_languages"><a class="anchor" href="#_do_you_want_to_deprecate_the_conventional_workflow_languages"></a>8.5. Do you want to deprecate the conventional workflow languages?</h3>
 <div class="paragraph">
 <p>Not entirely. They do offer good scaling support that Morloc cannot yet
 match. Some also support GUIs which offer an intuitive and valuable way to
@@ -2860,7 +2888,7 @@ bioinformatics formats.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_does_morloc_allow_function_specific_environments"><a class="anchor" href="#_does_morloc_allow_function_specific_environments"></a>7.6. Does Morloc allow function-specific environments?</h3>
+<h3 id="_does_morloc_allow_function_specific_environments"><a class="anchor" href="#_does_morloc_allow_function_specific_environments"></a>8.6. Does Morloc allow function-specific environments?</h3>
 <div class="paragraph">
 <p>No, unlike workflow managers such as Snakemake and Nextflow, Morloc does not
 offer function-specific environments. This is a deliberate design choice.</p>
@@ -2906,7 +2934,7 @@ examples (see the Dockerfile in the workflow-comparisons folder of
 </div>
 </div>
 <div class="sect2">
-<h3 id="_what_about_recursion"><a class="anchor" href="#_what_about_recursion"></a>7.7. What about recursion?</h3>
+<h3 id="_what_about_recursion"><a class="anchor" href="#_what_about_recursion"></a>8.7. What about recursion?</h3>
 <div class="paragraph">
 <p>Recursion is <strong>not</strong> directly supported in Morloc. It may be in the future, but
 the implementation is complicated by inconsistent support for recursion in
@@ -2939,7 +2967,7 @@ recursive, but iterative alternatives are possible.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>7.8. What about object-oriented programming?</h3>
+<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>8.8. What about object-oriented programming?</h3>
 <div class="paragraph">
 <p>An "object" is a somewhat loaded term in the programming world. As far as
 Morloc is concerned, an object is a thing that contains data and possibly
@@ -2960,7 +2988,7 @@ languages, they are reduced to their pure data.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_is_morloc_still_relevant_when_ai_can_program_and_translate"><a class="anchor" href="#_is_morloc_still_relevant_when_ai_can_program_and_translate"></a>7.9. Is Morloc still relevant when AI can program and translate?</h3>
+<h3 id="_is_morloc_still_relevant_when_ai_can_program_and_translate"><a class="anchor" href="#_is_morloc_still_relevant_when_ai_can_program_and_translate"></a>8.9. Is Morloc still relevant when AI can program and translate?</h3>
 <div class="paragraph">
 <p><em>Maybe</em>. Morloc may serve as a system for functional composition, verification,
 and automation even when most functions are generated by machines.</p>
@@ -3071,7 +3099,7 @@ are composable and machine verifiable but entirely incomprehensible to humans.</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>7.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
+<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>8.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
 <div class="paragraph">
 <p>While the Morlocks of Wellian fame are best known for their culinary
 preferences, I think Wells misrepresented them. And even if he didn&#8217;t, we don&#8217;t
@@ -3081,7 +3109,7 @@ adapts their name.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>7.11. Wait! I have more questions!</h3>
+<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>8.11. Wait! I have more questions!</h3>
 <div class="paragraph">
 <p>Great! Look me up on Discord (link below) and we can chat.</p>
 </div>
@@ -3089,7 +3117,7 @@ adapts their name.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_contact"><a class="anchor" href="#_contact"></a>8. Contact</h2>
+<h2 id="_contact"><a class="anchor" href="#_contact"></a>9. Contact</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This is a young project and any brave early users are highly valued. Feel free
