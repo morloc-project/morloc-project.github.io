@@ -610,11 +610,12 @@ document.addEventListener("DOMContentLoaded", function() {
 <ul class="sectlevel2">
 <li><a href="#_install_the_compiler">4.1. Install the compiler</a></li>
 <li><a href="#_installing_from_source">4.2. Installing from source</a></li>
-<li><a href="#_setting_up_ides">4.3. Setting up IDEs</a></li>
-<li><a href="#_say_hello">4.4. Say hello</a></li>
-<li><a href="#_dice_rolling">4.5. Dice rolling</a></li>
-<li><a href="#_polyglot_dice_rolling">4.6. Polyglot dice rolling</a></li>
-<li><a href="#_parallelism_example">4.7. Parallelism example</a></li>
+<li><a href="#_building_from_source_without_containers">4.3. Building from source without containers</a></li>
+<li><a href="#_setting_up_ides">4.4. Setting up IDEs</a></li>
+<li><a href="#_say_hello">4.5. Say hello</a></li>
+<li><a href="#_dice_rolling">4.6. Dice rolling</a></li>
+<li><a href="#_polyglot_dice_rolling">4.7. Polyglot dice rolling</a></li>
+<li><a href="#_parallelism_example">4.8. Parallelism example</a></li>
 </ul>
 </li>
 <li><a href="#_syntax_and_features">5. Syntax and Features</a>
@@ -632,6 +633,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_binary_forms">5.11. Binary forms</a></li>
 <li><a href="#_defining_non_primitive_types">5.12. Defining non-primitive types</a></li>
 <li><a href="#_the_universal_library">5.13. The universal library</a></li>
+<li><a href="#_plains_of_libraries">5.14. Plains of libraries</a></li>
 </ul>
 </li>
 <li><a href="#_internals">6. Internals</a>
@@ -816,22 +818,23 @@ so you can strongly influence how the system evolves.</p>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_install_the_compiler"><a class="anchor" href="#_install_the_compiler"></a>4.1. Install the compiler</h3>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="./static/img/admonition_icons/warning.png" alt="Warning">
-</td>
-<td class="content">
-Not well tested
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>Currently Windows is not supported since Morloc relies UNIX domain sockets for
+inter-process communication. For now, Windows users can access Morloc through
+the Windows Subsystem for Linux.</p>
 </div>
 <div class="paragraph">
-<p>The easiest way to start using Morloc is through containers. I recommend using
-podman, since it doesn&#8217;t require a daemon or sudo access. But Docker,
-Singularity, and other container engines are fine as well.</p>
+<p>The easiest way to start using Morloc is through containers. Docker is the most
+popular solution and the instructios below use it. But you can swap it out for
+podman, singularity or other containerization solutions.</p>
+</div>
+<div class="paragraph">
+<p>For MacOS users, you may need to have Rosetta installed.</p>
+</div>
+<div class="paragraph">
+<p>how it works on macOS. Maybe explicitly note for M1/M2 Mac users that you&#8217;ll
+likely see a warning about architecture mismatch (amd64 vs arm64), but that
+Podman handles it fine via emulation and everything should still work?</p>
 </div>
 <div class="paragraph">
 <p>An image with the morloc executable and batteries included can be retrieved
@@ -1046,7 +1049,18 @@ modules. This will take awhile the first time you run it.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_setting_up_ides"><a class="anchor" href="#_setting_up_ides"></a>4.3. Setting up IDEs</h3>
+<h3 id="_building_from_source_without_containers"><a class="anchor" href="#_building_from_source_without_containers"></a>4.3. Building from source without containers</h3>
+<div class="paragraph">
+<p>This approach is more advanced and requires a working Haskell
+environment. Running examples may also require installing Python, R, and
+suitable C++ compilers. To get started, you can refer to the Docker containers
+in the <code>container</code> folder in the main <code>morloc</code> GitHub repository
+(<a href="https://github.com/morloc-project/morloc" class="bare">https://github.com/morloc-project/morloc</a>). They contain instructions that will
+point you in the right direction.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_setting_up_ides"><a class="anchor" href="#_setting_up_ides"></a>4.4. Setting up IDEs</h3>
 <div class="paragraph">
 <p>Editor support for Morloc is still a work in progress.</p>
 </div>
@@ -1082,7 +1096,7 @@ official VS Code package manager soon.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>4.4. Say hello</h3>
+<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>4.5. Say hello</h3>
 <div class="paragraph">
 <p>The inevitable "Hello World" case is implemented in Morloc like so:</p>
 </div>
@@ -1147,7 +1161,7 @@ input types are listed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dice_rolling"><a class="anchor" href="#_dice_rolling"></a>4.5. Dice rolling</h3>
+<h3 id="_dice_rolling"><a class="anchor" href="#_dice_rolling"></a>4.6. Dice rolling</h3>
 <div class="paragraph">
 <p>Let&#8217;s write a little program rolls a pair of 20-sided dice and prints the larger
 result. Here is the Morloc script:</p>
@@ -1202,7 +1216,17 @@ functions are natural Python integers, lists, and strings&#8201;&#8212;&#8201;th
 Morloc-specific serialized data or ad hoc textual formats.</p>
 </div>
 <div class="paragraph">
-<p>We can compile and run this program as so:</p>
+<p>This module is dependent on the <code>types</code> module, which in turn is dependent on
+the <code>prelude</code> module. So before compiling, we need to import both of these:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-go">morloc import prelude</span>
+<span class="tok-go">morloc import types</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can compile and run this program as so:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1223,7 +1247,7 @@ Morloc is uniquely valuable is in the polyglot setting.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_polyglot_dice_rolling"><a class="anchor" href="#_polyglot_dice_rolling"></a>4.6. Polyglot dice rolling</h3>
+<h3 id="_polyglot_dice_rolling"><a class="anchor" href="#_polyglot_dice_rolling"></a>4.7. Polyglot dice rolling</h3>
 <div class="paragraph">
 <p>In this next example, we rewrite the prior dice example with all three functions
 being sourced from different languages:</p>
@@ -1294,7 +1318,7 @@ between the languages. Exactly how this is done will be discussed later.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_parallelism_example"><a class="anchor" href="#_parallelism_example"></a>4.7. Parallelism example</h3>
+<h3 id="_parallelism_example"><a class="anchor" href="#_parallelism_example"></a>4.8. Parallelism example</h3>
 <div class="paragraph">
 <p>Here is an example showing a parallel map function written in Python that calls C&#43;&#43; functions.</p>
 </div>
@@ -2273,6 +2297,138 @@ query. Alternatively, constraints could be added at the function level, and thus
 the entire Morloc script would be a query over the universal library. This would
 be especially powerful when imported types are expressed as unknowns to be
 inferred by usage.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_plains_of_libraries"><a class="anchor" href="#_plains_of_libraries"></a>5.14. Plains of libraries</h3>
+<div class="paragraph">
+<p>The concept of "plains" is central to the future organization of Morloc and is
+one of the primary reasons that I created it. The infrastructure for organizing
+plains is not yet created (coming soon), so the following discussion is
+speculative.</p>
+</div>
+<div class="paragraph">
+<p>A <strong>plain</strong> is like a namespace for a community&#8217;s modules&#8212;&#8203;but instead of
+organizing by category or programming language, modules in a plain share a
+common philosophy about quality, trustworthiness, software design and the review
+process.</p>
+</div>
+<div class="paragraph">
+<p>Currently, the universe of functions is separated first by language and then by subject
+area. Morloc, being polyglot, allows the first mode of separation to be lifted,
+so language does not need to separate communities. Instead, communities can
+organize around <strong>values</strong>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Levels of review &amp; trust:</strong> Code may be wild and experimental; tightly reviewed and trusted in production; or formally verified.</p>
+</li>
+<li>
+<p><strong>Design philosophy:</strong> Groups may prioritize safety, raw performance, or elegance by some metric.</p>
+</li>
+<li>
+<p><strong>Use case:</strong> Plains may focus on production, pedagogy, competition or experimentation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Making these differences explicit (and easy to navigate) lets the community set and find their own standards.</p>
+</div>
+<div class="paragraph">
+<p><strong>Real-World Analogs</strong></p>
+</div>
+<div class="paragraph">
+<p>Within the R community, you could define three plains:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>CRAN:</strong> Has stringent requirements for acceptance and manual application process focused on adherence to well-defined (mostly automated) requirements</p>
+</li>
+<li>
+<p><strong>rOpenSci:</strong> Focuses on a formal peer review process that considers motivation, documentation, and good software design</p>
+</li>
+<li>
+<p><strong>GitHub:</strong> Wild west. Anything goes.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You could probably find more "plains" in R, but these three capture the idea of
+what a plain is. It is a design philosophy and set of protocols that define
+admission.</p>
+</div>
+<div class="paragraph">
+<p><strong>Possible examples of Morloc plains</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>unstable</strong>: For newly submitted or unvetted modules, e.g., loaded straight from GitHub.</p>
+</li>
+<li>
+<p><strong>safe</strong>: Modules that passed manual review, rigorous automated tests, and have strong test suites.</p>
+</li>
+<li>
+<p><strong>true</strong>: For formally verified code, strict on what languages are allowed (e.g., dependently typed languages).</p>
+</li>
+<li>
+<p><strong>prod</strong>: For modules ready for production, combining safety and performance.</p>
+</li>
+<li>
+<p><strong>comp</strong>: Modules suited for competitive programming; all performance, no safety checks or focus on software design principles.</p>
+</li>
+<li>
+<p><strong>red</strong>: Adversarial modules&#8212;&#8203;written to give the Morloc bot problems. High fun, high risk! Probably don&#8217;t want to import these.</p>
+</li>
+<li>
+<p><strong>weird</strong>: Esoteric code. For silly implementations that abuse languages in fun ways.</p>
+</li>
+<li>
+<p><strong>demo</strong>: Prototypes, examples, and proof-of-concept modules. More pedogogical than practical.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Plains aren’t rigid categories, but cultures: each has its own ground rules,
+review process, and ideas about what makes code "good". Anyone can propose a new
+plain, but we don’t want too many; a bit of consensus is required before adding
+one.</p>
+</div>
+<div class="paragraph">
+<p><strong>How Does a Module Join a Plain?</strong></p>
+</div>
+<div class="paragraph">
+<p>Again, the architecture is in development. But here is the basic process:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Register:</strong> Authors register their module (e.g., import code from GitHub and authenticate).</p>
+</li>
+<li>
+<p><strong>AI Vetting:</strong> Our AI (Weena) checks code for basic standards.</p>
+</li>
+<li>
+<p><strong>Acceptance:</strong> After being accepted, the module defaults to the <code>unstable</code> plain.</p>
+</li>
+<li>
+<p><strong>Level Up:</strong> Module authors can then apply to join other plains. Getting accepted depends on the plain’s review process (could be peer review, automated testing, thumbs up from community members, or nothing at all).</p>
+</li>
+<li>
+<p><strong>Multiple Plains:</strong> Modules can exist in multiple plains at once&#8212;&#8203;different communities may trust the same code for different reasons.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This process will eventually be mediated on the website morloc.io (under construction).</p>
+</div>
+<div class="paragraph">
+<p>Overall, plains help you find code that matches your needs and values&#8212;&#8203;whether
+you want ultimate safety, bleeding-edge performance, or just something weird
+that might surprise you. They also provide community and allow relations between
+different codebases to be specified.</p>
 </div>
 </div>
 </div>
