@@ -623,15 +623,16 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_source_function_from_foreign_languages">5.1. Source function from foreign languages</a></li>
 <li><a href="#_functions">5.2. Functions</a></li>
 <li><a href="#_modules">5.3. Modules</a></li>
-<li><a href="#_docstrings_and_toolboxes">5.4. Docstrings and toolboxes</a></li>
-<li><a href="#_user_arguments_and_outputs">5.5. User arguments and outputs</a></li>
-<li><a href="#_mapping_general_types_to_native_types">5.6. Mapping general types to native types</a></li>
-<li><a href="#_records_and_tables">5.7. Records and tables</a></li>
-<li><a href="#_type_hierarchies">5.8. Type hierarchies</a></li>
-<li><a href="#_one_term_may_have_many_definitions">5.9. One term may have many definitions</a></li>
-<li><a href="#_overload_terms_with_typeclasses">5.10. Overload terms with typeclasses</a></li>
-<li><a href="#_binary_forms">5.11. Binary forms</a></li>
-<li><a href="#_defining_non_primitive_types">5.12. Defining non-primitive types</a></li>
+<li><a href="#_docstrings">5.4. Docstrings</a></li>
+<li><a href="#_composable_command_line_tools">5.5. Composable command line tools</a></li>
+<li><a href="#_user_arguments_and_outputs">5.6. User arguments and outputs</a></li>
+<li><a href="#_mapping_general_types_to_native_types">5.7. Mapping general types to native types</a></li>
+<li><a href="#_records_and_tables">5.8. Records and tables</a></li>
+<li><a href="#_type_hierarchies">5.9. Type hierarchies</a></li>
+<li><a href="#_one_term_may_have_many_definitions">5.10. One term may have many definitions</a></li>
+<li><a href="#_overload_terms_with_typeclasses">5.11. Overload terms with typeclasses</a></li>
+<li><a href="#_binary_forms">5.12. Binary forms</a></li>
+<li><a href="#_defining_non_primitive_types">5.13. Defining non-primitive types</a></li>
 </ul>
 </li>
 <li><a href="#_ecosystem">6. Ecosystem</a>
@@ -1594,7 +1595,7 @@ function. The compiler will choose which to use.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_docstrings_and_toolboxes"><a class="anchor" href="#_docstrings_and_toolboxes"></a>5.4. Docstrings and toolboxes</h3>
+<h3 id="_docstrings"><a class="anchor" href="#_docstrings"></a>5.4. Docstrings</h3>
 <div class="paragraph">
 <p>Morloc has early support for docstrings in comments that propagate to the
 generated CLI code.</p>
@@ -1645,7 +1646,76 @@ the backend.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_user_arguments_and_outputs"><a class="anchor" href="#_user_arguments_and_outputs"></a>5.5. User arguments and outputs</h3>
+<h3 id="_composable_command_line_tools"><a class="anchor" href="#_composable_command_line_tools"></a>5.5. Composable command line tools</h3>
+<div class="paragraph">
+<p>Since modules can both be compiled into executable command line tools and
+imported by other modules, we can naturally compose command line tools.</p>
+</div>
+<div class="paragraph">
+<p>Here is a little Morloc script that imports a Python program that prints a calendar to STDERR.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">cally</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">cal</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;cal.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;cal&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">--&#39; Print a 3-month calendar and some timezones</span>
+<span class="tok-n">cal</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-nb">()</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-nb">()</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here is another Morloc tool that prints d20 rolls</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">dnd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d20</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;dnd.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;d20&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">--&#39; Roll n d20 dice</span>
+<span class="tok-n">d20</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can import both of these into a third module which will expose the
+functions from both the calendar and dnd modules.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">toolbox</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">cal</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">d20</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">cally</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">dnd</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This final module can be compiled and will have a usage statement like so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Usage: ./nexus [OPTION]... COMMAND [ARG]...
+
+Nexus Options:
+ -h, --help            Print this help message
+ -o, --output-file     Print to this file instead of STDOUT
+ -f, --output-format   Output format [json|mpk|voidstar]
+
+Exported Commands:
+  cal   Print a 3-month calendar and some timezones
+          return: Unit
+  d20   Roll n d20 dice
+          param 1: Int
+          return: [Int]</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_user_arguments_and_outputs"><a class="anchor" href="#_user_arguments_and_outputs"></a>5.6. User arguments and outputs</h3>
 <div class="paragraph">
 <p>User data is passed to Morloc executables as positional arguments to the
 specified function subcommand. The argument may be a literal JSON string or a
@@ -1694,7 +1764,7 @@ describing the data.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_mapping_general_types_to_native_types"><a class="anchor" href="#_mapping_general_types_to_native_types"></a>5.6. Mapping general types to native types</h3>
+<h3 id="_mapping_general_types_to_native_types"><a class="anchor" href="#_mapping_general_types_to_native_types"></a>5.7. Mapping general types to native types</h3>
 <div class="paragraph">
 <p>When a function is sourced from a foreign language, Morloc needs to know how
 Morloc general types map to the function&#8217;s native types. This information is
@@ -1742,7 +1812,7 @@ into the native type. So the Morloc type <code>List Int32</code> would translate
 </div>
 </div>
 <div class="sect2">
-<h3 id="_records_and_tables"><a class="anchor" href="#_records_and_tables"></a>5.7. Records and tables</h3>
+<h3 id="_records_and_tables"><a class="anchor" href="#_records_and_tables"></a>5.8. Records and tables</h3>
 <div class="admonitionblock important">
 <table>
 <tr>
@@ -1869,7 +1939,7 @@ reliability of the typed structures.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.8. Type hierarchies</h3>
+<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.9. Type hierarchies</h3>
 <div class="paragraph">
 <p>In some cases, there is a single obvious native type for a given Morloc general
 type. For example, most languages have exactly only one reasonable way to
@@ -1917,7 +1987,7 @@ to implement specialized behavior for more efficient conversion to binary.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.9. One term may have many definitions</h3>
+<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.10. One term may have many definitions</h3>
 <div class="paragraph">
 <p>Morloc supports what might be called <em>term polymorphism</em>. Each
 term may have many definitions. For example, the function <code>mean</code> has three
@@ -1976,7 +2046,7 @@ needed in making these definitions.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.10. Overload terms with typeclasses</h3>
+<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.11. Overload terms with typeclasses</h3>
 <div class="paragraph">
 <p>In addition to term polymorphism, Morloc offers more traditional ad hoc
 polymorphism over types. Here typeclasses may be defined and type-specific
@@ -2046,7 +2116,7 @@ is crucial to the grand structure of the future Morloc library.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.11. Binary forms</h3>
+<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.12. Binary forms</h3>
 <div class="paragraph">
 <p>Every Morloc general type maps unambiguously to a binary form that consists of
 several fixed-width literal types, a list container, and a tuple container. The
@@ -2232,7 +2302,7 @@ Morloc type schema.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_defining_non_primitive_types"><a class="anchor" href="#_defining_non_primitive_types"></a>5.12. Defining non-primitive types</h3>
+<h3 id="_defining_non_primitive_types"><a class="anchor" href="#_defining_non_primitive_types"></a>5.13. Defining non-primitive types</h3>
 <div class="paragraph">
 <p>Types that are composed entirely of Morloc primitives, lists, tuples, records
 and tables may be directly and unambiguously translated to Morloc binary forms
