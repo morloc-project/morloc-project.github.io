@@ -627,12 +627,13 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_composable_command_line_tools">5.5. Composable command line tools</a></li>
 <li><a href="#_user_arguments_and_outputs">5.6. User arguments and outputs</a></li>
 <li><a href="#_mapping_general_types_to_native_types">5.7. Mapping general types to native types</a></li>
-<li><a href="#_records_and_tables">5.8. Records and tables</a></li>
-<li><a href="#_type_hierarchies">5.9. Type hierarchies</a></li>
-<li><a href="#_one_term_may_have_many_definitions">5.10. One term may have many definitions</a></li>
-<li><a href="#_overload_terms_with_typeclasses">5.11. Overload terms with typeclasses</a></li>
-<li><a href="#_binary_forms">5.12. Binary forms</a></li>
-<li><a href="#_defining_non_primitive_types">5.13. Defining non-primitive types</a></li>
+<li><a href="#_records">5.8. Records</a></li>
+<li><a href="#_tables">5.9. Tables</a></li>
+<li><a href="#_type_hierarchies">5.10. Type hierarchies</a></li>
+<li><a href="#_one_term_may_have_many_definitions">5.11. One term may have many definitions</a></li>
+<li><a href="#_overload_terms_with_typeclasses">5.12. Overload terms with typeclasses</a></li>
+<li><a href="#_binary_forms">5.13. Binary forms</a></li>
+<li><a href="#_defining_non_primitive_types">5.14. Defining non-primitive types</a></li>
 </ul>
 </li>
 <li><a href="#_ecosystem">6. Ecosystem</a>
@@ -1812,44 +1813,69 @@ into the native type. So the Morloc type <code>List Int32</code> would translate
 </div>
 </div>
 <div class="sect2">
-<h3 id="_records_and_tables"><a class="anchor" href="#_records_and_tables"></a>5.8. Records and tables</h3>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="./static/img/admonition_icons/important.png" alt="Important">
-</td>
-<td class="content">
-There is currently a bug in handling of records with complex fields. I&#8217;ll fix this soon.
-</td>
-</tr>
-</table>
+<h3 id="_records"><a class="anchor" href="#_records"></a>5.8. Records</h3>
+<div class="paragraph">
+<p>A record is internally a named tuple. Records may map to different structures in
+different languages.</p>
 </div>
 <div class="paragraph">
-<p>Morloc has dedicated support for defining records and tables.</p>
-</div>
-<div class="paragraph">
-<p>Here is a record example:</p>
+<p>A general record is defined as follows:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">incAge</span><span class="tok-p">)</span>
-
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-p">)</span>
-
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;incAge&quot;</span><span class="tok-p">)</span>
-
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">Person</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">Person</span>
 <span class="tok-w">    </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Str</span>
 <span class="tok-w">    </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
-<span class="tok-w">    </span><span class="tok-p">}</span>
-
-<span class="tok-c1">-- Increment the person&#39;s age</span>
-<span class="tok-n">incAge</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span></code></pre>
+<span class="tok-w">    </span><span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Where the "foo.R" file contains the function:</p>
+<p>Concrete forms must have the same field names and field types. Since these must
+be the same, they need not be specified. We only need to specify the name of the
+concrete type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;dict&quot;</span>
+<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;list&quot;</span>
+<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-ow">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;person_t&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In R and Python, records are typically <code>dict</code> and <code>list</code> types,
+respectively. These types con contain any fields of any type. In C&#43;&#43;, records
+are represented as structs; these must must be defined in the C code, as shown
+below.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="cpp"><span></span><span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">person_t</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">string</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-p">;</span>
+<span class="tok-p">};</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Functions may be defined that act on the records, as below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;incAge&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">rinc</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;incAge&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">pinc</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;incAge&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">cinc</span><span class="tok-p">)</span>
+
+<span class="tok-c1">-- Increment the person&#39;s age</span>
+<span class="tok-n">rinc</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span>
+<span class="tok-n">pinc</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span>
+<span class="tok-n">cinc</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Records may, like all <code>morloc</code> types, be passed freely between languages. As
+shown above, records may be written in braces and their type will be inferred.</p>
+</div>
+<div class="paragraph">
+<p>The "foo.R" file contains the function:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1860,14 +1886,52 @@ There is currently a bug in handling of records with complex fields. I&#8217;ll 
 </div>
 </div>
 <div class="paragraph">
-<p>This may be compiles and run as so:</p>
+<p>No special code is needed for <code>person</code>, it is just a builtin R list. Similarly for Python:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>foo.loc
-<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>incAge<span class="tok-w"> </span><span class="tok-s1">&#39;{name:&quot;Alice&quot;,age:32}&#39;</span></code></pre>
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">incAge</span><span class="tok-p">(</span><span class="tok-n">person</span><span class="tok-p">):</span>
+    <span class="tok-n">person</span><span class="tok-p">[</span><span class="tok-s2">&quot;age&quot;</span><span class="tok-p">]</span> <span class="tok-o">+=</span> <span class="tok-mi">1</span>
+    <span class="tok-k">return</span> <span class="tok-n">person</span></code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>C&#43;&#43; requires a definition of a <code>person_t</code> struct:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="c++"><span></span><span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">person_t</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">string</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-p">;</span>
+<span class="tok-p">};</span>
+
+<span class="tok-n">person_t</span><span class="tok-w"> </span><span class="tok-nf">incAge</span><span class="tok-p">(</span><span class="tok-n">person_t</span><span class="tok-w"> </span><span class="tok-n">person</span><span class="tok-p">){</span>
+<span class="tok-w">    </span><span class="tok-n">person</span><span class="tok-p">.</span><span class="tok-n">age</span><span class="tok-o">++</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">person</span><span class="tok-p">;</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Records may be initialized and functions called on them:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-n">age</span>
+<span class="tok-w">    </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rinc</span><span class="tok-w"> </span><span class="tok-ow">.</span><span class="tok-w"> </span><span class="tok-n">pinc</span><span class="tok-w"> </span><span class="tok-ow">.</span><span class="tok-w"> </span><span class="tok-n">cinc</span><span class="tok-p">)</span>
+<span class="tok-w">      </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>foo</code>, above, initializes a <code>Person</code> record and then increments its age 3 time
+in different languages.</p>
+</div>
+<div class="paragraph">
+<p>Records may contain fields with arbitrarily complex types, but recursive types
+are currently not supported. They will be in the future.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_tables"><a class="anchor" href="#_tables"></a>5.9. Tables</h3>
 <div class="paragraph">
 <p>Tables are similar, but all fields are lists of equal length:</p>
 </div>
@@ -1939,7 +2003,7 @@ reliability of the typed structures.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.9. Type hierarchies</h3>
+<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.10. Type hierarchies</h3>
 <div class="paragraph">
 <p>In some cases, there is a single obvious native type for a given Morloc general
 type. For example, most languages have exactly only one reasonable way to
@@ -1987,7 +2051,7 @@ to implement specialized behavior for more efficient conversion to binary.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.10. One term may have many definitions</h3>
+<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.11. One term may have many definitions</h3>
 <div class="paragraph">
 <p>Morloc supports what might be called <em>term polymorphism</em>. Each
 term may have many definitions. For example, the function <code>mean</code> has three
@@ -2046,7 +2110,7 @@ needed in making these definitions.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.11. Overload terms with typeclasses</h3>
+<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.12. Overload terms with typeclasses</h3>
 <div class="paragraph">
 <p>In addition to term polymorphism, Morloc offers more traditional ad hoc
 polymorphism over types. Here typeclasses may be defined and type-specific
@@ -2116,7 +2180,7 @@ is crucial to the grand structure of the future Morloc library.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.12. Binary forms</h3>
+<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.13. Binary forms</h3>
 <div class="paragraph">
 <p>Every Morloc general type maps unambiguously to a binary form that consists of
 several fixed-width literal types, a list container, and a tuple container. The
@@ -2302,7 +2366,7 @@ Morloc type schema.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_defining_non_primitive_types"><a class="anchor" href="#_defining_non_primitive_types"></a>5.13. Defining non-primitive types</h3>
+<h3 id="_defining_non_primitive_types"><a class="anchor" href="#_defining_non_primitive_types"></a>5.14. Defining non-primitive types</h3>
 <div class="paragraph">
 <p>Types that are composed entirely of Morloc primitives, lists, tuples, records
 and tables may be directly and unambiguously translated to Morloc binary forms
