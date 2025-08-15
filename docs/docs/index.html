@@ -608,14 +608,12 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_current_status">3. Current status</a></li>
 <li><a href="#_getting_started">4. Getting Started</a>
 <ul class="sectlevel2">
-<li><a href="#_install_the_compiler">4.1. Install the compiler</a></li>
-<li><a href="#_installing_from_source">4.2. Installing from source</a></li>
-<li><a href="#_building_from_source_without_containers">4.3. Building from source without containers</a></li>
-<li><a href="#_setting_up_ides">4.4. Setting up IDEs</a></li>
-<li><a href="#_say_hello">4.5. Say hello</a></li>
-<li><a href="#_dice_rolling">4.6. Dice rolling</a></li>
-<li><a href="#_polyglot_dice_rolling">4.7. Polyglot dice rolling</a></li>
-<li><a href="#_parallelism_example">4.8. Parallelism example</a></li>
+<li><a href="#_installing_morloc">4.1. Installing Morloc</a></li>
+<li><a href="#_setting_up_ides">4.2. Setting up IDEs</a></li>
+<li><a href="#_say_hello">4.3. Say hello</a></li>
+<li><a href="#_dice_rolling">4.4. Dice rolling</a></li>
+<li><a href="#_polyglot_dice_rolling">4.5. Polyglot dice rolling</a></li>
+<li><a href="#_parallelism_example">4.6. Parallelism example</a></li>
 </ul>
 </li>
 <li><a href="#_syntax_and_features">5. Syntax and Features</a>
@@ -823,253 +821,147 @@ so you can strongly influence how the system evolves.</p>
 <h2 id="_getting_started"><a class="anchor" href="#_getting_started"></a>4. Getting Started</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_install_the_compiler"><a class="anchor" href="#_install_the_compiler"></a>4.1. Install the compiler</h3>
+<h3 id="_installing_morloc"><a class="anchor" href="#_installing_morloc"></a>4.1. Installing Morloc</h3>
 <div class="paragraph">
-<p>Currently Windows is not supported since Morloc relies UNIX domain sockets for
-inter-process communication. For now, Windows users can access Morloc through
-the Windows Subsystem for Linux.</p>
+<p>The easiest way to run Morloc is through containers in a UNIX environment. Linux
+will work natively. MacOS and Windows are more complicated and I&#8217;ll deal with
+their special later on. For Windows, you will need to install through the
+<a href="https://learn.microsoft.com/en-us/windows/wsl/about">Windows Subsystem for Linux</a>.</p>
 </div>
 <div class="paragraph">
-<p>The easiest way to start using Morloc is through containers. Docker is the most
-popular solution and the instructios below use it. But you can swap it out for
-podman, singularity or other containerization solutions.</p>
+<p>The only dependency is a container engine, currently two
+<a href="https://docs.docker.com/engine/install/">docker</a> and
+<a href="https://podman.io/docs/installation">podman</a> are supported.</p>
+</div>
+<details>
+<summary class="title">Podman instructions</summary>
+<div class="content">
+<div class="paragraph">
+<p>Unlike Docker, <code>podman</code> runs rootless by default, so no sudo is required. On
+Linux, it also runs natively with no daemons.</p>
 </div>
 <div class="paragraph">
-<p>For MacOS users, you may need to have Rosetta installed.</p>
-</div>
-<div class="paragraph">
-<p>how it works on macOS. Maybe explicitly note for M1/M2 Mac users that you&#8217;ll
-likely see a warning about architecture mismatch (amd64 vs arm64), but that
-Podman handles it fine via emulation and everything should still work?</p>
-</div>
-<div class="paragraph">
-<p>An image with the morloc executable and batteries included can be retrieved
-from the GitHub container registry as follows:</p>
+<p>On MacOS and Windows (even through WSL), a virtual machine is required. So you
+will need to initialize <code>podman</code> as so:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>pull<span class="tok-w"> </span>ghcr.io/morloc-project/morloc/morloc-full:0.54.0</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>init
+<span class="tok-gp">$ </span>podman<span class="tok-w"> </span>start</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>v0.54.0</code> may be replaced with the desired Morloc version.</p>
-</div>
-<div class="paragraph">
-<p>Now you can enter a shell with a full working installation of Morloc:</p>
+<p>You can confirm that podman is running by entering</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>run<span class="tok-w"> </span>--shm-size<span class="tok-o">=</span>4g<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">             </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>:<span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">             </span>-w<span class="tok-w"> </span><span class="tok-nv">$PWD</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">             </span>-e<span class="tok-w"> </span><span class="tok-nv">HOME</span><span class="tok-o">=</span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">             </span>-it<span class="tok-w"> </span>ghcr.io/morloc-project/morloc/morloc-full:0.54.0<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">             </span>/bin/bash</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>--version
+<span class="tok-go">podman version 5.4.1   # version on my current setup</span></code></pre>
 </div>
 </div>
+<hr>
+</div>
+</details>
+<details>
+<summary class="title">Docker instructions</summary>
+<div class="content">
 <div class="paragraph">
-<p>The <code>--shm-size=4g</code> option sets the shared memory space to 4GB. Morloc uses
-shared memory for communication between languages, but containers often limit
-the shared memory space to 64MB by default. By mounting your home directory, the
-changes you make in the container (including the installation of Morloc
-modules) will be persistent across sessions.</p>
+<p>TBD</p>
 </div>
+<hr>
+</div>
+</details>
 <div class="paragraph">
-<p>You can set up a script to run commands in a Morloc environment. To do this,
-paste the following code into a file:</p>
+<p>After confirming either Podman or Docker is running on your system, pull an
+installation script from
+<a href="https://github.com/morloc-project/morloc-manager">morloc-project/morloc-manager</a>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>mkdir<span class="tok-w"> </span>-p<span class="tok-w"> </span>~/.morloc
-podman<span class="tok-w"> </span>run<span class="tok-w"> </span>--rm<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>--shm-size<span class="tok-o">=</span>4g<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-e<span class="tok-w"> </span><span class="tok-nv">HOME</span><span class="tok-o">=</span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>/.morloc:<span class="tok-nv">$HOME</span>/.morloc<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$PWD</span>:<span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-w<span class="tok-w"> </span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>ghcr.io/morloc-project/morloc/morloc-full:0.54.0<span class="tok-w"> </span><span class="tok-s2">&quot;</span><span class="tok-nv">$@</span><span class="tok-s2">&quot;</span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>curl<span class="tok-w"> </span>-o<span class="tok-w"> </span>morloc-manager<span class="tok-w"> </span>https://raw.githubusercontent.com/morloc-project/morloc-manager/refs/heads/main/morloc-manager.sh</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Make it executable (<code>chmod 755 menv</code>) and place it in a bin folder on your PATH
-(e.g., <code>~/bin</code>). The script will mount your current working directory and your
-Morloc home directory, allowing you to run commands in a morloc-compatible
-environment.</p>
-</div>
-<div class="paragraph">
-<p>With the <code>menv</code> script, can run commands like so:</p>
+<p>The script provides usage information on request:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>--version<span class="tok-w">             </span><span class="tok-c1"># get the current morloc version</span>
-<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>-h<span class="tok-w">                    </span><span class="tok-c1"># list morloc commands</span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>sh<span class="tok-w"> </span>morloc-manager<span class="tok-w"> </span>-h
+<span class="tok-gp">$ </span>sh<span class="tok-w"> </span>morloc-manager<span class="tok-w"> </span>install<span class="tok-w"> </span>-h
+<span class="tok-gp">$ </span>sh<span class="tok-w"> </span>morloc-manager<span class="tok-w"> </span>uninstall<span class="tok-w"> </span>-h</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This should print the Morloc version and usage info.</p>
+<p>The <code>install</code> subcommand will build the Morloc home directory, install required
+containers, and generate four executable scripts.</p>
 </div>
 <div class="paragraph">
-<p>Next you need to initialize the Morloc home directory:</p>
+<p><strong>The first script is <code>menv</code></strong>. It runs arbitrary commands in a Morloc container. It
+can be used to compile and run Morloc programs. For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>init<span class="tok-w"> </span>-f<span class="tok-w">               </span><span class="tok-c1"># setup the morloc environment</span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>foo<span class="tok-w"> </span>foo.loc
+<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>./foo<span class="tok-w"> </span>double<span class="tok-w"> </span><span class="tok-m">21</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This will write required headers to your environment and build the required
-libraries.</p>
+<p>The <code>menv</code> script mounts the working directory and the <code>~/.morloc/&lt;version&gt;</code>
+directory. It builds the program using the containers version of the Morloc
+compiler and Morloc libraries that are defined in the version-specific home
+directory. It cannot see any dependencies on your local system.</p>
 </div>
 <div class="paragraph">
-<p>You can install Morloc modules as well:</p>
+<p><strong>The second script is <code>morloc-shell</code></strong>. This script is the same as the above script
+except that you enter the container in an interactive shell rather than just
+running one command. The container has installations for Python, R, and C++
+compiler. It also contains vim and other conveniences</p>
+</div>
+<div class="paragraph">
+<p><strong>The third script is <code>menv-dev</code></strong>. This runs commands in a dev container where all
+Haskell tools required for building Morloc from source are installed. To build
+Morloc from source, do the following:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>install<span class="tok-w"> </span>types<span class="tok-w">         </span><span class="tok-c1"># install a morloc module</span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>git<span class="tok-w"> </span>clone<span class="tok-w"> </span>git@github.com:morloc-project/morloc
+<span class="tok-gp">$ </span><span class="tok-nb">cd</span><span class="tok-w"> </span>morloc
+<span class="tok-gp">$ </span>menv-dev<span class="tok-w"> </span>stack<span class="tok-w"> </span>install<span class="tok-w"> </span>--fast
+<span class="tok-gp">$ </span>menv-dev<span class="tok-w"> </span>stack<span class="tok-w"> </span><span class="tok-nb">test</span><span class="tok-w"> </span>--fast</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>These modules will be retrieved from GitHub and written into Morloc home.</p>
+<p>This will build the version that was cloned from GitHub. Now you can use
+<code>menv-dev</code> as you would <code>menv</code>.</p>
 </div>
 <div class="paragraph">
-<p>You can compile Morloc programs within this container as well:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>foo<span class="tok-w"> </span>foo.loc<span class="tok-w">   </span><span class="tok-c1"># compile a local morloc module</span></code></pre>
-</div>
+<p><strong>The fourth script is <code>morloc-shell-dev</code></strong>. This script lets you enter the dev
+shell.</p>
 </div>
 <div class="paragraph">
-<p>The last command builds a Morloc program with the executable "foo" from the
-Morloc script file "foo.loc". The generated executable may not work on your
-system since it was compiled within the container environment, so you should run
-it in the container environment as well:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>./foo<span class="tok-w"> </span>bar<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span><span class="tok-m">3</span></code></pre>
-</div>
+<p>The <code>morloc</code> compiler always considers <code>~/.morloc</code> to be the home directory. The
+containers mount separate folders in the local <code>~/.morloc</code> folder.  This means
+the different versions of Morloc installed, as well as the special <code>local</code>
+version used by the dev container, do not have overlapping libraries and
+modules.</p>
 </div>
 <div class="paragraph">
-<p>More advanced solutions with richer dependency handling will be introduced in
-the future, but for now this allows easy experimentation with the language in a
-safe(ish) sandbox.</p>
-</div>
-<div class="paragraph">
-<p>The <code>menv morloc</code> or <code>menv ./foo</code> syntax is a bit verbose, but I&#8217;ll let you play
-with alternative aliases. The conventions here are still fluid. Let me know if
-you find something better and or if you find bugs in this approach.</p>
+<p>Throughout the rest of this manual, whenever I show an example that uses
+<code>morloc</code>, you can assume that I am running it from within a container after
+calling <code>morloc-shell</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_installing_from_source"><a class="anchor" href="#_installing_from_source"></a>4.2. Installing from source</h3>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="./static/img/admonition_icons/warning.png" alt="Warning">
-</td>
-<td class="content">
-Not well tested
-</td>
-</tr>
-</table>
+<h3 id="_setting_up_ides"><a class="anchor" href="#_setting_up_ides"></a>4.2. Setting up IDEs</h3>
+<div class="paragraph">
+<p>We are currently working on expanding the editor support for Morloc.</p>
 </div>
 <div class="paragraph">
-<p>If you want to compile Morloc from source, but don&#8217;t want to install a Haskell
-environment, the following instructions may be helpful.</p>
+<p>Here are supported editors</p>
 </div>
-<div class="paragraph">
-<p>First clone the Morloc repo:</p>
-</div>
-<div class="listingblock">
+<details>
+<summary class="title">vim</summary>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>git<span class="tok-w"> </span>clone<span class="tok-w"> </span>https://github.com/morloc-project/morloc
-<span class="tok-gp">$ </span><span class="tok-nb">cd</span><span class="tok-w"> </span>morloc</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Now, you need a container to build Morloc. Create the following script in your
-PATH and name it <code>mtest</code> (or whatever you like):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="bash"><span></span>podman<span class="tok-w"> </span>run<span class="tok-w"> </span>--shm-size<span class="tok-o">=</span>4g<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>--rm<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-e<span class="tok-w"> </span><span class="tok-nv">HOME</span><span class="tok-o">=</span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-e<span class="tok-w"> </span><span class="tok-nv">PATH</span><span class="tok-o">=</span><span class="tok-s2">&quot;</span><span class="tok-nv">$HOME</span><span class="tok-s2">/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&quot;</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>/.morloc:<span class="tok-nv">$HOME</span>/.morloc<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$HOME</span>/.local/bin:<span class="tok-nv">$HOME</span>/.local/bin<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-v<span class="tok-w"> </span><span class="tok-nv">$PWD</span>:<span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>-w<span class="tok-w"> </span><span class="tok-nv">$HOME</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">           </span>ghcr.io/morloc-project/morloc/morloc-test:latest<span class="tok-w"> </span><span class="tok-s2">&quot;</span><span class="tok-nv">$@</span><span class="tok-s2">&quot;</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Swap out <code>podman</code> for whichever Docker-compatible container engine you prefer.</p>
-</div>
-<div class="paragraph">
-<p>This script will allow the image to alter your MORLOC_HOME directory and to
-install the Morloc executable locally (to <code>~/.local/bin</code>).</p>
-</div>
-<div class="paragraph">
-<p>With this container, you can build the Morloc executable:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>stack<span class="tok-w"> </span>install</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This will build the morloc executable. The <code>stack</code> utility will install a
-Haskell compiler (ghc) in a local sandbox along with all required Haskell
-modules. This will take awhile the first time you run it.</p>
-</div>
-<div class="paragraph">
-<p>On success, <code>morloc</code> will not be installed. You can test the build like so:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>morloc<span class="tok-w"> </span>-h</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>You may run the Morloc test suite from here as well:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>stack<span class="tok-w"> </span><span class="tok-nb">test</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>And you can build Morloc programs:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>foo.loc
-<span class="tok-gp">$ </span>mtest<span class="tok-w"> </span>./nexus<span class="tok-w"> </span>foo<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span><span class="tok-m">3</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>As before, you need to run the generated executable in your environment as well.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_building_from_source_without_containers"><a class="anchor" href="#_building_from_source_without_containers"></a>4.3. Building from source without containers</h3>
-<div class="paragraph">
-<p>This approach is more advanced and requires a working Haskell
-environment. Running examples may also require installing Python, R, and
-suitable C++ compilers. To get started, you can refer to the Docker containers
-in the <code>container</code> folder in the main <code>morloc</code> GitHub repository
-(<a href="https://github.com/morloc-project/morloc" class="bare">https://github.com/morloc-project/morloc</a>). They contain instructions that will
-point you in the right direction.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_setting_up_ides"><a class="anchor" href="#_setting_up_ides"></a>4.4. Setting up IDEs</h3>
-<div class="paragraph">
-<p>Editor support for Morloc is still a work in progress.</p>
-</div>
 <div class="paragraph">
 <p>If you are working in vim, you can install Morloc syntax highlighting as
 follows:</p>
@@ -1082,27 +974,83 @@ follows:</p>
 <span class="tok-gp">$ </span><span class="tok-nb">echo</span><span class="tok-w"> </span><span class="tok-s1">&#39;au BufRead,BufNewFile *.loc set filetype=loc&#39;</span><span class="tok-w"> </span>&gt;<span class="tok-w"> </span>~/.vim/ftdetect/loc.vim</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Developing a full plugin is left as an excercise for the user (pull requests welcome).</p>
-</div>
-<div class="paragraph">
-<p>If you are working in VS Code, I&#8217;ve made a simple extension that offers syntax
-highlighting and snippets. You can pull the extension from GitHub and move it
-into your VS code extensions folder:</p>
-</div>
-<div class="listingblock">
+<div class="imageblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>git<span class="tok-w"> </span>clone<span class="tok-w"> </span>https://github.com/morloc-project/vscode<span class="tok-w"> </span>~/.vscode-oss/extensions/morloc</code></pre>
+<img loading="lazy" src="./static/img/vim-highlights.png" alt="vim highlights">
 </div>
+</div>
+<hr>
+</div>
+</details>
+<details>
+<summary class="title">VS Code / VSCodium / Cursor</summary>
+<div class="content">
+<div class="paragraph">
+<p>We have a publicly available "morloc" extension with support for highlighting
+and snippet expansion.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img loading="lazy" src="./static/img/vscode-highlights.png" alt="vscode highlights">
+</div>
+</div>
+<hr>
+</div>
+</details>
+<details>
+<summary class="title">Zed</summary>
+<div class="content">
+<div class="paragraph">
+<p>This is currently under development, see repo <a href="https://github.com/morloc-project/zed-morloc">here</a>.</p>
 </div>
 <div class="paragraph">
-<p>Update the path to the extensions folder as needed on your system. This manually
-installs the extensions, which is not ideal. I&#8217;ll push the extension to the
-official VS Code package manager soon.</p>
+<p>The extension is mostly written, and the required Tree-sitter grammar is
+written, but there are bugs to be resolved. I&#8217;m happy to accept pull requests!</p>
 </div>
+</div>
+</details>
+<div class="paragraph">
+<p>I&#8217;ve also written several syntax highlighting and static analysis tools:</p>
+</div>
+<details>
+<summary class="title">Pygmentize</summary>
+<div class="content">
+<div class="paragraph">
+<p>A repo with the Pygmentize parser can be found
+<a href="https://github.com/morloc-project/pygmentize">here</a>. This parser is used to
+highlight code here in the manual. It can be easily integrated into Python code,
+e.g., in the <a href="https://github.com/morloc-project/weena-bot">Weena discord bot</a>.</p>
+</div>
+</div>
+</details>
+<details>
+<summary class="title">TextMate</summary>
+<div class="content">
+
+</div>
+</details>
+<details>
+<summary class="title">Tree-sitter</summary>
+<div class="content">
+<div class="paragraph">
+<p>Tree-sitter is a program for defining parsers and using them to query languages
+and add advanced grammatical understanding to editors. These grammars require a
+complete lexer and parser specification for the language. This grammar is
+available for Morloc, see repo
+<a href="https://github.com/morloc-project/tree-sitter-morloc">here</a>. Tree-sitter allows
+general purpose syntax highlighting (e.g., over the command line) and parses a
+full concrete syntax tree from the code:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img loading="lazy" src="./static/img/tree-sitter.png" alt="tree sitter">
+</div>
+</div>
+</div>
+</details>
 </div>
 <div class="sect2">
-<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>4.5. Say hello</h3>
+<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>4.3. Say hello</h3>
 <div class="paragraph">
 <p>The inevitable "Hello World" case is implemented in Morloc like so:</p>
 </div>
@@ -1167,7 +1115,7 @@ input types are listed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dice_rolling"><a class="anchor" href="#_dice_rolling"></a>4.6. Dice rolling</h3>
+<h3 id="_dice_rolling"><a class="anchor" href="#_dice_rolling"></a>4.4. Dice rolling</h3>
 <div class="paragraph">
 <p>Let&#8217;s write a little program rolls a pair of 20-sided dice and prints the larger
 result. Here is the Morloc script:</p>
@@ -1253,7 +1201,7 @@ Morloc is uniquely valuable is in the polyglot setting.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_polyglot_dice_rolling"><a class="anchor" href="#_polyglot_dice_rolling"></a>4.7. Polyglot dice rolling</h3>
+<h3 id="_polyglot_dice_rolling"><a class="anchor" href="#_polyglot_dice_rolling"></a>4.5. Polyglot dice rolling</h3>
 <div class="paragraph">
 <p>In this next example, we rewrite the prior dice example with all three functions
 being sourced from different languages:</p>
@@ -1324,7 +1272,7 @@ between the languages. Exactly how this is done will be discussed later.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_parallelism_example"><a class="anchor" href="#_parallelism_example"></a>4.8. Parallelism example</h3>
+<h3 id="_parallelism_example"><a class="anchor" href="#_parallelism_example"></a>4.6. Parallelism example</h3>
 <div class="paragraph">
 <p>Here is an example showing a parallel map function written in Python that calls C&#43;&#43; functions.</p>
 </div>
