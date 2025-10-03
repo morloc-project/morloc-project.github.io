@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
 <meta name="author" content="Zebulun Arendsee">
-<link rel="icon" type="image/x-icon" href="./static/img/favicon.ico">
+<link rel="icon" type="image/x-icon" href="static/img/favicon.ico">
 <title>Morloc Manual</title>
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -637,7 +637,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_ecosystem">6. Ecosystem</a>
 <ul class="sectlevel2">
 <li><a href="#_the_universal_library">6.1. The universal library</a></li>
-<li><a href="#_plains_of_libraries">6.2. Plains of libraries</a></li>
+<li><a href="#_planes_of_libraries">6.2. Planes of libraries</a></li>
 </ul>
 </li>
 <li><a href="#_internals">7. Internals</a>
@@ -976,7 +976,7 @@ follows:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img loading="lazy" src="./static/img/vim-highlights.png" alt="vim highlights">
+<img loading="lazy" src="static/img/vim-highlights.png" alt="vim highlights">
 </div>
 </div>
 <hr>
@@ -991,7 +991,7 @@ and snippet expansion.</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img loading="lazy" src="./static/img/vscode-highlights.png" alt="vscode highlights">
+<img loading="lazy" src="static/img/vscode-highlights.png" alt="vscode highlights">
 </div>
 </div>
 <hr>
@@ -1043,7 +1043,7 @@ full concrete syntax tree from the code:</p>
 </div>
 <div class="imageblock">
 <div class="content">
-<img loading="lazy" src="./static/img/tree-sitter.png" alt="tree sitter">
+<img loading="lazy" src="static/img/tree-sitter.png" alt="tree sitter">
 </div>
 </div>
 </div>
@@ -2403,24 +2403,24 @@ inferred by usage.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_plains_of_libraries"><a class="anchor" href="#_plains_of_libraries"></a>6.2. Plains of libraries</h3>
+<h3 id="_planes_of_libraries"><a class="anchor" href="#_planes_of_libraries"></a>6.2. Planes of libraries</h3>
 <div class="admonitionblock important">
 <table>
 <tr>
 <td class="icon">
-<img loading="lazy" src="./static/img/admonition_icons/important.png" alt="Important">
+<img loading="lazy" src="static/img/admonition_icons/important.png" alt="Important">
 </td>
 <td class="content">
-The infrastructure for "plains" is not yet constructed, so the following is speculative
+The infrastructure for "planes" is not yet constructed, so the following is speculative
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>The concept of "plains" is central to the future organization of Morloc and is
-one of the primary reasons that I created it. A <strong>plain</strong> is like a namespace for
+<p>The concept of "planes" is central to the future organization of Morloc and is
+one of the primary reasons that I created it. A <strong>plane</strong> is like a namespace for
 a community&#8217;s modules&#8212;&#8203;but instead of organizing by category or programming
-language, modules in a plain share a common philosophy about quality,
+language, modules in a plane share a common philosophy about quality,
 trustworthiness, software design and the review process.</p>
 </div>
 <div class="paragraph">
@@ -2438,7 +2438,7 @@ organize around <strong>values</strong>.</p>
 <p><strong>Design philosophy:</strong> Groups may prioritize safety, raw performance, or elegance by some metric.</p>
 </li>
 <li>
-<p><strong>Use case:</strong> Plains may focus on production, pedagogy, competition or experimentation.</p>
+<p><strong>Use case:</strong> Planes may focus on production, pedagogy, competition or experimentation.</p>
 </li>
 </ul>
 </div>
@@ -2449,7 +2449,7 @@ organize around <strong>values</strong>.</p>
 <p><strong>Real-World Analogs</strong></p>
 </div>
 <div class="paragraph">
-<p>Within the R community, you could define three plains:</p>
+<p>Within the R community, you could define three planes:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -2465,12 +2465,12 @@ organize around <strong>values</strong>.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>You could probably find more "plains" in R, but these three capture the idea of
-what a plain is. It is a design philosophy and set of protocols that define
+<p>You could probably find more "planes" in R, but these three capture the idea of
+what a plane is. It is a design philosophy and set of protocols that define
 admission.</p>
 </div>
 <div class="paragraph">
-<p><strong>Possible examples of Morloc plains</strong></p>
+<p><strong>Possible examples of Morloc planes</strong></p>
 </div>
 <div class="ulist">
 <ul>
@@ -2490,7 +2490,7 @@ admission.</p>
 <p><strong>comp</strong>: Modules suited for competitive programming; all performance, no safety checks or focus on software design principles.</p>
 </li>
 <li>
-<p><strong>red</strong>: Adversarial modules&#8212;&#8203;written to give the Morloc bot problems. High fun, high risk! Probably don&#8217;t want to import these.</p>
+<p><strong>red</strong>: Adversarial modules&#8212;&#8203;written to give the Morloc bot problems. Probably don&#8217;t want to import these.</p>
 </li>
 <li>
 <p><strong>weird</strong>: Esoteric code. For silly implementations that abuse languages in fun ways.</p>
@@ -2501,13 +2501,13 @@ admission.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Plains aren’t rigid categories, but cultures: each has its own ground rules,
+<p>Planes aren’t rigid categories, but cultures: each has its own ground rules,
 review process, and ideas about what makes code "good". Anyone can propose a new
-plain, but we don’t want too many; a bit of consensus is required before adding
+plane, but we don’t want too many; a bit of consensus is required before adding
 one.</p>
 </div>
 <div class="paragraph">
-<p><strong>How Does a Module Join a Plain?</strong></p>
+<p><strong>How Does a Module Join a Plane?</strong></p>
 </div>
 <div class="paragraph">
 <p>Again, the architecture is in development. But here is the basic process:</p>
@@ -2521,13 +2521,13 @@ one.</p>
 <p><strong>AI Vetting:</strong> Our AI (Weena) checks code for basic standards.</p>
 </li>
 <li>
-<p><strong>Acceptance:</strong> After being accepted, the module defaults to the <code>unstable</code> plain.</p>
+<p><strong>Acceptance:</strong> After being accepted, the module defaults to the <code>unstable</code> plane.</p>
 </li>
 <li>
-<p><strong>Level Up:</strong> Module authors can then apply to join other plains. Getting accepted depends on the plain’s review process (could be peer review, automated testing, thumbs up from community members, or nothing at all).</p>
+<p><strong>Level Up:</strong> Module authors can then apply to join other planes. Getting accepted depends on the plane’s review process (could be peer review, automated testing, thumbs up from community members, or nothing at all).</p>
 </li>
 <li>
-<p><strong>Multiple Plains:</strong> Modules can exist in multiple plains at once&#8212;&#8203;different communities may trust the same code for different reasons.</p>
+<p><strong>Multiple Planes:</strong> Modules can exist in multiple planes at once&#8212;&#8203;different communities may trust the same code for different reasons.</p>
 </li>
 </ol>
 </div>
@@ -2535,7 +2535,7 @@ one.</p>
 <p>This process will eventually be mediated on the website morloc.io (under construction).</p>
 </div>
 <div class="paragraph">
-<p>Overall, plains help you find code that matches your needs and values&#8212;&#8203;whether
+<p>Overall, planes help you find code that matches your needs and values&#8212;&#8203;whether
 you want ultimate safety, bleeding-edge performance, or just something weird
 that might surprise you. They also provide community and allow relations between
 different codebases to be specified.</p>
@@ -2634,6 +2634,11 @@ the main Morloc repository.</p>
 </tr>
 </tbody>
 </table>
+<div class="imageblock">
+<div class="content">
+<img loading="lazy" src="static/img/diag-mermaid-md5-b16fa2e1522cf5c27c35b08f3cf4bccd.svg" alt="Diagram" width="1026" height="62">
+</div>
+</div>
 <div class="paragraph">
 <p>The Morloc plain specifies membership in a special set of Morloc libraries that
 follows a certain set of conventions of requirements. This is broader than a

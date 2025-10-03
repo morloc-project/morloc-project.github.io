@@ -4,11 +4,11 @@
 :bibtex-order: appearance
 :bibtex-style: cambridge-university-press-numeric.csl
 :docinfo: shared
-:favicon: ./static/img/favicon.ico
+:favicon: static/img/favicon.ico
 :figure-caption!:
 :icons: image
-:iconsdir: ./static/img/admonition_icons
-:imagesdir: ./static/img
+:iconsdir: static/img/admonition_icons
+:imagesdir: static/img
 :nofooter:
 :sectanchors:
 :sectnums:
@@ -19,6 +19,9 @@
 :toclevels: 4
 :includedir: content
 :docinfo: shared
+:mermaid-theme: dark
+:mermaid-format: svg
+:mermaid-background: transparent
 
 [latexmath]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
