@@ -98,7 +98,7 @@ class MorlocLexer(RegexLexer):
             (r"(')\([^)]*\)", Keyword.Type),  # ..
             (r"(')[:!#$%&*+.\\/<=>?@^|~-]+", Keyword.Type),  # promoted type operators
             #  Operators
-            (r"(<-|::|->|=>|=|\.|\\|@)", Operator.Word),  # specials
+            (r"(<-|::|->|=>|=|\.|_|\\|@)", Operator.Word),  # specials
             #  Numbers
             (r"0[xX]_*[\da-fA-F](_*[\da-fA-F])*_*[pP][+-]?\d(_*\d)*", Number.Float),
             (
