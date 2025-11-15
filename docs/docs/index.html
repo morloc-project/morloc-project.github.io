@@ -618,20 +618,22 @@ document.addEventListener("DOMContentLoaded", function() {
 </li>
 <li><a href="#_syntax_and_features">5. Syntax and Features</a>
 <ul class="sectlevel2">
-<li><a href="#_source_function_from_foreign_languages">5.1. Source function from foreign languages</a></li>
-<li><a href="#_functions">5.2. Functions</a></li>
-<li><a href="#_modules">5.3. Modules</a></li>
-<li><a href="#_docstrings">5.4. Docstrings</a></li>
-<li><a href="#_composable_command_line_tools">5.5. Composable command line tools</a></li>
-<li><a href="#_user_arguments_and_outputs">5.6. User arguments and outputs</a></li>
-<li><a href="#_mapping_general_types_to_native_types">5.7. Mapping general types to native types</a></li>
-<li><a href="#_records">5.8. Records</a></li>
-<li><a href="#_tables">5.9. Tables</a></li>
-<li><a href="#_type_hierarchies">5.10. Type hierarchies</a></li>
-<li><a href="#_one_term_may_have_many_definitions">5.11. One term may have many definitions</a></li>
-<li><a href="#_overload_terms_with_typeclasses">5.12. Overload terms with typeclasses</a></li>
-<li><a href="#_binary_forms">5.13. Binary forms</a></li>
-<li><a href="#_defining_non_primitive_types">5.14. Defining non-primitive types</a></li>
+<li><a href="#_general_data_types">5.1. General data types</a></li>
+<li><a href="#_pattern_functions_for_data_accessupdate">5.2. Pattern functions for data access/update</a></li>
+<li><a href="#_source_function_from_foreign_languages">5.3. Source function from foreign languages</a></li>
+<li><a href="#_functions">5.4. Functions</a></li>
+<li><a href="#_modules">5.5. Modules</a></li>
+<li><a href="#_docstrings">5.6. Docstrings</a></li>
+<li><a href="#_composable_command_line_tools">5.7. Composable command line tools</a></li>
+<li><a href="#_user_arguments_and_outputs">5.8. User arguments and outputs</a></li>
+<li><a href="#_mapping_general_types_to_native_types">5.9. Mapping general types to native types</a></li>
+<li><a href="#_records">5.10. Records</a></li>
+<li><a href="#_tables">5.11. Tables</a></li>
+<li><a href="#_type_hierarchies">5.12. Type hierarchies</a></li>
+<li><a href="#_one_term_may_have_many_definitions">5.13. One term may have many definitions</a></li>
+<li><a href="#_overload_terms_with_typeclasses">5.14. Overload terms with typeclasses</a></li>
+<li><a href="#_binary_forms">5.15. Binary forms</a></li>
+<li><a href="#_defining_non_primitive_types">5.16. Defining non-primitive types</a></li>
 </ul>
 </li>
 <li><a href="#_ecosystem">6. Ecosystem</a>
@@ -1288,7 +1290,7 @@ between the languages. Exactly how this is done will be discussed later.</p>
 <span class="tok-n">pmap</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">b</span><span class="tok-p">]</span>
 <span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span>
 
-<span class="tok-n">sumOfSums</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-ow">.</span><span class="tok-w"> </span><span class="tok-n">pmap</span><span class="tok-w"> </span><span class="tok-n">sum</span></code></pre>
+<span class="tok-n">sumOfSums</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-err">.</span><span class="tok-w"> </span><span class="tok-n">pmap</span><span class="tok-w"> </span><span class="tok-n">sum</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1346,7 +1348,203 @@ replacement.</p>
 <h2 id="_syntax_and_features"><a class="anchor" href="#_syntax_and_features"></a>5. Syntax and Features</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_source_function_from_foreign_languages"><a class="anchor" href="#_source_function_from_foreign_languages"></a>5.1. Source function from foreign languages</h3>
+<h3 id="_general_data_types"><a class="anchor" href="#_general_data_types"></a>5.1. General data types</h3>
+<div class="paragraph">
+<p>Morloc supports standard primitives, homogenous lists, and tuples.</p>
+</div>
+<div class="paragraph">
+<div class="title">Booleans</div>
+<p>Booleans in Morloc are represented as <code>True</code> or <code>False</code> under the <code>Bool</code> type.</p>
+</div>
+<div class="paragraph">
+<div class="title">Numbers</div>
+<p>Numbers may be represented in normal format, scientific notation, or as
+hexidecimal/octal/binary format:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- standard notation for integers and floats</span>
+<span class="tok-mi">42</span>
+<span class="tok-mf">4.2</span>
+
+<span class="tok-c1">-- scientific notation (upper or lowercase &#39;e&#39;)</span>
+<span class="tok-mf">4.2E16</span>
+<span class="tok-mf">4.2e16</span>
+<span class="tok-mf">4.2e-8</span>
+
+<span class="tok-c1">-- hexadecimal notation (case insensitive)</span>
+<span class="tok-mh">0xf00d</span>
+<span class="tok-mh">0xDEADBEAF</span>
+
+<span class="tok-c1">-- octal notation (upper or lowercase &#39;o&#39;)</span>
+<span class="tok-mo">0o755</span>
+
+<span class="tok-c1">-- binary notation (upper or lowercase &#39;b&#39;)</span>
+<span class="tok-mb">0b0101</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Strings</div>
+<p>Morloc supports multi-line strings and string interpolation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- string interpolation, the value inside #{...} must be a string</span>
+<span class="tok-c1">-- no automatic stringifiction is supported yet (but will be soon)</span>
+<span class="tok-n">helloYou</span><span class="tok-w"> </span><span class="tok-n">you</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;hello </span><span class="tok-si">#{</span><span class="tok-n">you</span><span class="tok-si">}</span><span class="tok-s">&quot;</span>
+
+<span class="tok-n">longString</span><span class="tok-w"> </span><span class="tok-ow">=</span>
+<span class="tok-w">  </span><span class="tok-s">&quot;&quot;&quot;</span>
+<span class="tok-s">  this is a long</span>
+<span class="tok-s">  string</span>
+<span class="tok-s">  &quot;&quot;&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Tuples</div>
+<p>Tuples may be used to store a fixed number of terms of different type.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">True</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mf">6.45</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Records</div>
+<p>Records are essentially named tuples. Record type definitions and
+language-specific handling will be addressed later, but record data is expressed
+as shown in the example below:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-mi">42</span><span class="tok-w"> </span><span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Lists</div>
+<p>Lists are used to store a variable number of terms of the same type.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-mi">3</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lists do not yet have special accessors, but these are in the work and will use
+slicing syntax similar to that of Python.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pattern_functions_for_data_accessupdate"><a class="anchor" href="#_pattern_functions_for_data_accessupdate"></a>5.2. Pattern functions for data access/update</h3>
+<div class="paragraph">
+<p>Data structures may be accessed and modified using pattern functions. These
+patterns may be <em>getters</em> that extract a tuple of values from a data structure
+or <em>setters</em> that update a data structure without changing its type.</p>
+</div>
+<div class="paragraph">
+<div class="title">getters patterns</div>
+<p>A <strong>getter</strong> pattern describes an optionally branching path into a data
+structure. Each segment of the path may be a tuple index, a record key, or a
+group of indices/keys. The terminal positions in the pattern are returned as
+elements in a tuple. Here are a few examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- return the 1st element in a tuple of any size</span>
+.0<span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">-- return 1</span>
+.0<span class="tok-w"> </span><span class="tok-p">((</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">3</span><span class="tok-p">),</span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-mi">5</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">-- return (1,3)</span>
+
+<span class="tok-c1">-- return the 2nd element in the first element of a tuple</span>
+.0.1<span class="tok-w"> </span><span class="tok-p">((</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">3</span><span class="tok-p">),</span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-mi">5</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">-- return 3</span>
+
+<span class="tok-c1">-- returns the 2nd and 1st elements in a tuple</span>
+.(.1,.0)<span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-mi">3</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">-- returns (2,1)</span>
+.(.1,.0)<span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w">   </span><span class="tok-c1">-- returns (2,1)</span>
+
+<span class="tok-c1">-- indices and keys may be used together</span>
+.0.(.x,<span class="tok-w"> </span>.y.1)<span class="tok-w"> </span><span class="tok-p">({</span><span class="tok-n">x</span><span class="tok-ow">=</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-ow">=</span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">2</span><span class="tok-p">),</span><span class="tok-w"> </span><span class="tok-n">z</span><span class="tok-ow">=</span><span class="tok-mi">3</span><span class="tok-p">},</span><span class="tok-w"> </span><span class="tok-mi">6</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">-- returns (1,2)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These patterns are transformed into functions may be used exactly like any other
+function.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">map</span><span class="tok-w"> </span>.1<span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">2</span><span class="tok-p">),(</span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-mi">3</span><span class="tok-p">)]</span><span class="tok-w"> </span><span class="tok-c1">-- returns [2,3]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">setters patterns</div>
+<p>Setter patterns are similar but add an assignment statement to each pattern
+terminus.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span>.(.0<span class="tok-w"> </span>=<span class="tok-w"> </span><span class="tok-mi">99</span>)<span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">-- return (99,2)</span>
+
+<span class="tok-c1">-- indices and keys may be used together</span>
+.0.(.x=<span class="tok-mi">99</span>,<span class="tok-w"> </span>.y.1=<span class="tok-mi">33</span>)<span class="tok-w"> </span><span class="tok-p">({</span><span class="tok-n">x</span><span class="tok-ow">=</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-ow">=</span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">2</span><span class="tok-p">),</span><span class="tok-w"> </span><span class="tok-n">z</span><span class="tok-ow">=</span><span class="tok-mi">3</span><span class="tok-p">},</span><span class="tok-w"> </span><span class="tok-mi">6</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">-- returns ({x=99, y=(1,33), z=3}, 6)</span></code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Comparison of patterns to Python syntax</caption>
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Pattern</th>
+<th class="tableblock halign-left valign-top">Python</th>
+<th class="tableblock halign-left valign-top">Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lambda x: x[0]</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">patterns are functions</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.0 x</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">x[0]</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.0.k x</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">x[0]["k"]</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.(.1,.0) x</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(x[1], x[0])</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">foo .0 xs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">foo(lambda x: x[0], xs)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">higher order</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">.(.k = 1) x</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">x["k"] = 1</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Note that setters are designed to not mutate data. The <strong>spine</strong> of the data
+structure will be copied which retains links to the original data for unmodified
+fields. So the expression <code>.(.0 = 42) x</code> when translated into Python will create
+a new tuple with the first field being 42 and the remaining fields assigned to
+elements of the original field. The same goes for records. In the future, I may
+add an alternative syntax for setting the mutates the data structure.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_source_function_from_foreign_languages"><a class="anchor" href="#_source_function_from_foreign_languages"></a>5.3. Source function from foreign languages</h3>
 <div class="paragraph">
 <p>In Morloc, you can import functions from many languages and compose them under
 a common type system. The syntax for importing functions from source files is as
@@ -1469,7 +1667,7 @@ code.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_functions"><a class="anchor" href="#_functions"></a>5.2. Functions</h3>
+<h3 id="_functions"><a class="anchor" href="#_functions"></a>5.4. Functions</h3>
 <div class="paragraph">
 <p>Functions are defined with arguments seperated by whitespace:</p>
 </div>
@@ -1486,7 +1684,7 @@ code.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">g</span><span class="tok-w"> </span><span class="tok-ow">.</span><span class="tok-w"> </span><span class="tok-n">f</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">g</span><span class="tok-w"> </span><span class="tok-err">.</span><span class="tok-w"> </span><span class="tok-n">f</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1562,9 +1760,17 @@ following two expressions obtain the same result:</p>
 <p>When multiple placeholders are used, the arguments generated for the lambda are
 applied in left-to-right order.</p>
 </div>
+<div class="paragraph">
+<p>Placeholders also work in string interpolation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-s">&quot;Hello </span><span class="tok-si">#{</span><span class="tok-ow">_</span><span class="tok-si">}</span><span class="tok-s">!&quot;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Bob&quot;</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_modules"><a class="anchor" href="#_modules"></a>5.3. Modules</h3>
+<h3 id="_modules"><a class="anchor" href="#_modules"></a>5.5. Modules</h3>
 <div class="paragraph">
 <p>A module includes all the code defined under the <code>import &lt;module_name&gt;</code>
 statement. It can be imported with the <code>import</code> command.</p>
@@ -1585,7 +1791,7 @@ statement. It can be imported with the <code>import</code> command.</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)</span>
 
-<span class="tok-ow">...</span></code></pre>
+<span class="tok-err">...</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1606,7 +1812,7 @@ function. The compiler will choose which to use.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_docstrings"><a class="anchor" href="#_docstrings"></a>5.4. Docstrings</h3>
+<h3 id="_docstrings"><a class="anchor" href="#_docstrings"></a>5.6. Docstrings</h3>
 <div class="paragraph">
 <p>Morloc has early support for docstrings in comments that propagate to the
 generated CLI code.</p>
@@ -1657,7 +1863,7 @@ the backend.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_composable_command_line_tools"><a class="anchor" href="#_composable_command_line_tools"></a>5.5. Composable command line tools</h3>
+<h3 id="_composable_command_line_tools"><a class="anchor" href="#_composable_command_line_tools"></a>5.7. Composable command line tools</h3>
 <div class="paragraph">
 <p>Since modules can both be compiled into executable command line tools and
 imported by other modules, we can naturally compose command line tools.</p>
@@ -1726,7 +1932,7 @@ Exported Commands:
 </div>
 </div>
 <div class="sect2">
-<h3 id="_user_arguments_and_outputs"><a class="anchor" href="#_user_arguments_and_outputs"></a>5.6. User arguments and outputs</h3>
+<h3 id="_user_arguments_and_outputs"><a class="anchor" href="#_user_arguments_and_outputs"></a>5.8. User arguments and outputs</h3>
 <div class="paragraph">
 <p>User data is passed to Morloc executables as positional arguments to the
 specified function subcommand. The argument may be a literal JSON string or a
@@ -1775,7 +1981,7 @@ describing the data.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_mapping_general_types_to_native_types"><a class="anchor" href="#_mapping_general_types_to_native_types"></a>5.7. Mapping general types to native types</h3>
+<h3 id="_mapping_general_types_to_native_types"><a class="anchor" href="#_mapping_general_types_to_native_types"></a>5.9. Mapping general types to native types</h3>
 <div class="paragraph">
 <p>When a function is sourced from a foreign language, Morloc needs to know how
 Morloc general types map to the function&#8217;s native types. This information is
@@ -1823,7 +2029,7 @@ into the native type. So the Morloc type <code>List Int32</code> would translate
 </div>
 </div>
 <div class="sect2">
-<h3 id="_records"><a class="anchor" href="#_records"></a>5.8. Records</h3>
+<h3 id="_records"><a class="anchor" href="#_records"></a>5.10. Records</h3>
 <div class="paragraph">
 <p>A record is internally a named tuple. Records may map to different structures in
 different languages.</p>
@@ -1927,7 +2133,7 @@ shown above, records may be written in braces and their type will be inferred.</
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-n">age</span>
-<span class="tok-w">    </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rinc</span><span class="tok-w"> </span><span class="tok-ow">.</span><span class="tok-w"> </span><span class="tok-n">pinc</span><span class="tok-w"> </span><span class="tok-ow">.</span><span class="tok-w"> </span><span class="tok-n">cinc</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rinc</span><span class="tok-w"> </span><span class="tok-err">.</span><span class="tok-w"> </span><span class="tok-n">pinc</span><span class="tok-w"> </span><span class="tok-err">.</span><span class="tok-w"> </span><span class="tok-n">cinc</span><span class="tok-p">)</span>
 <span class="tok-w">      </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -1941,7 +2147,7 @@ are currently not supported. They will be in the future.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_tables"><a class="anchor" href="#_tables"></a>5.9. Tables</h3>
+<h3 id="_tables"><a class="anchor" href="#_tables"></a>5.11. Tables</h3>
 <div class="paragraph">
 <p>Tables are similar, but all fields are lists of equal length:</p>
 </div>
@@ -2013,7 +2219,7 @@ reliability of the typed structures.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.10. Type hierarchies</h3>
+<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.12. Type hierarchies</h3>
 <div class="paragraph">
 <p>In some cases, there is a single obvious native type for a given Morloc general
 type. For example, most languages have exactly only one reasonable way to
@@ -2061,7 +2267,7 @@ to implement specialized behavior for more efficient conversion to binary.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.11. One term may have many definitions</h3>
+<h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.13. One term may have many definitions</h3>
 <div class="paragraph">
 <p>Morloc supports what might be called <em>term polymorphism</em>. Each
 term may have many definitions. For example, the function <code>mean</code> has three
@@ -2120,7 +2326,7 @@ needed in making these definitions.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.12. Overload terms with typeclasses</h3>
+<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.14. Overload terms with typeclasses</h3>
 <div class="paragraph">
 <p>In addition to term polymorphism, Morloc offers more traditional ad hoc
 polymorphism over types. Here typeclasses may be defined and type-specific
@@ -2190,7 +2396,7 @@ is crucial to the grand structure of the future Morloc library.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.13. Binary forms</h3>
+<h3 id="_binary_forms"><a class="anchor" href="#_binary_forms"></a>5.15. Binary forms</h3>
 <div class="paragraph">
 <p>Every Morloc general type maps unambiguously to a binary form that consists of
 several fixed-width literal types, a list container, and a tuple container. The
@@ -2201,7 +2407,7 @@ unboxed vector. The tuple is represented as a set of values in contiguous
 memory. These basic types are listed below:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 1. Morloc primitives</caption>
+<caption class="title">Table 2. Morloc primitives</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 16.6666%;">
@@ -2376,7 +2582,7 @@ Morloc type schema.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_defining_non_primitive_types"><a class="anchor" href="#_defining_non_primitive_types"></a>5.14. Defining non-primitive types</h3>
+<h3 id="_defining_non_primitive_types"><a class="anchor" href="#_defining_non_primitive_types"></a>5.16. Defining non-primitive types</h3>
 <div class="paragraph">
 <p>Types that are composed entirely of Morloc primitives, lists, tuples, records
 and tables may be directly and unambiguously translated to Morloc binary forms
@@ -2630,7 +2836,7 @@ the main Morloc repository.</p>
 <p>Each packet has a 32-byte with the following fields:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 2. Packet header specification</caption>
+<caption class="title">Table 3. Packet header specification</caption>
 <colgroup>
 <col style="width: 13.3333%;">
 <col style="width: 13.3333%;">
@@ -2723,7 +2929,7 @@ needed. Third, data packets may be written by the nexus as the output of a
 program.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 3. Data packet command field specification</caption>
+<caption class="title">Table 4. Data packet command field specification</caption>
 <colgroup>
 <col style="width: 13.3333%;">
 <col style="width: 13.3333%;">
@@ -2803,7 +3009,7 @@ contiguous list of data packets representing positional arguments as their
 payload.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. Call packet command field specification</caption>
+<caption class="title">Table 5. Call packet command field specification</caption>
 <colgroup>
 <col style="width: 13.3333%;">
 <col style="width: 13.3333%;">
@@ -2855,7 +3061,7 @@ machine for execution.</p>
 until it gets a response before sending them call instructions.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 5. Ping packet command field specification</caption>
+<caption class="title">Table 6. Ping packet command field specification</caption>
 <colgroup>
 <col style="width: 13.3333%;">
 <col style="width: 13.3333%;">
@@ -2889,7 +3095,7 @@ until it gets a response before sending them call instructions.</p>
 <p>Metadata is stored in blocks that start with an 8-byte metadata header.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 6. Metadata block specification</caption>
+<caption class="title">Table 7. Metadata block specification</caption>
 <colgroup>
 <col style="width: 13.3333%;">
 <col style="width: 13.3333%;">
