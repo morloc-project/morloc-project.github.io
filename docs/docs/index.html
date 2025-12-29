@@ -1540,7 +1540,7 @@ structure will be copied which retains links to the original data for unmodified
 fields. So the expression <code>.(.0 = 42) x</code> when translated into Python will create
 a new tuple with the first field being 42 and the remaining fields assigned to
 elements of the original field. The same goes for records. In the future, I may
-add an alternative syntax for setting the mutates the data structure.</p>
+add an alternative syntax that mutates the data structure.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1814,25 +1814,23 @@ function. The compiler will choose which to use.</p>
 <div class="sect2">
 <h3 id="_docstrings"><a class="anchor" href="#_docstrings"></a>5.6. Docstrings</h3>
 <div class="paragraph">
-<p>Morloc has early support for docstrings in comments that propagate to the
-generated CLI code.</p>
+<p>Morloc has supports special handling of comments that are used to direct how the
+CLI program is generated.</p>
 </div>
 <div class="paragraph">
-<p>For example:</p>
+<p>Here is a minimal example of propagated function descriptions:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">add</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
 
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;main.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;foo&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;bar&quot;</span><span class="tok-p">)</span>
 
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;main.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;add&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;sum&quot;</span><span class="tok-p">)</span>
+<span class="tok-c1">--&#39; Take two reals and do thing</span>
+<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span>
 
-<span class="tok-c1">--&#39; Add two floats</span>
-<span class="tok-n">add</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span>
-
-<span class="tok-c1">--&#39; Sum a list of floats</span>
-<span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span></code></pre>
+<span class="tok-c1">--&#39; Convert a list of reals into a thing</span>
+<span class="tok-n">bar</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1844,21 +1842,206 @@ the backend.</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
 <span class="tok-gp">$ </span>./neuxs<span class="tok-w"> </span>-h
-<span class="tok-go">Usage: ./nexus [OPTION]... COMMAND [ARG]...</span>
+<span class="tok-go">Usage: ./nexus [OPTION...] COMMAND [ARG...]</span>
 
 <span class="tok-go">Nexus Options:</span>
 <span class="tok-go"> -h, --help            Print this help message</span>
 <span class="tok-go"> -o, --output-file     Print to this file instead of STDOUT</span>
 <span class="tok-go"> -f, --output-format   Output format [json|mpk|voidstar]</span>
 
-<span class="tok-go">Exported Commands:</span>
-<span class="tok-go">  add   Add two floats</span>
-<span class="tok-go">          param 1: Real</span>
-<span class="tok-go">          param 2: Real</span>
-<span class="tok-go">          return: Real</span>
-<span class="tok-go">  sum   Sum a list of floats</span>
-<span class="tok-go">          param 1: [Real]</span>
-<span class="tok-go">          return: Real</span></code></pre>
+<span class="tok-go">Exported commands (call with -h/--help for more info):</span>
+<span class="tok-go">  foo  Take two reals and do thing</span>
+<span class="tok-go">  bar  Convert a list of reals into a thing</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>More detailed information about each exported subcommand may be accessed as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">root@8db629c17db9:~/work# </span>./nexus<span class="tok-w"> </span>foo<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: ./nexus foo ARG1 ARG2</span>
+
+<span class="tok-go">Take two reals and do thing</span>
+
+<span class="tok-go">Positional arguments:</span>
+<span class="tok-go">  ARG1  No description given</span>
+<span class="tok-go">        type: Real</span>
+<span class="tok-go">  ARG2  No description given</span>
+<span class="tok-go">        type: Real</span>
+
+<span class="tok-go">Return: Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Docstrings may also contain tags that specify how the arguments of the exported
+functions map to CLI positional or optional arguments. Here is a list of the
+currently supported tags:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>name</code> - give the CLI subcommand a dedicated name rather than defaulting to
+the Morloc function name</p>
+</li>
+<li>
+<p><code>literal</code> - treat an argument the actual data, not a file that contains the
+data, currently this is just used for strings where <code>literal: true</code> indicates
+that the extra JSON quotes are not required.</p>
+</li>
+<li>
+<p><code>unroll</code> - if <code>true</code>, then the record argument is "unrolled" into a group of optional arguments</p>
+</li>
+<li>
+<p><code>default</code> - the default value for an argument, in JSON format</p>
+</li>
+<li>
+<p><code>metavar</code> - the variable name used for the argument in the usage text</p>
+</li>
+<li>
+<p><code>arg</code> - short and long labels for this argument (e.g., "-v/--verbose")</p>
+</li>
+<li>
+<p><code>true</code> - the flag labels that toggle a boolean argument on</p>
+</li>
+<li>
+<p><code>false</code> - the flag labels that toggle a boolean argument off</p>
+</li>
+<li>
+<p><code>return</code> - a description of the returned data (this tag is the same as adding a description docstring to final type in a signature)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Here is a longer example that show-cases these tags:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foobar</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bar</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foobar.py&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-s">&quot;foo&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;bar&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">--&#39; config record</span>
+<span class="tok-c1">--&#39; unroll: true</span>
+<span class="tok-c1">--&#39; arg: --config</span>
+<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Config</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; temporary directory</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; arg: --tmp</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; literal: true</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; default: &quot;/tmp&quot;</span>
+<span class="tok-w">  </span><span class="tok-n">tmpdir</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Str</span>
+
+<span class="tok-w">  </span><span class="tok-c1">--&#39; cache the results</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; true: --cache</span>
+<span class="tok-w">  </span><span class="tok-n">cache</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Bool</span>
+
+<span class="tok-w">  </span><span class="tok-c1">--&#39; number of threads to use</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; arg: -t/--num-threads</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; default: 1</span>
+<span class="tok-w">  </span><span class="tok-n">nthreads</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+
+<span class="tok-c1">--&#39; do foo stuff</span>
+<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-ow">::</span>
+<span class="tok-w">  </span><span class="tok-n">Config</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; list of integers</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; metavar: INT_LIST</span>
+<span class="tok-w">  </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; sum of INT_LIST</span>
+<span class="tok-w">  </span><span class="tok-n">Int</span>
+
+<span class="tok-c1">--&#39; do bar stuff</span>
+<span class="tok-c1">--&#39; return: summed values</span>
+<span class="tok-n">bar</span><span class="tok-w"> </span><span class="tok-ow">::</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; unroll: false</span>
+<span class="tok-w">  </span><span class="tok-n">Config</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The top-level usage statement is as follows</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: ./nexus [OPTION...] COMMAND [ARG...]</span>
+
+<span class="tok-go">Nexus Options:</span>
+<span class="tok-go"> -h, --help            Print this help message</span>
+<span class="tok-go"> -o, --output-file     Print to this file instead of STDOUT</span>
+<span class="tok-go"> -f, --output-format   Output format [json|mpk|voidstar]</span>
+
+<span class="tok-go">Exported commands (call with -h/--help for more info):</span>
+<span class="tok-go">  foo  do foo stuff</span>
+<span class="tok-go">  bar  do bar stuff</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The dedicated usage information for <code>foo</code> can be accessed as well. Here we see
+that the record <code>Config</code> has been unrolled into a group of optional arguments:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>foo<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: ./nexus foo [OPTION...] INT_LIST</span>
+
+<span class="tok-go">do foo stuff</span>
+
+<span class="tok-go">Positional arguments:</span>
+<span class="tok-go">  INT_LIST  list of integers</span>
+<span class="tok-go">            type: [Int]</span>
+
+<span class="tok-go">Group arguments:</span>
+<span class="tok-go">  Config: config record</span>
+<span class="tok-go">    --config Config</span>
+<span class="tok-go">        Default values for this argument group</span>
+<span class="tok-go">            tmpdir :: Str</span>
+<span class="tok-go">            cache :: Bool</span>
+<span class="tok-go">            nthreads :: Int</span>
+<span class="tok-go">    --tmp Str</span>
+<span class="tok-go">        temporary directory</span>
+<span class="tok-go">        type: Str</span>
+<span class="tok-go">        default: &quot;/tmp&quot;</span>
+<span class="tok-go">    --cache</span>
+<span class="tok-go">        cache the results</span>
+<span class="tok-go">        default: false</span>
+<span class="tok-go">    -t Int, --num-threads Int</span>
+<span class="tok-go">        number of threads to use</span>
+<span class="tok-go">        type: Int</span>
+<span class="tok-go">        default: 1</span>
+
+<span class="tok-go">Return: Int</span>
+<span class="tok-go">  sum of INT_LIST</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Since each subcommand is a function, the return type is always the same. Unlike
+in a conventional CLI program, the arguments cannot alter the return type.</p>
+</div>
+<div class="paragraph">
+<p>The <code>bar</code> subcommand explicitly does not unroll the <code>Config</code> record:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">root@aee4061937f8:~/work# </span>./nexus<span class="tok-w"> </span>bar<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: ./nexus bar ARG1 ARG2</span>
+
+<span class="tok-go">do bar stuff</span>
+
+<span class="tok-go">Positional arguments:</span>
+<span class="tok-go">  ARG1  config record</span>
+<span class="tok-go">        type: NamRecord Config&lt;&gt;</span>
+<span class="tok-go">              {</span>
+<span class="tok-go">                  tmpdir :: Str</span>
+<span class="tok-go">                  cache :: Bool</span>
+<span class="tok-go">                  nthreads :: Int</span>
+<span class="tok-go">              }</span>
+<span class="tok-go">  ARG2  No description given</span>
+<span class="tok-go">        type: [Int]</span>
+
+<span class="tok-go">Return: Int</span>
+<span class="tok-go">  summed values</span></code></pre>
 </div>
 </div>
 </div>
@@ -1875,7 +2058,7 @@ imported by other modules, we can naturally compose command line tools.</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">cally</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">cal</span><span class="tok-p">)</span>
 
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
 
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;cal.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;cal&quot;</span><span class="tok-p">)</span>
 
@@ -1890,7 +2073,7 @@ imported by other modules, we can naturally compose command line tools.</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">dnd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d20</span><span class="tok-p">)</span>
 
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
 
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;dnd.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;d20&quot;</span><span class="tok-p">)</span>
 
@@ -2155,7 +2338,7 @@ are currently not supported. They will be in the future.</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">readPeople</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">addPeople</span><span class="tok-p">)</span>
 
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-p">)</span>
 
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;people-tables.R&quot;</span>
 <span class="tok-w">   </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;read.delim&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">readPeople</span>
@@ -2276,7 +2459,7 @@ definitions below:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">base</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">sum</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">div</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">size</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">add</span><span class="tok-p">)</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-cpp</span>
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;mean.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;mean&quot;</span><span class="tok-p">)</span>
 <span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-ow">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-ow">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span>
 <span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-ow">=</span><span class="tok-w"> </span><span class="tok-n">div</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span>
@@ -2833,7 +3016,7 @@ domain socket messages and shared memory storage.</p>
 the main Morloc repository.</p>
 </div>
 <div class="paragraph">
-<p>Each packet has a 32-byte with the following fields:</p>
+<p>Each packet has a 32-byte header with the following fields:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 3. Packet header specification</caption>

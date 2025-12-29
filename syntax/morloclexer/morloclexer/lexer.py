@@ -60,7 +60,7 @@ class MorlocLexer(RegexLexer):
             ),
             #
             (
-                r"(\bimport\b)(\s+)([a-zA-Z.][\w]+)",
+                r"(\bimport\b)(\s+)([a-zA-Z.][\w-]+)",
                 bygroups(Keyword.Reserved, Whitespace, Name),
             ),
             (
