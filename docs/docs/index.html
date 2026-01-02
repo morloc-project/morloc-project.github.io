@@ -609,11 +609,12 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_getting_started">4. Getting Started</a>
 <ul class="sectlevel2">
 <li><a href="#_installing_morloc">4.1. Installing Morloc</a></li>
-<li><a href="#_setting_up_ides">4.2. Setting up IDEs</a></li>
-<li><a href="#_say_hello">4.3. Say hello</a></li>
-<li><a href="#_dice_rolling">4.4. Dice rolling</a></li>
-<li><a href="#_polyglot_dice_rolling">4.5. Polyglot dice rolling</a></li>
-<li><a href="#_parallelism_example">4.6. Parallelism example</a></li>
+<li><a href="#_handling_dependencies">4.2. Handling dependencies</a></li>
+<li><a href="#_setting_up_ides">4.3. Setting up IDEs</a></li>
+<li><a href="#_say_hello">4.4. Say hello</a></li>
+<li><a href="#_dice_rolling">4.5. Dice rolling</a></li>
+<li><a href="#_polyglot_dice_rolling">4.6. Polyglot dice rolling</a></li>
+<li><a href="#_parallelism_example">4.7. Parallelism example</a></li>
 </ul>
 </li>
 <li><a href="#_syntax_and_features">5. Syntax and Features</a>
@@ -908,7 +909,7 @@ can be used to compile and run Morloc programs. For example:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>menv</code> script mounts the working directory and the <code>~/.morloc/&lt;version&gt;</code>
+<p>The <code>menv</code> script mounts the working directory and the <code>~/.local/share/morloc/&lt;version&gt;</code>
 directory. It builds the program using the containers version of the Morloc
 compiler and Morloc libraries that are defined in the version-specific home
 directory. It cannot see any dependencies on your local system.</p>
@@ -941,20 +942,61 @@ Morloc from source, do the following:</p>
 shell.</p>
 </div>
 <div class="paragraph">
-<p>The <code>morloc</code> compiler always considers <code>~/.morloc</code> to be the home directory. The
-containers mount separate folders in the local <code>~/.morloc</code> folder.  This means
-the different versions of Morloc installed, as well as the special <code>local</code>
-version used by the dev container, do not have overlapping libraries and
-modules.</p>
+<p>The Morloc compiler always considers <code>~/.local/share/morloc</code> to be the
+Morloc home directory. The containers mount separate folders from the local
+<code>~/.local/share/morloc/versions</code> folder to this expected home directory in the
+container. This means the different versions of Morloc installed, as well as the
+special <code>local</code> version used by the dev container, do not have overlapping
+libraries and modules.</p>
 </div>
 <div class="paragraph">
 <p>Throughout the rest of this manual, whenever I show an example that uses
-<code>morloc</code>, you can assume that I am running it from within a container after
-calling <code>morloc-shell</code>.</p>
+Morloc, you can assume that I am running it from within a container after
+calling <code>morloc-shell</code> or <code>morloc-shell-dev</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_setting_up_ides"><a class="anchor" href="#_setting_up_ides"></a>4.2. Setting up IDEs</h3>
+<h3 id="_handling_dependencies"><a class="anchor" href="#_handling_dependencies"></a>4.2. Handling dependencies</h3>
+<div class="paragraph">
+<p>The <code>morloc-manager</code> script will install the Morloc compiler and default
+language run-times. This is sufficient to play with Morloc and run most of the
+demos. However, if you write any code that has additional dependencies, you will
+need to augment the environment. As of v0.5.0, the <code>morloc-manager</code> provides
+support for specifying containers that build on the default containers.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s say we want to create a new environment for scientific computing with Python:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>env<span class="tok-w"> </span>--init<span class="tok-w"> </span>scipy</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will create a stub Dockerfile at
+<code>~/.local/share/morloc/deps/scipy.Dockerfile</code>. It can be modified to specify
+whatever additional dependencies are needed. Then the environment can be built
+and selected as follows:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>env<span class="tok-w"> </span>scipy</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All existing environments can be listed as well:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>env<span class="tok-w"> </span>--list</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This feature is new and still experimental. Any feedback would be appreciated.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_setting_up_ides"><a class="anchor" href="#_setting_up_ides"></a>4.3. Setting up IDEs</h3>
 <div class="paragraph">
 <p>We are currently working on expanding the editor support for Morloc.</p>
 </div>
@@ -1052,7 +1094,7 @@ full concrete syntax tree from the code:</p>
 </details>
 </div>
 <div class="sect2">
-<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>4.3. Say hello</h3>
+<h3 id="_say_hello"><a class="anchor" href="#_say_hello"></a>4.4. Say hello</h3>
 <div class="paragraph">
 <p>The inevitable "Hello World" case is implemented in Morloc like so:</p>
 </div>
@@ -1117,7 +1159,7 @@ input types are listed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_dice_rolling"><a class="anchor" href="#_dice_rolling"></a>4.4. Dice rolling</h3>
+<h3 id="_dice_rolling"><a class="anchor" href="#_dice_rolling"></a>4.5. Dice rolling</h3>
 <div class="paragraph">
 <p>Let&#8217;s write a little program rolls a pair of 20-sided dice and prints the larger
 result. Here is the Morloc script:</p>
@@ -1203,7 +1245,7 @@ Morloc is uniquely valuable is in the polyglot setting.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_polyglot_dice_rolling"><a class="anchor" href="#_polyglot_dice_rolling"></a>4.5. Polyglot dice rolling</h3>
+<h3 id="_polyglot_dice_rolling"><a class="anchor" href="#_polyglot_dice_rolling"></a>4.6. Polyglot dice rolling</h3>
 <div class="paragraph">
 <p>In this next example, we rewrite the prior dice example with all three functions
 being sourced from different languages:</p>
@@ -1274,7 +1316,7 @@ between the languages. Exactly how this is done will be discussed later.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_parallelism_example"><a class="anchor" href="#_parallelism_example"></a>4.6. Parallelism example</h3>
+<h3 id="_parallelism_example"><a class="anchor" href="#_parallelism_example"></a>4.7. Parallelism example</h3>
 <div class="paragraph">
 <p>Here is an example showing a parallel map function written in Python that calls C&#43;&#43; functions.</p>
 </div>
