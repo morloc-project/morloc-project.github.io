@@ -5,3 +5,5 @@
 *.bundle
 Gemfile.lock
 .aider*
+CLAUDE.md
+.claude

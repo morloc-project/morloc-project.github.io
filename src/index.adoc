@@ -42,7 +42,7 @@
 == Intro
 
 Morloc is a strongly-typed functional programming language where functions are
-imported from foreign languages and unified through a common type system. This
+imported from foreign languages and unified under a common type system. This
 language is designed to serve as the foundation for a universal library of
 functions. Each function in the library has one general type and zero or more
 implementations. An implementation may be either a function sourced from a
@@ -147,12 +147,10 @@ paper for details (https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf[
 
 Morloc is under heavy development in several areas:
 
- * *language support* – We need to further standardize the language onboarding
-   process and then start adding new languages beyond the three that are
-   currently supported (Python, R, and {cpp})
+ * *language support* – Need to streamline language onboarding and add languages
+   beyond the current three (Python, R, and {cpp})
 
- * *type system* – There’s lots to do here: sum types, effect handling,
-   constraints, extensible records
+ * *type system* – There’s lots to do here: sum types, effect handling, constraints, extensible records
 
  * *performance* – The shared library implementation lacks proper memory
    defragmentation, and there is some unnecessary memory copying between
@@ -161,11 +159,8 @@ Morloc is under heavy development in several areas:
  * *scaling* – I’ve implemented some of the infrastructure and syntax for remote
    job submission, but more work is needed before it can be used in practice
 
- * *syntax* – Pattern matching, custom operators, namespaces, string
-   interpolation, and more are on the roadmap
-
- * *tooling* – We need a linter, debugger, dependency manager, and better
-   backend generators that produce better CLI usage statements and programmatic APIs
+ * *tooling* – We need a linter, debugger, better dependency management, more
+   flexible builds
 
 There is one island of stability, though: the native functions Morloc imports
 are fully independent of Morloc itself. For a given Morloc program, most of your
