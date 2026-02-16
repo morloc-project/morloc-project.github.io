@@ -172,7 +172,7 @@ compose them, and the particulars of code generation.
 Is Morloc ready for production? Maybe. Currently, Morloc has many sharp edges,
 and new versions may introduce breaking changes. So Morloc is most appropriate
 right now for adventurous first adopters who can solve problems and write clear
-issue reports. Morloc may be about one year of full-time work away from v1.0.
+issue reports.
 
 *Want to contribute?* The most helpful thing you can do is join the community (see
 the Contact section), try out Morloc, and offer feedback on social media or via
@@ -190,9 +190,21 @@ include::{includedir}/getting-started.asc[]
 
 include::{includedir}/features.asc[]
 
-== Ecosystem
+== Modules and Libraries
 
 include::{includedir}/ecosystem.asc[]
+
+== Building Command Line Tools
+
+include::{includedir}/cli.asc[]
+
+== Summoning Daemons
+
+include::{includedir}/daemons.asc[]
+
+== Morloc versions and dependencies
+
+include::{includedir}/installation.asc[]
 
 == Internals
 
@@ -206,79 +218,15 @@ include::{includedir}/internals.asc[]
 
 include::{includedir}/questions-and-answers.asc[]
 
-
 == Contact
 
 include::{includedir}/contact.asc[]
-
-// == Code Generation and Optimization
-//
-// include::{includedir}/code-generation.asc[]
-//
-// == Specification
-//
-// include::{includedir}/type-specification.asc[]
-
-// == In Development
-//
-// include::{includedir}/refinement-types.asc[]
-//
-// include::{includedir}/generating-user-interfaces.asc[]
-//
-// include::{includedir}/effects.asc[]
-
-// the module system and environment
-
-// = The Future
-//
-// include::{includedir}/unsettled-issues.asc[]
-//
-// include::{includedir}/pieces.asc[]
-//
-// include::{includedir}/workflow.asc[]
-//
-// = Related work
-//
-// include::{includedir}/related-work.asc[]
-//
-// [glossary]
-// = Glossary
-//
-// include::{includedir}/glossary.asc[]
-//
-// [appendix]
-//
-// = LOC (old version of Morloc)
-//
-// LOC was the first working(ish) version of Morloc
-//
-// include::{includedir}/LOC.asc[]
-
-
-// == Acknowledgements
-//
-// This documentation page was built with Asciidocs -- the best markdown language ever -- and the link:https://harshkapadia2.github.io/asciidoctor-jet/[asciidoctor-jet] template made by Harsh Kapadia.
 
 
 // [bibliography]
 // = References
 //
 // bibliography::[]
-
-// // flotsam
-// include::{includedir}/old-letter.asc[]
-//
-// include::{includedir}/build-system.asc[]
-//
-// include::{includedir}/forms-of-data.asc[]
-//
-// include::{includedir}/function-roles.asc[]
-//
-// include::{includedir}/graph.asc[]
-//
-// include::{includedir}/manifolds-and-codegen.asc[]
-//
-// include::{includedir}/modules.asc[]
 
 // DO NOT remove the HTML block below as it is required for the PWA install prompt and the 'back to top' button.
 ++++

@@ -20,7 +20,7 @@ from pygments import unistring as uni
 class MorlocLexer(RegexLexer):
     name = "MorlocLexer"
     aliases = ["morloc"]
-    filenames = ["*.mlc"]
+    filenames = ["*.loc"]
     reserved = (
         "module",
         "source",
@@ -34,7 +34,10 @@ class MorlocLexer(RegexLexer):
         "instance",
         "where",
         "from",
-        "as"
+        "as",
+        "infixl",
+        "infixr",
+        "infix",
     )
 
     tokens = {
@@ -46,6 +49,18 @@ class MorlocLexer(RegexLexer):
             (r"\bmodule\b", Keyword.Reserved, "module"),
             (r"\bclass\b", Keyword.Reserved),
             (r"\binstance\b", Keyword.Reserved),
+
+            # Fixity declarations: infixl 6 +, infixr 0 $, infix 4 ==
+            (
+                r"(\binfixl\b|\binfixr\b|\binfix\b)(\s+)(\d+)(\s+)(.+)",
+                bygroups(
+                    Keyword.Reserved,
+                    Whitespace,
+                    Number.Integer,
+                    Whitespace,
+                    Operator,
+                ),
+            ),
 
             (r"\bsource\b", Keyword.Reserved),
             (r"\bfrom\b", Keyword.Reserved),
@@ -85,8 +100,12 @@ class MorlocLexer(RegexLexer):
             ),  # tuples and lists get special treatment in GHC
             (r"(')\([^)]*\)", Keyword.Type),  # ..
             (r"(')[:!#$%&*+.\\/<=>?@^|~-]+", Keyword.Type),  # promoted type operators
+            # Parenthesized operators: (+), (<>), ($)
+            (r'\([:!$%&*+./<=>?@\\^|~#-]+\)', Name.Function),
             #  Operators
-            (r"(<-|::|->|=>|=|_|\\|@)", Operator.Word),  # specials
+            (r'[:!$%&*+./<=>?@\\^|~#-]+', Operator),
+            # Wildcard
+            (r'_', Name),
             #  Numbers
             (r"0[xX]_*[\da-fA-F](_*[\da-fA-F])*_*[pP][+-]?\d(_*\d)*", Number.Float),
             (
@@ -101,7 +120,8 @@ class MorlocLexer(RegexLexer):
             (r"0[xX]_*[\da-fA-F](_*[\da-fA-F])*", Number.Hex),
             (r"\d(_*\d)*", Number.Integer),
             #  Character/String Literals
-            (r'"""', String, "multiline_string"),  # Triple-quoted strings
+            (r"'''", String, "multiline_string_sq"),  # Triple single-quoted strings
+            (r'"""', String, "multiline_string"),  # Triple double-quoted strings
             (r'"', String, "string"),
             #  Special
             (r"\[\]", Keyword.Type),
@@ -133,12 +153,23 @@ class MorlocLexer(RegexLexer):
             (r'""(?!")', String),  # Double quote not part of triple
             (r'"""', String, "#pop"),  # Triple quote ends the string
         ],
+        "multiline_string_sq": [
+            (r'#\{', String.Interpol, "interpolation"),  # String interpolation
+            (r"[^'#]+", String),
+            (r'#(?!\{)', String),  # Hash not followed by brace
+            (r"'(?!'')", String),  # Single quote not part of triple
+            (r"''(?!')", String),  # Double quote not part of triple
+            (r"'''", String, "#pop"),  # Triple quote ends the string
+        ],
         "expr": [
             # Common expression patterns that can be reused
             (r'\s+', Whitespace),
+            # Parenthesized operators
+            (r'\([:!$%&*+./<=>?@\\^|~#-]+\)', Name.Function),
             # Operators
-            (r'[+\-*/%<>=!&|^~]', Operator),
-            (r'(<-|::|->|=>|=|_|\\|@)', Operator.Word),
+            (r'[:!$%&*+./<=>?@\\^|~#-]+', Operator),
+            # Wildcard
+            (r'_', Name),
             # Numbers
             (r"0[xX]_*[\da-fA-F](_*[\da-fA-F])*_*[pP][+-]?\d(_*\d)*", Number.Float),
             (
@@ -153,6 +184,7 @@ class MorlocLexer(RegexLexer):
             (r"0[xX]_*[\da-fA-F](_*[\da-fA-F])*", Number.Hex),
             (r"\d(_*\d)*", Number.Integer),
             # Strings
+            (r"'''", String, "multiline_string_sq"),
             (r'"""', String, "multiline_string"),
             (r'"', String, "string"),
             # Identifiers
@@ -188,6 +220,7 @@ class MorlocLexer(RegexLexer):
         ],
         "importList": [
             (r"\s+", Whitespace),
+            (r'\([:!$%&*+./<=>?@\\^|~#-]+\)', Name),
             (r"\(", Text, "#push"),
             (r"\)", Text, "#pop"),
             (r"[A-Za-z][\w]*", Name),
