@@ -622,9 +622,9 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_pattern_functions_for_data_accessupdate">5.2. Pattern functions for data access/update</a></li>
 <li><a href="#_source_function_from_foreign_languages">5.3. Source function from foreign languages</a></li>
 <li><a href="#_functions">5.4. Functions</a></li>
-<li><a href="#_where_clauses">5.5. Where clauses</a></li>
-<li><a href="#_infix_operators">5.6. Infix operators</a></li>
-<li><a href="#_native_morloc_functions">5.7. Native Morloc functions</a></li>
+<li><a href="#_native_morloc_functions">5.5. Native Morloc functions</a></li>
+<li><a href="#_where_clauses">5.6. Where clauses</a></li>
+<li><a href="#_infix_operators">5.7. Infix operators</a></li>
 <li><a href="#_records">5.8. Records</a></li>
 <li><a href="#_tables">5.9. Tables</a></li>
 <li><a href="#_type_hierarchies">5.10. Type hierarchies</a></li>
@@ -632,6 +632,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_overload_terms_with_typeclasses">5.12. Overload terms with typeclasses</a></li>
 <li><a href="#_binary_forms">5.13. Binary forms</a></li>
 <li><a href="#_defining_non_primitive_types">5.14. Defining non-primitive types</a></li>
+<li><a href="#_effects_and_delayed_evaluation">5.15. Effects and delayed evaluation</a></li>
 </ul>
 </li>
 <li><a href="#_modules_and_libraries">6. Modules and Libraries</a>
@@ -1797,7 +1798,33 @@ applied in left-to-right order.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_where_clauses"><a class="anchor" href="#_where_clauses"></a>5.5. Where clauses</h3>
+<h3 id="_native_morloc_functions"><a class="anchor" href="#_native_morloc_functions"></a>5.5. Native Morloc functions</h3>
+<div class="paragraph">
+<p>While Morloc&#8217;s primary purpose is composing foreign functions, you can also
+define functions entirely in Morloc without sourcing from any language. These
+<em>native</em> functions are written using Morloc&#8217;s own expression syntax:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">double</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">greet</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
+
+<span class="tok-n">double</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span>
+<span class="tok-n">double</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">x</span>
+
+<span class="tok-n">greet</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Str</span>
+<span class="tok-n">greet</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Hello </span><span class="tok-si">#{</span><span class="tok-n">name</span><span class="tok-si">}</span><span class="tok-s">!&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Native functions can use composition, <code>where</code> clauses, lambdas, and all other
+Morloc expression forms. They are compiled down to whichever language the
+compiler selects for execution.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_where_clauses"><a class="anchor" href="#_where_clauses"></a>5.6. Where clauses</h3>
 <div class="paragraph">
 <p>Functions may use <code>where</code> clauses to define local bindings:</p>
 </div>
@@ -1822,7 +1849,7 @@ applied in left-to-right order.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_infix_operators"><a class="anchor" href="#_infix_operators"></a>5.6. Infix operators</h3>
+<h3 id="_infix_operators"><a class="anchor" href="#_infix_operators"></a>5.7. Infix operators</h3>
 <div class="paragraph">
 <p>Morloc supports user-defined infix operators with explicit associativity and
 precedence. Operators are declared with <code>infixl</code> (left-associative) or <code>infixr</code>
@@ -1883,32 +1910,6 @@ precedence. Operators are declared with <code>infixl</code> (left-associative) o
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">ops</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nf">(&amp;)</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nf">(|)</span><span class="tok-p">)</span></code></pre>
 </div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_native_morloc_functions"><a class="anchor" href="#_native_morloc_functions"></a>5.7. Native Morloc functions</h3>
-<div class="paragraph">
-<p>While Morloc&#8217;s primary purpose is composing foreign functions, you can also
-define functions entirely in Morloc without sourcing from any language. These
-<em>native</em> functions are written using Morloc&#8217;s own expression syntax:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">double</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">greet</span><span class="tok-p">)</span>
-
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
-
-<span class="tok-n">double</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span>
-<span class="tok-n">double</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">x</span>
-
-<span class="tok-n">greet</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Str</span>
-<span class="tok-n">greet</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Hello </span><span class="tok-si">#{</span><span class="tok-n">name</span><span class="tok-si">}</span><span class="tok-s">!&quot;</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Native functions can use composition, <code>where</code> clauses, lambdas, and all other
-Morloc expression forms. They are compiled down to whichever language the
-compiler selects for execution.</p>
 </div>
 </div>
 <div class="sect2">
@@ -2528,7 +2529,46 @@ raise an error. So we can write:</p>
 </div>
 <div class="paragraph">
 <p>Now whenever the key generic type of <code>Map</code> is inferred to be anything other than
-a string, all R implementations will be pruned.</p>
+a string, all R implementations will be pruned.
+=== let clauses</p>
+</div>
+<div class="paragraph">
+<p><code>let</code> is the more orderly cousin of <code>where</code>. The <code>where</code> clause defines terms
+that can be used anywhere in the <code>where</code> block and that may be any functional
+argument.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">=</span>
+<span class="tok-w">  </span><span class="tok-n">let</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span>
+<span class="tok-w">  </span><span class="tok-n">let</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">2</span>
+<span class="tok-w">  </span><span class="tok-n">in</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">Y</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_effects_and_delayed_evaluation"><a class="anchor" href="#_effects_and_delayed_evaluation"></a>5.15. Effects and delayed evaluation</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)}</span>
+
+<span class="tok-n">rollAdv&#39;</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
+<span class="tok-n">rollAdv&#39;</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">do</span>
+<span class="tok-w">  </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span>
+<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">return</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">a</span><span class="tok-p">}</span>
+<span class="tok-n">return</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">x</span><span class="tok-p">}</span></code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -3145,16 +3185,40 @@ single API.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- tavern.loc: Python-backed character utilities</span>
-<span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">tavern</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rollD20</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">rollDice</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">randomClass</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">tavernGreet</span><span class="tok-p">)</span>
-
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
 
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;tavern.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;roll_d20&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;roll_dice&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;random_class&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;tavern_greet&quot;</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;tavern.py&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;roll_dice&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">rollDice</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;roll_d20&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">rollD20</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;random_class&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">randomClass</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;tavern_greet&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">tavernGreet</span>
+<span class="tok-w">  </span><span class="tok-p">)</span>
 
-<span class="tok-n">rollD20</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
-<span class="tok-n">rollDice</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span>
-<span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Str</span>
-<span class="tok-n">tavernGreet</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Str</span></code></pre>
+<span class="tok-c1">--&#39; Roll n d-sided dice</span>
+<span class="tok-n">rollDice</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Number of dice</span>
+<span class="tok-w">  </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Number of pips per die</span>
+<span class="tok-w">  </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Roll values</span>
+<span class="tok-w">  </span><span class="tok-p">{[</span><span class="tok-n">Int</span><span class="tok-p">]}</span>
+
+<span class="tok-c1">--&#39; Directly roll a single d20</span>
+<span class="tok-n">rollD20</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
+
+<span class="tok-c1">--&#39; Generate a greeting</span>
+<span class="tok-n">tavernGreet</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Player name</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; literal: true</span>
+<span class="tok-w">  </span><span class="tok-n">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-n">Str</span>
+
+<span class="tok-c1">--&#39; Generate a random class</span>
+<span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Str</span><span class="tok-p">}</span>
+
+<span class="tok-c1">--&#39; Roll a D20</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">rollDice</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="listingblock">

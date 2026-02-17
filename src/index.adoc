@@ -188,7 +188,21 @@ include::{includedir}/getting-started.asc[]
 
 == Syntax and Features
 
-include::{includedir}/features.asc[]
+include::{includedir}/features-types.asc[]
+include::{includedir}/features-patterns.asc[]
+include::{includedir}/features-source.asc[]
+include::{includedir}/features-functions.asc[]
+include::{includedir}/features-where.asc[]
+include::{includedir}/features-infix.asc[]
+include::{includedir}/features-records.asc[]
+include::{includedir}/features-tables.asc[]
+include::{includedir}/features-type-hierarchies.asc[]
+include::{includedir}/features-term-polymorphism.asc[]
+include::{includedir}/features-typeclasses.asc[]
+include::{includedir}/features-binary-forms.asc[]
+include::{includedir}/features-custom-types.asc[]
+include::{includedir}/features-let.asc[]
+include::{includedir}/features-effects.asc[]
 
 == Modules and Libraries
 
