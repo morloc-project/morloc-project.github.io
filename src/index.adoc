@@ -196,33 +196,36 @@ include::{includedir}/features-where.asc[]
 include::{includedir}/features-infix.asc[]
 include::{includedir}/features-records.asc[]
 include::{includedir}/features-tables.asc[]
-include::{includedir}/features-type-hierarchies.asc[]
-include::{includedir}/features-term-polymorphism.asc[]
-include::{includedir}/features-typeclasses.asc[]
-include::{includedir}/features-binary-forms.asc[]
-include::{includedir}/features-custom-types.asc[]
 include::{includedir}/features-let.asc[]
 include::{includedir}/features-effects.asc[]
+
+== Advanced Types
+
+include::{includedir}/types-hierarchies.asc[]
+include::{includedir}/types-term-polymorphism.asc[]
+include::{includedir}/types-typeclasses.asc[]
+include::{includedir}/types-custom-types.asc[]
+include::{includedir}/types-source.asc[]
+
+== Human and Machine Interfaces
+
+include::{includedir}/interface-cli.asc[]
+include::{includedir}/interface-install.asc[]
+include::{includedir}/interface-daemons.asc[]
 
 == Modules and Libraries
 
 include::{includedir}/ecosystem.asc[]
 
-== Building Command Line Tools
-
-include::{includedir}/cli.asc[]
-
-== Summoning Daemons
-
-include::{includedir}/daemons.asc[]
-
 == Morloc versions and dependencies
 
 include::{includedir}/installation.asc[]
 
-== Internals
+== Build Architecture
 
-include::{includedir}/internals.asc[]
+include::{includedir}/internals-overview.asc[]
+
+include::{includedir}/internals-protocols.asc[]
 
 // == Language Interoperability
 //
