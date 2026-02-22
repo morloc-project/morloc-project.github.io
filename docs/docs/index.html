@@ -642,7 +642,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_human_and_machine_interfaces">7. Human and Machine Interfaces</a>
 <ul class="sectlevel2">
 <li><a href="#_modules_and_docstrings">7.1. Modules and docstrings</a></li>
-<li><a href="#_the_command_line_interface_cli">7.2. The Command Line Interface (CLI)</a></li>
+<li><a href="#_the_command_line_interface">7.2. The Command Line Interface</a></li>
 <li><a href="#_composing_cli_tools">7.3. Composing CLI Tools</a></li>
 <li><a href="#_user_arguments_and_outputs">7.4. User arguments and outputs</a></li>
 <li><a href="#_search_and_install">7.5. Search and install</a></li>
@@ -650,8 +650,22 @@ document.addEventListener("DOMContentLoaded", function() {
 <ul class="sectlevel3">
 <li><a href="#_http_protocol">7.6.1. HTTP protocol</a></li>
 <li><a href="#_tcp_protocol">7.6.2. TCP protocol</a></li>
-<li><a href="#_unix_socket_protocol">7.6.3. Unix Socket Protocol</a></li>
-<li><a href="#_you_can_run_all_at_once">7.6.4. You can run all at once</a></li>
+<li><a href="#_unix_socket_protocol">7.6.3. Unix socket protocol</a></li>
+<li><a href="#_running_all_protocols_at_once">7.6.4. Running all protocols at once</a></li>
+<li><a href="#_from_single_daemons_to_a_router">7.6.5. From single daemons to a router</a></li>
+<li><a href="#_router_mode">7.6.6. Router mode</a>
+<ul class="sectlevel4">
+<li><a href="#_setup">Setup</a></li>
+<li><a href="#_starting_the_router">Starting the router</a></li>
+<li><a href="#_listing_programs">Listing programs</a></li>
+<li><a href="#_per_program_discovery">Per-program discovery</a></li>
+<li><a href="#_calling_functions">Calling functions</a></li>
+<li><a href="#_error_handling">Error handling</a></li>
+<li><a href="#_independent_daemons_vs_router_managed_daemons">Independent daemons vs router-managed daemons</a></li>
+</ul>
+</li>
+<li><a href="#_shutdown">7.6.7. Shutdown</a></li>
+<li><a href="#_summary">7.6.8. Summary</a></li>
 </ul>
 </li>
 </ul>
@@ -2704,7 +2718,7 @@ inform the generation of rich APIs as well (see the HTTP/TCP/socket section).</p
 </div>
 </div>
 <div class="sect2">
-<h3 id="_the_command_line_interface_cli"><a class="anchor" href="#_the_command_line_interface_cli"></a>7.2. The Command Line Interface (CLI)</h3>
+<h3 id="_the_command_line_interface"><a class="anchor" href="#_the_command_line_interface"></a>7.2. The Command Line Interface</h3>
 <div class="paragraph">
 <p>Building a Morloc module will generate a CLI tool where exported functions are
 presented as typed subcommands.</p>
@@ -3069,54 +3083,74 @@ of DnD operations. The first module defines general random operations:</p>
 <div class="listingblock">
 <div class="title">fate.loc</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-n">module</span> <span class="tok-n">fate</span> <span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span> <span class="tok-n">coinToss</span><span class="tok-p">,</span> <span class="tok-n">choose</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">choose</span><span class="tok-p">)</span>
 
-<span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
 
-<span class="tok-n">source</span> <span class="tok-n">Py</span> <span class="tok-kn">from</span><span class="tok-w"> </span><span class="tok-s2">&quot;fate.py&quot;</span>
-  <span class="tok-p">(</span> <span class="tok-s2">&quot;roll&quot;</span> <span class="tok-k">as</span> <span class="tok-n">roll</span>
-  <span class="tok-p">,</span> <span class="tok-s2">&quot;coin_toss&quot;</span> <span class="tok-k">as</span> <span class="tok-n">coinToss</span>
-  <span class="tok-p">,</span> <span class="tok-s2">&quot;choose&quot;</span> <span class="tok-k">as</span> <span class="tok-n">choose</span>
-  <span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;fate.py&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;roll&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">roll</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;coin_toss&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">coinToss</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;choose&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">choose</span>
+<span class="tok-w">  </span><span class="tok-p">)</span>
 
-<span class="tok-o">--</span><span class="tok-s1">&#39; Roll n d-sided dice</span>
-<span class="tok-n">roll</span> <span class="tok-p">::</span>
-  <span class="tok-o">--</span><span class="tok-s1">&#39; Number of dice</span>
-  <span class="tok-n">Int</span> <span class="tok-o">-&gt;</span>
-  <span class="tok-o">--</span><span class="tok-s1">&#39; Number of pips per die</span>
-  <span class="tok-n">Int</span> <span class="tok-o">-&gt;</span>
-  <span class="tok-o">--</span><span class="tok-s1">&#39; Roll values</span>
-  <span class="tok-p">{[</span><span class="tok-n">Int</span><span class="tok-p">]}</span>
+<span class="tok-c1">--&#39; Roll n d-sided dice</span>
+<span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Number of dice</span>
+<span class="tok-w">  </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Number of pips per die</span>
+<span class="tok-w">  </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Roll values</span>
+<span class="tok-w">  </span><span class="tok-p">{[</span><span class="tok-n">Int</span><span class="tok-p">]}</span>
 
-<span class="tok-o">--</span><span class="tok-s1">&#39; Randomly return True or False</span>
-<span class="tok-n">coinToss</span> <span class="tok-p">::</span> <span class="tok-p">{</span><span class="tok-n">Bool</span><span class="tok-p">}</span>
+<span class="tok-c1">--&#39; Randomly return True or False</span>
+<span class="tok-n">coinToss</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Bool</span><span class="tok-p">}</span>
 
-<span class="tok-o">--</span><span class="tok-s1">&#39; Randomly choose one element from a non-empty list</span>
-<span class="tok-n">choose</span> <span class="tok-n">a</span> <span class="tok-p">::</span> <span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span> <span class="tok-o">-&gt;</span> <span class="tok-p">{</span><span class="tok-n">a</span><span class="tok-p">}</span></code></pre>
+<span class="tok-c1">--&#39; Randomly choose one element from a non-empty list</span>
+<span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">a</span><span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The second module applies these random functions to</p>
+<p>The sourced <code>fate.py</code> script contains the following code:</p>
 </div>
 <div class="listingblock">
-<div class="title">combat.loc</div>
+<div class="title">fate.py</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">dnd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rollAdv</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">knightDamage</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">randomClass</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">randomRace</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">random</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">choose</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">):</span>
+    <span class="tok-k">return</span> <span class="tok-n">random</span><span class="tok-o">.</span><span class="tok-n">choice</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">roll</span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-p">,</span> <span class="tok-n">d</span><span class="tok-p">):</span>
+    <span class="tok-k">return</span> <span class="tok-p">[</span><span class="tok-n">random</span><span class="tok-o">.</span><span class="tok-n">randint</span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span> <span class="tok-n">d</span><span class="tok-p">)</span> <span class="tok-k">for</span> <span class="tok-n">_</span> <span class="tok-ow">in</span> <span class="tok-nb">range</span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-p">)]</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">coin_toss</span><span class="tok-p">():</span>
+    <span class="tok-k">return</span> <span class="tok-nb">bool</span><span class="tok-p">(</span><span class="tok-n">random</span><span class="tok-o">.</span><span class="tok-n">randint</span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span><span class="tok-mi">1</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We can install <code>fate</code> with <code>morloc install --build ./fate</code>. This create the
+morloc module we will need in the future as well as an executable we can test.</p>
+</div>
+<div class="paragraph">
+<p>We can test this, for example by rolling 3d8:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>fate<span class="tok-w"> </span>roll<span class="tok-w"> </span><span class="tok-m">3</span><span class="tok-w"> </span><span class="tok-m">8</span>
+<span class="tok-go">[8,2,5]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Next let&#8217;s build on this foundation. First let&#8217;s make a simple tavern script
+that helps generate new characters.</p>
+</div>
+<div class="listingblock">
+<div class="title">tavern.loc</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">tavern</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">randomClass</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">randomRace</span><span class="tok-p">)</span>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">choose</span><span class="tok-p">)</span>
-
-<span class="tok-c1">--&#39; Roll a pair of d20 dice and keep the larger result</span>
-<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
-<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)}</span>
-
-<span class="tok-c1">--&#39; Damage done on hit, modifier + sum of dice rolls</span>
-<span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{[</span><span class="tok-n">Int</span><span class="tok-p">]}</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
-<span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">modifier</span><span class="tok-w"> </span><span class="tok-n">attackDice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">modifier</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">attackDice</span><span class="tok-p">}</span>
-
-<span class="tok-c1">--&#39; A knights damage</span>
-<span class="tok-n">knightDamage</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
-<span class="tok-n">knightDamage</span><span class="tok-w"> </span><span class="tok-n">modifier</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">modifier</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">10</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">choose</span><span class="tok-p">)</span>
 
 <span class="tok-c1">--&#39; Select a random class</span>
 <span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Str</span><span class="tok-p">}</span>
@@ -3128,15 +3162,69 @@ of DnD operations. The first module defines general random operations:</p>
 </div>
 </div>
 <div class="paragraph">
+<p>Next let&#8217;s add a module for combat:</p>
+</div>
+<div class="listingblock">
+<div class="title">combat.loc</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">combat</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rollAdv</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">fighterDamage</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">threeHits</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">intro</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-r</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">)</span>
+
+<span class="tok-c1">--&#39; Roll a pair of d20 dice and keep the larger result</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)}</span>
+
+<span class="tok-c1">--&#39; Damage done on hit, modifier + sum of dice rolls</span>
+<span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Enemy Armor Class</span>
+<span class="tok-w">  </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Attack modifier</span>
+<span class="tok-w">  </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Attack dice</span>
+<span class="tok-w">  </span><span class="tok-p">{[</span><span class="tok-n">Int</span><span class="tok-p">]}</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Damage modifier</span>
+<span class="tok-w">  </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Damage dice</span>
+<span class="tok-w">  </span><span class="tok-p">{[</span><span class="tok-n">Int</span><span class="tok-p">]}</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Total damage</span>
+<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
+<span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-n">atkDice</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">do</span>
+<span class="tok-w">  </span><span class="tok-n">let</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">atkDice</span>
+<span class="tok-w">  </span><span class="tok-n">let</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">dmgDice</span>
+<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">ifelse</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">}</span>
+
+<span class="tok-c1">--&#39; Damage calculation for a fighter</span>
+<span class="tok-n">fighterDamage</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Enemy Armor Class</span>
+<span class="tok-w">  </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Fighter&#39;s damage</span>
+<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
+<span class="tok-n">fighterDamage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-mi">4</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">8</span><span class="tok-p">)</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;combat.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;intro&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">--&#39; Introduce a new battle!</span>
+<span class="tok-n">intro</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; Monster name</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; literal: true</span>
+<span class="tok-w">  </span><span class="tok-n">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-c1">--&#39; DM&#39;s monster intro</span>
+<span class="tok-w">  </span><span class="tok-n">Str</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>We can build just the CLI tools if we wish:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>dnd.loc</code></pre>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>--install<span class="tok-w"> </span>combat.loc</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This will build the executable <code>dnd</code> which is a script that carries with it all
+<p>This will build the executable <code>combat</code> which is a script that carries with it all
 the information needed for execution. You can copy it anywhere you like on the
 system and it will work (so long as the contents of the directory where it was
 made are preserved). If you want, you can move the executable to a location in
@@ -3248,7 +3336,7 @@ daemons, accepting function calls over HTTP, TCP, or Unix sockets. A router
 aggregates multiple programs behind a single API.</p>
 </div>
 <div class="paragraph">
-<p>No extra steps are needed to setup these extra APIs. The are already built into
+<p>No extra steps are needed to setup these extra APIs. They are already built into
 the executable we created in the last session. We only need to activate them.</p>
 </div>
 <div class="sect3">
@@ -3264,7 +3352,10 @@ the executable we created in the last session. We only need to activate them.</p
 </div>
 </div>
 <div class="paragraph">
-<p>The trailing <code>&amp;</code> creates the process in the background.</p>
+<p>The trailing <code>&amp;</code> creates the process in the background. This command launches
+all language pool processes (just Python in this case) as child processes in
+separate process groups. A thread pool handles concurrent requests. If a pool
+crashes, the daemon detects it restarts it automatically.</p>
 </div>
 <div class="paragraph">
 <p>We can check the daemon&#8217;s health:</p>
@@ -3272,8 +3363,11 @@ the executable we created in the last session. We only need to activate them.</p
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>localhost:8080/health
-<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span><span class="tok-o">}</span></code></pre>
+<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:<span class="tok-o">[</span>true<span class="tok-o">]}</span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>The /health endpoint returns the liveness status of each pool.</p>
 </div>
 <div class="paragraph">
 <p>The running daemons are discoverable:</p>
@@ -3355,39 +3449,93 @@ the executable we created in the last session. We only need to activate them.</p
 <div class="sect3">
 <h4 id="_tcp_protocol"><a class="anchor" href="#_tcp_protocol"></a>7.6.2. TCP protocol</h4>
 <div class="paragraph">
-<p>If HTTP isn&#8217;t your tankard of ale, you can start a TCP port:</p>
+<p>HTTP adds overhead per request: headers, text parsing, and the full HTTP framing
+around each message. When your client is a program rather than a browser or
+<code>curl</code>, you can skip all of that. The TCP protocol uses a compact binary framing&#8201;&#8212;&#8201;just a 4-byte big-endian length prefix followed by the JSON payload. This
+makes it well suited for service-to-service communication, high-throughput
+automated pipelines, or any context where you control both ends of the
+connection and want minimal overhead.</p>
+</div>
+<div class="paragraph">
+<p>Start a daemon on TCP port 9001:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>./tavern<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--port<span class="tok-w"> </span><span class="tok-m">9001</span>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>dnd<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--port<span class="tok-w"> </span><span class="tok-m">9001</span><span class="tok-w"> </span><span class="tok-p">&amp;</span>
 daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>tcp<span class="tok-w"> </span>port<span class="tok-w"> </span><span class="tok-m">9001</span>
 daemon:<span class="tok-w"> </span>ready</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>Unlike the HTTP protocol, you can&#8217;t use <code>curl</code> to talk to a TCP daemon. You need
+a client that speaks the length-prefixed binary framing. Here is a minimal
+Python client:</p>
+</div>
+<div class="listingblock">
+<div class="title">tcp_client.py&#8201;&#8212;&#8201;minimal TCP client</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">socket</span><span class="tok-o">,</span><span class="tok-w"> </span><span class="tok-nn">struct</span><span class="tok-o">,</span><span class="tok-w"> </span><span class="tok-nn">json</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">call</span><span class="tok-p">(</span><span class="tok-n">host</span><span class="tok-p">,</span> <span class="tok-n">port</span><span class="tok-p">,</span> <span class="tok-n">method</span><span class="tok-p">,</span> <span class="tok-n">command</span><span class="tok-o">=</span><span class="tok-kc">None</span><span class="tok-p">,</span> <span class="tok-n">args</span><span class="tok-o">=</span><span class="tok-kc">None</span><span class="tok-p">):</span>
+    <span class="tok-n">msg</span> <span class="tok-o">=</span> <span class="tok-p">{</span><span class="tok-s2">&quot;method&quot;</span><span class="tok-p">:</span> <span class="tok-n">method</span><span class="tok-p">}</span>
+    <span class="tok-k">if</span> <span class="tok-n">command</span><span class="tok-p">:</span> <span class="tok-n">msg</span><span class="tok-p">[</span><span class="tok-s2">&quot;command&quot;</span><span class="tok-p">]</span> <span class="tok-o">=</span> <span class="tok-n">command</span>
+    <span class="tok-k">if</span> <span class="tok-n">args</span> <span class="tok-ow">is</span> <span class="tok-ow">not</span> <span class="tok-kc">None</span><span class="tok-p">:</span> <span class="tok-n">msg</span><span class="tok-p">[</span><span class="tok-s2">&quot;args&quot;</span><span class="tok-p">]</span> <span class="tok-o">=</span> <span class="tok-n">args</span>
+
+    <span class="tok-n">payload</span> <span class="tok-o">=</span> <span class="tok-n">json</span><span class="tok-o">.</span><span class="tok-n">dumps</span><span class="tok-p">(</span><span class="tok-n">msg</span><span class="tok-p">)</span><span class="tok-o">.</span><span class="tok-n">encode</span><span class="tok-p">()</span>
+    <span class="tok-n">s</span> <span class="tok-o">=</span> <span class="tok-n">socket</span><span class="tok-o">.</span><span class="tok-n">socket</span><span class="tok-p">(</span><span class="tok-n">socket</span><span class="tok-o">.</span><span class="tok-n">AF_INET</span><span class="tok-p">,</span> <span class="tok-n">socket</span><span class="tok-o">.</span><span class="tok-n">SOCK_STREAM</span><span class="tok-p">)</span>
+    <span class="tok-n">s</span><span class="tok-o">.</span><span class="tok-n">connect</span><span class="tok-p">((</span><span class="tok-n">host</span><span class="tok-p">,</span> <span class="tok-n">port</span><span class="tok-p">))</span>
+    <span class="tok-c1"># send 4-byte big-endian length, then the JSON payload</span>
+    <span class="tok-n">s</span><span class="tok-o">.</span><span class="tok-n">sendall</span><span class="tok-p">(</span><span class="tok-n">struct</span><span class="tok-o">.</span><span class="tok-n">pack</span><span class="tok-p">(</span><span class="tok-s1">&#39;&gt;I&#39;</span><span class="tok-p">,</span> <span class="tok-nb">len</span><span class="tok-p">(</span><span class="tok-n">payload</span><span class="tok-p">))</span> <span class="tok-o">+</span> <span class="tok-n">payload</span><span class="tok-p">)</span>
+
+    <span class="tok-c1"># read the 4-byte response length, then the response</span>
+    <span class="tok-n">resp_len</span> <span class="tok-o">=</span> <span class="tok-n">struct</span><span class="tok-o">.</span><span class="tok-n">unpack</span><span class="tok-p">(</span><span class="tok-s1">&#39;&gt;I&#39;</span><span class="tok-p">,</span> <span class="tok-n">s</span><span class="tok-o">.</span><span class="tok-n">recv</span><span class="tok-p">(</span><span class="tok-mi">4</span><span class="tok-p">))[</span><span class="tok-mi">0</span><span class="tok-p">]</span>
+    <span class="tok-n">resp</span> <span class="tok-o">=</span> <span class="tok-n">s</span><span class="tok-o">.</span><span class="tok-n">recv</span><span class="tok-p">(</span><span class="tok-n">resp_len</span><span class="tok-p">)</span>
+    <span class="tok-n">s</span><span class="tok-o">.</span><span class="tok-n">close</span><span class="tok-p">()</span>
+    <span class="tok-k">return</span> <span class="tok-n">json</span><span class="tok-o">.</span><span class="tok-n">loads</span><span class="tok-p">(</span><span class="tok-n">resp</span><span class="tok-p">)</span>
+
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;localhost&quot;</span><span class="tok-p">,</span> <span class="tok-mi">9001</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;rollAdv&quot;</span><span class="tok-p">))</span>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 18}</span>
+
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;localhost&quot;</span><span class="tok-p">,</span> <span class="tok-mi">9001</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;knightDamage&quot;</span><span class="tok-p">,</span> <span class="tok-p">[</span><span class="tok-mi">5</span><span class="tok-p">]))</span>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 16}</span>
+
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;localhost&quot;</span><span class="tok-p">,</span> <span class="tok-mi">9001</span><span class="tok-p">,</span> <span class="tok-s2">&quot;health&quot;</span><span class="tok-p">))</span>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: [true]}</span>
+
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;localhost&quot;</span><span class="tok-p">,</span> <span class="tok-mi">9001</span><span class="tok-p">,</span> <span class="tok-s2">&quot;discover&quot;</span><span class="tok-p">))</span>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: {&quot;name&quot;: &quot;dnd&quot;, &quot;commands&quot;: [...]}}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The request is a JSON object with a <code>method</code> field (<code>"call"</code>, <code>"discover"</code>, or
+<code>"health"</code>), an optional <code>command</code> field naming the function, and an optional
+<code>args</code> array.</p>
+</div>
 </div>
 <div class="sect3">
-<h4 id="_unix_socket_protocol"><a class="anchor" href="#_unix_socket_protocol"></a>7.6.3. Unix Socket Protocol</h4>
+<h4 id="_unix_socket_protocol"><a class="anchor" href="#_unix_socket_protocol"></a>7.6.3. Unix socket protocol</h4>
 <div class="paragraph">
-<p>The fastest way to make a local call to a process on a UNIX machine is over a
-socket. This is how Morloc programs communicate internally.</p>
+<p>For processes running on the same machine, Unix domain sockets are the fastest
+option. They bypass the entire network stack&#8201;&#8212;&#8201;no TCP handshake, no port
+allocation, no loopback routing. This is how Morloc pools communicate with the
+nexus internally.</p>
 </div>
 <div class="paragraph">
-<p>To start a daemon on a Unix socket do the following:</p>
+<p>To start a daemon on a Unix socket:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>./tavern<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--socket<span class="tok-w"> </span>/tmp/tavern.sock
-daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>unix<span class="tok-w"> </span>socket<span class="tok-w"> </span>/tmp/tavern.sock
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>dnd<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--socket<span class="tok-w"> </span>/tmp/dnd.sock<span class="tok-w"> </span><span class="tok-p">&amp;</span>
+daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>unix<span class="tok-w"> </span>socket<span class="tok-w"> </span>/tmp/dnd.sock
 daemon:<span class="tok-w"> </span>ready</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The socket protocol uses length-prefixed JSON: a 4-byte big-endian message
-length followed by the JSON payload. Request and response share the same
-framing.</p>
+<p>The wire protocol is identical to TCP: a 4-byte big-endian length prefix
+followed by the JSON payload. The only difference is the socket type.</p>
 </div>
 <div class="listingblock">
-<div class="title">client.py&#8201;&#8212;&#8201;minimal socket client</div>
+<div class="title">unix_client.py&#8201;&#8212;&#8201;minimal socket client</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">socket</span><span class="tok-o">,</span><span class="tok-w"> </span><span class="tok-nn">struct</span><span class="tok-o">,</span><span class="tok-w"> </span><span class="tok-nn">json</span>
 
@@ -3406,49 +3554,97 @@ framing.</p>
     <span class="tok-n">s</span><span class="tok-o">.</span><span class="tok-n">close</span><span class="tok-p">()</span>
     <span class="tok-k">return</span> <span class="tok-n">json</span><span class="tok-o">.</span><span class="tok-n">loads</span><span class="tok-p">(</span><span class="tok-n">resp</span><span class="tok-p">)</span>
 
-<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/tavern.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;rollD20&quot;</span><span class="tok-p">))</span>
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/dnd.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;rollAdv&quot;</span><span class="tok-p">))</span>
 <span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 18}</span>
 
-<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/tavern.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;rollDice&quot;</span><span class="tok-p">,</span> <span class="tok-p">[</span><span class="tok-mi">4</span><span class="tok-p">,</span> <span class="tok-mi">6</span><span class="tok-p">]))</span>
-<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: [2, 5, 3, 1]}</span>
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/dnd.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;knightDamage&quot;</span><span class="tok-p">,</span> <span class="tok-p">[</span><span class="tok-mi">5</span><span class="tok-p">]))</span>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 16}</span>
 
-<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/tavern.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;discover&quot;</span><span class="tok-p">))</span>
-<span class="tok-c1"># {&quot;name&quot;: &quot;tavern&quot;, &quot;commands&quot;: [...]}</span></code></pre>
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/dnd.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;discover&quot;</span><span class="tok-p">))</span>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: {&quot;name&quot;: &quot;dnd&quot;, &quot;commands&quot;: [...]}}</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_you_can_run_all_at_once"><a class="anchor" href="#_you_can_run_all_at_once"></a>7.6.4. You can run all at once</h4>
+<h4 id="_running_all_protocols_at_once"><a class="anchor" href="#_running_all_protocols_at_once"></a>7.6.4. Running all protocols at once</h4>
 <div class="paragraph">
-<p>You don&#8217;t have to choose, one Morloc program can run all three protocols:</p>
+<p>You don&#8217;t have to choose. One daemon can listen through all three protocols at
+the same time:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>./tavern<span class="tok-w"> </span>--daemon<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">    </span>--http-port<span class="tok-w"> </span><span class="tok-m">8080</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">    </span>--port<span class="tok-w"> </span><span class="tok-m">9001</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">    </span>--socket<span class="tok-w"> </span>/tmp/tavern.sock
-daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>unix<span class="tok-w"> </span>socket<span class="tok-w"> </span>/tmp/tavern.sock
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>dnd<span class="tok-w"> </span>--daemon<span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">      </span>--http-port<span class="tok-w"> </span><span class="tok-m">8080</span><span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">      </span>--port<span class="tok-w"> </span><span class="tok-m">9001</span><span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">      </span>--socket<span class="tok-w"> </span>/tmp/dnd.sock
+daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>unix<span class="tok-w"> </span>socket<span class="tok-w"> </span>/tmp/dnd.sock
 daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>tcp<span class="tok-w"> </span>port<span class="tok-w"> </span><span class="tok-m">9001</span>
 daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>http<span class="tok-w"> </span>port<span class="tok-w"> </span><span class="tok-m">8080</span>
 daemon:<span class="tok-w"> </span>ready</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>All three protocols hit the same daemon and share the same pool processes.</p>
+<p>All three protocols hit the same daemon process and share the same pool
+processes. A request arriving over HTTP, TCP, or the Unix socket is dispatched
+identically&#8201;&#8212;&#8201;only the framing differs.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_from_single_daemons_to_a_router"><a class="anchor" href="#_from_single_daemons_to_a_router"></a>7.6.5. From single daemons to a router</h4>
+<div class="paragraph">
+<p>Everything above shows a single program running as a daemon. This is enough when
+you have one service, but Morloc programs are designed to be composed. You might
+have a <code>dnd</code> program that rolls dice and picks character classes, and a
+<code>combat</code> program that resolves attacks and damage. Each is its own compiled
+Morloc program with its own pools.</p>
 </div>
 <div class="paragraph">
-<p>Router Mode</p>
+<p>You <em>could</em> start each one as an independent daemon on its own port and have
+your client keep track of which port maps to which program. But that gets
+tedious. The router solves this: it presents a single HTTP endpoint that
+discovers and manages all your installed Morloc programs.</p>
 </div>
 <div class="paragraph">
-<p>The router aggregates multiple morloc programs behind a single HTTP API.
-Each program is discovered from a manifest file in the <code>fdb/</code> directory.</p>
+<p>The following diagram illustrates how a client request flows through the router
+to a program daemon and its language pools:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>                  Client
+                    |
+                    | HTTP: POST /call/tavern/rollD20 -d '[]'
+                    v
+             +--------------+
+             |    Router    |  mim --router --http-port 9090
+             |  (HTTP:9090) |  Reads manifests from fdb/ at startup
+             +--------------+
+              /            \
+    Unix socket            Unix socket
+            /                \
+  +-----------+         +-----------+
+  |  tavern   |         |  combat   |
+  |  daemon   |         |  daemon   |
+  +-----------+         +-----------+
+   /    |    \           /    |    \
+  v     v     v         v     v     v
+ C++  Python  R        C++  Python  R
+pool   pool  pool     pool   pool  pool</pre>
+</div>
 </div>
 <div class="paragraph">
-<p>Setup</p>
+<p>Each daemon is a child process of the router, started lazily on first request.
+The router and its daemons communicate over Unix sockets using the same
+length-prefixed JSON protocol described above.</p>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_router_mode"><a class="anchor" href="#_router_mode"></a>7.6.6. Router mode</h4>
+<div class="sect4">
+<h5 id="_setup"><a class="anchor" href="#_setup"></a>Setup</h5>
 <div class="paragraph">
-<p>Install both programs so their manifests land in <code>fdb/</code>:</p>
+<p>To make a program available to the router, install it with <code>--install</code>. This
+copies the program binary and writes a manifest file to the <code>fdb/</code> directory
+where the router discovers programs at startup.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3462,9 +3658,9 @@ $<span class="tok-w"> </span>ls<span class="tok-w"> </span>~/.local/share/morloc
 combat.manifest<span class="tok-w">  </span>tavern.manifest</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Start the Router</p>
 </div>
+<div class="sect4">
+<h5 id="_starting_the_router"><a class="anchor" href="#_starting_the_router"></a>Starting the router</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>mim<span class="tok-w"> </span>--router<span class="tok-w"> </span>--http-port<span class="tok-w"> </span><span class="tok-m">9090</span>
@@ -3475,9 +3671,9 @@ router:<span class="tok-w">   </span>-<span class="tok-w"> </span>tavern<span cl
 router:<span class="tok-w"> </span>ready</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>List Programs</p>
 </div>
+<div class="sect4">
+<h5 id="_listing_programs"><a class="anchor" href="#_listing_programs"></a>Listing programs</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>localhost:9090/programs<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>python3<span class="tok-w"> </span>-m<span class="tok-w"> </span>json.tool
@@ -3509,21 +3705,24 @@ router:<span class="tok-w"> </span>ready</code></pre>
 <div class="paragraph">
 <p>Programs start lazily&#8201;&#8212;&#8201;<code>running: false</code> until the first call.</p>
 </div>
+</div>
+<div class="sect4">
+<h5 id="_per_program_discovery"><a class="anchor" href="#_per_program_discovery"></a>Per-program discovery</h5>
 <div class="paragraph">
-<p>Per-Program Discovery</p>
+<p>You can discover commands for a specific program without starting its daemon:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>localhost:9090/discover/dnd<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>python3<span class="tok-w"> </span>-m<span class="tok-w"> </span>json.tool
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>localhost:9090/discover/tavern<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>python3<span class="tok-w"> </span>-m<span class="tok-w"> </span>json.tool
 <span class="tok-o">{</span>
-<span class="tok-w">    </span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;dnd&quot;</span>,
+<span class="tok-w">    </span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;tavern&quot;</span>,
 <span class="tok-w">    </span><span class="tok-s2">&quot;commands&quot;</span>:<span class="tok-w"> </span><span class="tok-o">[</span>...<span class="tok-o">]</span>
 <span class="tok-o">}</span></code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Cross-Program Calls</p>
 </div>
+<div class="sect4">
+<h5 id="_calling_functions"><a class="anchor" href="#_calling_functions"></a>Calling functions</h5>
 <div class="paragraph">
 <p>Calls are routed by program name in the URL: <code>/call/&lt;program&gt;/&lt;command&gt;</code>.</p>
 </div>
@@ -3546,25 +3745,38 @@ $<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-
 </div>
 </div>
 <div class="paragraph">
-<p>After the first call, the router auto-starts each program&#8217;s daemon. Subsequent
-calls reuse the running daemon with no startup cost.</p>
+<p>The first call to a program starts its daemon automatically. Subsequent calls
+reuse the running daemon with no startup cost. If a daemon crashes between
+calls, the router detects the failure and restarts it transparently.</p>
 </div>
-<div class="paragraph">
-<p>Unknown Program</p>
 </div>
+<div class="sect4">
+<h5 id="_error_handling"><a class="anchor" href="#_error_handling"></a>Error handling</h5>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/dungeon/explore<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[]&#39;</span>
 <span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;error&quot;</span>,<span class="tok-s2">&quot;error&quot;</span>:<span class="tok-s2">&quot;Unknown program: dungeon&quot;</span><span class="tok-o">}</span></code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Shutdown</p>
 </div>
+<div class="sect4">
+<h5 id="_independent_daemons_vs_router_managed_daemons"><a class="anchor" href="#_independent_daemons_vs_router_managed_daemons"></a>Independent daemons vs router-managed daemons</h5>
 <div class="paragraph">
-<p>Send <code>SIGTERM</code> to stop a daemon or router gracefully. Pool processes are
-terminated, Unix socket files are removed, and child daemons (in router mode)
-are cleaned up.</p>
+<p>A daemon started manually (e.g., <code>dnd --daemon --http-port 8080</code>) is completely
+independent of the router. The router only knows about programs whose manifests
+are in the <code>fdb/</code> directory, and it starts its own daemon instances as child
+processes. If you start a daemon on your own and also have the same program
+registered with the router, you will have two separate daemon processes&#8201;&#8212;&#8201;each
+with its own pool processes and its own state.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_shutdown"><a class="anchor" href="#_shutdown"></a>7.6.7. Shutdown</h4>
+<div class="paragraph">
+<p>Send <code>SIGTERM</code> (or <code>SIGINT</code>) to stop a daemon or router gracefully. The daemon
+sends <code>SIGTERM</code> to each pool process group, waits briefly for clean exit, then
+sends <code>SIGKILL</code> to any stragglers. Unix socket files are removed.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3576,8 +3788,13 @@ router:<span class="tok-w"> </span>shutting<span class="tok-w"> </span>down</cod
 </div>
 </div>
 <div class="paragraph">
-<p>Summary</p>
+<p>When a router shuts down, it terminates all the daemons it started. There is
+currently no way to stop an individual program&#8217;s daemon through the router API&#8201;&#8212;&#8201;the router manages their lifecycles internally. If you need to restart a
+specific program, restart the router.</p>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_summary"><a class="anchor" href="#_summary"></a>7.6.8. Summary</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 20%;">
