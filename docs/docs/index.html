@@ -719,11 +719,10 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications">11.5. Do you really want to deprecate all the bioinformatics applications?</a></li>
 <li><a href="#_do_you_want_to_deprecate_the_conventional_workflow_languages">11.6. Do you want to deprecate the conventional workflow languages?</a></li>
 <li><a href="#_does_morloc_allow_function_specific_containerized_environments">11.7. Does Morloc allow function-specific containerized environments?</a></li>
-<li><a href="#_what_about_recursion">11.8. What about recursion?</a></li>
-<li><a href="#_what_about_object_oriented_programming">11.9. What about object-oriented programming?</a></li>
-<li><a href="#_is_morloc_still_relevant_when_ai_can_program_and_translate">11.10. Is Morloc still relevant when AI can program and translate?</a></li>
-<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">11.11. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
-<li><a href="#_wait_i_have_more_questions">11.12. Wait! I have more questions!</a></li>
+<li><a href="#_what_about_object_oriented_programming">11.8. What about object-oriented programming?</a></li>
+<li><a href="#_is_morloc_still_relevant_when_ai_can_program_and_translate">11.9. Is Morloc still relevant when AI can program and translate?</a></li>
+<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">11.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
+<li><a href="#_wait_i_have_more_questions">11.11. Wait! I have more questions!</a></li>
 </ul>
 </li>
 <li><a href="#_contact">12. Contact</a></li>
@@ -1923,21 +1922,21 @@ side-effects.
 </div>
 <div class="paragraph">
 <p>Guards provide conditional branching within function definitions. Each guard
-clause begins with <code>?</code> followed by a condition and a result expression:</p>
+clause begins with <code>?</code> followed by a condition and a result expression, with a
+<code>:</code> default that is always required as the final case:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">abs</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
 <span class="tok-n">abs</span><span class="tok-w"> </span><span class="tok-n">x</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span>
-<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">neg</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">neg</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>Guards are evaluated lazily from top to bottom. The first condition that
 evaluates to true determines the result; remaining guards are not evaluated. The
-underscore <code>_</code> serves as a catch-all that always matches, similar to a default
-case.</p>
+<code>:</code> default always terminates the guard chain, ensuring exhaustiveness.</p>
 </div>
 <div class="paragraph">
 <p>Guards work naturally with multiple parameters:</p>
@@ -1948,7 +1947,7 @@ case.</p>
 <span class="tok-n">clamp</span><span class="tok-w"> </span><span class="tok-n">lo</span><span class="tok-w"> </span><span class="tok-n">hi</span><span class="tok-w"> </span><span class="tok-n">x</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-w"> </span><span class="tok-n">lo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">lo</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">hi</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">hi</span>
-<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1961,7 +1960,7 @@ conditions and result expressions:</p>
 <span class="tok-n">classify</span><span class="tok-w"> </span><span class="tok-n">x</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">big</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;big&quot;</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">small</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;medium&quot;</span>
-<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;small&quot;</span>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-s">&quot;small&quot;</span>
 <span class="tok-w">  </span><span class="tok-kr">where</span>
 <span class="tok-w">    </span><span class="tok-n">big</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">100</span>
 <span class="tok-w">    </span><span class="tok-n">small</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">10</span></code></pre>
@@ -1975,8 +1974,18 @@ conditions and result expressions:</p>
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">absLet</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
 <span class="tok-n">absLet</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span>
 <span class="tok-w">  </span><span class="tok-n">let</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span>
-<span class="tok-w">             </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">neg</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">             </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">neg</span><span class="tok-w"> </span><span class="tok-n">x</span>
 <span class="tok-w">  </span><span class="tok-n">in</span><span class="tok-w"> </span><span class="tok-n">result</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Guards can also be used as inline expressions anywhere a value is expected,
+enclosed in parentheses:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">classify</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Str</span>
+<span class="tok-n">classify</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-mi">100</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;big&quot;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-mi">10</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;medium&quot;</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-s">&quot;small&quot;</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 </div>
@@ -1995,7 +2004,7 @@ language.</p>
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">fact</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
 <span class="tok-n">fact</span><span class="tok-w"> </span><span class="tok-n">n</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span>
-<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">fact</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span></code></pre>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">fact</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2007,12 +2016,12 @@ determines (rather inefficiently) whether a number is even or odd:</p>
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">isEven</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Bool</span>
 <span class="tok-n">isEven</span><span class="tok-w"> </span><span class="tok-n">n</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">True</span>
-<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">isOdd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">isOdd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span>
 
 <span class="tok-n">isOdd</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Bool</span>
 <span class="tok-n">isOdd</span><span class="tok-w"> </span><span class="tok-n">n</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">False</span>
-<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">isEven</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span></code></pre>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">isEven</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="admonitionblock caution">
@@ -2453,7 +2462,7 @@ attack dice. We could write all this into a suspended expression:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{[</span><span class="tok-n">Int</span><span class="tok-p">]}</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
-<span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">mod</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">ifelse</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">dmgDice</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">}</span></code></pre>
+<span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">mod</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3313,7 +3322,7 @@ that helps generate new characters.</p>
 <span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-n">atkDice</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">do</span>
 <span class="tok-w">  </span><span class="tok-n">let</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">atkDice</span>
 <span class="tok-w">  </span><span class="tok-n">let</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">dmgDice</span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">ifelse</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">}</span>
+<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">}</span>
 
 <span class="tok-c1">--&#39; Damage calculation for a fighter</span>
 <span class="tok-n">fighterDamage</span><span class="tok-w"> </span><span class="tok-o">::</span>
@@ -3354,15 +3363,15 @@ your system PATH and then you can call it as a normal program from anywhere.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>--install<span class="tok-w"> </span>dnd.loc</code></pre>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>--install<span class="tok-w"> </span>combat.loc</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>This command does several things.</p>
 </div>
 <div class="paragraph">
-<p>First it installs the <code>dnd</code> exeuctable to a standard path. The <code>pool/</code> artifacts
-and all files in the current working directory need to be moved to a starndard
+<p>First it installs the <code>combat</code> executable to a standard path. The <code>pool/</code> artifacts
+and all files in the current working directory need to be moved to a standard
 location. There are two ways you can specify the required build files.</p>
 </div>
 <div class="paragraph">
@@ -3370,7 +3379,7 @@ location. There are two ways you can specify the required build files.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>--install<span class="tok-w"> </span>dnd.loc<span class="tok-w"> </span>--include<span class="tok-w"> </span>fate.loc<span class="tok-w"> </span>--include<span class="tok-w"> </span>fate.py</code></pre>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>--install<span class="tok-w"> </span>combat.loc<span class="tok-w"> </span>--include<span class="tok-w"> </span>fate.loc<span class="tok-w"> </span>--include<span class="tok-w"> </span>fate.py<span class="tok-w"> </span>--include<span class="tok-w"> </span>combat.R</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3380,7 +3389,7 @@ file can be generaed for you with <code>morloc new</code>. You can then modify t
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">name</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">dnd</span>
+<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">name</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">combat</span>
 <span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">0.1.0</span>
 <span class="tok-nt">homepage</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">null</span>
 <span class="tok-nt">synopsis</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">null</span>
@@ -3393,14 +3402,14 @@ file can be generaed for you with <code>morloc new</code>. You can then modify t
 <span class="tok-nt">bug-reports</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">null</span>
 <span class="tok-nt">dependencies</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">[]</span>
 <span class="tok-c1"># Files to include when installing with `morloc make --install`</span>
-<span class="tok-nt">include</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">[</span><span class="tok-s">&quot;fate.*&quot;</span><span class="tok-p tok-p-Indicator">]</span></code></pre>
+<span class="tok-nt">include</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">[</span><span class="tok-s">&quot;fate.*&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-w"> </span><span class="tok-s">&quot;combat.R&quot;</span><span class="tok-p tok-p-Indicator">]</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Then run <code>morloc make --install dnd.loc</code>.</p>
+<p>Then run <code>morloc make --install combat.loc</code>.</p>
 </div>
 <div class="paragraph">
-<p>In both install paths, the <code>dnd</code> source code is copied to the
+<p>In both install paths, the <code>combat</code> source code is copied to the
 <code>~/.local/share/morloc/exe/&lt;modname&gt;</code> folder and the executable script itself is
 written to <code>~/.local/share/morloc/bin/</code>.</p>
 </div>
@@ -3409,13 +3418,13 @@ written to <code>~/.local/share/morloc/bin/</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>list<span class="tok-w"> </span>-v<span class="tok-w"> </span>dnd
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>list<span class="tok-w"> </span>-v<span class="tok-w"> </span>combat
 <span class="tok-go">Programs:</span>
-<span class="tok-go">  dnd  4 commands</span>
+<span class="tok-go">  combat  4 commands</span>
 <span class="tok-go">    rollAdv :: Int</span>
-<span class="tok-go">    knightDamage :: Int</span>
-<span class="tok-go">    randomClass :: Str</span>
-<span class="tok-go">    randomRace :: Str</span></code></pre>
+<span class="tok-go">    fighterDamage :: Int -&gt; Int</span>
+<span class="tok-go">    threeHits :: Int -&gt; [Int]</span>
+<span class="tok-go">    intro :: Str -&gt; Str</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3423,8 +3432,8 @@ written to <code>~/.local/share/morloc/bin/</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>dnd<span class="tok-w"> </span>-h
-<span class="tok-go">Usage: mim &lt;manifest&gt; [OPTION...] COMMAND [ARG...]</span>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>combat<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: morloc-nexus &lt;manifest&gt; [OPTION...] COMMAND [ARG...]</span>
 
 <span class="tok-go">Nexus Options:</span>
 <span class="tok-go"> -h, --help            Print this help message</span>
@@ -3432,18 +3441,18 @@ written to <code>~/.local/share/morloc/bin/</code>.</p>
 <span class="tok-go"> -f, --output-format   Output format [json|mpk|voidstar]</span>
 
 <span class="tok-go">Commands (call with -h/--help for more info):</span>
-<span class="tok-go">  rollAdv       Roll a pair of d20 dice and keep the larger result</span>
-<span class="tok-go">  knightDamage  A knights damage</span>
-<span class="tok-go">  randomClass   Select a random class</span>
-<span class="tok-go">  randomRace    Select a random race</span>
-<span class="tok-gp">$ </span>dnd<span class="tok-w"> </span>knightDamage<span class="tok-w"> </span><span class="tok-m">5</span>
-<span class="tok-go">21</span>
-<span class="tok-gp">$ </span>dnd<span class="tok-w"> </span>knightDamage<span class="tok-w"> </span><span class="tok-m">5</span>
-<span class="tok-go">14</span></code></pre>
+<span class="tok-go">  rollAdv        Roll a pair of d20 dice and keep the larger result</span>
+<span class="tok-go">  fighterDamage  Damage calculation for a fighter</span>
+<span class="tok-go">  threeHits      Three hit rolls against an enemy</span>
+<span class="tok-go">  intro          Introduce a new battle!</span>
+<span class="tok-gp">$ </span>combat<span class="tok-w"> </span>fighterDamage<span class="tok-w"> </span><span class="tok-m">15</span>
+<span class="tok-go">12</span>
+<span class="tok-gp">$ </span>combat<span class="tok-w"> </span>fighterDamage<span class="tok-w"> </span><span class="tok-m">15</span>
+<span class="tok-go">8</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>We can also uninstall with <code>morloc uninstall dnd</code>. This will cleanly remove the
+<p>We can also uninstall with <code>morloc uninstall combat</code>. This will cleanly remove the
 installed source and the installed executable script.</p>
 </div>
 </div>
@@ -3461,18 +3470,18 @@ the executable we created in the last session. We only need to activate them.</p
 <div class="sect3">
 <h4 id="_http_protocol"><a class="anchor" href="#_http_protocol"></a>7.6.1. HTTP protocol</h4>
 <div class="paragraph">
-<p>We can start <code>dnd</code> as a daemon on HTTP port 8080:</p>
+<p>We can start <code>combat</code> as a daemon on HTTP port 8080:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>dnd<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--http-port<span class="tok-w"> </span><span class="tok-m">8080</span><span class="tok-w"> </span><span class="tok-p">&amp;</span>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>combat<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--http-port<span class="tok-w"> </span><span class="tok-m">8080</span><span class="tok-w"> </span><span class="tok-p">&amp;</span>
 <span class="tok-go">daemon: listening on http port 8080</span>
 <span class="tok-go">daemon: ready</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>The trailing <code>&amp;</code> creates the process in the background. This command launches
-all language pool processes (just Python in this case) as child processes in
+all language pool processes (Python and R in this case) as child processes in
 separate process groups. A thread pool handles concurrent requests. If a pool
 crashes, the daemon detects it restarts it automatically.</p>
 </div>
@@ -3497,7 +3506,7 @@ crashes, the daemon detects it restarts it automatically.</p>
 <span class="tok-go">{</span>
 <span class="tok-go">  &quot;status&quot;: &quot;ok&quot;,</span>
 <span class="tok-go">  &quot;result&quot;: {</span>
-<span class="tok-go">    &quot;name&quot;: &quot;dnd&quot;,</span>
+<span class="tok-go">    &quot;name&quot;: &quot;combat&quot;,</span>
 <span class="tok-go">    &quot;version&quot;: 1,</span>
 <span class="tok-go">    &quot;commands&quot;: [</span>
 <span class="tok-go">      {</span>
@@ -3509,7 +3518,7 @@ crashes, the daemon detects it restarts it automatically.</p>
 <span class="tok-go">        &quot;desc&quot;: &quot;Roll a pair of d20 dice and keep the larger result&quot;</span>
 <span class="tok-go">      },</span>
 <span class="tok-go">      {</span>
-<span class="tok-go">        &quot;name&quot;: &quot;knightDamage&quot;,</span>
+<span class="tok-go">        &quot;name&quot;: &quot;fighterDamage&quot;,</span>
 <span class="tok-go">        &quot;type&quot;: &quot;remote&quot;,</span>
 <span class="tok-go">        &quot;return_type&quot;: &quot;Int&quot;,</span>
 <span class="tok-go">        &quot;return_schema&quot;: &quot;&lt;int&gt;i4&quot;,</span>
@@ -3520,23 +3529,35 @@ crashes, the daemon detects it restarts it automatically.</p>
 <span class="tok-go">            &quot;schema&quot;: &quot;&lt;int&gt;i4&quot;</span>
 <span class="tok-go">          }</span>
 <span class="tok-go">        ],</span>
-<span class="tok-go">        &quot;desc&quot;: &quot;A knights damage&quot;</span>
+<span class="tok-go">        &quot;desc&quot;: &quot;Damage calculation for a fighter&quot;</span>
 <span class="tok-go">      },</span>
 <span class="tok-go">      {</span>
-<span class="tok-go">        &quot;name&quot;: &quot;randomClass&quot;,</span>
+<span class="tok-go">        &quot;name&quot;: &quot;threeHits&quot;,</span>
+<span class="tok-go">        &quot;type&quot;: &quot;remote&quot;,</span>
+<span class="tok-go">        &quot;return_type&quot;: &quot;[Int]&quot;,</span>
+<span class="tok-go">        &quot;return_schema&quot;: &quot;&lt;array&gt;&lt;int&gt;i4&quot;,</span>
+<span class="tok-go">        &quot;args&quot;: [</span>
+<span class="tok-go">          {</span>
+<span class="tok-go">            &quot;kind&quot;: &quot;pos&quot;,</span>
+<span class="tok-go">            &quot;type&quot;: &quot;Int&quot;,</span>
+<span class="tok-go">            &quot;schema&quot;: &quot;&lt;int&gt;i4&quot;</span>
+<span class="tok-go">          }</span>
+<span class="tok-go">        ],</span>
+<span class="tok-go">        &quot;desc&quot;: &quot;Three hit rolls against an enemy&quot;</span>
+<span class="tok-go">      },</span>
+<span class="tok-go">      {</span>
+<span class="tok-go">        &quot;name&quot;: &quot;intro&quot;,</span>
 <span class="tok-go">        &quot;type&quot;: &quot;remote&quot;,</span>
 <span class="tok-go">        &quot;return_type&quot;: &quot;Str&quot;,</span>
 <span class="tok-go">        &quot;return_schema&quot;: &quot;&lt;str&gt;s&quot;,</span>
-<span class="tok-go">        &quot;args&quot;: [],</span>
-<span class="tok-go">        &quot;desc&quot;: &quot;Select a random class&quot;</span>
-<span class="tok-go">      },</span>
-<span class="tok-go">      {</span>
-<span class="tok-go">        &quot;name&quot;: &quot;randomRace&quot;,</span>
-<span class="tok-go">        &quot;type&quot;: &quot;remote&quot;,</span>
-<span class="tok-go">        &quot;return_type&quot;: &quot;Str&quot;,</span>
-<span class="tok-go">        &quot;return_schema&quot;: &quot;&lt;str&gt;s&quot;,</span>
-<span class="tok-go">        &quot;args&quot;: [],</span>
-<span class="tok-go">        &quot;desc&quot;: &quot;Select a random race&quot;</span>
+<span class="tok-go">        &quot;args&quot;: [</span>
+<span class="tok-go">          {</span>
+<span class="tok-go">            &quot;kind&quot;: &quot;pos&quot;,</span>
+<span class="tok-go">            &quot;type&quot;: &quot;Str&quot;,</span>
+<span class="tok-go">            &quot;schema&quot;: &quot;&lt;str&gt;s&quot;</span>
+<span class="tok-go">          }</span>
+<span class="tok-go">        ],</span>
+<span class="tok-go">        &quot;desc&quot;: &quot;Introduce a new battle!&quot;</span>
 <span class="tok-go">      }</span>
 <span class="tok-go">    ]</span>
 <span class="tok-go">  }</span>
@@ -3548,11 +3569,11 @@ crashes, the daemon detects it restarts it automatically.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:8080/call/randomClass<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[]&#39;</span>
-<span class="tok-go">{&quot;status&quot;:&quot;ok&quot;,&quot;result&quot;:&quot;Ranger&quot;}</span>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:8080/call/rollAdv<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[]&#39;</span>
+<span class="tok-go">{&quot;status&quot;:&quot;ok&quot;,&quot;result&quot;:18}</span>
 
-<span class="tok-gp">$ </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:8080/call/knightDamage<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[5]&#39;</span>
-<span class="tok-go">{&quot;status&quot;:&quot;ok&quot;,&quot;result&quot;:16}</span></code></pre>
+<span class="tok-gp">$ </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:8080/call/fighterDamage<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[15]&#39;</span>
+<span class="tok-go">{&quot;status&quot;:&quot;ok&quot;,&quot;result&quot;:12}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3580,7 +3601,7 @@ connection and want minimal overhead.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>dnd<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--port<span class="tok-w"> </span><span class="tok-m">9001</span><span class="tok-w"> </span><span class="tok-p">&amp;</span>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>combat<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--port<span class="tok-w"> </span><span class="tok-m">9001</span><span class="tok-w"> </span><span class="tok-p">&amp;</span>
 daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>tcp<span class="tok-w"> </span>port<span class="tok-w"> </span><span class="tok-m">9001</span>
 daemon:<span class="tok-w"> </span>ready</code></pre>
 </div>
@@ -3615,14 +3636,14 @@ Python client:</p>
 <span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;localhost&quot;</span><span class="tok-p">,</span> <span class="tok-mi">9001</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;rollAdv&quot;</span><span class="tok-p">))</span>
 <span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 18}</span>
 
-<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;localhost&quot;</span><span class="tok-p">,</span> <span class="tok-mi">9001</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;knightDamage&quot;</span><span class="tok-p">,</span> <span class="tok-p">[</span><span class="tok-mi">5</span><span class="tok-p">]))</span>
-<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 16}</span>
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;localhost&quot;</span><span class="tok-p">,</span> <span class="tok-mi">9001</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;fighterDamage&quot;</span><span class="tok-p">,</span> <span class="tok-p">[</span><span class="tok-mi">15</span><span class="tok-p">]))</span>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 12}</span>
 
 <span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;localhost&quot;</span><span class="tok-p">,</span> <span class="tok-mi">9001</span><span class="tok-p">,</span> <span class="tok-s2">&quot;health&quot;</span><span class="tok-p">))</span>
 <span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: [true]}</span>
 
 <span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;localhost&quot;</span><span class="tok-p">,</span> <span class="tok-mi">9001</span><span class="tok-p">,</span> <span class="tok-s2">&quot;discover&quot;</span><span class="tok-p">))</span>
-<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: {&quot;name&quot;: &quot;dnd&quot;, &quot;commands&quot;: [...]}}</span></code></pre>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: {&quot;name&quot;: &quot;combat&quot;, &quot;commands&quot;: [...]}}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3644,8 +3665,8 @@ nexus internally.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>dnd<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--socket<span class="tok-w"> </span>/tmp/dnd.sock<span class="tok-w"> </span><span class="tok-p">&amp;</span>
-daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>unix<span class="tok-w"> </span>socket<span class="tok-w"> </span>/tmp/dnd.sock
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>combat<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--socket<span class="tok-w"> </span>/tmp/combat.sock<span class="tok-w"> </span><span class="tok-p">&amp;</span>
+daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>unix<span class="tok-w"> </span>socket<span class="tok-w"> </span>/tmp/combat.sock
 daemon:<span class="tok-w"> </span>ready</code></pre>
 </div>
 </div>
@@ -3673,14 +3694,14 @@ followed by the JSON payload. The only difference is the socket type.</p>
     <span class="tok-n">s</span><span class="tok-o">.</span><span class="tok-n">close</span><span class="tok-p">()</span>
     <span class="tok-k">return</span> <span class="tok-n">json</span><span class="tok-o">.</span><span class="tok-n">loads</span><span class="tok-p">(</span><span class="tok-n">resp</span><span class="tok-p">)</span>
 
-<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/dnd.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;rollAdv&quot;</span><span class="tok-p">))</span>
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/combat.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;rollAdv&quot;</span><span class="tok-p">))</span>
 <span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 18}</span>
 
-<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/dnd.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;knightDamage&quot;</span><span class="tok-p">,</span> <span class="tok-p">[</span><span class="tok-mi">5</span><span class="tok-p">]))</span>
-<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 16}</span>
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/combat.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;call&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;fighterDamage&quot;</span><span class="tok-p">,</span> <span class="tok-p">[</span><span class="tok-mi">15</span><span class="tok-p">]))</span>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: 12}</span>
 
-<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/dnd.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;discover&quot;</span><span class="tok-p">))</span>
-<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: {&quot;name&quot;: &quot;dnd&quot;, &quot;commands&quot;: [...]}}</span></code></pre>
+<span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-n">call</span><span class="tok-p">(</span><span class="tok-s2">&quot;/tmp/combat.sock&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;discover&quot;</span><span class="tok-p">))</span>
+<span class="tok-c1"># {&quot;status&quot;: &quot;ok&quot;, &quot;result&quot;: {&quot;name&quot;: &quot;combat&quot;, &quot;commands&quot;: [...]}}</span></code></pre>
 </div>
 </div>
 </div>
@@ -3692,11 +3713,11 @@ the same time:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>dnd<span class="tok-w"> </span>--daemon<span class="tok-w"> </span><span class="tok-se">\</span>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>combat<span class="tok-w"> </span>--daemon<span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">      </span>--http-port<span class="tok-w"> </span><span class="tok-m">8080</span><span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">      </span>--port<span class="tok-w"> </span><span class="tok-m">9001</span><span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">      </span>--socket<span class="tok-w"> </span>/tmp/dnd.sock
-daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>unix<span class="tok-w"> </span>socket<span class="tok-w"> </span>/tmp/dnd.sock
+<span class="tok-w">      </span>--socket<span class="tok-w"> </span>/tmp/combat.sock
+daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>unix<span class="tok-w"> </span>socket<span class="tok-w"> </span>/tmp/combat.sock
 daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>tcp<span class="tok-w"> </span>port<span class="tok-w"> </span><span class="tok-m">9001</span>
 daemon:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>http<span class="tok-w"> </span>port<span class="tok-w"> </span><span class="tok-m">8080</span>
 daemon:<span class="tok-w"> </span>ready</code></pre>
@@ -3713,7 +3734,7 @@ identically&#8201;&#8212;&#8201;only the framing differs.</p>
 <div class="paragraph">
 <p>Everything above shows a single program running as a daemon. This is enough when
 you have one service, but Morloc programs are designed to be composed. You might
-have a <code>dnd</code> program that rolls dice and picks character classes, and a
+have a <code>tavern</code> program that picks character classes and races, and a
 <code>combat</code> program that resolves attacks and damage. Each is its own compiled
 Morloc program with its own pools.</p>
 </div>
@@ -3731,10 +3752,10 @@ to a program daemon and its language pools:</p>
 <div class="content">
 <pre>                  Client
                     |
-                    | HTTP: POST /call/tavern/rollD20 -d '[]'
+                    | HTTP: POST /call/tavern/randomClass -d '[]'
                     v
              +--------------+
-             |    Router    |  mim --router --http-port 9090
+             |    Router    |  morloc-nexus --router --http-port 9090
              |  (HTTP:9090) |  Reads manifests from fdb/ at startup
              +--------------+
               /            \
@@ -3744,10 +3765,10 @@ to a program daemon and its language pools:</p>
   |  tavern   |         |  combat   |
   |  daemon   |         |  daemon   |
   +-----------+         +-----------+
-   /    |    \           /    |    \
-  v     v     v         v     v     v
- C++  Python  R        C++  Python  R
-pool   pool  pool     pool   pool  pool</pre>
+       |                 /        \
+       v                v          v
+    Python           Python        R
+     pool             pool        pool</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3785,8 +3806,8 @@ combat.manifest<span class="tok-w">  </span>tavern.manifest</code></pre>
 <pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>mim<span class="tok-w"> </span>--router<span class="tok-w"> </span>--http-port<span class="tok-w"> </span><span class="tok-m">9090</span>
 router:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>http<span class="tok-w"> </span>port<span class="tok-w"> </span><span class="tok-m">9090</span>
 router:<span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span>programs<span class="tok-w"> </span>registered
-router:<span class="tok-w">   </span>-<span class="tok-w"> </span>combat<span class="tok-w"> </span><span class="tok-o">(</span><span class="tok-m">3</span><span class="tok-w"> </span>commands<span class="tok-o">)</span>
-router:<span class="tok-w">   </span>-<span class="tok-w"> </span>tavern<span class="tok-w"> </span><span class="tok-o">(</span><span class="tok-m">4</span><span class="tok-w"> </span>commands<span class="tok-o">)</span>
+router:<span class="tok-w">   </span>-<span class="tok-w"> </span>combat<span class="tok-w"> </span><span class="tok-o">(</span><span class="tok-m">4</span><span class="tok-w"> </span>commands<span class="tok-o">)</span>
+router:<span class="tok-w">   </span>-<span class="tok-w"> </span>tavern<span class="tok-w"> </span><span class="tok-o">(</span><span class="tok-m">2</span><span class="tok-w"> </span>commands<span class="tok-o">)</span>
 router:<span class="tok-w"> </span>ready</code></pre>
 </div>
 </div>
@@ -3802,19 +3823,18 @@ router:<span class="tok-w"> </span>ready</code></pre>
 <span class="tok-w">            </span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;combat&quot;</span>,
 <span class="tok-w">            </span><span class="tok-s2">&quot;running&quot;</span>:<span class="tok-w"> </span>false,
 <span class="tok-w">            </span><span class="tok-s2">&quot;commands&quot;</span>:<span class="tok-w"> </span><span class="tok-o">[</span>
-<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;attackRoll&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Int&quot;</span><span class="tok-o">}</span>,
-<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;damage&quot;</span>,<span class="tok-w">     </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Int&quot;</span><span class="tok-o">}</span>,
-<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;maxHp&quot;</span>,<span class="tok-w">      </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Int&quot;</span><span class="tok-o">}</span>
+<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;rollAdv&quot;</span>,<span class="tok-w">        </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Int&quot;</span><span class="tok-o">}</span>,
+<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;fighterDamage&quot;</span>,<span class="tok-w">  </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Int&quot;</span><span class="tok-o">}</span>,
+<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;threeHits&quot;</span>,<span class="tok-w">      </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;[Int]&quot;</span><span class="tok-o">}</span>,
+<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;intro&quot;</span>,<span class="tok-w">          </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Str&quot;</span><span class="tok-o">}</span>
 <span class="tok-w">            </span><span class="tok-o">]</span>
 <span class="tok-w">        </span><span class="tok-o">}</span>,
 <span class="tok-w">        </span><span class="tok-o">{</span>
 <span class="tok-w">            </span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;tavern&quot;</span>,
 <span class="tok-w">            </span><span class="tok-s2">&quot;running&quot;</span>:<span class="tok-w"> </span>false,
 <span class="tok-w">            </span><span class="tok-s2">&quot;commands&quot;</span>:<span class="tok-w"> </span><span class="tok-o">[</span>
-<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;rollD20&quot;</span>,<span class="tok-w">      </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Int&quot;</span><span class="tok-o">}</span>,
-<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;rollDice&quot;</span>,<span class="tok-w">     </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;[Int]&quot;</span><span class="tok-o">}</span>,
 <span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;randomClass&quot;</span>,<span class="tok-w">  </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Str&quot;</span><span class="tok-o">}</span>,
-<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;tavernGreet&quot;</span>,<span class="tok-w">  </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Str&quot;</span><span class="tok-o">}</span>
+<span class="tok-w">                </span><span class="tok-o">{</span><span class="tok-s2">&quot;name&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;randomRace&quot;</span>,<span class="tok-w">   </span><span class="tok-s2">&quot;type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;remote&quot;</span>,<span class="tok-w"> </span><span class="tok-s2">&quot;return_type&quot;</span>:<span class="tok-w"> </span><span class="tok-s2">&quot;Str&quot;</span><span class="tok-o">}</span>
 <span class="tok-w">            </span><span class="tok-o">]</span>
 <span class="tok-w">        </span><span class="tok-o">}</span>
 <span class="tok-w">    </span><span class="tok-o">]</span>
@@ -3847,20 +3867,20 @@ router:<span class="tok-w"> </span>ready</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/tavern/rollD20<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[]&#39;</span>
-<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:19<span class="tok-o">}</span>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/tavern/randomClass<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[]&#39;</span>
+<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:<span class="tok-s2">&quot;Rogue&quot;</span><span class="tok-o">}</span>
 
-$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/tavern/rollDice<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[3, 6]&#39;</span>
-<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:<span class="tok-o">[</span><span class="tok-m">4</span>,2,6<span class="tok-o">]}</span>
+$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/tavern/randomRace<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[]&#39;</span>
+<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:<span class="tok-s2">&quot;Elf&quot;</span><span class="tok-o">}</span>
 
-$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/combat/attackRoll<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[14, 3]&#39;</span>
+$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/combat/rollAdv<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[]&#39;</span>
 <span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:17<span class="tok-o">}</span>
 
-$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/combat/damage<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[8, 2]&#39;</span>
-<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:16<span class="tok-o">}</span>
+$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/combat/fighterDamage<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[15]&#39;</span>
+<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:12<span class="tok-o">}</span>
 
-$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/combat/maxHp<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[4, 10]&#39;</span>
-<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:50<span class="tok-o">}</span></code></pre>
+$<span class="tok-w"> </span>curl<span class="tok-w"> </span>-s<span class="tok-w"> </span>-X<span class="tok-w"> </span>POST<span class="tok-w"> </span>localhost:9090/call/combat/intro<span class="tok-w"> </span>-d<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;Goblin&quot;]&#39;</span>
+<span class="tok-o">{</span><span class="tok-s2">&quot;status&quot;</span>:<span class="tok-s2">&quot;ok&quot;</span>,<span class="tok-s2">&quot;result&quot;</span>:<span class="tok-s2">&quot;A wild Goblin appears!&quot;</span><span class="tok-o">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3881,7 +3901,7 @@ calls, the router detects the failure and restarts it transparently.</p>
 <div class="sect4">
 <h5 id="_independent_daemons_vs_router_managed_daemons"><a class="anchor" href="#_independent_daemons_vs_router_managed_daemons"></a>Independent daemons vs router-managed daemons</h5>
 <div class="paragraph">
-<p>A daemon started manually (e.g., <code>dnd --daemon --http-port 8080</code>) is completely
+<p>A daemon started manually (e.g., <code>combat --daemon --http-port 8080</code>) is completely
 independent of the router. The router only knows about programs whose manifests
 are in the <code>fdb/</code> directory, and it starts its own daemon instances as child
 processes. If you start a daemon on your own and also have the same program
@@ -5357,40 +5377,7 @@ examples (see the Dockerfile in the workflow-comparisons folder of
 </div>
 </div>
 <div class="sect2">
-<h3 id="_what_about_recursion"><a class="anchor" href="#_what_about_recursion"></a>11.8. What about recursion?</h3>
-<div class="paragraph">
-<p>Recursion is <strong>not</strong> directly supported in Morloc. It will in near the future, but
-the implementation is complicated by inconsistent support for recursion in
-different languages. For example, Python has a recursion limit that can cause
-runtime crashes. Instead, recursive algorithms should be written as control
-fucntions in foreign languages.</p>
-</div>
-<div class="paragraph">
-<p>For example, the Morloc <code>bio</code> module contains many generic tree traversal
-algorithms. One is the <code>foldTree</code> function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foldTree</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-n">a</span>
-<span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">l</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span>
-<span class="tok-w">  </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span>
-<span class="tok-w">  </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
-<span class="tok-w">  </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">RootedTree</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-n">l</span>
-<span class="tok-w">  </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Here the <code>RootedTree</code> type represents a phylogenetic tree with generic node
-(<code>n</code>), edge (<code>e</code>), and leaf (<code>l</code>) types. The <code>foldTree</code> function accepts two
-functions as arguments. The first <code>(l &#8594; a &#8594; a)</code>, reduces leaf values to the
-accumulator value. The second, reduces branch given the parent node, edge and
-current accumulator value. The strategy for implementing this function is
-decided in the foreign source code. The current C&#43;&#43; implementation is
-recursive, but iterative alternatives are possible.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>11.9. What about object-oriented programming?</h3>
+<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>11.8. What about object-oriented programming?</h3>
 <div class="paragraph">
 <p>An "object" is a somewhat loaded term in the programming world. As far as
 Morloc is concerned, an object is a thing that contains data and possibly
@@ -5411,7 +5398,7 @@ languages, they are reduced to their pure data.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_is_morloc_still_relevant_when_ai_can_program_and_translate"><a class="anchor" href="#_is_morloc_still_relevant_when_ai_can_program_and_translate"></a>11.10. Is Morloc still relevant when AI can program and translate?</h3>
+<h3 id="_is_morloc_still_relevant_when_ai_can_program_and_translate"><a class="anchor" href="#_is_morloc_still_relevant_when_ai_can_program_and_translate"></a>11.9. Is Morloc still relevant when AI can program and translate?</h3>
 <div class="paragraph">
 <p><em>Maybe</em>. Morloc may serve as a system for functional composition, verification,
 and automation even when most functions are generated by machines.</p>
@@ -5522,7 +5509,7 @@ are composable and machine verifiable but entirely incomprehensible to humans.</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>11.11. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
+<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>11.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
 <div class="paragraph">
 <p>While the Morlocks of Wellian fame are best known for their culinary
 preferences, I think Wells misrepresented them. And even if he didn&#8217;t, we don&#8217;t
@@ -5532,7 +5519,7 @@ adapts their name.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>11.12. Wait! I have more questions!</h3>
+<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>11.11. Wait! I have more questions!</h3>
 <div class="paragraph">
 <p>Great! Look me up on Discord (link below) and we can chat.</p>
 </div>
