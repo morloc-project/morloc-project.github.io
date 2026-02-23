@@ -624,10 +624,11 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_functions">5.4. Functions</a></li>
 <li><a href="#_native_morloc_functions">5.5. Native Morloc functions</a></li>
 <li><a href="#_where_and_let_clauses">5.6. <code>where</code> and <code>let</code> clauses</a></li>
-<li><a href="#_infix_operators">5.7. Infix operators</a></li>
-<li><a href="#_records">5.8. Records</a></li>
-<li><a href="#_tables">5.9. Tables</a></li>
-<li><a href="#_effects_and_delayed_evaluation">5.10. Effects and delayed evaluation</a></li>
+<li><a href="#_recursion">5.7. Recursion</a></li>
+<li><a href="#_infix_operators">5.8. Infix operators</a></li>
+<li><a href="#_records">5.9. Records</a></li>
+<li><a href="#_tables">5.10. Tables</a></li>
+<li><a href="#_effects_and_delayed_evaluation">5.11. Effects and delayed evaluation</a></li>
 </ul>
 </li>
 <li><a href="#_advanced_types">6. Advanced Types</a>
@@ -1917,11 +1918,129 @@ argument.</p>
 <div class="paragraph">
 <p>Ignoring the return data from <code>n+1</code> is completely pointless in this case, but
 this ability will become crucial when we move on with computational that have
-side-effects.</p>
+side-effects.
+=== Guards</p>
+</div>
+<div class="paragraph">
+<p>Guards provide conditional branching within function definitions. Each guard
+clause begins with <code>?</code> followed by a condition and a result expression:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">abs</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">abs</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">neg</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Guards are evaluated lazily from top to bottom. The first condition that
+evaluates to true determines the result; remaining guards are not evaluated. The
+underscore <code>_</code> serves as a catch-all that always matches, similar to a default
+case.</p>
+</div>
+<div class="paragraph">
+<p>Guards work naturally with multiple parameters:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">clamp</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">clamp</span><span class="tok-w"> </span><span class="tok-n">lo</span><span class="tok-w"> </span><span class="tok-n">hi</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-w"> </span><span class="tok-n">lo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">lo</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">hi</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">hi</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Guards can be combined with <code>where</code> clauses to define local bindings used in the
+conditions and result expressions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">classify</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Str</span>
+<span class="tok-n">classify</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">big</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;big&quot;</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">small</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;medium&quot;</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;small&quot;</span>
+<span class="tok-w">  </span><span class="tok-kr">where</span>
+<span class="tok-w">    </span><span class="tok-n">big</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">100</span>
+<span class="tok-w">    </span><span class="tok-n">small</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">10</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Guards may appear inside <code>let</code> bindings:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">absLet</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">absLet</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span>
+<span class="tok-w">  </span><span class="tok-n">let</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">             </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">neg</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">  </span><span class="tok-n">in</span><span class="tok-w"> </span><span class="tok-n">result</span></code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_infix_operators"><a class="anchor" href="#_infix_operators"></a>5.7. Infix operators</h3>
+<h3 id="_recursion"><a class="anchor" href="#_recursion"></a>5.7. Recursion</h3>
+<div class="paragraph">
+<p>Morloc supports recursive function definitions. A function may refer to itself
+in its body, and the compiler will generate the appropriate code in the target
+language.</p>
+</div>
+<div class="paragraph">
+<p>The classic factorial function can be written using guards and self-reference:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">fact</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">fact</span><span class="tok-w"> </span><span class="tok-n">n</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">fact</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Functions may also be mutually recursive. The following pair of functions
+determines (rather inefficiently) whether a number is even or odd:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">isEven</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Bool</span>
+<span class="tok-n">isEven</span><span class="tok-w"> </span><span class="tok-n">n</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">True</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">isOdd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span>
+
+<span class="tok-n">isOdd</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Bool</span>
+<span class="tok-n">isOdd</span><span class="tok-w"> </span><span class="tok-n">n</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">False</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">isEven</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/caution.png" alt="Caution">
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Recursive Morloc functions are not equally well supported across all target
+languages. Some backends may impose recursion depth limits or lack tail-call
+optimization, which can cause stack overflows for deep recursion.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, if a recursive function calls foreign functions implemented in
+different languages, each recursive step may cross a language boundary. These
+cross-language calls involve data marshalling and inter-process communication, so
+recursion that spans languages will be significantly slower than recursion within
+a single language.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_infix_operators"><a class="anchor" href="#_infix_operators"></a>5.8. Infix operators</h3>
 <div class="paragraph">
 <p>Morloc supports user-defined infix operators with explicit associativity and
 precedence. Operators are declared with <code>infixl</code> (left-associative) or <code>infixr</code>
@@ -1985,7 +2104,7 @@ precedence. Operators are declared with <code>infixl</code> (left-associative) o
 </div>
 </div>
 <div class="sect2">
-<h3 id="_records"><a class="anchor" href="#_records"></a>5.8. Records</h3>
+<h3 id="_records"><a class="anchor" href="#_records"></a>5.9. Records</h3>
 <div class="paragraph">
 <p>A record is internally a named tuple. Records may map to different structures in
 different languages.</p>
@@ -2103,7 +2222,7 @@ are not currently supported.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_tables"><a class="anchor" href="#_tables"></a>5.9. Tables</h3>
+<h3 id="_tables"><a class="anchor" href="#_tables"></a>5.10. Tables</h3>
 <div class="paragraph">
 <p>Tables are similar, but all fields are lists of equal length:</p>
 </div>
@@ -2173,7 +2292,7 @@ reliability of the typed structures.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_effects_and_delayed_evaluation"><a class="anchor" href="#_effects_and_delayed_evaluation"></a>5.10. Effects and delayed evaluation</h3>
+<h3 id="_effects_and_delayed_evaluation"><a class="anchor" href="#_effects_and_delayed_evaluation"></a>5.11. Effects and delayed evaluation</h3>
 <div class="paragraph">
 <p>Morloc is a functional programming language. Here a "function" is a mapping from
 a value in one domain to value in another domain. This works neatly for pure

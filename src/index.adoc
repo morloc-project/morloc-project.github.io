@@ -193,10 +193,11 @@ include::{includedir}/features-patterns.asc[]
 include::{includedir}/features-source.asc[]
 include::{includedir}/features-functions.asc[]
 include::{includedir}/features-where.asc[]
+include::{includedir}/features-guards.asc[]
+include::{includedir}/features-recursion.asc[]
 include::{includedir}/features-infix.asc[]
 include::{includedir}/features-records.asc[]
 include::{includedir}/features-tables.asc[]
-include::{includedir}/features-let.asc[]
 include::{includedir}/features-effects.asc[]
 
 == Advanced Types
