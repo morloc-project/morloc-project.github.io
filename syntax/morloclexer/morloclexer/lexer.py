@@ -136,7 +136,7 @@ class MorlocLexer(RegexLexer):
         ],
         "module": [
             (r"\s+", Whitespace),
-            (r"[" + uni.Ll + r"][\w.]*", Name, "#pop"),
+            (r"(?:[" + uni.Ll + r"][\w.]*)?", Name, "#pop"),
         ],
         "string": [
             (r'#\{', String.Interpol, "interpolation"),  # String interpolation

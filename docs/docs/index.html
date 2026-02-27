@@ -653,9 +653,10 @@ document.addEventListener("DOMContentLoaded", function() {
 </li>
 <li><a href="#_modules_and_libraries">8. Modules and Libraries</a>
 <ul class="sectlevel2">
-<li><a href="#_installing_modules">8.1. Installing modules</a></li>
-<li><a href="#_the_universal_library">8.2. The universal library</a></li>
-<li><a href="#_planes_of_libraries">8.3. Planes of libraries</a></li>
+<li><a href="#_importing_modules">8.1. Importing modules</a></li>
+<li><a href="#_installing_modules">8.2. Installing modules</a></li>
+<li><a href="#_the_universal_library">8.3. The universal library</a></li>
+<li><a href="#_planes_of_libraries">8.4. Planes of libraries</a></li>
 </ul>
 </li>
 <li><a href="#_morloc_versions_and_dependencies">9. Morloc versions and dependencies</a>
@@ -2492,19 +2493,36 @@ computation is evaluated.</p>
 <div class="sect2">
 <h3 id="_optional_types"><a class="anchor" href="#_optional_types"></a>5.12. Optional types</h3>
 <div class="paragraph">
-<p>Optional types represent values that may be absent. The <code>?</code> prefix marks a type
-as optional: <code>?Int</code> is an integer that might be <code>null</code>, <code>?Str</code> is a string that
-might be <code>null</code>, and so on. The <code>?</code> prefix can be applied to any type, including
-lists (<code>?[Int]</code>), records (<code>?Person</code>), and nested optionals (<code>??Int</code>).</p>
+<p>All programming languages must have a way to deal with missing values. If you
+query a database for a record that doesn&#8217;t exist, what is returned? If a
+parameter is not set, what value does it have? In Python, the <code>None</code> type stores
+missing values. In R, <code>NULL</code> serves a similar purpose. In both languages, types
+that may lack values are represented as a union of the original type and the
+<code>null</code> type. JSON, similarly, stores missing values as <code>null</code>. Other languages
+solve this problem in libraries. C++ has the standard template library
+datastructure <code>std::optional&lt;T&gt;</code> for representing values of generic type <code>T</code>
+that have null, <code>std::nullopt</code> types.</p>
+</div>
+<div class="paragraph">
+<p>Haskell offers the <code>Maybe</code> sum type that may be <code>Nothing</code> or <code>Just a</code>. This is
+perhaps the cleanest solution, but it is not practical for Morloc. One of the
+core principles of Morloc is that sourced functions should be idiomatic. So
+Morloc needs a built-in mechanism that can vary freely in language-specific
+implementation while preserving between language consistency. To this end,
+Morloc offers a dedicated "Optional" type with supported implicit coercion.</p>
 </div>
 <div class="sect3">
 <h4 id="_syntax"><a class="anchor" href="#_syntax"></a>5.12.1. Syntax</h4>
 <div class="paragraph">
-<p>An optional type is written by prefixing <code>?</code> to an existing type:</p>
+<p>The <code>?</code> prefix marks a type as optional and the <code>null</code> primitive indicates an
+absent value. <code>?Int</code> is an integer that might be <code>null</code>, <code>?Str</code> is a string that
+might be <code>null</code>, and so on. The <code>?</code> prefix can be applied to any type, including
+lists (<code>?[Int]</code>), records (<code>?Person</code>), and nested optionals (<code>??Int</code>).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">--&#39; Get the first element from a list or empty on failure</span>
+<span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
 <span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
 </div>
 </div>
@@ -2528,12 +2546,15 @@ languages like any other function. Here is a complete example in Python:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">testSafeHead</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">testSafeHeadEmpty</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">testFromNull</span><span class="tok-p">)</span>
 
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;int&quot;</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
 
 <span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
-<span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-n">xs</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">length</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">null</span>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">head</span><span class="tok-w"> </span><span class="tok-n">xs</span>
 
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;safeHead&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;fromNull&quot;</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;main.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;fromNull&quot;</span><span class="tok-p">)</span>
+<span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
 
 <span class="tok-n">testSafeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
 <span class="tok-n">testSafeHead</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">10</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">30</span><span class="tok-p">]</span>
@@ -2550,12 +2571,7 @@ languages like any other function. Here is a complete example in Python:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">safeHead</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">):</span>
-    <span class="tok-k">if</span> <span class="tok-nb">len</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span> <span class="tok-o">==</span> <span class="tok-mi">0</span><span class="tok-p">:</span>
-        <span class="tok-k">return</span> <span class="tok-kc">None</span>
-    <span class="tok-k">return</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-mi">0</span><span class="tok-p">]</span>
-
-<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">fromNull</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">,</span> <span class="tok-n">x</span><span class="tok-p">):</span>
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">fromNull</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">,</span> <span class="tok-n">x</span><span class="tok-p">):</span>
     <span class="tok-k">if</span> <span class="tok-n">x</span> <span class="tok-ow">is</span> <span class="tok-kc">None</span><span class="tok-p">:</span>
         <span class="tok-k">return</span> <span class="tok-n">default_val</span>
     <span class="tok-k">return</span> <span class="tok-n">x</span></code></pre>
@@ -2581,11 +2597,14 @@ In C&#43;&#43;:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="c++"><span></span><span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;optional&gt;</span>
-<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;vector&gt;</span>
 
-<span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">optional</span><span class="tok-o">&lt;</span><span class="tok-kt">int</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">safeHead</span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-kt">int</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-k">if</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">.</span><span class="tok-n">empty</span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">nullopt</span><span class="tok-p">;</span>
-<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">optional</span><span class="tok-o">&lt;</span><span class="tok-kt">int</span><span class="tok-o">&gt;</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-mi">0</span><span class="tok-p">]);</span>
+<span class="tok-k">template</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-k">class</span><span class="tok-w"> </span><span class="tok-nc">T</span><span class="tok-o">&gt;</span>
+<span class="tok-n">T</span><span class="tok-w"> </span><span class="tok-n">fromNull</span><span class="tok-p">(</span><span class="tok-n">T</span><span class="tok-w"> </span><span class="tok-k">default</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">optional</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">  </span><span class="tok-k">if</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">.</span><span class="tok-n">has_value</span><span class="tok-p">()){</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">.</span><span class="tok-n">value</span><span class="tok-p">();</span>
+<span class="tok-w">  </span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-k">else</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-k">default</span><span class="tok-p">;</span>
+<span class="tok-w">  </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -2594,9 +2613,12 @@ In C&#43;&#43;:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-kr">if</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nf">length</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-m">0</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">return</span><span class="tok-p">(</span><span class="tok-kc">NULL</span><span class="tok-p">)</span>
-<span class="tok-w">    </span><span class="tok-kr">return</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">[[</span><span class="tok-m">1</span><span class="tok-p">]])</span>
+<pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">){</span>
+<span class="tok-w">  </span><span class="tok-kr">if</span><span class="tok-p">(</span><span class="tok-nf">is.null</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)){</span>
+<span class="tok-w">    </span><span class="tok-kr">return</span><span class="tok-w"> </span><span class="tok-n">default_val</span>
+<span class="tok-w">  </span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-kr">else</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-kr">return</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">  </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -3339,8 +3361,8 @@ functions from both the calendar and dnd modules.</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">toolbox</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">cal</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">d20</span><span class="tok-p">)</span>
 
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">cally</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">dnd</span></code></pre>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.cally</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.dnd</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3494,7 +3516,7 @@ that helps generate new characters.</p>
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">tavern</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">randomClass</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">randomRace</span><span class="tok-p">)</span>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">choose</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">choose</span><span class="tok-p">)</span>
 
 <span class="tok-c1">--&#39; Select a random class</span>
 <span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Str</span><span class="tok-p">}</span>
@@ -3515,7 +3537,7 @@ that helps generate new characters.</p>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-r</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">)</span>
 
 <span class="tok-c1">--&#39; Roll a pair of d20 dice and keep the larger result</span>
 <span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">Int</span><span class="tok-p">}</span>
@@ -4204,7 +4226,201 @@ specific program, restart the router.</p>
 <h2 id="_modules_and_libraries"><a class="anchor" href="#_modules_and_libraries"></a>8. Modules and Libraries</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_installing_modules"><a class="anchor" href="#_installing_modules"></a>8.1. Installing modules</h3>
+<h3 id="_importing_modules"><a class="anchor" href="#_importing_modules"></a>8.1. Importing modules</h3>
+<div class="paragraph">
+<p>Every Morloc file is a module. A module declaration names the module and
+optionally lists the terms it exports:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">mylib</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bar</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This declares a module named <code>mylib</code> that exports <code>foo</code> and <code>bar</code>. Only
+exported terms are visible to other modules that import this one.</p>
+</div>
+<div class="paragraph">
+<p>If a module exports everything it defines, you can use the wildcard form:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">mylib</span><span class="tok-w"> </span><span class="tok-nf">(*)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For submodules that exist only to be imported by a parent, you can omit the
+name entirely:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-nf">(*)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An anonymous module&#8217;s name is inferred from its file path relative to the
+importing module. For example, if <code>main.loc</code> imports <code>.utils</code>, the compiler
+will resolve the module in <code>utils/main.loc</code> (or <code>utils.loc</code>) and assign it the
+name <code>utils</code>.</p>
+</div>
+<div class="paragraph">
+<p>Morloc distinguishes between two kinds of imports: <strong>system</strong> modules and <strong>local</strong>
+modules.</p>
+</div>
+<div class="paragraph">
+<p>System modules are installed packages that live in
+<code>~/.local/share/morloc/lib/</code>. They are imported by name, without any prefix:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-cpp</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>System modules are installed with <code>morloc install</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>install<span class="tok-w"> </span>root
+<span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>install<span class="tok-w"> </span>root-py</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Local modules are files or directories within your own project. They are
+imported with a dot (<code>.</code>) prefix to distinguish them from system modules:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.utils</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">helper</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.lib</span>.math<span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">square</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The dot prefix tells the compiler to look for the module relative to the
+directory of the importing file, not in the system library.</p>
+</div>
+<div class="paragraph">
+<p>Both system and local imports support selective imports. Without a selector, all
+exported terms are brought into scope:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root-py</span><span class="tok-w">             </span><span class="tok-c1">-- import everything from root-py</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.mylib</span><span class="tok-w">              </span><span class="tok-c1">-- import everything from local mylib</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.mylib</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bar</span><span class="tok-p">)</span><span class="tok-w">   </span><span class="tok-c1">-- import only foo and bar from local mylib</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you write <code>import .foo</code>, the compiler looks for the module relative to the
+directory containing the current file. It checks two locations, in order:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>A directory module: <code>foo/main.loc</code></p>
+</li>
+<li>
+<p>A file module: <code>foo.loc</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Dot-separated paths map to nested directories. For example, <code>import .lib.math</code>
+resolves to either <code>lib/math/main.loc</code> or <code>lib/math.loc</code>.</p>
+</div>
+<div class="paragraph">
+<p>Here is an example project layout:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>project/
+  main.loc            -- module main, imports .utils and .lib.math
+  utils.loc           -- module (*), a flat file module
+  utils.py
+  lib/
+    math/
+      main.loc        -- module (*), a directory module
+      main.py</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The top-level <code>main.loc</code> imports both:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">negate_square</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">square_negate</span><span class="tok-p">)</span>
+
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;float&quot;</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.utils</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">negate</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.lib</span>.math<span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">square</span><span class="tok-p">)</span>
+
+<span class="tok-n">negate_square</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span>
+<span class="tok-n">negate_square</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">negate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">square</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
+
+<span class="tok-n">square_negate</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span>
+<span class="tok-n">square_negate</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">square</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">negate</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The flat file <code>utils.loc</code> exports <code>negate</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-nf">(*)</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;utils.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;negate&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;float&quot;</span>
+
+<span class="tok-n">negate</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And the directory module <code>lib/math/main.loc</code> exports <code>square</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-nf">(*)</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;main.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;square&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;float&quot;</span>
+
+<span class="tok-n">square</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Local modules can also import other local modules. The path is always relative
+to the importing file. For example, if <code>bar/baz/main.loc</code> needs to import a
+sibling at <code>bif/biz/</code>, it writes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.bif</span>.biz<span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">mul</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This resolves relative to <code>bar/baz/</code>, looking for <code>bar/baz/bif/biz/main.loc</code>.</p>
+</div>
+<div class="paragraph">
+<p>Since <code>root</code> is also the name of a system module, a local directory named
+<code>root/</code> must be imported with the dot prefix to avoid ambiguity:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-w">         </span><span class="tok-c1">-- imports the system &quot;root&quot; module</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">.root</span><span class="tok-w">        </span><span class="tok-c1">-- imports the local &quot;root/&quot; directory</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The dot prefix always forces local resolution, so there is never a collision
+between local and system module names.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_installing_modules"><a class="anchor" href="#_installing_modules"></a>8.2. Installing modules</h3>
 <div class="paragraph">
 <p>The default Morloc modules are hosted on GitHub under the
 <a href="https://github.com/morloclib">morloclib</a> organization. Modules can be installed
@@ -4250,7 +4466,7 @@ and <code>l</code>&#8201;&#8212;&#8201;only <code>internal</code> in this case.<
 </div>
 </div>
 <div class="sect2">
-<h3 id="_the_universal_library"><a class="anchor" href="#_the_universal_library"></a>8.2. The universal library</h3>
+<h3 id="_the_universal_library"><a class="anchor" href="#_the_universal_library"></a>8.3. The universal library</h3>
 <div class="paragraph">
 <p>A module may export types, typeclasses, and function signatures but no
 implementations. Such a module would be completely language agnostic. A powerful
@@ -4272,7 +4488,7 @@ inferred by usage.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_planes_of_libraries"><a class="anchor" href="#_planes_of_libraries"></a>8.3. Planes of libraries</h3>
+<h3 id="_planes_of_libraries"><a class="anchor" href="#_planes_of_libraries"></a>8.4. Planes of libraries</h3>
 <div class="admonitionblock important">
 <table>
 <tr>
