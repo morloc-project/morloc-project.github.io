@@ -16,7 +16,7 @@
 :pygments-css: class
 :stem: latexmath
 :toc: left
-:toclevels: 4
+:toclevels: 2
 :includedir: content
 :docinfo: shared
 :mermaid-theme: dark
@@ -199,6 +199,7 @@ include::{includedir}/features-infix.asc[]
 include::{includedir}/features-records.asc[]
 include::{includedir}/features-tables.asc[]
 include::{includedir}/features-effects.asc[]
+include::{includedir}/features-optionals.asc[]
 
 == Advanced Types
 

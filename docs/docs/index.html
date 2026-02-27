@@ -629,6 +629,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_records">5.9. Records</a></li>
 <li><a href="#_tables">5.10. Tables</a></li>
 <li><a href="#_effects_and_delayed_evaluation">5.11. Effects and delayed evaluation</a></li>
+<li><a href="#_optional_types">5.12. Optional types</a></li>
 </ul>
 </li>
 <li><a href="#_advanced_types">6. Advanced Types</a>
@@ -647,28 +648,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_composing_cli_tools">7.3. Composing CLI Tools</a></li>
 <li><a href="#_user_arguments_and_outputs">7.4. User arguments and outputs</a></li>
 <li><a href="#_search_and_install">7.5. Search and install</a></li>
-<li><a href="#_building_api_interfaces">7.6. Building API interfaces</a>
-<ul class="sectlevel3">
-<li><a href="#_http_protocol">7.6.1. HTTP protocol</a></li>
-<li><a href="#_tcp_protocol">7.6.2. TCP protocol</a></li>
-<li><a href="#_unix_socket_protocol">7.6.3. Unix socket protocol</a></li>
-<li><a href="#_running_all_protocols_at_once">7.6.4. Running all protocols at once</a></li>
-<li><a href="#_from_single_daemons_to_a_router">7.6.5. From single daemons to a router</a></li>
-<li><a href="#_router_mode">7.6.6. Router mode</a>
-<ul class="sectlevel4">
-<li><a href="#_setup">Setup</a></li>
-<li><a href="#_starting_the_router">Starting the router</a></li>
-<li><a href="#_listing_programs">Listing programs</a></li>
-<li><a href="#_per_program_discovery">Per-program discovery</a></li>
-<li><a href="#_calling_functions">Calling functions</a></li>
-<li><a href="#_error_handling">Error handling</a></li>
-<li><a href="#_independent_daemons_vs_router_managed_daemons">Independent daemons vs router-managed daemons</a></li>
-</ul>
-</li>
-<li><a href="#_shutdown">7.6.7. Shutdown</a></li>
-<li><a href="#_summary">7.6.8. Summary</a></li>
-</ul>
-</li>
+<li><a href="#_building_api_interfaces">7.6. Building API interfaces</a></li>
 </ul>
 </li>
 <li><a href="#_modules_and_libraries">8. Modules and Libraries</a>
@@ -687,27 +667,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_build_architecture">10. Build Architecture</a>
 <ul class="sectlevel2">
 <li><a href="#_architecture_overview">10.1. Architecture Overview</a></li>
-<li><a href="#_protocols">10.2. Protocols</a>
-<ul class="sectlevel3">
-<li><a href="#_the_manifest">10.2.1. The manifest</a></li>
-<li><a href="#_packet_protocol">10.2.2. Packet protocol</a>
-<ul class="sectlevel4">
-<li><a href="#_packet_types">Packet types</a></li>
-<li><a href="#_metadata_blocks">Metadata blocks</a></li>
-</ul>
-</li>
-<li><a href="#_shared_memory">10.2.3. Shared memory</a>
-<ul class="sectlevel4">
-<li><a href="#_volumes">Volumes</a></li>
-<li><a href="#_pointer_types">Pointer types</a></li>
-<li><a href="#_volume_header_shm_t">Volume header (<code>shm_t</code>)</a></li>
-<li><a href="#_block_header_block_header_t_packed">Block header (<code>block_header_t</code>, packed)</a></li>
-</ul>
-</li>
-<li><a href="#_schema_strings">10.2.4. Schema strings</a></li>
-<li><a href="#_voidstar_binary_format">10.2.5. Voidstar binary format</a></li>
-</ul>
-</li>
+<li><a href="#_protocols">10.2. Protocols</a></li>
 </ul>
 </li>
 <li><a href="#_qa">11. Q&amp;A</a>
@@ -2526,6 +2486,262 @@ computation is evaluated.</p>
 <span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">roll1d20</span>
 <span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">roll1d20</span>
 <span class="tok-w">  </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">y</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_optional_types"><a class="anchor" href="#_optional_types"></a>5.12. Optional types</h3>
+<div class="paragraph">
+<p>Optional types represent values that may be absent. The <code>?</code> prefix marks a type
+as optional: <code>?Int</code> is an integer that might be <code>null</code>, <code>?Str</code> is a string that
+might be <code>null</code>, and so on. The <code>?</code> prefix can be applied to any type, including
+lists (<code>?[Int]</code>), records (<code>?Person</code>), and nested optionals (<code>??Int</code>).</p>
+</div>
+<div class="sect3">
+<h4 id="_syntax"><a class="anchor" href="#_syntax"></a>5.12.1. Syntax</h4>
+<div class="paragraph">
+<p>An optional type is written by prefixing <code>?</code> to an existing type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>null</code> keyword represents an absent value:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">testNull</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<span class="tok-n">testNull</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">null</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_working_with_optional_values"><a class="anchor" href="#_working_with_optional_values"></a>5.12.2. Working with optional values</h4>
+<div class="paragraph">
+<p>Functions that produce or consume optional values are sourced from foreign
+languages like any other function. Here is a complete example in Python:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">testSafeHead</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">testSafeHeadEmpty</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">testFromNull</span><span class="tok-p">)</span>
+
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;int&quot;</span>
+
+<span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;safeHead&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;fromNull&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-n">testSafeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<span class="tok-n">testSafeHead</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">10</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">30</span><span class="tok-p">]</span>
+
+<span class="tok-n">testSafeHeadEmpty</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<span class="tok-n">testSafeHeadEmpty</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-kt">[]</span>
+
+<span class="tok-n">testFromNull</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">testFromNull</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">null</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The Python implementations handle <code>None</code> in the usual way:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">safeHead</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">):</span>
+    <span class="tok-k">if</span> <span class="tok-nb">len</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span> <span class="tok-o">==</span> <span class="tok-mi">0</span><span class="tok-p">:</span>
+        <span class="tok-k">return</span> <span class="tok-kc">None</span>
+    <span class="tok-k">return</span> <span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-mi">0</span><span class="tok-p">]</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">fromNull</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">,</span> <span class="tok-n">x</span><span class="tok-p">):</span>
+    <span class="tok-k">if</span> <span class="tok-n">x</span> <span class="tok-ow">is</span> <span class="tok-kc">None</span><span class="tok-p">:</span>
+        <span class="tok-k">return</span> <span class="tok-n">default_val</span>
+    <span class="tok-k">return</span> <span class="tok-n">x</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Running this program gives:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ ./main testSafeHead
+10
+$ ./main testSafeHeadEmpty
+null
+$ ./main testFromNull
+0</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The same pattern works in C&#43;&#43; (using <code>std::optional</code>) and R (using <code>NULL</code>).
+In C&#43;&#43;:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="c++"><span></span><span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;optional&gt;</span>
+<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;vector&gt;</span>
+
+<span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">optional</span><span class="tok-o">&lt;</span><span class="tok-kt">int</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">safeHead</span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-kt">int</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-k">if</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">.</span><span class="tok-n">empty</span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">nullopt</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">optional</span><span class="tok-o">&lt;</span><span class="tok-kt">int</span><span class="tok-o">&gt;</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">[</span><span class="tok-mi">0</span><span class="tok-p">]);</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In R:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-kr">if</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nf">length</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-m">0</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">return</span><span class="tok-p">(</span><span class="tok-kc">NULL</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-kr">return</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">[[</span><span class="tok-m">1</span><span class="tok-p">]])</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_optional_record_fields"><a class="anchor" href="#_optional_record_fields"></a>5.12.3. Optional record fields</h4>
+<div class="paragraph">
+<p>Record fields can be optional. This is useful for data with missing or unknown
+values:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Str</span>
+<span class="tok-w">  </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;dict&quot;</span>
+
+<span class="tok-n">makePerson</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Person</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;makePerson&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-n">alice</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Person</span>
+<span class="tok-n">alice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">makePerson</span><span class="tok-w"> </span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">toNull</span><span class="tok-w"> </span><span class="tok-mi">30</span><span class="tok-p">)</span>
+
+<span class="tok-n">bob</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Person</span>
+<span class="tok-n">bob</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">makePerson</span><span class="tok-w"> </span><span class="tok-s">&quot;Bob&quot;</span><span class="tok-w"> </span><span class="tok-n">null</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When serialized to JSON, <code>alice</code> becomes <code>{"name":"Alice","age":30}</code> and the
+age field of <code>bob</code> becomes <code>null</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_optional_values_across_languages"><a class="anchor" href="#_optional_values_across_languages"></a>5.12.4. Optional values across languages</h4>
+<div class="paragraph">
+<p>Optional types work seamlessly across language boundaries. A function in one
+language can produce an optional value that is consumed by a function in another:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- C++ produces an optional value</span>
+<span class="tok-n">cSafeDiv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;cSafeDiv&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">-- Python consumes it</span>
+<span class="tok-n">pFromNull</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;pFromNull&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">-- Chain them together: C++ to Python</span>
+<span class="tok-n">testCppToPy</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">testCppToPy</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">pFromNull</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">-</span><span class="tok-mi">1</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">cSafeDiv</span><span class="tok-w"> </span><span class="tok-mi">10</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-p">)</span>
+
+<span class="tok-n">testCppToPyNull</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">testCppToPyNull</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">pFromNull</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">-</span><span class="tok-mi">1</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">cSafeDiv</span><span class="tok-w"> </span><span class="tok-mi">10</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The Morloc compiler generates the necessary serialization code at each language
+boundary. A <code>null</code> value in C&#43;&#43; (<code>std::nullopt</code>) is serialized as JSON <code>null</code>,
+which Python reads as <code>None</code>. The programmer does not need to handle the interop
+manually.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_implicit_coercion"><a class="anchor" href="#_implicit_coercion"></a>5.12.5. Implicit coercion</h4>
+<div class="paragraph">
+<p>Morloc automatically coerces a non-optional value to an optional when the
+context requires it. If a function expects <code>?Int</code>, you can pass a plain <code>Int</code>
+without wrapping it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">addOpt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;addOpt&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">-- Both arguments are plain Int, coerced to ?Int automatically</span>
+<span class="tok-n">testCoerceAddOpt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">Int</span>
+<span class="tok-n">testCoerceAddOpt</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">addOpt</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-mi">4</span>
+
+<span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;fromNull&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">-- The second argument (42) is Int, coerced to ?Int</span>
+<span class="tok-n">testCoerceArg</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">testCoerceArg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-mi">42</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This coercion is transitive: <code>a</code> coerces to <code>?a</code>, which coerces to <code>??a</code>.</p>
+</div>
+<div class="paragraph">
+<p>Coercion also works across language boundaries. If a C&#43;&#43; function returns
+<code>Int</code> and a Python function expects <code>?Int</code>, the compiler inserts the appropriate
+serialization so that the value is received correctly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- C++ returns a plain Int</span>
+<span class="tok-n">cAddOne</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;cfoo.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;cAddOne&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">-- Python expects ?Int in the second argument</span>
+<span class="tok-n">pUnwrapOr</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-n">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;pfoo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;pUnwrapOr&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-c1">-- The Int result from C++ is coerced to ?Int for Python</span>
+<span class="tok-n">testCppIntToPyOpt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">Int</span>
+<span class="tok-n">testCppIntToPyOpt</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">pUnwrapOr</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">cAddOne</span><span class="tok-w"> </span><span class="tok-mi">41</span><span class="tok-p">)</span><span class="tok-w">  </span><span class="tok-c1">-- returns 42</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_language_mapping"><a class="anchor" href="#_language_mapping"></a>5.12.6. Language mapping</h4>
+<div class="paragraph">
+<p>Optional types map to native nullable types in each language:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Language</th>
+<th class="tableblock halign-left valign-top">Representation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>None</code> for null, plain value otherwise</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C&#43;&#43;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>std::optional&lt;T&gt;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">R</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>NULL</code> for null, plain value otherwise</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>No special type mappings are needed for optionals&#8201;&#8212;&#8201;the <code>?</code> prefix works with
+any type that already has a language mapping.</p>
 </div>
 </div>
 </div>
