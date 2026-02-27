@@ -217,6 +217,8 @@ include::{includedir}/interface-daemons.asc[]
 
 == Modules and Libraries
 
+include::{includedir}/features-modules.asc[]
+
 include::{includedir}/ecosystem.asc[]
 
 == Morloc versions and dependencies
