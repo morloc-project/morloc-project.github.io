@@ -200,6 +200,7 @@ include::{includedir}/features-records.asc[]
 include::{includedir}/features-tables.asc[]
 include::{includedir}/features-effects.asc[]
 include::{includedir}/features-optionals.asc[]
+include::{includedir}/features-intrinsics.asc[]
 
 == Advanced Types
 
