@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip \
     nodejs npm \
     wget gnupg \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Google Chrome
@@ -25,7 +26,7 @@ RUN npm install -g @mermaid-js/mermaid-cli@^11.0.0
 RUN gem install --no-document asciidoctor asciidoctor-bibtex pygments.rb asciidoctor-diagram
 
 # Install custom lexer
-COPY syntax/morloclexer morloclexer
+RUN git clone https://github.com/morloc-project/pygmentize morloclexer
 RUN pip install --break-system-packages ./morloclexer
 
 # Configure Puppeteer to use our Chrome wrapper
