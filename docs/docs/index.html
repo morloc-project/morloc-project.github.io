@@ -629,8 +629,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_records">5.9. Records</a></li>
 <li><a href="#_tables">5.10. Tables</a></li>
 <li><a href="#_effects_and_delayed_evaluation">5.11. Effects and delayed evaluation</a></li>
-<li><a href="#_optional_types">5.12. Optional types</a></li>
-<li><a href="#_intrinsics">5.13. Intrinsics</a></li>
+<li><a href="#_intrinsics">5.12. Intrinsics</a></li>
 </ul>
 </li>
 <li><a href="#_advanced_types">6. Advanced Types</a>
@@ -2353,146 +2352,227 @@ get truly random values.</p>
 <div class="paragraph">
 <p>What we want in Morloc is to preserve the power of partial function application
 but still have the ability to call "functions" with no arguments. We can achieve
-this by preventing a term from being evaluated until we explicitly request
-evaluation.</p>
+this by annotating functions with <strong>named effects</strong> that indicate what kind of
+side effects they may perform.</p>
 </div>
 <div class="paragraph">
-<p>In Morloc, delayed computatoin is specified with braces at both the type-level
-and the term-level. So you can write the (rather pointless) expression:</p>
+<p>In Morloc, effects are specified at the type level using angle brackets with
+named labels. For example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
-<span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-mi">42</span><span class="tok-p">}</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">runif</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This defins an expression that evaluates to the value 42 whenever its value is
-requested. There are two ways to request evaluation. First, the top value in an
-program is implicitly forced. Here is <code>val</code> is directly exported in the compiled
-program, the command <code>./nexus val</code> will return 42. The second way is to force
-evaluation with <code>!val</code>.</p>
+<p>This declares <code>runif</code> as a function that takes two <code>Real</code> arguments and returns
+a <code>Real</code>, but its return value involves a <code>&lt;Rand&gt;</code> effect&#8201;&#8212;&#8201;the result may be
+different each time it is evaluated.</p>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s look at a less trivial cases:</p>
+<p>Effect labels are open-ended&#8201;&#8212;&#8201;you can use any uppercase name. Common
+conventions include <code>IO</code> for input/output, <code>Rand</code> for randomness, and <code>Error</code>
+for fallible computations. Multiple effects can be combined:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">time</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Time</span><span class="tok-p">}</span>
-<span class="tok-n">timeStr</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;The time right now is </span><span class="tok-si">#{</span><span class="tok-o">!</span><span class="tok-n">time</span><span class="tok-si">}</span><span class="tok-s">&quot;</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">riskyRead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Filename</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s look at some examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">time</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Time</span>
 
-<span class="tok-n">readFile</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Filename</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Str</span><span class="tok-p">}</span>
-<span class="tok-n">readMyLog</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">readFile</span><span class="tok-w"> </span><span class="tok-s">&quot;mylog.log&quot;</span>
-<span class="tok-n">logvalue1</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">readMyLog</span><span class="tok-w"> </span><span class="tok-c1">-- read the current log data</span>
-<span class="tok-n">logvalue2</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">readMyLog</span><span class="tok-w"> </span><span class="tok-c1">-- read the log again</span>
+<span class="tok-n">readFile</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Filename</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 
 <span class="tok-c1">-- roll one d-sided dice</span>
-<span class="tok-n">rollDie</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
+<span class="tok-n">rollDie</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 
-<span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
-<span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">rollDie</span><span class="tok-w"> </span><span class="tok-mi">20</span>
+<span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">rollDie</span><span class="tok-w"> </span><span class="tok-mi">20</span></code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_do_blocks_and_the_operator"><a class="anchor" href="#_do_blocks_and_the_operator"></a>5.11.1. Do-blocks and the <code>!</code> operator</h4>
+<div class="paragraph">
+<p>A <code>do</code>-block creates an effectful computation. It is the only place where
+effects can be evaluated. Inside a <code>do</code>-block, the <code>!</code> operator forces an
+effectful expression to execute and returns its unwrapped value. The <code>do</code>-block
+collects all the effect labels from its <code>!</code> evaluations and wraps the result.</p>
+</div>
+<div class="paragraph">
+<p>Here is a function that rolls two independent d20s:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">roll2d20</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">roll2d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Each <code>!</code> independently evaluates the effectful expression and returns the plain
+result. The <code>do</code>-block sees two <code>&lt;Rand&gt;</code> evaluations and gives the whole
+expression the type <code>&lt;Rand&gt; (Int, Int)</code>.</p>
+</div>
+<div class="paragraph">
+<p>The <code>&#8592;</code> operator is the binding form of <code>!</code>. Writing <code>x &#8592; e</code> is equivalent to
+<code>let x = !e</code>&#8201;&#8212;&#8201;it forces the effect and binds the result to a name. This is
+useful when you need the result in subsequent expressions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">roll1d20</span>
+<span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">roll1d20</span>
+<span class="tok-w">  </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">y</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or equivalently using <code>!</code> inline:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Inside a <code>do</code>-block there are four forms of statement:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>!e</code>&#8201;&#8212;&#8201;forces the effectful expression <code>e</code> and returns the unwrapped value
+inline.</p>
+</li>
+<li>
+<p><code>x &#8592; e</code>&#8201;&#8212;&#8201;forces <code>e</code> and binds the result to <code>x</code>. Equivalent to
+<code>let x = !e</code>.</p>
+</li>
+<li>
+<p><code>e</code> (bare statement)&#8201;&#8212;&#8201;forces <code>e</code> for its side effects and discards the
+result.</p>
+</li>
+<li>
+<p><code>let x = e</code>&#8201;&#8212;&#8201;binds <code>x</code> to <code>e</code> without forcing anything. If <code>e</code> is
+effectful, the effect is deferred until <code>x</code> is later forced with <code>!</code> or <code>&#8592;</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The final expression in the <code>do</code>-block is the return value.</p>
+</div>
+<div class="paragraph">
+<p>The distinction between <code>let</code> and <code>&#8592;</code>/<code>!</code> is about <strong>when</strong> effects happen.
+Here is an example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">deferredForce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">deferredForce</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sideEffect</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w">    </span><span class="tok-c1">-- t :: &lt;IO&gt; Int (not yet evaluated)</span>
+<span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">sideEffect</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w">       </span><span class="tok-c1">-- evaluated immediately</span>
+<span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-w">                   </span><span class="tok-c1">-- NOW evaluates t</span>
+<span class="tok-w">  </span><span class="tok-n">add</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">y</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here <code>let t = sideEffect 3</code> stores the effectful expression without evaluating
+it. The effect is only triggered when <code>t</code> is later forced with <code>&#8592;</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_sequencing_and_conditionals"><a class="anchor" href="#_sequencing_and_conditionals"></a>5.11.2. Sequencing and conditionals</h4>
+<div class="paragraph">
+<p>Effects can be combined with guards:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">baseDmg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">add</span><span class="tok-w"> </span><span class="tok-n">baseDmg</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For sequencing effects where the return value is not needed, bare statements in
+a <code>do</code>-block are evaluated and discarded:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">mkdir</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">ExitCode</span>
+<span class="tok-n">cd</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">ExitCode</span>
+<span class="tok-n">touch</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">ExitCode</span>
 
-<span class="tok-c1">-- stores one pair of independent d20 rolls</span>
-<span class="tok-n">roll2d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
-<span class="tok-n">roll2d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-p">)</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s dig more into the final function. The roll2d20 initializes with two
-rolls. It is fully evaluated. What if we want an expression that always
-evaluates to a fresh pair of 2d20 rolls? For this we can wrap the expression in
-braces.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">roll2d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)}</span>
-<span class="tok-n">roll2d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{(</span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-p">)}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The braces around the expression indicates that its evaluation is suspended
-until forced. Once it is forced to evaluate, the inner rolls are forced as well,
-leading to fresh dice rolls.</p>
-</div>
-<div class="paragraph">
-<p>What if we have more complex sets of effects? Perhaps we have many rolls that
-need to be used in conditionals. Let&#8217;s say we want to simulate damage in a DnD
-attack. If the attack d20 roll is greater than the enemy&#8217;s defense, then the
-attack hits and does damage equal to base damage plus the sum of the rolled
-attack dice. We could write all this into a suspended expression:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{[</span><span class="tok-nc">Int</span><span class="tok-p">]}</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
-<span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">mod</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This works. But what if we add we add in terms that exist just for their side
-effects. Suppose we are writing a shellscript-like sequence of commands. Maybe
-we want to make a directory, move into the directory, create a file, and echo
-something into it. Here we need to sequence effects.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; Make a directory</span>
-<span class="tok-n">mkdir</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">ExitCode</span><span class="tok-p">}</span>
-<span class="tok-n">cd</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">ExitCode</span><span class="tok-p">}</span>
-<span class="tok-n">touch</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">ExitCode</span><span class="tok-p">}</span>
-
-<span class="tok-n">scriptAttempt1</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">ExitCode</span>
-<span class="tok-n">scriptAttempt1</span><span class="tok-w"> </span><span class="tok-o">=</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">mkdir</span><span class="tok-w"> </span><span class="tok-s">&quot;foo/bar&quot;</span><span class="tok-p">)</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">cd</span><span class="tok-w"> </span><span class="tok-s">&quot;foo/bar&quot;</span><span class="tok-p">)</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">touch</span><span class="tok-w"> </span><span class="tok-s">&quot;baz&quot;</span><span class="tok-p">)</span>
-<span class="tok-w">  </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">e</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This works. The <code>let</code> syntax forces evaluation in a specific order and the <code>let</code>
-wildcard allows results to be ignored (though here, we should probably not be
-ignoring the exit code).</p>
-</div>
-<div class="paragraph">
-<p>Morloc also has a <code>do</code> syntax that allows a more imperative approach:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">scriptAttempt1</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">ExitCode</span><span class="tok-p">}</span>
-<span class="tok-n">scriptAttempt1</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-n">script</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">ExitCode</span>
+<span class="tok-n">script</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-n">mkdir</span><span class="tok-w"> </span><span class="tok-s">&quot;foo/bar&quot;</span>
 <span class="tok-w">  </span><span class="tok-n">cd</span><span class="tok-w"> </span><span class="tok-s">&quot;foo/bar&quot;</span>
 <span class="tok-w">  </span><span class="tok-n">touch</span><span class="tok-w"> </span><span class="tok-s">&quot;baz&quot;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Note that the expression type is delayed, so we can control when this
-computation is evaluated.</p>
+<p>Here <code>mkdir</code> and <code>cd</code> are called for their side effects and their return values
+are discarded. The exit code from <code>touch</code> becomes the return value.</p>
 </div>
 <div class="paragraph">
-<p>Here is one last example that shows several ways to implement the same problem</p>
+<p>When an effectful function is exported, the effect is automatically forced at
+the boundary. If <code>script</code> is exported, the CLI user receives a plain <code>ExitCode</code>&#8201;&#8212;&#8201;all <code>&lt;IO&gt;</code> effects are evaluated before returning the result.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_coercion_and_subtyping"><a class="anchor" href="#_coercion_and_subtyping"></a>5.11.3. Coercion and subtyping</h4>
+<div class="paragraph">
+<p>Pure values are automatically coerced to effectful types when needed. If a
+function expects <code>&lt;IO&gt; Int</code>, you can pass a plain <code>Int</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
-<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-p">}</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">pureFortyTwo</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">pureFortyTwo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">42</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This implicit coercion means pure code composes freely with effectful code
+without any manual wrapping.</p>
+</div>
+<div class="paragraph">
+<p>Effects also support subtyping: fewer effects are a subtype of more effects.
+A value of type <code>&lt;IO&gt; Int</code> can be used wherever <code>&lt;IO, Error&gt; Int</code> is expected,
+since a computation that only does IO is a special case of one that does both IO
+and error handling.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_cross_language_effects"><a class="anchor" href="#_cross_language_effects"></a>5.11.4. Cross-language effects</h4>
+<div class="paragraph">
+<p>Effects work seamlessly across language boundaries. A <code>do</code>-block can mix
+effectful calls to functions implemented in different languages:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;stats.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;sampleCpp&quot;</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;stats.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;analyzePy&quot;</span><span class="tok-p">)</span>
 
-<span class="tok-n">rollAdv&#39;&#39;</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
-<span class="tok-n">rollAdv&#39;&#39;</span><span class="tok-w"> </span><span class="tok-o">=</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span>
-<span class="tok-w">  </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-p">}</span>
+<span class="tok-n">sampleCpp</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span>
+<span class="tok-n">analyzePy</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Report</span>
 
-<span class="tok-n">rollAdv&#39;</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
-<span class="tok-n">rollAdv&#39;</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">roll1d20</span>
-<span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">roll1d20</span>
-<span class="tok-w">  </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">y</span></code></pre>
+<span class="tok-n">pipeline</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Report</span>
+<span class="tok-n">pipeline</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">data</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">sampleCpp</span><span class="tok-w"> </span><span class="tok-mi">1000</span>
+<span class="tok-w">  </span><span class="tok-n">analyzePy</span><span class="tok-w"> </span><span class="tok-n">data</span></code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>The compiler handles all cross-language serialization and process coordination
+automatically. Each <code>&#8592;</code> in the <code>do</code>-block may cross a language boundary, with
+data serialized between processes as needed.
+=== Optional types</p>
 </div>
-<div class="sect2">
-<h3 id="_optional_types"><a class="anchor" href="#_optional_types"></a>5.12. Optional types</h3>
 <div class="paragraph">
 <p>All programming languages must have a way to deal with missing values. If you
 query a database for a record that doesn&#8217;t exist, what is returned? If a
@@ -2512,8 +2592,9 @@ Morloc needs a built-in mechanism that can vary freely in language-specific
 implementation while preserving between language consistency. To this end,
 Morloc offers a dedicated "Optional" type with supported implicit coercion.</p>
 </div>
+</div>
 <div class="sect3">
-<h4 id="_syntax"><a class="anchor" href="#_syntax"></a>5.12.1. Syntax</h4>
+<h4 id="_syntax"><a class="anchor" href="#_syntax"></a>5.11.5. Syntax</h4>
 <div class="paragraph">
 <p>The <code>?</code> prefix marks a type as optional and the <code>null</code> primitive indicates an
 absent value. <code>?Int</code> is an integer that might be <code>null</code>, <code>?Str</code> is a string that
@@ -2538,7 +2619,7 @@ lists (<code>?[Int]</code>), records (<code>?Person</code>), and nested optional
 </div>
 </div>
 <div class="sect3">
-<h4 id="_working_with_optional_values"><a class="anchor" href="#_working_with_optional_values"></a>5.12.2. Working with optional values</h4>
+<h4 id="_working_with_optional_values"><a class="anchor" href="#_working_with_optional_values"></a>5.11.6. Working with optional values</h4>
 <div class="paragraph">
 <p>Functions that produce or consume optional values are sourced from foreign
 languages like any other function. Here is a complete example in Python:</p>
@@ -2625,7 +2706,7 @@ In C&#43;&#43;:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_optional_record_fields"><a class="anchor" href="#_optional_record_fields"></a>5.12.3. Optional record fields</h4>
+<h4 id="_optional_record_fields"><a class="anchor" href="#_optional_record_fields"></a>5.11.7. Optional record fields</h4>
 <div class="paragraph">
 <p>Record fields can be optional. This is useful for data with missing or unknown
 values:</p>
@@ -2653,7 +2734,7 @@ age field of <code>bob</code> becomes <code>null</code>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_optional_values_across_languages"><a class="anchor" href="#_optional_values_across_languages"></a>5.12.4. Optional values across languages</h4>
+<h4 id="_optional_values_across_languages"><a class="anchor" href="#_optional_values_across_languages"></a>5.11.8. Optional values across languages</h4>
 <div class="paragraph">
 <p>Optional types work seamlessly across language boundaries. A function in one
 language can produce an optional value that is consumed by a function in another:</p>
@@ -2684,7 +2765,7 @@ manually.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implicit_coercion"><a class="anchor" href="#_implicit_coercion"></a>5.12.5. Implicit coercion</h4>
+<h4 id="_implicit_coercion"><a class="anchor" href="#_implicit_coercion"></a>5.11.9. Implicit coercion</h4>
 <div class="paragraph">
 <p>Morloc automatically coerces a non-optional value to an optional when the
 context requires it. If a function expects <code>?Int</code>, you can pass a plain <code>Int</code>
@@ -2732,7 +2813,7 @@ serialization so that the value is received correctly:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_language_mapping"><a class="anchor" href="#_language_mapping"></a>5.12.6. Language mapping</h4>
+<h4 id="_language_mapping"><a class="anchor" href="#_language_mapping"></a>5.11.10. Language mapping</h4>
 <div class="paragraph">
 <p>Optional types map to native nullable types in each language:</p>
 </div>
@@ -2769,7 +2850,7 @@ any type that already has a language mapping.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_intrinsics"><a class="anchor" href="#_intrinsics"></a>5.13. Intrinsics</h3>
+<h3 id="_intrinsics"><a class="anchor" href="#_intrinsics"></a>5.12. Intrinsics</h3>
 <div class="paragraph">
 <p>Intrinsics are compiler-generated special functions. They are prefixed with <code>@</code>
 and provide capabilities that cannot be implemented as ordinary sourced
@@ -2777,7 +2858,7 @@ functions&#8201;&#8212;&#8201;they require the compiler to generate specialized 
 types involved.</p>
 </div>
 <div class="sect3">
-<h4 id="_reference_table"><a class="anchor" href="#_reference_table"></a>5.13.1. Reference table</h4>
+<h4 id="_reference_table"><a class="anchor" href="#_reference_table"></a>5.12.1. Reference table</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 16.6666%;">
@@ -2794,22 +2875,22 @@ types involved.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@save</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str &#8594; {()}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str &#8594; &lt;IO&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file in flat binary format (fast, no serialization overhead)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@savem</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str &#8594; {()}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str &#8594; &lt;IO&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file in MessagePack format (portable, compact)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@savej</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str &#8594; {()}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str &#8594; &lt;IO&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file as plain JSON text (human-readable)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@load</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; {?a}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO&gt; ?a</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Load a value from file, auto-detecting the format. Returns <code>null</code> if the file does not exist.</p></td>
 </tr>
 <tr>
@@ -2848,12 +2929,11 @@ types involved.</p>
 <p>All intrinsics are polymorphic in their data argument: <code>@save</code>, <code>@savem</code>,
 <code>@savej</code>, <code>@hash</code>, <code>@schema</code>, and <code>@typeof</code> accept a value of any type. <code>@load</code>
 returns a value of any type, inferred from context. The <code>@save</code>/<code>@savem</code>/<code>@savej</code>
-functions return thunks (<code>{()}</code>) because they perform I/O and must be forced
-to execute.</p>
+functions return <code>&lt;IO&gt; ()</code> because they perform I/O as a side effect.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_saving_and_loading_data"><a class="anchor" href="#_saving_and_loading_data"></a>5.13.2. Saving and loading data</h4>
+<h4 id="_saving_and_loading_data"><a class="anchor" href="#_saving_and_loading_data"></a>5.12.2. Saving and loading data</h4>
 <div class="paragraph">
 <p>The <code>@save</code>, <code>@savem</code>, and <code>@savej</code> intrinsics write a value to a file path.
 <code>@load</code> reads it back. Together they provide a type-safe file persistence
@@ -2874,9 +2954,10 @@ means <code>@load</code> can read files written by any of the three save intrins
 can also read plain JSON files that were created outside of Morloc.</p>
 </div>
 <div class="paragraph">
-<p>Since <code>@load</code> returns <code>{?a}</code>, it is a thunk that yields an optional value. If
-the file does not exist, the result is <code>null</code> rather than an error. This makes
-it natural to use <code>@load</code> for optional configuration or cached data.</p>
+<p>Since <code>@load</code> returns <code>&lt;IO&gt; ?a</code>, it is an effectful computation that yields an
+optional value. If the file does not exist, the result is <code>null</code> rather than an
+error. This makes it natural to use <code>@load</code> for optional configuration or cached
+data.</p>
 </div>
 <div class="paragraph">
 <p>Here is a basic round-trip example:</p>
@@ -2887,7 +2968,7 @@ it natural to use <code>@load</code> for optional configuration or cached data.<
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
 
-<span class="tok-n">roundTrip</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-o">?</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
+<span class="tok-n">roundTrip</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int</span>
 <span class="tok-n">roundTrip</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-nb">@save</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">path</span>
 <span class="tok-w">  </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">path</span></code></pre>
@@ -2895,8 +2976,8 @@ it natural to use <code>@load</code> for optional configuration or cached data.<
 </div>
 <div class="paragraph">
 <p>The <code>@save</code> call writes the integer to the given path. Then <code>@load</code> reads it
-back. Because <code>@load</code> is used as the final expression in a <code>do</code> block, its
-thunk is the return value of <code>roundTrip</code>.</p>
+back. Because <code>@load</code> is the final expression in the <code>do</code> block, its result
+is the return value of <code>roundTrip</code>.</p>
 </div>
 <div class="paragraph">
 <p>You can also use <code>@savej</code> when you want the output to be readable:</p>
@@ -2907,7 +2988,7 @@ thunk is the return value of <code>roundTrip</code>.</p>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
 
-<span class="tok-n">saveReadable</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{()}</span>
+<span class="tok-n">saveReadable</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
 <span class="tok-n">saveReadable</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@savej</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-s">&quot;output.json&quot;</span></code></pre>
 </div>
 </div>
@@ -2917,7 +2998,7 @@ editor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_caching_with_save_and_load"><a class="anchor" href="#_caching_with_save_and_load"></a>5.13.3. Caching with save and load</h4>
+<h4 id="_caching_with_save_and_load"><a class="anchor" href="#_caching_with_save_and_load"></a>5.12.3. Caching with save and load</h4>
 <div class="paragraph">
 <p>A common pattern is to check whether a cached result exists before recomputing
 it. Since <code>@load</code> returns <code>null</code> when the file is missing, you can branch on
@@ -2932,12 +3013,12 @@ the result:</p>
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;compute.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;expensiveComputation&quot;</span><span class="tok-p">)</span>
 <span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 
-<span class="tok-n">cachedResult</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
+<span class="tok-n">cachedResult</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">cachedResult</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-n">cached</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cached</span>
 <span class="tok-w">  </span><span class="tok-nb">@save</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-n">result</span><span class="tok-p">}</span></code></pre>
+<span class="tok-w">  </span><span class="tok-n">result</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2959,14 +3040,14 @@ depends on the input:</p>
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;compute.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;expensiveComputation&quot;</span><span class="tok-p">)</span>
 <span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 
-<span class="tok-n">hashedCache</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
+<span class="tok-n">hashedCache</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">hashedCache</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@hash</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">concat</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-s">&quot;/tmp/cache_&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;.bin&quot;</span><span class="tok-p">]</span>
 <span class="tok-w">  </span><span class="tok-n">cached</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cached</span>
 <span class="tok-w">  </span><span class="tok-nb">@save</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-n">result</span><span class="tok-p">}</span></code></pre>
+<span class="tok-w">  </span><span class="tok-n">result</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2975,7 +3056,7 @@ serialized form.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_hashing"><a class="anchor" href="#_hashing"></a>5.13.4. Hashing</h4>
+<h4 id="_hashing"><a class="anchor" href="#_hashing"></a>5.12.4. Hashing</h4>
 <div class="paragraph">
 <p><code>@hash</code> computes a fast, non-cryptographic hash (xxhash) of any value. The
 value is first serialized to MessagePack internally, then hashed. The result is
@@ -3002,7 +3083,7 @@ differ.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_compile_time_constants"><a class="anchor" href="#_compile_time_constants"></a>5.13.5. Compile-time constants</h4>
+<h4 id="_compile_time_constants"><a class="anchor" href="#_compile_time_constants"></a>5.12.5. Compile-time constants</h4>
 <div class="paragraph">
 <p>The <code>@version</code>, <code>@compiled</code>, and <code>@lang</code> intrinsics are resolved at compile
 time. They can be used anywhere a <code>Str</code> value is expected.</p>
@@ -3033,7 +3114,7 @@ which language backend is in use.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_type_introspection"><a class="anchor" href="#_type_introspection"></a>5.13.6. Type introspection</h4>
+<h4 id="_type_introspection"><a class="anchor" href="#_type_introspection"></a>5.12.6. Type introspection</h4>
 <div class="paragraph">
 <p>The <code>@schema</code> and <code>@typeof</code> intrinsics return information about how the compiler
 represents a type. The value argument is not evaluated at runtime&#8201;&#8212;&#8201;only its
@@ -3759,13 +3840,13 @@ of DnD operations. The first module defines general random operations:</p>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Number of pips per die</span>
 <span class="tok-w">  </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Roll values</span>
-<span class="tok-w">  </span><span class="tok-p">{[</span><span class="tok-nc">Int</span><span class="tok-p">]}</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span>
 
 <span class="tok-cs">--&#39; Randomly return True or False</span>
-<span class="tok-n">coinToss</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Bool</span><span class="tok-p">}</span>
+<span class="tok-n">coinToss</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span>
 
 <span class="tok-cs">--&#39; Randomly choose one element from a non-empty list</span>
-<span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">a</span><span class="tok-p">}</span></code></pre>
+<span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3812,11 +3893,11 @@ that helps generate new characters.</p>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">choose</span><span class="tok-p">)</span>
 
 <span class="tok-cs">--&#39; Select a random class</span>
-<span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Str</span><span class="tok-p">}</span>
+<span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 <span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-s">&quot;Fighter&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Wizard&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Rogue&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Cleric&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Ranger&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Bard&quot;</span><span class="tok-p">]</span>
 
 <span class="tok-cs">--&#39; Select a random race</span>
-<span class="tok-n">randomRace</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Str</span><span class="tok-p">}</span>
+<span class="tok-n">randomRace</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 <span class="tok-n">randomRace</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-s">&quot;Human&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Elf&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Dwarf&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Halfling&quot;</span><span class="tok-p">]</span></code></pre>
 </div>
 </div>
@@ -3833,8 +3914,8 @@ that helps generate new characters.</p>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">)</span>
 
 <span class="tok-cs">--&#39; Roll a pair of d20 dice and keep the larger result</span>
-<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
-<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)}</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)</span>
 
 <span class="tok-cs">--&#39; Damage done on hit, modifier + sum of dice rolls</span>
 <span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-o">::</span>
@@ -3843,24 +3924,27 @@ that helps generate new characters.</p>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Attack modifier</span>
 <span class="tok-w">  </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Attack dice</span>
-<span class="tok-w">  </span><span class="tok-p">{[</span><span class="tok-nc">Int</span><span class="tok-p">]}</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Damage modifier</span>
 <span class="tok-w">  </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Damage dice</span>
-<span class="tok-w">  </span><span class="tok-p">{[</span><span class="tok-nc">Int</span><span class="tok-p">]}</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Total damage</span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-n">atkDice</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">atkDice</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">atkRoll</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">atkDice</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">atkRoll</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">dmgDice</span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">}</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">atkRoll</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w">  </span><span class="tok-c1">-- critical</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w">          </span><span class="tok-c1">-- hit</span>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w">                        </span><span class="tok-c1">-- miss</span>
 
 <span class="tok-cs">--&#39; Damage calculation for a fighter</span>
 <span class="tok-n">fighterDamage</span><span class="tok-w"> </span><span class="tok-o">::</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Enemy Armor Class</span>
 <span class="tok-w">  </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Fighter&#39;s damage</span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-nc">Int</span><span class="tok-p">}</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">fighterDamage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-mi">4</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">8</span><span class="tok-p">)</span>
 
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;combat.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;intro&quot;</span><span class="tok-p">)</span>
