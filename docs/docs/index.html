@@ -3890,7 +3890,7 @@ that helps generate new characters.</p>
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">tavern</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">randomClass</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">randomRace</span><span class="tok-p">)</span>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">choose</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">choose</span><span class="tok-p">)</span>
 
 <span class="tok-cs">--&#39; Select a random class</span>
 <span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
@@ -3907,11 +3907,11 @@ that helps generate new characters.</p>
 <div class="listingblock">
 <div class="title">combat.loc</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">combat</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rollAdv</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">fighterDamage</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">threeHits</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">intro</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">combat</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rollAdv</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">fighterDamage</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">intro</span><span class="tok-p">)</span>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">r</span>
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">)</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">)</span>
 
 <span class="tok-cs">--&#39; Roll a pair of d20 dice and keep the larger result</span>
 <span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
@@ -3936,8 +3936,8 @@ that helps generate new characters.</p>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">atkRoll</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">dmgDice</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">atkRoll</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w">  </span><span class="tok-c1">-- critical</span>
-<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w">          </span><span class="tok-c1">-- hit</span>
-<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w">                        </span><span class="tok-c1">-- miss</span>
+<span class="tok-w">    </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w">        </span><span class="tok-c1">-- hit</span>
+<span class="tok-w">    </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w">                      </span><span class="tok-c1">-- miss</span>
 
 <span class="tok-cs">--&#39; Damage calculation for a fighter</span>
 <span class="tok-n">fighterDamage</span><span class="tok-w"> </span><span class="tok-o">::</span>
@@ -3994,7 +3994,7 @@ location. There are two ways you can specify the required build files.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>--install<span class="tok-w"> </span>combat.loc<span class="tok-w"> </span>--include<span class="tok-w"> </span>fate.loc<span class="tok-w"> </span>--include<span class="tok-w"> </span>fate.py<span class="tok-w"> </span>--include<span class="tok-w"> </span>combat.R</code></pre>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>--install<span class="tok-w"> </span>combat.loc<span class="tok-w"> </span>--include<span class="tok-w"> </span>fate.loc<span class="tok-w"> </span>--include<span class="tok-w"> </span>combat.R</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4017,7 +4017,7 @@ file can be generaed for you with <code>morloc new</code>. You can then modify t
 <span class="tok-nt">bug-reports</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">null</span>
 <span class="tok-nt">dependencies</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">[]</span>
 <span class="tok-c1"># Files to include when installing with `morloc make --install`</span>
-<span class="tok-nt">include</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">[</span><span class="tok-s">&quot;fate.*&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-w"> </span><span class="tok-s">&quot;combat.R&quot;</span><span class="tok-p tok-p-Indicator">]</span></code></pre>
+<span class="tok-nt">include</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">[</span><span class="tok-s">&quot;combat.R&quot;</span><span class="tok-p tok-p-Indicator">]</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4937,16 +4937,19 @@ admission.</p>
 <div class="ulist">
 <ul>
 <li>
+<p><strong>default</strong>: Official libraries used in sandboxes and demos (not necessarily efficient).</p>
+</li>
+<li>
 <p><strong>unstable</strong>: For newly submitted or unvetted modules, e.g., loaded straight from GitHub.</p>
 </li>
 <li>
 <p><strong>safe</strong>: Modules that passed manual review, rigorous automated tests, and have strong test suites.</p>
 </li>
 <li>
-<p><strong>true</strong>: For formally verified code, strict on what languages are allowed (e.g., dependently typed languages).</p>
+<p><strong>true</strong>: Formally verified modules, strict on what languages are allowed (e.g., dependently typed languages).</p>
 </li>
 <li>
-<p><strong>prod</strong>: For modules ready for production, combining safety and performance.</p>
+<p><strong>prod</strong>: Production ready modules, combining safety and performance.</p>
 </li>
 <li>
 <p><strong>comp</strong>: Modules suited for competitive programming; all performance, no safety checks or focus on software design principles.</p>
