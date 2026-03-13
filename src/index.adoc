@@ -230,6 +230,9 @@ include::{includedir}/installation.asc[]
 
 include::{includedir}/internals-overview.asc[]
 
+// AI slop - megacrap
+// include::{includedir}/internals-data-flow.asc[]
+
 include::{includedir}/internals-protocols.asc[]
 
 // == Language Interoperability

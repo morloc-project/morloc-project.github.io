@@ -5225,9 +5225,10 @@ function, and return results. All pools are <strong>multi-threaded</strong> (or
 multi-process), starting with one worker and growing dynamically as needed.</p>
 </div>
 <div class="paragraph">
-<p>The nexus and pools share a <strong>shared memory region</strong> for passing data. In the
-common case, only 8-byte relative pointers travel over sockets&#8201;&#8212;&#8201;the actual
-data lives in shared memory visible to all processes. Pools can also call each
+<p>Data moves between pools via Unix domain sockets. For <strong>small values</strong> (up to
+64 KB), the serialized data is embedded directly in the packet&#8201;&#8212;&#8201;no shared
+memory is needed. For <strong>large values</strong>, data is placed in a shared memory region
+and only an 8-byte pointer travels over the socket. Pools can also call each
 other directly for cross-language ("foreign") calls, without routing through the
 nexus.</p>
 </div>
@@ -5512,8 +5513,11 @@ Every packet starts with a 32-byte packed header:</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p>The most common combination is <code>source=RPTR, format=VOIDSTAR</code>&#8201;&#8212;&#8201;the data lives
-in shared memory and only an 8-byte relative pointer travels over the socket.</p>
+<p>For small data (up to 64 KB serialized), the most common combination is
+<code>source=MESG, format=VOIDSTAR</code>&#8201;&#8212;&#8201;the voidstar binary is embedded directly in
+the packet payload, avoiding shared memory entirely. For large data, the
+combination is <code>source=RPTR, format=VOIDSTAR</code>&#8201;&#8212;&#8201;only an 8-byte relative
+pointer travels over the socket, and the data lives in shared memory.</p>
 </div>
 <div class="paragraph">
 <p>When <code>status=FAIL</code>, the packet carries a UTF-8 error message (<code>source=MESG,
