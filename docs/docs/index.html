@@ -628,8 +628,9 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_infix_operators">5.8. Infix operators</a></li>
 <li><a href="#_records">5.9. Records</a></li>
 <li><a href="#_tables">5.10. Tables</a></li>
-<li><a href="#_effects_and_delayed_evaluation">5.11. Effects and delayed evaluation</a></li>
-<li><a href="#_intrinsics">5.12. Intrinsics</a></li>
+<li><a href="#_tensors">5.11. Tensors</a></li>
+<li><a href="#_effects_and_delayed_evaluation">5.12. Effects and delayed evaluation</a></li>
+<li><a href="#_intrinsics">5.13. Intrinsics</a></li>
 </ul>
 </li>
 <li><a href="#_advanced_types">6. Advanced Types</a>
@@ -643,7 +644,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </li>
 <li><a href="#_human_and_machine_interfaces">7. Human and Machine Interfaces</a>
 <ul class="sectlevel2">
-<li><a href="#_modules_and_docstrings">7.1. Modules and docstrings</a></li>
+<li><a href="#_docstrings">7.1. Docstrings</a></li>
 <li><a href="#_the_command_line_interface">7.2. The Command Line Interface</a></li>
 <li><a href="#_composing_cli_tools">7.3. Composing CLI Tools</a></li>
 <li><a href="#_user_arguments_and_outputs">7.4. User arguments and outputs</a></li>
@@ -656,13 +657,13 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_importing_modules">8.1. Importing modules</a></li>
 <li><a href="#_installing_modules">8.2. Installing modules</a></li>
 <li><a href="#_the_universal_library">8.3. The universal library</a></li>
-<li><a href="#_planes_of_libraries">8.4. Planes of libraries</a></li>
 </ul>
 </li>
 <li><a href="#_morloc_versions_and_dependencies">9. Morloc versions and dependencies</a>
 <ul class="sectlevel2">
-<li><a href="#_installing_and_managing_morloc_versions">9.1. Installing and managing morloc versions</a></li>
-<li><a href="#_handling_dependencies">9.2. Handling dependencies</a></li>
+<li><a href="#_version_management">9.1. Version management</a></li>
+<li><a href="#_compiler_development">9.2. Compiler development</a></li>
+<li><a href="#_handling_dependencies">9.3. Handling dependencies</a></li>
 </ul>
 </li>
 <li><a href="#_build_architecture">10. Build Architecture</a>
@@ -671,22 +672,24 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_protocols">10.2. Protocols</a></li>
 </ul>
 </li>
-<li><a href="#_qa">11. Q&amp;A</a>
+<li><a href="#_future_directions">11. Future Directions</a>
 <ul class="sectlevel2">
-<li><a href="#_im_not_a_human_do_i_still_need_morloc">11.1. I&#8217;m not a human, do I still need Morloc?</a></li>
-<li><a href="#_i_only_use_one_language_is_morloc_still_useful">11.2. I only use one language, is Morloc still useful?</a></li>
-<li><a href="#_is_this_just_a_bioinformatics_workflow_language">11.3. Is this just a bioinformatics workflow language?</a></li>
-<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats">11.4. Do you really want to deprecate all the bioinformatics formats?</a></li>
-<li><a href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications">11.5. Do you really want to deprecate all the bioinformatics applications?</a></li>
-<li><a href="#_do_you_want_to_deprecate_the_conventional_workflow_languages">11.6. Do you want to deprecate the conventional workflow languages?</a></li>
-<li><a href="#_does_morloc_allow_function_specific_containerized_environments">11.7. Does Morloc allow function-specific containerized environments?</a></li>
-<li><a href="#_what_about_object_oriented_programming">11.8. What about object-oriented programming?</a></li>
-<li><a href="#_is_morloc_still_relevant_when_ai_can_program_and_translate">11.9. Is Morloc still relevant when AI can program and translate?</a></li>
-<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">11.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
-<li><a href="#_wait_i_have_more_questions">11.11. Wait! I have more questions!</a></li>
+<li><a href="#_planes_of_libraries">11.1. Planes of libraries</a></li>
 </ul>
 </li>
-<li><a href="#_contact">12. Contact</a></li>
+<li><a href="#_qa">12. Q&amp;A</a>
+<ul class="sectlevel2">
+<li><a href="#_i_only_use_one_language_is_morloc_still_useful">12.1. I only use one language, is Morloc still useful?</a></li>
+<li><a href="#_is_this_just_a_bioinformatics_workflow_language">12.2. Is this just a bioinformatics workflow language?</a></li>
+<li><a href="#_does_morloc_allow_function_specific_containerized_environments">12.3. Does Morloc allow function-specific containerized environments?</a></li>
+<li><a href="#_what_about_object_oriented_programming">12.4. What about object-oriented programming?</a></li>
+<li><a href="#_is_morloc_still_relevant_when_ai_can_program_and_translate">12.5. Is Morloc still relevant when AI can program and translate?</a></li>
+<li><a href="#_im_not_a_human_do_i_still_need_morloc">12.6. I&#8217;m not a human, do I still need Morloc?</a></li>
+<li><a href="#_why_is_it_named_after_morlocks_werent_they_like_bad">12.7. Why is it named after Morlocks, weren&#8217;t they, like, bad?</a></li>
+<li><a href="#_wait_i_have_more_questions">12.8. Wait! I have more questions!</a></li>
+</ul>
+</li>
+<li><a href="#_contact">13. Contact</a></li>
 </ul>
 </div>
 </div>
@@ -779,7 +782,7 @@ organized/searched by type, and used to build rigorous programs.</p>
 brittle application/file paradigm of workflow design. Replace heavy CLI
 applications with pure function libraries, ad hoc textual file formats with
 explicit data structures, and workflow specifications with function
-compositions. See the the first Morloc
+compositions. See the first Morloc
 paper for details (<a href="https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf">pre-released here</a>).</p>
 </div>
 </div>
@@ -824,12 +827,6 @@ will change is in how it describes these native functions, the syntax it uses to
 compose them, and the particulars of code generation.</p>
 </div>
 <div class="paragraph">
-<p>Is Morloc ready for production? Maybe. Currently, Morloc has many sharp edges,
-and new versions may introduce breaking changes. So Morloc is most appropriate
-right now for adventurous first adopters who can solve problems and write clear
-issue reports.</p>
-</div>
-<div class="paragraph">
 <p><strong>Want to contribute?</strong> The most helpful thing you can do is join the community (see
 the Contact section), try out Morloc, and offer feedback on social media or via
 GitHub issue reports. The community is just starting, and the language is young,
@@ -845,12 +842,14 @@ so you can strongly influence how the system evolves.</p>
 <div class="paragraph">
 <p>The easiest way to run Morloc is through containers in a UNIX environment. Linux
 will work natively. MacOS and Windows are more complicated and I&#8217;ll deal with
-their special later on. For Windows, you will need to install through the
+their special cases later on. For Windows, you will need to install through the
 <a href="https://learn.microsoft.com/en-us/windows/wsl/about">Windows Subsystem for Linux</a>.</p>
 </div>
 <div class="paragraph">
-<p>The only dependency is a container engine, currently two&#8201;&#8212;&#8201;<a href="https://docs.docker.com/engine/install/">docker</a> and
-<a href="https://podman.io/docs/installation">podman</a>&#8201;&#8212;&#8201;are supported.</p>
+<p>The only dependency is a container engine with Compose support&#8201;&#8212;&#8201;currently
+<a href="https://docs.docker.com/engine/install/">Docker</a> (v2 plugin, included in modern
+Docker Desktop and Engine installs) and
+<a href="https://podman.io/docs/installation">Podman</a> with <code>podman compose</code> are supported.</p>
 </div>
 <details>
 <summary class="title">Podman instructions</summary>
@@ -901,40 +900,32 @@ will need to initialize <code>podman</code> as so:</p>
 </div>
 </details>
 <div class="paragraph">
-<p>After confirming either Podman or Docker is running on your system, pull an
-installation script from
-<a href="https://github.com/morloc-project/morloc-manager">morloc-project/morloc-manager</a>:</p>
+<p>After confirming either Podman or Docker is running on your system, download
+the manager and place it on your PATH:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>curl<span class="tok-w"> </span>-o<span class="tok-w"> </span>morloc-manager<span class="tok-w"> </span>https://raw.githubusercontent.com/morloc-project/morloc-manager/refs/heads/main/morloc-manager.sh</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>curl<span class="tok-w"> </span>-o<span class="tok-w"> </span>morloc-manager<span class="tok-w"> </span>https://raw.githubusercontent.com/morloc-project/morloc-manager/refs/heads/main/morloc-manager.sh
+<span class="tok-gp">$ </span>chmod<span class="tok-w"> </span>+x<span class="tok-w"> </span>morloc-manager
+<span class="tok-gp">$ </span>mv<span class="tok-w"> </span>morloc-manager<span class="tok-w"> </span>~/.local/bin/</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>morloc-manager</code> is a (mostly) POSIX compatible shell script that is tested on Linux and
-MacOS. On Windows, you should may run this in the Windows Subsystem for Linux
-(WSL). You may execute <code>morloc-manager</code> directly, for example <code>bash morloc-manager</code>. But it is more
-convenient to make the script executable and move it to a folder in your
-execution path.</p>
-</div>
-<div class="paragraph">
-<p>The script provides usage information on request:</p>
+<p>Then install Morloc:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>-h
-<span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>install<span class="tok-w"> </span>-h
-<span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>uninstall<span class="tok-w"> </span>-h</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>install</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>install</code> subcommand will build the Morloc home directory, install required
-containers, and generate executable scripts. The two you need are <code>menv</code> and
-<code>morloc-shell</code>.</p>
+<p>This pulls the container images, generates a Docker Compose configuration, and
+creates the <code>menv</code> wrapper script in <code>~/.local/bin/</code>.</p>
 </div>
 <div class="paragraph">
-<p><code>menv</code> runs arbitrary commands in a Morloc container. It can be used to compile
-and run Morloc programs. For example:</p>
+<p><code>menv</code> is the single command for running anything inside the Morloc container.
+Your current working directory is automatically mounted. It can be used to
+compile and run Morloc programs:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -943,10 +934,18 @@ and run Morloc programs. For example:</p>
 </div>
 </div>
 <div class="paragraph">
-<p><code>morloc-shell</code> is the same as the above script except that you enter the
-container in an interactive shell rather than just running one command. The
-container has installations for Python, R, and C++ compiler as well as
-vim and other conveniences.</p>
+<p>To drop into an interactive container shell with Python, R, C++ compiler, vim,
+and other conveniences:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>--shell</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Throughout the rest of this manual, whenever an example uses the <code>morloc</code>
+command directly (without the <code>menv</code> prefix), you can assume it is being run
+from within a container shell started with <code>morloc-manager run --shell</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1048,12 +1047,12 @@ full concrete syntax tree from the code:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">hello</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">hw</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">hello</span><span class="tok-p">)</span>
 <span class="tok-n">hello</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Hello up there&quot;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The module named <code>main</code> exports the term <code>hello</code> which is assigned to a literal
+<p>The module named <code>hw</code> exports the term <code>hello</code> which is assigned to a literal
 string value.</p>
 </div>
 <div class="paragraph">
@@ -1067,19 +1066,19 @@ term is a subcommand.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>This command will produce an executable named <code>nexus</code> (a copy of the pre-compiled
-nexus binary) along with a <code>nexus.manifest</code> JSON file and pool files for each
-language used (e.g., <code>pool.py</code>, <code>pool-cpp.out</code>, <code>pool.R</code>). The <code>nexus</code> is the
+<p>This command will produce an executable named after the module (in this case,
+<code>hw</code>) along with a <code>hw.manifest</code> JSON file and pool files for each
+language used (e.g., <code>pool.py</code>, <code>pool-cpp.out</code>, <code>pool.R</code>). The executable is the
 command line interface (CLI) to the commands exported from the module.</p>
 </div>
 <div class="paragraph">
-<p>Calling <code>nexus</code> with no arguments or with the <code>-h</code> flag, will print a help
+<p>Calling the executable with no arguments or with the <code>-h</code> flag, will print a help
 message:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-h
-<span class="tok-go">Usage: ./nexus [OPTION]... COMMAND [ARG]...</span>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: ./hw [OPTION]... COMMAND [ARG]...</span>
 
 <span class="tok-go">Nexus Options:</span>
 <span class="tok-go"> -h, --help            Print this help message</span>
@@ -1102,7 +1101,7 @@ input types are listed.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>hello
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>hello
 <span class="tok-go">Hello up there</span></code></pre>
 </div>
 </div>
@@ -1117,7 +1116,7 @@ result. Here is the Morloc script:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">dnd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rollAdv</span><span class="tok-p">)</span>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">types</span>
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;roll&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;max&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;narrate&quot;</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;roll&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;narrate&quot;</span><span class="tok-p">)</span>
 
 <span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span>
 <span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
@@ -1130,7 +1129,7 @@ result. Here is the Morloc script:</p>
 <p>Here we define a module named <code>dnd</code> that exports the function <code>rollAdv</code>. In line
 2, we import the required type definitions from the Morloc module
 <code>types</code>. Later on we&#8217;ll go into how these types are defined. In line 3, we
-source three functions from the Python file "foo.py". In lines 5-8, we assign
+source two functions from the Python file "foo.py". In lines 5-8, we assign
 each of these functions a Morloc type signature. You can think of the arrows
 in the signatures as separating arguments. For example, the function <code>roll</code>
 takes two integers as arguments and returns a list of integers. The square
@@ -1145,7 +1144,7 @@ following code:</p>
 <pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">random</span>
 
 <span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">roll</span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-p">,</span> <span class="tok-n">d</span><span class="tok-p">):</span>
-    <span class="tok-c1"># Roll an n-sided die d times, return a list of results</span>
+    <span class="tok-c1"># Roll n d-sided dice, return a list of results</span>
     <span class="tok-k">return</span> <span class="tok-p">[</span><span class="tok-n">random</span><span class="tok-o">.</span><span class="tok-n">randint</span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span> <span class="tok-n">d</span><span class="tok-p">)</span> <span class="tok-k">for</span> <span class="tok-n">_</span> <span class="tok-ow">in</span> <span class="tok-nb">range</span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-p">)]</span>
 
 <span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">narrate</span><span class="tok-p">(</span><span class="tok-n">roll_value</span><span class="tok-p">):</span>
@@ -1178,7 +1177,7 @@ the <code>prelude</code> module. So before compiling, we need to import both of 
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
-<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>rollAdv
+<span class="tok-gp">$ </span>./dnd<span class="tok-w"> </span>rollAdv
 <span class="tok-go">&quot;You rolled a 20&quot;</span></code></pre>
 </div>
 </div>
@@ -1235,7 +1234,7 @@ the source statements.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="c++"><span></span><span class="tok-cp">#pragma one</span>
+<pre class="pygments highlight"><code data-lang="c++"><span></span><span class="tok-cp">#pragma once</span>
 <span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;vector&gt;</span>
 <span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;algorithm&gt;</span>
 
@@ -1278,7 +1277,7 @@ between the languages. Exactly how this is done will be discussed later.</p>
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;pmap&quot;</span><span class="tok-p">)</span>
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;sum&quot;</span><span class="tok-p">)</span>
 
-<span class="tok-n">pmap</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">b</span><span class="tok-p">]</span>
+<span class="tok-n">pmap</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">b</span><span class="tok-p">]</span>
 <span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
 
 <span class="tok-n">sumOfSums</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-w"> </span><span class="tok-n">pmap</span><span class="tok-w"> </span><span class="tok-n">sum</span></code></pre>
@@ -1286,13 +1285,15 @@ between the languages. Exactly how this is done will be discussed later.</p>
 </div>
 <div class="paragraph">
 <p>This Morloc script exports a function that sums a list of lists of real
-numbers. Here we use the dot operator for function composition. The sum function
-is implemented in C&#43;&#43;:</p>
+numbers. Here we use the dot operator for function composition. The type
+signature for <code>pmap</code> uses lowercase type variables (<code>a</code> and <code>b</code>) to indicate
+that the function is generic&#8201;&#8212;&#8201;it works for any types <code>a</code> and <code>b</code>. The sum
+function is implemented in C&#43;&#43;:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="c++"><span></span><span class="tok-c1">// C++ header sourced by morloc script</span>
-<span class="tok-cp">#pragma one</span>
+<span class="tok-cp">#pragma once</span>
 <span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;vector&gt;</span>
 
 <span class="tok-kt">double</span><span class="tok-w"> </span><span class="tok-nf">sum</span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-kt">double</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">vec</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
@@ -1329,7 +1330,8 @@ replacement.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
-<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>sumOfSums<span class="tok-w"> </span><span class="tok-s1">&#39;[[1,2],[3,4,5]]&#39;</span></code></pre>
+<span class="tok-gp">$ </span>./m<span class="tok-w"> </span>sumOfSums<span class="tok-w"> </span><span class="tok-s1">&#39;[[1,2],[3,4,5]]&#39;</span>
+<span class="tok-go">15</span></code></pre>
 </div>
 </div>
 </div>
@@ -1350,7 +1352,7 @@ replacement.</p>
 <div class="paragraph">
 <div class="title">Numbers</div>
 <p>Numbers may be represented in normal format, scientific notation, or as
-hexidecimal/octal/binary format:</p>
+hexadecimal/octal/binary format:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1421,7 +1423,7 @@ stripped:</p>
 <div class="paragraph">
 <div class="title">Records</div>
 <p>Records are essentially named tuples. Record type definitions and
-language-specific handling will be addressed later, but record data is expressed
+language-specific handling will be addressed in the Records section, but record data is expressed
 as shown in the example below:</p>
 </div>
 <div class="listingblock">
@@ -1447,12 +1449,14 @@ import many of these from the <code>root</code> modules.</p>
 <div class="sect2">
 <h3 id="_pattern_functions_for_data_accessupdate"><a class="anchor" href="#_pattern_functions_for_data_accessupdate"></a>5.2. Pattern functions for data access/update</h3>
 <div class="paragraph">
-<p>Data structures may be accessed and modified using pattern functions. These
-patterns may be <em>getters</em> that extract a tuple of values from a data structure
-or <em>setters</em> that update a data structure without changing its type.</p>
+<p>Data structures may be accessed and modified using pattern functions. These are
+not pattern matching as in Haskell or ML&#8201;&#8212;&#8201;rather, they are a dedicated
+accessor and update syntax for navigating into data structures. Patterns may be
+<em>getters</em> that extract a tuple of values from a data structure or <em>setters</em>
+that update a data structure without changing its type.</p>
 </div>
 <div class="paragraph">
-<div class="title">getters patterns</div>
+<div class="title">Getter patterns</div>
 <p>A <strong>getter</strong> pattern describes an optionally branching path into a data
 structure. Each segment of the path may be a tuple index, a record key, or a
 group of indices/keys. The terminal positions in the pattern are returned as
@@ -1476,7 +1480,7 @@ elements in a tuple. Here are a few examples:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>These patterns are transformed into functions may be used exactly like any other
+<p>These patterns are transformed into functions that may be used exactly like any other
 function.</p>
 </div>
 <div class="listingblock">
@@ -1485,7 +1489,7 @@ function.</p>
 </div>
 </div>
 <div class="paragraph">
-<div class="title">setters patterns</div>
+<div class="title">Setter patterns</div>
 <p>Setter patterns are similar but add an assignment statement to each pattern
 terminus.</p>
 </div>
@@ -1574,7 +1578,7 @@ defined. So the <code>foo.py</code> function only requires the following two lin
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">snd</span><span class="tok-p">(</span><span class="tok-n">pair</span><span class="tok-p">):</span>
-    <span class="tok-k">return</span> <span class="tok-n">pair</span></code></pre>
+    <span class="tok-k">return</span> <span class="tok-n">pair</span><span class="tok-p">[</span><span class="tok-mi">1</span><span class="tok-p">]</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1678,7 +1682,7 @@ code.</p>
 <div class="sect2">
 <h3 id="_functions"><a class="anchor" href="#_functions"></a>5.4. Functions</h3>
 <div class="paragraph">
-<p>Functions are defined with arguments seperated by whitespace:</p>
+<p>Functions are defined with arguments separated by whitespace:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1769,7 +1773,7 @@ underscores as placeholders:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>This will be transformed in the compiler frontend to a lambda, so is behaves
+<p>This will be transformed in the compiler frontend to a lambda, so it behaves
 identically. These placeholders may also be used in data structures. The
 following two expressions obtain the same result:</p>
 </div>
@@ -1852,33 +1856,22 @@ compiler selects for execution.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><code>let</code> is the more orderly cousin of <code>where</code>. The <code>where</code> clause defines terms
-that can be used anywhere in the <code>where</code> block and that may be any functional
-argument.</p>
+<p><code>let</code> is the more orderly cousin of <code>where</code>. In a <code>where</code> clause, bindings can
+refer to the function&#8217;s arguments (from the left-hand side) and can be used in
+the main expression (the right-hand side). The bindings in a <code>where</code> block are
+order-independent&#8201;&#8212;&#8201;they may appear in any order and refer to each other freely.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">=</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">2</span>
-<span class="tok-w">  </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-nc">Y</span><span class="tok-p">)</span></code></pre>
+<span class="tok-w">  </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>let</code> also allows you to ignore the result of a computation:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">=</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">2</span>
-<span class="tok-w">  </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">5</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-nc">Y</span><span class="tok-p">)</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Ignoring the return data from <code>n+1</code> is completely pointless in this case, but
-this ability will become crucial when we move on with computational that have
-side-effects.
+<p>The ability to ignore the result of a <code>let</code> binding (using <code>_</code>) will become
+useful when we move on to computations that have side-effects.
 === Guards</p>
 </div>
 <div class="paragraph">
@@ -1941,7 +1934,8 @@ conditions and result expressions:</p>
 </div>
 <div class="paragraph">
 <p>Guards can also be used as inline expressions anywhere a value is expected,
-enclosed in parentheses:</p>
+enclosed in parentheses. The parentheses are required to delimit the inline
+guard from the surrounding expression:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2103,9 +2097,9 @@ concrete type:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>In R and Python, records are typically <code>dict</code> and <code>list</code> types,
-respectively. These types con contain any fields of any type. In C&#43;&#43;, records
-are represented as structs; these must must be defined in the C code, as shown
+<p>In Python and R, records are typically <code>dict</code> and <code>list</code> types,
+respectively. These types can contain any fields of any type. In C&#43;&#43;, records
+are represented as structs; these must be defined in the C++ code, as shown
 below.</p>
 </div>
 <div class="listingblock">
@@ -2194,7 +2188,7 @@ are not currently supported.</p>
 <div class="sect2">
 <h3 id="_tables"><a class="anchor" href="#_tables"></a>5.10. Tables</h3>
 <div class="paragraph">
-<p>Tables are similar, but all fields are lists of equal length:</p>
+<p>Tables are similar to records, but all fields are lists of equal length:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2231,10 +2225,10 @@ are not currently supported.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="bash"><span></span><span class="tok-c1"># read a tab-delimited file containing person rows</span>
-./nexus<span class="tok-w"> </span>readPeople<span class="tok-w"> </span>data.tab<span class="tok-w"> </span>&gt;<span class="tok-w"> </span>people.json
+./foo<span class="tok-w"> </span>readPeople<span class="tok-w"> </span>data.tab<span class="tok-w"> </span>&gt;<span class="tok-w"> </span>people.json
 
 <span class="tok-c1"># add a row to the table</span>
-./nexus<span class="tok-w"> </span>addPeople<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;Eve&quot;]&#39;</span><span class="tok-w"> </span><span class="tok-s1">&#39;[99]&#39;</span><span class="tok-w"> </span>people.json</code></pre>
+./foo<span class="tok-w"> </span>addPeople<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;Eve&quot;]&#39;</span><span class="tok-w"> </span><span class="tok-s1">&#39;[99]&#39;</span><span class="tok-w"> </span>people.json</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2250,7 +2244,7 @@ Alternatively, custom non-parameterized tabular/record types may be defined.</p>
 <code>JsonObj</code> type that represents an arbitrarily nested object that serializes
 to/from JSON. In Python, it deserializes to a <code>dict</code> object; in R, to a <code>list</code>
 objects; and in C to an <code>ordered_json</code> object from from
-(<a href="https://github.com/nlohmann)">Niels Lohmann&#8217;s json package</a>).</p>
+<a href="https://github.com/nlohmann/json">Niels Lohmann&#8217;s JSON package</a>).</p>
 </div>
 <div class="paragraph">
 <p>A similar approach could be used to define a non-parameterized table type that
@@ -2262,7 +2256,213 @@ reliability of the typed structures.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_effects_and_delayed_evaluation"><a class="anchor" href="#_effects_and_delayed_evaluation"></a>5.11. Effects and delayed evaluation</h3>
+<h3 id="_tensors"><a class="anchor" href="#_tensors"></a>5.11. Tensors</h3>
+<div class="paragraph">
+<p>Morloc has built-in tensor types with dimensions tracked in the type system.
+This means the compiler can catch shape mismatches&#8201;&#8212;&#8201;like passing a 3x4 matrix
+where a 4x3 was expected&#8201;&#8212;&#8201;at compile time, even when the functions live in
+different languages.</p>
+</div>
+<div class="paragraph">
+<p>The standard library defines tensors from 1D to 5D:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d1</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Nat</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d1</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Nat</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d2</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Nat</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Tensor3</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d1</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Nat</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d2</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Nat</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d3</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Nat</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-c1">-- ... up to Tensor5</span></code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">The `(d </dt>
+<dd>
+<p>Nat)` parameters are type-level natural numbers&#8201;&#8212;&#8201;they exist only in
+the type system and are erased at runtime. The <code>a</code> is the element type (<code>Real</code>,
+<code>Int</code>, etc.). Under the hood, these map to <code>numpy.ndarray</code> in Python,
+<code>mlc::Tensor</code> templates in C&#43;&#43;, and <code>array</code>/<code>matrix</code> in R.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<div class="title">Writing tensor functions</div>
+<p>Tensor signatures use lowercase variables for dimensions. These are implicitly
+generic&#8201;&#8212;&#8201;the function works for any size:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- Works for any m-by-n matrix</span>
+<span class="tok-n">transpose</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- Both inputs must have the same shape</span>
+<span class="tok-n">add</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- Dot product requires equal-length vectors</span>
+<span class="tok-n">dot</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The compiler checks that dimensions line up when you compose these functions. If
+you try to add a 3x4 matrix to a 5x6 matrix, you get a type error.</p>
+</div>
+<div class="paragraph">
+<div class="title">Dimension arithmetic</div>
+<p>Signatures can express arithmetic relationships between dimensions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- Flattening a matrix multiplies its dimensions</span>
+<span class="tok-n">flatten</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- Stacking vertically adds rows</span>
+<span class="tok-n">vstack</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- Kronecker product multiplies both dimensions</span>
+<span class="tok-n">kron</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-w"> </span><span class="tok-n">q</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">q</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-nc">Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When concrete sizes are known, the compiler evaluates the arithmetic and checks
+it. For example, flattening a <code>Tensor2 3 4 Real</code> produces a <code>Tensor1 12 Real</code>&#8201;&#8212;&#8201;and trying to use it where a <code>Tensor1 13 Real</code> is expected will fail.</p>
+</div>
+<div class="paragraph">
+<p>When dimensions are still generic (variables, not numbers), the compiler defers
+the check until sizes become known.</p>
+</div>
+<div class="paragraph">
+<div class="title">Labeled nat parameters</div>
+<p>Sometimes a function&#8217;s output dimensions depend on its runtime arguments. The
+<code>n:Int</code> syntax lets you express this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- The integer argument determines the vector length</span>
+<span class="tok-n">makeVec</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- Two integer arguments determine the matrix shape</span>
+<span class="tok-n">makeMat</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you call <code>makeVec 5</code>, the compiler knows the result is a <code>Tensor1 5 Real</code>
+and can propagate that through the rest of your program. This works with integer
+literals, let-bound variables, and tuple accessors:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">makeVec</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-w">                                        </span><span class="tok-c1">-- Tensor1 5 Real</span>
+<span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">makeVec</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w">                           </span><span class="tok-c1">-- Tensor1 3 Real</span>
+<span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">dims</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">3</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">4</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">makeMat</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">dims</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-n">dims</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">-- Tensor2 3 4 Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Example: a CNN inference pipeline</div>
+<p>Here is a small convolutional neural network for character recognition, written
+as a Morloc pipeline over C&#43;&#43; tensor functions. The architecture is:
+conv2d &#8594; relu &#8594; flatten &#8594; dense &#8594; argmax.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">predictDigit</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">cpp</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;cnn.hpp&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;makeImage&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;makeKernels&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;makeBias&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;makeWeights&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;makeDenseBias&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;conv2d&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;reluMap&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;flatten3d&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;dense&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;argmax&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">)</span>
+
+<span class="tok-c1">-- Construct inputs with labeled dimensions</span>
+<span class="tok-n">makeImage</span><span class="tok-w">   </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">h</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">w</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">h</span><span class="tok-w"> </span><span class="tok-n">w</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+<span class="tok-n">makeKernels</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">k</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">fh</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">fw</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor3</span><span class="tok-w"> </span><span class="tok-n">k</span><span class="tok-w"> </span><span class="tok-n">fh</span><span class="tok-w"> </span><span class="tok-n">fw</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+<span class="tok-n">makeBias</span><span class="tok-w">    </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">k</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">k</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+<span class="tok-n">makeWeights</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">nout</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">nin</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">nout</span><span class="tok-w"> </span><span class="tok-n">nin</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+<span class="tok-n">makeDenseBias</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-o">:</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- Convolution: output spatial dims shrink by (kernel - 1)</span>
+<span class="tok-n">conv2d</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">h</span><span class="tok-w"> </span><span class="tok-n">w</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+<span class="tok-w">       </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor3</span><span class="tok-w"> </span><span class="tok-n">k</span><span class="tok-w"> </span><span class="tok-n">fh</span><span class="tok-w"> </span><span class="tok-n">fw</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+<span class="tok-w">       </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">k</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+<span class="tok-w">       </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor3</span><span class="tok-w"> </span><span class="tok-n">k</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">h</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-n">fh</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">w</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-n">fw</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- ReLU preserves shape</span>
+<span class="tok-n">reluMap</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor3</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-n">c</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor3</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-n">c</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- Flatten multiplies all dimensions together</span>
+<span class="tok-n">flatten3d</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor3</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-n">c</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">c</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- Dense layer: matrix-vector multiply plus bias</span>
+<span class="tok-n">dense</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-c1">-- Find the class with highest score</span>
+<span class="tok-n">argmax</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now the pipeline itself reads like a straightforward description of the
+architecture:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">predictDigit</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">predictDigit</span><span class="tok-w"> </span><span class="tok-o">=</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">image</span><span class="tok-w">    </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">makeImage</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-w"> </span><span class="tok-mi">5</span>
+<span class="tok-w">      </span><span class="tok-n">kernels</span><span class="tok-w">  </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">makeKernels</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-mi">3</span>
+<span class="tok-w">      </span><span class="tok-n">bias</span><span class="tok-w">     </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">makeBias</span><span class="tok-w"> </span><span class="tok-mi">2</span>
+<span class="tok-w">      </span><span class="tok-n">convOut</span><span class="tok-w">  </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">conv2d</span><span class="tok-w"> </span><span class="tok-n">image</span><span class="tok-w"> </span><span class="tok-n">kernels</span><span class="tok-w"> </span><span class="tok-n">bias</span>
+<span class="tok-w">      </span><span class="tok-n">activated</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">reluMap</span><span class="tok-w"> </span><span class="tok-n">convOut</span>
+<span class="tok-w">      </span><span class="tok-n">flat</span><span class="tok-w">     </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">flatten3d</span><span class="tok-w"> </span><span class="tok-n">activated</span>
+<span class="tok-w">      </span><span class="tok-n">weights</span><span class="tok-w">  </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">makeWeights</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-mi">18</span>
+<span class="tok-w">      </span><span class="tok-n">denseBias</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">makeDenseBias</span><span class="tok-w"> </span><span class="tok-mi">3</span>
+<span class="tok-w">      </span><span class="tok-n">logits</span><span class="tok-w">   </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dense</span><span class="tok-w"> </span><span class="tok-n">weights</span><span class="tok-w"> </span><span class="tok-n">denseBias</span><span class="tok-w"> </span><span class="tok-n">flat</span>
+<span class="tok-w">  </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">argmax</span><span class="tok-w"> </span><span class="tok-n">logits</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The compiler infers every intermediate shape from the labeled dimensions. For
+example, <code>makeImage 5 5</code> is <code>Tensor2 5 5 Real</code>. Convolving with 2 kernels of
+size 3x3 yields <code>Tensor3 2 3 3 Real</code> (since 5 - 3 + 1 = 3). Flattening gives
+<code>Tensor1 18 Real</code> (2 * 3 * 3 = 18). The dense layer takes <code>Tensor2 3 18 Real</code>
+weights and a <code>Tensor1 18 Real</code> input, and the <code>18</code> must match&#8201;&#8212;&#8201;if you changed
+the kernel count or image size, the compiler would catch the mismatch.</p>
+</div>
+<div class="paragraph">
+<div class="title">Opaque dimensions</div>
+<p>Not every operation has a predictable output shape. When the output size depends
+on runtime values, the dimensions are left as fresh unknowns:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- Output size depends on how many elements pass the predicate</span>
+<span class="tok-n">filter</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-n">i</span><span class="tok-w"> </span><span class="tok-n">a</span>
+
+<span class="tok-c1">-- Output size depends on the integer arguments</span>
+<span class="tok-n">slice</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tensor2</span><span class="tok-w"> </span><span class="tok-n">i</span><span class="tok-w"> </span><span class="tok-n">j</span><span class="tok-w"> </span><span class="tok-nc">Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The compiler accepts these but cannot check downstream dimension constraints
+against them. Correctness here depends on getting the runtime logic right.</p>
+</div>
+<div class="paragraph">
+<div class="title">What the compiler checks (and what it does not)</div>
+<p>Morloc checks that dimensions are consistent across your compositions&#8201;&#8212;&#8201;but it
+trusts the type signatures you write for foreign functions. A C&#43;&#43; function
+declared as <code>Tensor2 m n &#8594; Tensor2 n m</code> but actually implementing the identity
+will not be caught. This is the same tradeoff as linking against a C header
+file: the types are a contract, and the implementation is expected to honor it.</p>
+</div>
+<div class="paragraph">
+<p>Arithmetic constraints (like <code>m * n = 18</code>) are checked when all variables are
+known. When some variables remain free, the check is deferred. If it can never
+be resolved, it is effectively unchecked.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_effects_and_delayed_evaluation"><a class="anchor" href="#_effects_and_delayed_evaluation"></a>5.12. Effects and delayed evaluation</h3>
 <div class="paragraph">
 <p>Morloc is a functional programming language. Here a "function" is a mapping from
 a value in one domain to value in another domain. This works neatly for pure
@@ -2396,7 +2596,7 @@ for fallible computations. Multiple effects can be combined:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_do_blocks_and_the_operator"><a class="anchor" href="#_do_blocks_and_the_operator"></a>5.11.1. Do-blocks and the <code>!</code> operator</h4>
+<h4 id="_do_blocks_and_the_operator"><a class="anchor" href="#_do_blocks_and_the_operator"></a>5.12.1. Do-blocks and the <code>!</code> operator</h4>
 <div class="paragraph">
 <p>A <code>do</code>-block creates an effectful computation. It is the only place where
 effects can be evaluated. Inside a <code>do</code>-block, the <code>!</code> operator forces an
@@ -2486,7 +2686,7 @@ it. The effect is only triggered when <code>t</code> is later forced with <code>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_sequencing_and_conditionals"><a class="anchor" href="#_sequencing_and_conditionals"></a>5.11.2. Sequencing and conditionals</h4>
+<h4 id="_sequencing_and_conditionals"><a class="anchor" href="#_sequencing_and_conditionals"></a>5.12.2. Sequencing and conditionals</h4>
 <div class="paragraph">
 <p>Effects can be combined with guards:</p>
 </div>
@@ -2525,7 +2725,7 @@ the boundary. If <code>script</code> is exported, the CLI user receives a plain 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_coercion_and_subtyping"><a class="anchor" href="#_coercion_and_subtyping"></a>5.11.3. Coercion and subtyping</h4>
+<h4 id="_coercion_and_subtyping"><a class="anchor" href="#_coercion_and_subtyping"></a>5.12.3. Coercion and subtyping</h4>
 <div class="paragraph">
 <p>Pure values are automatically coerced to effectful types when needed. If a
 function expects <code>&lt;IO&gt; Int</code>, you can pass a plain <code>Int</code>:</p>
@@ -2548,7 +2748,7 @@ and error handling.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_cross_language_effects"><a class="anchor" href="#_cross_language_effects"></a>5.11.4. Cross-language effects</h4>
+<h4 id="_cross_language_effects"><a class="anchor" href="#_cross_language_effects"></a>5.12.4. Cross-language effects</h4>
 <div class="paragraph">
 <p>Effects work seamlessly across language boundaries. A <code>do</code>-block can mix
 effectful calls to functions implemented in different languages:</p>
@@ -2563,8 +2763,8 @@ effectful calls to functions implemented in different languages:</p>
 
 <span class="tok-n">pipeline</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Report</span>
 <span class="tok-n">pipeline</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-n">data</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">sampleCpp</span><span class="tok-w"> </span><span class="tok-mi">1000</span>
-<span class="tok-w">  </span><span class="tok-n">analyzePy</span><span class="tok-w"> </span><span class="tok-n">data</span></code></pre>
+<span class="tok-w">  </span><span class="tok-n">samples</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">sampleCpp</span><span class="tok-w"> </span><span class="tok-mi">1000</span>
+<span class="tok-w">  </span><span class="tok-n">analyzePy</span><span class="tok-w"> </span><span class="tok-n">samples</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2594,7 +2794,7 @@ Morloc offers a dedicated "Optional" type with supported implicit coercion.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_syntax"><a class="anchor" href="#_syntax"></a>5.11.5. Syntax</h4>
+<h4 id="_syntax"><a class="anchor" href="#_syntax"></a>5.12.5. Syntax</h4>
 <div class="paragraph">
 <p>The <code>?</code> prefix marks a type as optional and the <code>null</code> primitive indicates an
 absent value. <code>?Int</code> is an integer that might be <code>null</code>, <code>?Str</code> is a string that
@@ -2619,7 +2819,7 @@ lists (<code>?[Int]</code>), records (<code>?Person</code>), and nested optional
 </div>
 </div>
 <div class="sect3">
-<h4 id="_working_with_optional_values"><a class="anchor" href="#_working_with_optional_values"></a>5.11.6. Working with optional values</h4>
+<h4 id="_working_with_optional_values"><a class="anchor" href="#_working_with_optional_values"></a>5.12.6. Working with optional values</h4>
 <div class="paragraph">
 <p>Functions that produce or consume optional values are sourced from foreign
 languages like any other function. Here is a complete example in Python:</p>
@@ -2697,19 +2897,20 @@ In C&#43;&#43;:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">fromNull</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">){</span>
 <span class="tok-w">  </span><span class="tok-kr">if</span><span class="tok-p">(</span><span class="tok-nf">is.null</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)){</span>
-<span class="tok-w">    </span><span class="tok-kr">return</span><span class="tok-w"> </span><span class="tok-n">default_val</span>
+<span class="tok-w">    </span><span class="tok-kr">return</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-kr">else</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-kr">return</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">    </span><span class="tok-kr">return</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_optional_record_fields"><a class="anchor" href="#_optional_record_fields"></a>5.11.7. Optional record fields</h4>
+<h4 id="_optional_record_fields"><a class="anchor" href="#_optional_record_fields"></a>5.12.7. Optional record fields</h4>
 <div class="paragraph">
 <p>Record fields can be optional. This is useful for data with missing or unknown
-values:</p>
+values. The <code>where</code> form below is an alternative syntax for record declarations
+(equivalent to the brace syntax used in the Records section):</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2734,7 +2935,7 @@ age field of <code>bob</code> becomes <code>null</code>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_optional_values_across_languages"><a class="anchor" href="#_optional_values_across_languages"></a>5.11.8. Optional values across languages</h4>
+<h4 id="_optional_values_across_languages"><a class="anchor" href="#_optional_values_across_languages"></a>5.12.8. Optional values across languages</h4>
 <div class="paragraph">
 <p>Optional types work seamlessly across language boundaries. A function in one
 language can produce an optional value that is consumed by a function in another:</p>
@@ -2765,7 +2966,7 @@ manually.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implicit_coercion"><a class="anchor" href="#_implicit_coercion"></a>5.11.9. Implicit coercion</h4>
+<h4 id="_implicit_coercion"><a class="anchor" href="#_implicit_coercion"></a>5.12.9. Implicit coercion</h4>
 <div class="paragraph">
 <p>Morloc automatically coerces a non-optional value to an optional when the
 context requires it. If a function expects <code>?Int</code>, you can pass a plain <code>Int</code>
@@ -2813,7 +3014,7 @@ serialization so that the value is received correctly:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_language_mapping"><a class="anchor" href="#_language_mapping"></a>5.11.10. Language mapping</h4>
+<h4 id="_language_mapping"><a class="anchor" href="#_language_mapping"></a>5.12.10. Language mapping</h4>
 <div class="paragraph">
 <p>Optional types map to native nullable types in each language:</p>
 </div>
@@ -2850,7 +3051,7 @@ any type that already has a language mapping.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_intrinsics"><a class="anchor" href="#_intrinsics"></a>5.12. Intrinsics</h3>
+<h3 id="_intrinsics"><a class="anchor" href="#_intrinsics"></a>5.13. Intrinsics</h3>
 <div class="paragraph">
 <p>Intrinsics are compiler-generated special functions. They are prefixed with <code>@</code>
 and provide capabilities that cannot be implemented as ordinary sourced
@@ -2858,7 +3059,7 @@ functions&#8201;&#8212;&#8201;they require the compiler to generate specialized 
 types involved.</p>
 </div>
 <div class="sect3">
-<h4 id="_reference_table"><a class="anchor" href="#_reference_table"></a>5.12.1. Reference table</h4>
+<h4 id="_reference_table"><a class="anchor" href="#_reference_table"></a>5.13.1. Reference table</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 16.6666%;">
@@ -2933,7 +3134,7 @@ functions return <code>&lt;IO&gt; ()</code> because they perform I/O as a side e
 </div>
 </div>
 <div class="sect3">
-<h4 id="_saving_and_loading_data"><a class="anchor" href="#_saving_and_loading_data"></a>5.12.2. Saving and loading data</h4>
+<h4 id="_saving_and_loading_data"><a class="anchor" href="#_saving_and_loading_data"></a>5.13.2. Saving and loading data</h4>
 <div class="paragraph">
 <p>The <code>@save</code>, <code>@savem</code>, and <code>@savej</code> intrinsics write a value to a file path.
 <code>@load</code> reads it back. Together they provide a type-safe file persistence
@@ -2998,7 +3199,7 @@ editor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_caching_with_save_and_load"><a class="anchor" href="#_caching_with_save_and_load"></a>5.12.3. Caching with save and load</h4>
+<h4 id="_caching_with_save_and_load"><a class="anchor" href="#_caching_with_save_and_load"></a>5.13.3. Caching with save and load</h4>
 <div class="paragraph">
 <p>A common pattern is to check whether a cached result exists before recomputing
 it. Since <code>@load</code> returns <code>null</code> when the file is missing, you can branch on
@@ -3056,7 +3257,7 @@ serialized form.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_hashing"><a class="anchor" href="#_hashing"></a>5.12.4. Hashing</h4>
+<h4 id="_hashing"><a class="anchor" href="#_hashing"></a>5.13.4. Hashing</h4>
 <div class="paragraph">
 <p><code>@hash</code> computes a fast, non-cryptographic hash (xxhash) of any value. The
 value is first serialized to MessagePack internally, then hashed. The result is
@@ -3083,7 +3284,7 @@ differ.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_compile_time_constants"><a class="anchor" href="#_compile_time_constants"></a>5.12.5. Compile-time constants</h4>
+<h4 id="_compile_time_constants"><a class="anchor" href="#_compile_time_constants"></a>5.13.5. Compile-time constants</h4>
 <div class="paragraph">
 <p>The <code>@version</code>, <code>@compiled</code>, and <code>@lang</code> intrinsics are resolved at compile
 time. They can be used anywhere a <code>Str</code> value is expected.</p>
@@ -3114,7 +3315,7 @@ which language backend is in use.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_type_introspection"><a class="anchor" href="#_type_introspection"></a>5.12.6. Type introspection</h4>
+<h4 id="_type_introspection"><a class="anchor" href="#_type_introspection"></a>5.13.6. Type introspection</h4>
 <div class="paragraph">
 <p>The <code>@schema</code> and <code>@typeof</code> intrinsics return information about how the compiler
 represents a type. The value argument is not evaluated at runtime&#8201;&#8212;&#8201;only its
@@ -3198,7 +3399,13 @@ to implement specialized behavior for more efficient conversion to binary.</p>
 <h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>6.2. One term may have many definitions</h3>
 <div class="paragraph">
 <p>Morloc supports what might be called <em>term polymorphism</em>. Each
-term may have many definitions. For example, the function <code>mean</code> has three
+term may have many definitions. This is most useful for helper functions that
+have reasonable implementations in multiple languages. By providing definitions
+in several languages, the compiler can select the implementation that avoids
+unnecessary cross-language calls&#8201;&#8212;&#8201;allowing the program to collapse around
+specialized, single-language functions. Without term polymorphism, changing the
+language of any component would require manually rewriting and rewiring the
+entire program. For example, the function <code>mean</code> has three
 definitions below:</p>
 </div>
 <div class="listingblock">
@@ -3248,7 +3455,7 @@ catch more nuanced errors, such as:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>In this case, the type checker cannot check whithin the implementation of <code>add</code>,
+<p>In this case, the type checker cannot check within the implementation of <code>add</code>,
 so it cannot know that there is a contradiction. For this reason, some care is
 needed in making these definitions.</p>
 </div>
@@ -3256,10 +3463,12 @@ needed in making these definitions.</p>
 <div class="sect2">
 <h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>6.3. Overload terms with typeclasses</h3>
 <div class="paragraph">
-<p>In addition to term polymorphism, Morloc offers more traditional ad hoc
-polymorphism over types. Here typeclasses may be defined and type-specific
-instances may be given. This idea is similar to typeclasses in Haskell, traits
-in Rust, interfaces in Java, and concepts in C&#43;&#43;.</p>
+<p>Typeclasses allow the same function name to have different implementations for
+different types. Unlike term polymorphism (where the compiler freely chooses
+between alternative definitions of a term), a typeclass instance is selected
+based on the type the function is applied to. This idea is similar to
+typeclasses in Haskell, traits in Rust, interfaces in Java, and concepts in
+C&#43;&#43;.</p>
 </div>
 <div class="paragraph">
 <p>In the example below, <code>Addable</code> and <code>Foldable</code> classes are defined and used to
@@ -3384,7 +3593,7 @@ raise an error. So we can write:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;list&quot;</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-n">val</span>
 <span class="tok-kr">instance</span><span class="tok-w"> </span><span class="tok-nc">Packable</span><span class="tok-w"> </span><span class="tok-p">([</span><span class="tok-nc">Str</span><span class="tok-p">],[</span><span class="tok-n">b</span><span class="tok-p">])</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">where</span>
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;map-packing.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;pack&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;unpack&quot;</span><span class="tok-p">)</span></code></pre>
+<span class="tok-w">    </span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;map-packing.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;pack&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;unpack&quot;</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3423,7 +3632,11 @@ illegal in the Morloc language.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>This can be automatically mapped to a C&#43;&#43; function with the prototype <code>int addInt(int x, int y)</code>.</p>
+<p>This can be automatically mapped to a C&#43;&#43; function with the prototype
+<code>uint32_t addInt(uint32_t x, uint32_t y)</code>. Morloc also provides an <code>Int</code> type
+that maps to whatever the default integer type is in a given language (e.g.,
+<code>int</code> in C&#43;&#43;, <code>int</code> in Python). When a specific width is needed, use the
+explicit types such as <code>Int32</code> or <code>Int64</code>.</p>
 </div>
 <div class="paragraph">
 <p>Containers can be similarly mapped to native types:</p>
@@ -3446,14 +3659,14 @@ into the native type. So the Morloc type <code>List Int32</code> would translate
 <h2 id="_human_and_machine_interfaces"><a class="anchor" href="#_human_and_machine_interfaces"></a>7. Human and Machine Interfaces</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_modules_and_docstrings"><a class="anchor" href="#_modules_and_docstrings"></a>7.1. Modules and docstrings</h3>
+<h3 id="_docstrings"><a class="anchor" href="#_docstrings"></a>7.1. Docstrings</h3>
 <div class="paragraph">
 <p>A Morloc module describes a set of functions, their types, and their
 descriptions. We&#8217;ve already covered terms and types, now we will cover the
 descriptions we add to modules, functions, arguments and fields. The extra data
 is stored in specialized comments (docstrings) that describe the terms and add
 modifications like defaults. The most obvious use case of these annotations is
-in specializing CLI interfaces, discussed in the next section, but they aslo
+in specializing CLI interfaces, discussed in the next section, but they also
 inform the generation of rich APIs as well (see the HTTP/TCP/socket section).</p>
 </div>
 </div>
@@ -3486,8 +3699,8 @@ the backend.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
-<span class="tok-gp">$ </span>./neuxs<span class="tok-w"> </span>-h
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>nexus<span class="tok-w"> </span>main.loc
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-h
 <span class="tok-go">Usage: ./nexus [OPTION...] COMMAND [ARG...]</span>
 
 <span class="tok-go">Nexus Options:</span>
@@ -3531,9 +3744,11 @@ currently supported tags:</p>
 the Morloc function name</p>
 </li>
 <li>
-<p><code>literal</code> - treat an argument the actual data, not a file that contains the
-data, currently this is just used for strings where <code>literal: true</code> indicates
-that the extra JSON quotes are not required.</p>
+<p><code>literal</code> - treat an argument as the actual data, not a file that contains
+the data. Currently this is used for strings where <code>literal: true</code> indicates
+that the extra JSON quotes are not required. For example, without <code>literal:
+true</code>, a string must be passed as <code>'"hello"'</code> (with JSON quoting); with
+<code>literal: true</code>, it can be passed simply as <code>hello</code>.</p>
 </li>
 <li>
 <p><code>unroll</code> - if <code>true</code>, then the record argument is "unrolled" into a group of optional arguments</p>
@@ -3610,8 +3825,8 @@ that the extra JSON quotes are not required.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-h
-<span class="tok-go">Usage: ./nexus [OPTION...] COMMAND [ARG...]</span>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: ./foobar [OPTION...] COMMAND [ARG...]</span>
 
 <span class="tok-go">Nexus Options:</span>
 <span class="tok-go"> -h, --help            Print this help message</span>
@@ -3629,8 +3844,8 @@ that the record <code>Config</code> has been unrolled into a group of optional a
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>foo<span class="tok-w"> </span>-h
-<span class="tok-go">Usage: ./nexus foo [OPTION...] INT_LIST</span>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: ./foobar foo [OPTION...] INT_LIST</span>
 
 <span class="tok-go">do foo stuff</span>
 
@@ -3670,8 +3885,8 @@ in a conventional CLI program, the arguments cannot alter the return type.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>bar<span class="tok-w"> </span>-h
-<span class="tok-go">Usage: ./nexus bar ARG1 ARG2</span>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>bar<span class="tok-w"> </span>-h
+<span class="tok-go">Usage: ./foobar bar ARG1 ARG2</span>
 
 <span class="tok-go">do bar stuff</span>
 
@@ -3744,7 +3959,7 @@ functions from both the calendar and dnd modules.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>Usage: ./nexus [OPTION]... COMMAND [ARG]...
+<pre>Usage: ./toolbox [OPTION]... COMMAND [ARG]...
 
 Nexus Options:
  -h, --help            Print this help message
@@ -3762,6 +3977,18 @@ Exported Commands:
 </div>
 <div class="sect2">
 <h3 id="_user_arguments_and_outputs"><a class="anchor" href="#_user_arguments_and_outputs"></a>7.4. User arguments and outputs</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
+</td>
+<td class="content">
+The examples in this section assume the program was compiled with an explicit output name, e.g., <code>morloc make -o nexus main.loc</code>.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>User data is passed to Morloc executables as positional arguments to the
 specified function subcommand. The argument may be a literal JSON string or a
@@ -3959,22 +4186,7 @@ that helps generate new characters.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>We can build just the CLI tools if we wish:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>--install<span class="tok-w"> </span>combat.loc</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This will build the executable <code>combat</code> which is a script that carries with it all
-the information needed for execution. You can copy it anywhere you like on the
-system and it will work (so long as the contents of the directory where it was
-made are preserved). If you want, you can move the executable to a location in
-your system PATH and then you can call it as a normal program from anywhere.</p>
-</div>
-<div class="paragraph">
-<p>But Morloc offers a cleaner solution:</p>
+<p>We can build and install the program with:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -4080,7 +4292,7 @@ aggregates multiple programs behind a single API.</p>
 </div>
 <div class="paragraph">
 <p>No extra steps are needed to setup these extra APIs. They are already built into
-the executable we created in the last session. We only need to activate them.</p>
+the executable we created in the last section. We only need to activate them.</p>
 </div>
 <div class="sect3">
 <h4 id="_http_protocol"><a class="anchor" href="#_http_protocol"></a>7.6.1. HTTP protocol</h4>
@@ -4091,11 +4303,13 @@ the executable we created in the last session. We only need to activate them.</p
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>combat<span class="tok-w"> </span>--daemon<span class="tok-w"> </span>--http-port<span class="tok-w"> </span><span class="tok-m">8080</span><span class="tok-w"> </span><span class="tok-p">&amp;</span>
 <span class="tok-go">daemon: listening on http port 8080</span>
-<span class="tok-go">daemon: ready</span></code></pre>
+<span class="tok-go">daemon: ready</span>
+<span class="tok-gp">$ </span><span class="tok-nv">DAEMON_PID</span><span class="tok-o">=</span><span class="tok-nv">$!</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The trailing <code>&amp;</code> creates the process in the background. This command launches
+<p>The trailing <code>&amp;</code> creates the process in the background and <code>$!</code> captures
+its PID for later shutdown (see the Shutdown section below). This command launches
 all language pool processes (Python and R in this case) as child processes in
 separate process groups. A thread pool handles concurrent requests. If a pool
 crashes, the daemon detects it restarts it automatically.</p>
@@ -4418,7 +4632,7 @@ combat.manifest<span class="tok-w">  </span>tavern.manifest</code></pre>
 <h5 id="_starting_the_router"><a class="anchor" href="#_starting_the_router"></a>Starting the router</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>mim<span class="tok-w"> </span>--router<span class="tok-w"> </span>--http-port<span class="tok-w"> </span><span class="tok-m">9090</span>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>$<span class="tok-w"> </span>morloc-nexus<span class="tok-w"> </span>--router<span class="tok-w"> </span>--http-port<span class="tok-w"> </span><span class="tok-m">9090</span>
 router:<span class="tok-w"> </span>listening<span class="tok-w"> </span>on<span class="tok-w"> </span>http<span class="tok-w"> </span>port<span class="tok-w"> </span><span class="tok-m">9090</span>
 router:<span class="tok-w"> </span><span class="tok-m">2</span><span class="tok-w"> </span>programs<span class="tok-w"> </span>registered
 router:<span class="tok-w">   </span>-<span class="tok-w"> </span>combat<span class="tok-w"> </span><span class="tok-o">(</span><span class="tok-m">4</span><span class="tok-w"> </span>commands<span class="tok-o">)</span>
@@ -4864,309 +5078,59 @@ be especially powerful when imported types are expressed as unknowns to be
 inferred by usage.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_planes_of_libraries"><a class="anchor" href="#_planes_of_libraries"></a>8.4. Planes of libraries</h3>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="static/img/admonition_icons/important.png" alt="Important">
-</td>
-<td class="content">
-The infrastructure for "planes" is not yet constructed, so the following is speculative
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>The concept of "planes" is central to the future organization of Morloc and is
-one of the primary reasons that I created it. A <strong>plane</strong> is like a namespace for
-a community&#8217;s modules&#8212;&#8203;but instead of organizing by category or programming
-language, modules in a plane share a common philosophy about quality,
-trustworthiness, software design and the review process.</p>
-</div>
-<div class="paragraph">
-<p>Currently, the universe of functions is separated first by language and then by subject
-area. Morloc, being polyglot, allows the first mode of separation to be lifted,
-so language does not need to separate communities. Instead, communities can
-organize around <strong>values</strong>.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Levels of review &amp; trust:</strong> Code may be wild and experimental; tightly reviewed and trusted in production; or formally verified.</p>
-</li>
-<li>
-<p><strong>Design philosophy:</strong> Groups may prioritize safety, raw performance, or elegance by some metric.</p>
-</li>
-<li>
-<p><strong>Use case:</strong> Planes may focus on production, pedagogy, competition or experimentation.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Making these differences explicit (and easy to navigate) lets the community set and find their own standards.</p>
-</div>
-<div class="paragraph">
-<p><strong>Real-World Analogs</strong></p>
-</div>
-<div class="paragraph">
-<p>Within the R community, you could define three planes:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>CRAN:</strong> Has stringent requirements for acceptance and manual application process focused on adherence to well-defined (mostly automated) requirements</p>
-</li>
-<li>
-<p><strong>rOpenSci:</strong> Focuses on a formal peer review process that considers motivation, documentation, and good software design</p>
-</li>
-<li>
-<p><strong>GitHub:</strong> Wild west. Anything goes.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>You could probably find more "planes" in R, but these three capture the idea of
-what a plane is. It is a design philosophy and set of protocols that define
-admission.</p>
-</div>
-<div class="paragraph">
-<p><strong>Possible examples of Morloc planes</strong></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>default</strong>: Official libraries used in sandboxes and demos (not necessarily efficient).</p>
-</li>
-<li>
-<p><strong>unstable</strong>: For newly submitted or unvetted modules, e.g., loaded straight from GitHub.</p>
-</li>
-<li>
-<p><strong>safe</strong>: Modules that passed manual review, rigorous automated tests, and have strong test suites.</p>
-</li>
-<li>
-<p><strong>true</strong>: Formally verified modules, strict on what languages are allowed (e.g., dependently typed languages).</p>
-</li>
-<li>
-<p><strong>prod</strong>: Production ready modules, combining safety and performance.</p>
-</li>
-<li>
-<p><strong>comp</strong>: Modules suited for competitive programming; all performance, no safety checks or focus on software design principles.</p>
-</li>
-<li>
-<p><strong>red</strong>: Adversarial modules&#8212;&#8203;written to give the Morloc bot problems. Probably don&#8217;t want to import these.</p>
-</li>
-<li>
-<p><strong>weird</strong>: Esoteric code. For silly implementations that abuse languages in fun ways.</p>
-</li>
-<li>
-<p><strong>demo</strong>: Prototypes, examples, and proof-of-concept modules. More pedogogical than practical.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Planes aren’t rigid categories, but cultures: each has its own ground rules,
-review process, and ideas about what makes code "good". Anyone can propose a new
-plane, but we don’t want too many; a bit of consensus is required before adding
-one.</p>
-</div>
-<div class="paragraph">
-<p><strong>How Does a Module Join a Plane?</strong></p>
-</div>
-<div class="paragraph">
-<p>Again, the architecture is in development. But here is the basic process:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong>Register:</strong> Authors register their module (e.g., import code from GitHub and authenticate).</p>
-</li>
-<li>
-<p><strong>AI Vetting:</strong> Our AI (Weena) checks code for basic standards.</p>
-</li>
-<li>
-<p><strong>Acceptance:</strong> After being accepted, the module defaults to the <code>unstable</code> plane.</p>
-</li>
-<li>
-<p><strong>Level Up:</strong> Module authors can then apply to join other planes. Getting accepted depends on the plane’s review process (could be peer review, automated testing, thumbs up from community members, or nothing at all).</p>
-</li>
-<li>
-<p><strong>Multiple Planes:</strong> Modules can exist in multiple planes at once&#8212;&#8203;different communities may trust the same code for different reasons.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>This process will eventually be mediated on the website morloc.io (under construction).</p>
-</div>
-<div class="paragraph">
-<p>Overall, planes help you find code that matches your needs and values&#8212;&#8203;whether
-you want ultimate safety, bleeding-edge performance, or just something weird
-that might surprise you. They also provide community and allow relations between
-different codebases to be specified.</p>
-</div>
-</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_morloc_versions_and_dependencies"><a class="anchor" href="#_morloc_versions_and_dependencies"></a>9. Morloc versions and dependencies</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_installing_and_managing_morloc_versions"><a class="anchor" href="#_installing_and_managing_morloc_versions"></a>9.1. Installing and managing morloc versions</h3>
+<h3 id="_version_management"><a class="anchor" href="#_version_management"></a>9.1. Version management</h3>
 <div class="paragraph">
-<p>The easiest way to run Morloc is through containers in a UNIX environment. Linux
-will work natively. MacOS and Windows are more complicated and I&#8217;ll deal with
-their special later on. For Windows, you will need to install through the
-<a href="https://learn.microsoft.com/en-us/windows/wsl/about">Windows Subsystem for Linux</a>.</p>
-</div>
-<div class="paragraph">
-<p>The only dependency is a container engine, currently two&#8201;&#8212;&#8201;<a href="https://docs.docker.com/engine/install/">docker</a> and
-<a href="https://podman.io/docs/installation">podman</a>&#8201;&#8212;&#8201;are supported.</p>
-</div>
-<details>
-<summary class="title">Podman instructions</summary>
-<div class="content">
-<div class="paragraph">
-<p>Unlike Docker, <code>podman</code> runs rootless by default, so no sudo is required. On
-Linux, it also runs natively with no daemons.</p>
-</div>
-<div class="paragraph">
-<p>On MacOS and Windows (even through WSL), a virtual machine is required. So you
-will need to initialize <code>podman</code> as so:</p>
+<p>You can install multiple Morloc versions side-by-side and switch between them:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>init
-<span class="tok-gp">$ </span>podman<span class="tok-w"> </span>start</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>install<span class="tok-w"> </span><span class="tok-m">0</span>.59.0<span class="tok-w">    </span><span class="tok-c1"># install a new version</span>
+<span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>install<span class="tok-w"> </span><span class="tok-m">0</span>.58.3<span class="tok-w">   </span><span class="tok-c1"># install a specific version</span>
+<span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span><span class="tok-k">select</span><span class="tok-w"> </span><span class="tok-m">0</span>.59.0<span class="tok-w">     </span><span class="tok-c1"># switch to it</span>
+<span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span><span class="tok-k">select</span><span class="tok-w"> </span><span class="tok-m">0</span>.58.3<span class="tok-w">     </span><span class="tok-c1"># switch back</span>
+<span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>info<span class="tok-w">              </span><span class="tok-c1"># view installed versions</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>You can confirm that podman is running by entering</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>podman<span class="tok-w"> </span>--version
-<span class="tok-go">podman version 5.4.1   # version on my current setup</span></code></pre>
+<p>The manager auto-detects whichever container engine is available; you can
+override the choice with <code>--container-engine</code> or the
+<code>MORLOC_CONTAINER_ENGINE</code> environment variable.</p>
 </div>
 </div>
-<hr>
-</div>
-</details>
-<details>
-<summary class="title">Docker instructions</summary>
-<div class="content">
+<div class="sect2">
+<h3 id="_compiler_development"><a class="anchor" href="#_compiler_development"></a>9.2. Compiler development</h3>
 <div class="paragraph">
-<p>Docker requires either sudo access or
-<a href="https://docs.docker.com/engine/security/rootless/">rootless mode</a> configuration.</p>
-</div>
-<div class="paragraph">
-<p>Verify Docker is running:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>docker<span class="tok-w"> </span>--version
-<span class="tok-gp">$ </span>docker<span class="tok-w"> </span>run<span class="tok-w"> </span>hello-world</code></pre>
-</div>
-</div>
-<hr>
-</div>
-</details>
-<div class="paragraph">
-<p>After confirming either Podman or Docker is running on your system, pull an
-installation script from
-<a href="https://github.com/morloc-project/morloc-manager">morloc-project/morloc-manager</a>:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>curl<span class="tok-w"> </span>-o<span class="tok-w"> </span>morloc-manager<span class="tok-w"> </span>https://raw.githubusercontent.com/morloc-project/morloc-manager/refs/heads/main/morloc-manager.sh</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>morloc-manager</code> is a (mostly) POSIX compatible shell script that is tested on Linux and
-MacOS. On Windows, you should may run this in the Windows Subsystem for Linux
-(WSL). You may execute <code>morloc-manager</code> directly, for example <code>bash morloc-manager</code>. But it is more
-convenient to make the script executable and move it to a folder in your
-execution path.</p>
-</div>
-<div class="paragraph">
-<p>The script provides usage information on request:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>-h
-<span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>install<span class="tok-w"> </span>-h
-<span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>uninstall<span class="tok-w"> </span>-h</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The <code>install</code> subcommand will build the Morloc home directory, install required
-containers, and generate four executable scripts.</p>
-</div>
-<div class="paragraph">
-<p><strong>The first script is <code>menv</code></strong>. It runs arbitrary commands in a Morloc container. It
-can be used to compile and run Morloc programs. For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>menv<span class="tok-w"> </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>foo<span class="tok-w"> </span>foo.loc
-<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>./foo<span class="tok-w"> </span>double<span class="tok-w"> </span><span class="tok-m">21</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The <code>menv</code> script mounts the working directory and the <code>~/.local/share/morloc/&lt;version&gt;</code>
-directory. It builds the program using the containers version of the Morloc
-compiler and Morloc libraries that are defined in the version-specific home
-directory. It cannot see any dependencies on your local system.</p>
-</div>
-<div class="paragraph">
-<p><strong>The second script is <code>morloc-shell</code></strong>. This script is the same as the above script
-except that you enter the container in an interactive shell rather than just
-running one command. The container has installations for Python, R, and C++
-compiler. It also contains vim and other conveniences</p>
-</div>
-<div class="paragraph">
-<p><strong>The third script is <code>menv-dev</code></strong>. This runs commands in a dev container where all
-Haskell tools required for building Morloc from source are installed. To build
-Morloc from source, do the following:</p>
+<p>The dev container includes Haskell tools for building Morloc from source. To
+build Morloc from source, do the following:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>git<span class="tok-w"> </span>clone<span class="tok-w"> </span>git@github.com:morloc-project/morloc
 <span class="tok-gp">$ </span><span class="tok-nb">cd</span><span class="tok-w"> </span>morloc
-<span class="tok-gp">$ </span>menv-dev<span class="tok-w"> </span>stack<span class="tok-w"> </span>install<span class="tok-w"> </span>--fast
-<span class="tok-gp">$ </span>menv-dev<span class="tok-w"> </span>stack<span class="tok-w"> </span><span class="tok-nb">test</span><span class="tok-w"> </span>--fast</code></pre>
+<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>--dev<span class="tok-w"> </span>stack<span class="tok-w"> </span>install<span class="tok-w"> </span>--fast
+<span class="tok-gp">$ </span>menv<span class="tok-w"> </span>--dev<span class="tok-w"> </span>stack<span class="tok-w"> </span><span class="tok-nb">test</span><span class="tok-w"> </span>--fast</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>This will build the version that was cloned from GitHub. Now you can use
-<code>menv-dev</code> as you would <code>menv</code>.</p>
-</div>
-<div class="paragraph">
-<p><strong>The fourth script is <code>morloc-shell-dev</code></strong>. This script lets you enter the dev
-shell.</p>
-</div>
-<div class="paragraph">
-<p>The Morloc compiler always considers <code>~/.local/share/morloc</code> to be the
-Morloc home directory. The containers mount separate folders from the local
-<code>~/.local/share/morloc/versions</code> folder to this expected home directory in the
-container. This means the different versions of Morloc installed, as well as the
-special <code>local</code> version used by the dev container, do not have overlapping
-libraries and modules.</p>
-</div>
-<div class="paragraph">
-<p>Throughout the rest of this manual, whenever I show an example that uses
-Morloc, you can assume that I am running it from within a container after
-calling <code>morloc-shell</code> or <code>morloc-shell-dev</code>.</p>
+<code>menv --dev</code> as you would <code>menv</code>. You can also enter an interactive dev shell
+with <code>menv --dev --shell</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_handling_dependencies"><a class="anchor" href="#_handling_dependencies"></a>9.2. Handling dependencies</h3>
+<h3 id="_handling_dependencies"><a class="anchor" href="#_handling_dependencies"></a>9.3. Handling dependencies</h3>
 <div class="paragraph">
 <p><code>morloc-manager</code> will install the Morloc compiler and default
 language run-times. This is sufficient to play with Morloc and run most of the
 demos. However, if you write any code that has additional dependencies, you will
-need to augment the environment. As of v0.5.0, <code>morloc-manager</code> provides
-support for specifying containers that build on the default containers.</p>
+need to augment the environment. <code>morloc-manager</code> provides support for creating
+custom environments that layer on top of the base Morloc image.</p>
 </div>
 <div class="paragraph">
 <p>Let&#8217;s say we want to create a new environment for scientific computing with Python:</p>
@@ -5179,12 +5143,39 @@ support for specifying containers that build on the default containers.</p>
 <div class="paragraph">
 <p>This will create a stub Dockerfile at
 <code>~/.local/share/morloc/deps/scipy.Dockerfile</code>. It can be modified to specify
-whatever additional dependencies are needed. Then the environment can be built
-and selected as follows:</p>
+whatever additional dependencies are needed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="dockerfile"><span></span><span class="tok-c"># Automatically generated section, DO NOT MODIFY</span>
+<span class="tok-k">ARG</span><span class="tok-w"> </span>CONTAINER_BASE
+<span class="tok-k">FROM</span><span class="tok-w"> </span><span class="tok-s">${CONTAINER_BASE}</span>
+<span class="tok-k">LABEL</span><span class="tok-w"> </span>morloc.environment<span class="tok-o">=</span><span class="tok-s2">&quot;scipy&quot;</span>
+<span class="tok-k">ENV</span><span class="tok-w"> </span><span class="tok-nv">MORLOC_ENV_NAME</span><span class="tok-o">=</span><span class="tok-s2">&quot;scipy&quot;</span>
+<span class="tok-c"># End of automatically generated section</span>
+
+<span class="tok-c"># Add custom setup below this line</span>
+<span class="tok-k">RUN</span><span class="tok-w"> </span>pip<span class="tok-w"> </span>install<span class="tok-w"> </span>scikit-learn<span class="tok-w"> </span>matplotlib<span class="tok-w"> </span>pandas</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then the environment can be built and activated:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>env<span class="tok-w"> </span>scipy</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This builds the custom image (if needed) and updates the configuration so that
+<code>menv</code> uses it. All subsequent <code>menv</code> calls run inside the custom environment&#8201;&#8212;&#8201;no flag changes required.</p>
+</div>
+<div class="paragraph">
+<p>To reset to the base environment:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>env<span class="tok-w"> </span>--reset</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5194,9 +5185,6 @@ and selected as follows:</p>
 <div class="content">
 <pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-manager<span class="tok-w"> </span>env<span class="tok-w"> </span>--list</code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>This feature is new and still experimental. Any feedback would be appreciated.</p>
 </div>
 </div>
 </div>
@@ -5238,7 +5226,7 @@ nexus.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Here are a runtime rules you should be able to count on. Any violations should
+<p>Here are the runtime rules you should be able to count on. Any violations should
 be considered bugs.</p>
 </div>
 <div class="olist arabic">
@@ -5273,6 +5261,18 @@ shared directly.</p>
 </div>
 <div class="sect2">
 <h3 id="_protocols"><a class="anchor" href="#_protocols"></a>10.2. Protocols</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
+</td>
+<td class="content">
+This section is primarily of interest to users extending the Morloc ecosystem (e.g., adding a new language backend) or debugging at the binary level.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>This section describes the binary formats used for communication between the
 nexus and pools: the manifest, the packet protocol, the shared memory layout,
@@ -5994,24 +5994,11 @@ packets.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Records and tables are represented as tuples. The names for each field are stored only in
-the type schemas. Morloc also supports tables, which are just records where
-the field types correspond to the column types and where fields are all
-equal-length lists. Records and tables may be defined as shown below:</p>
-</div>
-<div class="paragraph">
-<p>A <code>record</code> is a named, heterogenous list such as a <code>struct</code> in C, a <code>dict</code> in
-Python, or a <code>list</code> in R. The type of the record exactly describes the data
-stored in the record (in contrast to parameterized types like <code>[a]</code> or <code>Map a
-b</code>). They are represented in Morloc binary as tuples, the keys are only stored
-in the schemas.</p>
-</div>
-<div class="paragraph">
-<p>A <code>table</code> is like a record where field types represent the column types. But
-<code>table</code> is not just syntactic sugar for a record of lists, the <code>table</code>
-annotation is passed with the record through the compiler all the way to the
-translator, where the language-specific serialization functions may have special
-handling for tables.</p>
+<p>Records and tables (described in detail earlier) are represented as tuples in
+voidstar format&#8201;&#8212;&#8201;field names are stored only in the type schemas. The <code>table</code>
+annotation is not just syntactic sugar for a record of lists; it is preserved
+through the compiler to the translator, where language-specific serialization
+functions may have special handling for tables.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -6034,21 +6021,157 @@ Morloc type schema.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_qa"><a class="anchor" href="#_qa"></a>11. Q&amp;A</h2>
+<h2 id="_future_directions"><a class="anchor" href="#_future_directions"></a>11. Future Directions</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_im_not_a_human_do_i_still_need_morloc"><a class="anchor" href="#_im_not_a_human_do_i_still_need_morloc"></a>11.1. I&#8217;m not a human, do I still need Morloc?</h3>
+<h3 id="_planes_of_libraries"><a class="anchor" href="#_planes_of_libraries"></a>11.1. Planes of libraries</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/important.png" alt="Important">
+</td>
+<td class="content">
+The infrastructure for "planes" is not yet constructed, so the following is speculative
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
-<p>Yes, you are still a programmer and writing endless glue code to stitch things
-together takes time and is brittle. Abstraction is universal. With Morloc you
-can build with confidence using simple components with highly efficient
-interfaces. You can access a library of functions and freely compose them to
-build infinite new tools. Morloc is a way to define, access, and explore
-customizable and efficient toolsets.</p>
+<p>The concept of "planes" is central to the future organization of Morloc and is
+one of the primary reasons that I created it. A <strong>plane</strong> is like a namespace for
+a community&#8217;s modules&#8212;&#8203;but instead of organizing by category or programming
+language, modules in a plane share a common philosophy about quality,
+trustworthiness, software design and the review process.</p>
+</div>
+<div class="paragraph">
+<p>Currently, the universe of functions is separated first by language and then by subject
+area. Morloc, being polyglot, allows the first mode of separation to be lifted,
+so language does not need to separate communities. Instead, communities can
+organize around <strong>values</strong>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Levels of review &amp; trust:</strong> Code may be wild and experimental; tightly reviewed and trusted in production; or formally verified.</p>
+</li>
+<li>
+<p><strong>Design philosophy:</strong> Groups may prioritize safety, raw performance, or elegance by some metric.</p>
+</li>
+<li>
+<p><strong>Use case:</strong> Planes may focus on production, pedagogy, competition or experimentation.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Making these differences explicit (and easy to navigate) lets the community set and find their own standards.</p>
+</div>
+<div class="paragraph">
+<p><strong>Real-World Analogs</strong></p>
+</div>
+<div class="paragraph">
+<p>Within the R community, you could define three planes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>CRAN:</strong> Has stringent requirements for acceptance and manual application process focused on adherence to well-defined (mostly automated) requirements</p>
+</li>
+<li>
+<p><strong>rOpenSci:</strong> Focuses on a formal peer review process that considers motivation, documentation, and good software design</p>
+</li>
+<li>
+<p><strong>GitHub:</strong> Wild west. Anything goes.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You could probably find more "planes" in R, but these three capture the idea of
+what a plane is. It is a design philosophy and set of protocols that define
+admission.</p>
+</div>
+<div class="paragraph">
+<p><strong>Possible examples of Morloc planes</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>default</strong>: Official libraries used in sandboxes and demos (not necessarily efficient).</p>
+</li>
+<li>
+<p><strong>unstable</strong>: For newly submitted or unvetted modules, e.g., loaded straight from GitHub.</p>
+</li>
+<li>
+<p><strong>safe</strong>: Modules that passed manual review, rigorous automated tests, and have strong test suites.</p>
+</li>
+<li>
+<p><strong>true</strong>: Formally verified modules, strict on what languages are allowed (e.g., dependently typed languages).</p>
+</li>
+<li>
+<p><strong>prod</strong>: Production ready modules, combining safety and performance.</p>
+</li>
+<li>
+<p><strong>comp</strong>: Modules suited for competitive programming; all performance, no safety checks or focus on software design principles.</p>
+</li>
+<li>
+<p><strong>red</strong>: Adversarial modules&#8212;&#8203;written to give the Morloc bot problems. Probably don&#8217;t want to import these.</p>
+</li>
+<li>
+<p><strong>weird</strong>: Esoteric code. For silly implementations that abuse languages in fun ways.</p>
+</li>
+<li>
+<p><strong>demo</strong>: Prototypes, examples, and proof-of-concept modules. More pedagogical than practical.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Planes aren&#8217;t rigid categories, but cultures: each has its own ground rules,
+review process, and ideas about what makes code "good". Anyone can propose a new
+plane, but we don&#8217;t want too many; a bit of consensus is required before adding
+one.</p>
+</div>
+<div class="paragraph">
+<p><strong>How Does a Module Join a Plane?</strong></p>
+</div>
+<div class="paragraph">
+<p>Again, the architecture is in development. But here is the basic process:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Register:</strong> Authors register their module (e.g., import code from GitHub and authenticate).</p>
+</li>
+<li>
+<p><strong>AI Vetting:</strong> Our AI (Weena) checks code for basic standards.</p>
+</li>
+<li>
+<p><strong>Acceptance:</strong> After being accepted, the module defaults to the <code>unstable</code> plane.</p>
+</li>
+<li>
+<p><strong>Level Up:</strong> Module authors can then apply to join other planes. Getting accepted depends on the plane&#8217;s review process (could be peer review, automated testing, thumbs up from community members, or nothing at all).</p>
+</li>
+<li>
+<p><strong>Multiple Planes:</strong> Modules can exist in multiple planes at once&#8212;&#8203;different communities may trust the same code for different reasons.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This process will eventually be mediated on the website morloc.io (under construction).</p>
+</div>
+<div class="paragraph">
+<p>Overall, planes help you find code that matches your needs and values&#8212;&#8203;whether
+you want ultimate safety, bleeding-edge performance, or just something weird
+that might surprise you. They also provide community and allow relations between
+different codebases to be specified.</p>
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_qa"><a class="anchor" href="#_qa"></a>12. Q&amp;A</h2>
+<div class="sectionbody">
 <div class="sect2">
-<h3 id="_i_only_use_one_language_is_morloc_still_useful"><a class="anchor" href="#_i_only_use_one_language_is_morloc_still_useful"></a>11.2. I only use one language, is Morloc still useful?</h3>
+<h3 id="_i_only_use_one_language_is_morloc_still_useful"><a class="anchor" href="#_i_only_use_one_language_is_morloc_still_useful"></a>12.1. I only use one language, is Morloc still useful?</h3>
 <div class="paragraph">
 <p>Yes, Morloc remains useful even if you only use one programming language.</p>
 </div>
@@ -6073,7 +6196,7 @@ by other language communities.</p>
 language-agnostic testing and benchmarking frameworks.</p>
 </li>
 <li>
-<p><strong>Future-proofing</strong>: If you ever need to migrate to a new language, Morloc’s
+<p><strong>Future-proofing</strong>: If you ever need to migrate to a new language, Morloc&#8217;s
 type annotations and documentation carry over—only the implementation needs
 to change. And if you want to leave the Morloc ecosystem, your implementation
 does not need to change.</p>
@@ -6091,7 +6214,7 @@ and offer efficient serialization.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>While language interop is a major feature of Morloc, it is not main purpose. The
+<p>While language interop is a major feature of Morloc, it is not the main purpose. The
 very first version of Morloc was not even polyglot at all. The focus originally
 was to just have a simple composition language that separated pure code from
 associated effects, conditions, caching, etc.</p>
@@ -6105,7 +6228,7 @@ extend functionality more easily.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_is_this_just_a_bioinformatics_workflow_language"><a class="anchor" href="#_is_this_just_a_bioinformatics_workflow_language"></a>11.3. Is this just a bioinformatics workflow language?</h3>
+<h3 id="_is_this_just_a_bioinformatics_workflow_language"><a class="anchor" href="#_is_this_just_a_bioinformatics_workflow_language"></a>12.2. Is this just a bioinformatics workflow language?</h3>
 <div class="paragraph">
 <p>No. The Morloc <a href="https://peerj.com/articles/cs-3435/">paper</a>, is focused on
 bioinformatics applications. As discussed at length in the paper, Morloc
@@ -6116,38 +6239,7 @@ applied to any functional problem.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_formats"></a>11.4. Do you really want to deprecate all the bioinformatics formats?</h3>
-<div class="paragraph">
-<p>Yes, with the possible exception of a specialized binary formats which may offer
-performance benefits.</p>
-</div>
-<div class="paragraph">
-<p>For human-readable semi-structured formats, I think only two are necessary. A
-tabular format (e.g., CSV) and a tree format (e.g., JSON).</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"><a class="anchor" href="#_do_you_really_want_to_deprecate_all_the_bioinformatics_applications"></a>11.5. Do you really want to deprecate all the bioinformatics applications?</h3>
-<div class="paragraph">
-<p>Yes, with the exception of interactive graphical applications.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_do_you_want_to_deprecate_the_conventional_workflow_languages"><a class="anchor" href="#_do_you_want_to_deprecate_the_conventional_workflow_languages"></a>11.6. Do you want to deprecate the conventional workflow languages?</h3>
-<div class="paragraph">
-<p>Yes. They do offer good scaling support that Morloc cannot yet match yet (but
-that is only a few prompts away). Some workflow languages also support GUIs
-which offer an intuitive and valuable way to visualize and create workflows from
-coarse components.</p>
-</div>
-<div class="paragraph">
-<p>Hybrid solutions are possible. Conventional workflow languages can wrap Morloc
-compiled applications and pass Morloc generated data in place of bespoke
-bioinformatics formats.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_does_morloc_allow_function_specific_containerized_environments"><a class="anchor" href="#_does_morloc_allow_function_specific_containerized_environments"></a>11.7. Does Morloc allow function-specific containerized environments?</h3>
+<h3 id="_does_morloc_allow_function_specific_containerized_environments"><a class="anchor" href="#_does_morloc_allow_function_specific_containerized_environments"></a>12.3. Does Morloc allow function-specific containerized environments?</h3>
 <div class="paragraph">
 <p>No, unlike workflow managers such as Snakemake and Nextflow, Morloc does not
 offer function-specific environments. This is a deliberate design choice.</p>
@@ -6193,7 +6285,7 @@ examples (see the Dockerfile in the workflow-comparisons folder of
 </div>
 </div>
 <div class="sect2">
-<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>11.8. What about object-oriented programming?</h3>
+<h3 id="_what_about_object_oriented_programming"><a class="anchor" href="#_what_about_object_oriented_programming"></a>12.4. What about object-oriented programming?</h3>
 <div class="paragraph">
 <p>An "object" is a somewhat loaded term in the programming world. As far as
 Morloc is concerned, an object is a thing that contains data and possibly
@@ -6214,7 +6306,7 @@ languages, they are reduced to their pure data.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_is_morloc_still_relevant_when_ai_can_program_and_translate"><a class="anchor" href="#_is_morloc_still_relevant_when_ai_can_program_and_translate"></a>11.9. Is Morloc still relevant when AI can program and translate?</h3>
+<h3 id="_is_morloc_still_relevant_when_ai_can_program_and_translate"><a class="anchor" href="#_is_morloc_still_relevant_when_ai_can_program_and_translate"></a>12.5. Is Morloc still relevant when AI can program and translate?</h3>
 <div class="paragraph">
 <p><em>Maybe</em>. Morloc may serve as a system for functional composition, verification,
 and automation even when most functions are generated by machines.</p>
@@ -6325,7 +6417,18 @@ are composable and machine verifiable but entirely incomprehensible to humans.</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>11.10. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
+<h3 id="_im_not_a_human_do_i_still_need_morloc"><a class="anchor" href="#_im_not_a_human_do_i_still_need_morloc"></a>12.6. I&#8217;m not a human, do I still need Morloc?</h3>
+<div class="paragraph">
+<p>Yes, you are still a programmer and writing endless glue code to stitch things
+together takes time and is brittle. Abstraction is universal. With Morloc you
+can build with confidence using simple components with highly efficient
+interfaces. You can access a library of functions and freely compose them to
+build infinite new tools. Morloc is a way to define, access, and explore
+customizable and efficient toolsets.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_why_is_it_named_after_morlocks_werent_they_like_bad"><a class="anchor" href="#_why_is_it_named_after_morlocks_werent_they_like_bad"></a>12.7. Why is it named after Morlocks, weren&#8217;t they, like, bad?</h3>
 <div class="paragraph">
 <p>While the Morlocks of Wellian fame are best known for their culinary
 preferences, I think Wells misrepresented them. And even if he didn&#8217;t, we don&#8217;t
@@ -6335,7 +6438,7 @@ adapts their name.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>11.11. Wait! I have more questions!</h3>
+<h3 id="_wait_i_have_more_questions"><a class="anchor" href="#_wait_i_have_more_questions"></a>12.8. Wait! I have more questions!</h3>
 <div class="paragraph">
 <p>Great! Look me up on Discord (link below) and we can chat.</p>
 </div>
@@ -6343,7 +6446,7 @@ adapts their name.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_contact"><a class="anchor" href="#_contact"></a>12. Contact</h2>
+<h2 id="_contact"><a class="anchor" href="#_contact"></a>13. Contact</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This is a young project and any brave early users are highly valued. Feel free
