@@ -149,7 +149,7 @@ Morloc is under heavy development in several areas:
  * *language support* – Need to streamline language onboarding and add languages
    beyond the current three (Python, R, and {cpp})
 
- * *type system* – There’s lots to do here: sum types, effect handling, constraints, extensible records
+ * *type system* – There’s lots to do here: sum types, constraints, extensible records
 
  * *performance* – The shared library implementation lacks proper memory
    defragmentation, and there is some unnecessary memory copying between
@@ -224,6 +224,8 @@ include::{includedir}/installation.asc[]
 == Build Architecture
 
 include::{includedir}/internals-overview.asc[]
+
+include::{includedir}/internals-foreign-calls.asc[]
 
 // AI slop - megacrap
 // include::{includedir}/internals-data-flow.asc[]
