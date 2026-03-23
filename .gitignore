@@ -4,6 +4,7 @@
 /tmp/
 *.bundle
 Gemfile.lock
-.aider*
 CLAUDE.md
-.claude
+findings/
+test-spec.md
+.claude/settings.local.json
