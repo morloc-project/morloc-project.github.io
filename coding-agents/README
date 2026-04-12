@@ -1,0 +1,169 @@
+# Agentic morloc code exploration
+
+This purpose of this repo is to organize an agentic exploration of morloc
+program space.
+
+The ../src/content folder contains the morloc documentation. Any deviation
+between the docs and the morloc operation should be considered a bug worth
+reporting, as should any features of morloc that are not reported in docs.
+
+All agents will work in their vagrant VMs using the latest morloc version that
+can be downloaded with `morloc-manager install`.
+
+
+  Coding-Agents Pipeline
+
+            ┌────────────────────────────────────────┐
+            │            SHARED INPUTS               │
+            │  test/docs-bundle.md (generated)       │
+            │  test/personas/*.md                    │
+            │  test/builder-context.md               │
+            │  examples/demos/*/main.loc             │
+            │  manifest.json                         │
+            │  .persona-counter                      │
+            │  --focus TEXT (optional)               │
+            └───────────────┬────────────────────────┘
+                            │
+            ┌───────────────▼────────────────────────┐
+            │     VM SETUP + docs-bundle generation  │
+            └───────────────┬────────────────────────┘
+                            │
+    ╔════════════════════════════════════════════════════════╗
+    ║            PROJECT LOOP (1..COUNT)                     ║
+    ╠════════════════════════════════════════════════════════╣
+    ║                                                        ║
+    ║  ┌──────────────────────────────────────────────┐      ║
+    ║  │           pick_persona()                     │      ║
+    ║  │  READS: .persona-counter                     │      ║
+    ║  │         test/personas/*.md                   │      ║
+    ║  │  WRITES: .persona-counter (increment)        │      ║
+    ║  └──────────────────┬───────────────────────────┘      ║
+    ║                     │                                  ║
+    ║                     ▼                                  ║
+    ║  ┌───────────────────────────────────────────────┐     ║
+    ║  │        project-builder agent                  │     ║
+    ║  │                                               │     ║
+    ║  │  READS (via prompt):                          │     ║
+    ║  │    persona definition                         │     ║
+    ║  │    manifest.json (avoid repeats)              │     ║
+    ║  │    docs-bundle.md (morloc reference)          │     ║
+    ║  │    findings/known-issues.md ◄──────────────────  accumulated state
+    ║  │    builder-context.md                         │     ║
+    ║  │  READS (via tools):                           │     ║
+    ║  │    examples/demos/*/main.loc                  │     ║
+    ║  │                                               │     ║
+    ║  │  WRITES:                                      │     ║
+    ║  │    projects/<date>-<name>/main.loc            │     ║
+    ║  │    projects/<date>-<name>/*.py, *.hpp         │     ║
+    ║  │    projects/<date>-<name>/tutorial.md         │     ║
+    ║  │    projects/<date>-<name>/report.md           │     ║
+    ║  │    projects/<date>-<name>/build-attempt-*.log │     ║
+    ║  │    findings/<date>-<name>/finding-NNN.md      │     ║
+    ║  │                                               │     ║
+    ║  │  EXECUTES ON VM:                              │     ║
+    ║  │    morloc make -o exe main.loc                │     ║
+    ║  │    ./exe -h, ./exe <subcommands>              │     ║
+    ║  └──────────────────┬────────────────────────────┘     ║
+    ║                     │                                  ║
+    ║                     ▼                                  ║
+    ║  ┌───────────────────────────────────────────────┐     ║
+    ║  │           update_manifest()                   │     ║
+    ║  │  READS: projects/<id>/report.md               │     ║
+    ║  │         projects/<id>/run.log, build.log      │     ║
+    ║  │  WRITES: manifest.json (append entry)         │     ║
+    ║  └──────────────────┬────────────────────────────┘     ║
+    ║                     │                                  ║
+    ║                     ▼                                  ║
+    ║  ┌───────────────────────────────────────────────┐     ║
+    ║  │       mini-summarizer (inline)                │     ║
+    ║  │                                               │     ║
+    ║  │  READS:                                       │     ║
+    ║  │    projects/<id>/report.md                    │     ║
+    ║  │    findings/<id>/finding-*.md                 │     ║
+    ║  │    findings/known-issues.md                   │     ║
+    ║  │                                               │     ║
+    ║  │  WRITES:                                      │     ║
+    ║  │    findings/known-issues.md ──────────────────────────► updated state
+    ║  └───────────────────────────────────────────────┘     ║
+    ║                                                        ║
+    ╚════════════════════════╤═══════════════════════════════╝
+                             │
+                             ▼
+           ┌───────────────────────────────────────┐
+           │         project-analyst agent         │
+           │                                       │
+           │  READS:                               │
+           │    findings/known-issues.md           │
+           │    projects/*/report.md               │
+           │    projects/*/tutorial.md             │
+           │    findings/*/finding-*.md            │
+           │                                       │
+           │  WRITES:                              │
+           │    findings/action-plan.md            │
+           │    findings/analyst-session.log       │
+           └───────────────────────────────────────┘
+
+  Coding-agents state flow across projects
+
+  Project 1 (scientist)       Project 2 (data-scientist)     Project 3 (teacher)
+  ─────────────────────       ──────────────────────────     ───────────────────                                                                     
+                                                                                                                                                     
+  manifest: []                manifest: [proj1]              manifest: [proj1, proj2]                                                                
+  known-issues: (empty)       known-issues: v1               known-issues: v2                                                                        
+         │                           │                              │                                                                                
+         ▼                           ▼                              ▼
+   project-builder             project-builder               project-builder                                                                         
+   "gibbs-sampler"             "text-pipeline"                "unit-converter"
+         │                           │                              │                                                                                
+         ├──► manifest: [proj1]      ├──► manifest: [p1,p2]        ├──► manifest: [p1,p2,p3]                                                         
+         │                           │                              │                                                                                
+         ▼                           ▼                              ▼                                                                                
+   mini-summarizer             mini-summarizer               mini-summarizer                                                                         
+         │                           │                              │                                                                                
+         ▼                           ▼                              ▼
+   ┌────────────┐              ┌────────────┐                ┌────────────┐                                                                          
+   │known-issues│              │known-issues│                │known-issues│                                                                          
+   │ v1         │              │ v2         │                │ v3         │
+   │            │              │            │                │            │                                                                          
+   │ KB-1: C++  │              │ KB-1: C++  │                │ KB-1: C++  │
+   │ records    │              │ records    │                │ records    │                                                                          
+   │ fail—use Py│              │ fail—use Py│                │ fail—use Py│
+   │            │              │ KB-2: pmap │                │ KB-2: pmap │                                                                          
+   │ heatmap:   │              │ pickle err │                │ pickle err │                                                                          
+   │  records:1 │              │            │                │            │                                                                          
+   │  effects:0 │              │ heatmap:   │                │ heatmap:   │                                                                          
+   │  guards:0  │              │  records:2 │                │  records:2 │                                                                          
+   └────────────┘              │  effects:0 │                │  effects:1 │                                                                          
+                               │  guards:0  │                │  guards:1  │                                                                          
+                               │  C++ bknd:1│                │  C++ bknd:1│                                                                          
+                               └────────────┘                │  docstrings│                                                                          
+                                                             │  :1        │                                                                          
+                                                             └────────────┘                                                                          
+                                                                   │                                                                                 
+                                                                   ▼                                                                                 
+                                                             ┌────────────┐
+                                                             │  analyst   │
+                                                             │  fold      │                                                                          
+                                                             └────────────┘
+                                                                                                                                                     
+  ---                                                       
+  Complete file inventory
+                         
+  INPUTS (read-only)                          ACCUMULATED STATE (read-write)
+  ──────────────────                          ──────────────────────────────                                                                         
+  src/index.adoc                              findings/known-issues.md
+  src/content/*.asc                           findings/known-issues-update.log                                                                       
+  test/context.md                                                                                                                                    
+  test/analyst-context.md                     OUTPUTS PER AGENT RUN                                                                                  
+  test/personas/*.md                          ──────────────────────                                                                                 
+  test/builder-context.md                     findings/<agent>-<pass>/report.md                                                                      
+  test/docs-bundle.md                         findings/<agent>-<pass>/bug-NNN.md                                                                     
+  examples/demos/*/main.loc                   findings/<agent>-<pass>/session.log                                                                    
+  manifest.json                               projects/<date>-<name>/main.loc                                                                        
+  .persona-counter                            projects/<date>-<name>/tutorial.md
+                                              projects/<date>-<name>/report.md                                                                       
+                                              projects/<date>-<name>/session.log
+  FINAL OUTPUTS                               findings/<date>-<name>/finding-NNN.md                                                                  
+  ─────────────                                                                                                                                      
+  findings/action-plan.md                                                                                                                            
+  findings/analyst-session.log

@@ -50,6 +50,8 @@ If you cannot determine how to make a code block runnable from the documentation
 - Create a **separate subdirectory** under `~/test/` for each documentation section to avoid filename collisions
 - Do NOT read the morloc compiler source code. You are a documentation user, not a developer.
 - Do NOT try to fix problems. Just report what you find.
+- **Assemble programs strictly from the documentation.** When combining fragments into runnable programs, use ONLY syntax shown in the documentation. Do not invent syntax from Haskell or other languages. If you're unsure how to express something, re-read the relevant documentation section. Morloc is NOT Haskell — for example, record field access is `.field record` (dot prefix), not `field record`.
+- **Before filing a bug report**, verify that your assembled program uses correct morloc syntax by cross-referencing the documentation. If your code uses syntax not shown in the docs, fix your code first — it's not a compiler bug.
 
 ## Bug report format
 

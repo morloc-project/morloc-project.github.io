@@ -1,0 +1,135 @@
+
+Doc-Agents Pipeline (multi-pass)
+
+              ┌─────────────────────────────────────┐
+              │           SHARED INPUTS             │
+              │  src/index.adoc                     │
+              │  src/content/*.asc                  │
+              │  test/context.md                    │
+              │  --focus TEXT (optional)            │
+              └──────────────┬──────────────────────┘
+                             │
+              ┌──────────────▼──────────────────────┐
+              │         VM SETUP (once)             │
+              │  vagrant up fedora                  │
+              │  extract SSH config                 │
+              └──────────────┬──────────────────────┘
+                             │
+        ╔══════════════════════════════════════════════════╗
+        ║              PASS LOOP (1..N)                    ║
+        ╠══════════════════════════════════════════════════╣
+        ║                                                  ║
+        ║   ┌───────────────────────────────────────┐      ║
+        ║   │          code-tester agent            │      ║
+        ║   │                                       │      ║
+        ║   │  READS:                               │      ║
+        ║   │    src/index.adoc (host)              │      ║
+        ║   │    src/content/*.asc (host)           │      ║
+        ║   │    context.md                         │      ║
+        ║   │    findings/known-issues.md ◄──────────── accumulated state
+        ║   │                                       │      ║
+        ║   │  WRITES:                              │      ║
+        ║   │    findings/code-tester-P/report.md   │      ║
+        ║   │    findings/code-tester-P/bug-NNN.md  │      ║
+        ║   │    findings/code-tester-P/session.log │      ║
+        ║   │                                       │      ║
+        ║   │  EXECUTES ON VM:                      │      ║
+        ║   │    ~/test/<section>/*.loc             │      ║
+        ║   └──────────────┬────────────────────────┘      ║
+        ║                  │                               ║
+        ║                  ▼                               ║
+        ║   ┌───────────────────────────────────────┐      ║
+        ║   │       mini-summarizer (inline)        │      ║
+        ║   │                                       │      ║
+        ║   │  READS:                               │      ║
+        ║   │    findings/code-tester-P/*           │      ║
+        ║   │    findings/known-issues.md           │      ║
+        ║   │                                       │      ║
+        ║   │  WRITES:                              │      ║
+        ║   │    findings/known-issues.md ────────────────────► updated state
+        ║   └──────────────┬────────────────────────┘      ║
+        ║                  │                               ║
+        ║                  ▼                               ║
+        ║   ┌────────────────────────┐ ┌────────────────┐  ║
+        ║   │  prose-reviewer agent  │ │ tech-reviewer  │  ║
+        ║   │                        │ │    agent       │  ║
+        ║   │  READS:                │ │  READS:        │  ║
+        ║   │   src/content/*.asc    │ │  src/content/* │  ║
+        ║   │   context.md           │ │  context.md    │  ║
+        ║   │   known-issues.md ◄────┤ │  known-issues  │  ║
+        ║   │                        │ │    .md ◄───────┤  ║
+        ║   │  WRITES:               │ │  WRITES:       │  ║
+        ║   │   prose-reviewer-P/    │ │  tech-review-  │  ║
+        ║   │     report.md          │ │  er-P/report   │  ║
+        ║   │     session.log        │ │  .md           │  ║
+        ║   └──────────┬─────────────┘ └──────┬─────────┘  ║
+        ║              │   PARALLEL           │            ║
+        ║              └────────┬─────────────┘            ║
+        ║                       ▼                          ║
+        ║   ┌─────────────────────────────────────┐        ║
+        ║   │    mini-summarizer × 2 (sequential) │        ║
+        ║   │                                     │        ║
+        ║   │  READS: prose-reviewer-P/*          │        ║
+        ║   │         technical-reviewer-P/*      │        ║
+        ║   │         known-issues.md             │        ║
+        ║   │                                     │        ║
+        ║   │  WRITES: known-issues.md ────────────────► updated state
+        ║   └─────────────────────────────────────┘        ║
+        ║                                                  ║
+        ╚══════════════════════╤═══════════════════════════╝
+                               │
+                               ▼
+                  ┌─────────────────────────────────────┐
+                  │          analyst agent              │
+                  │                                     │
+                  │  READS:                             │
+                  │    findings/known-issues.md         │
+                  │    findings/*/report.md             │
+                  │    findings/*/bug-*.md              │
+                  │                                     │
+                  │  WRITES:                            │
+                  │    findings/action-plan.md          │
+                  │    findings/analyst-session.log     │
+                  └─────────────────────────────────────┘
+
+State accumulation across passes
+
+  Pass 1                        Pass 2                        Pass 3
+  ──────                        ──────                        ──────
+
+  code-tester                   code-tester                   code-tester
+      │                             │                             │
+      ▼                             ▼                             ▼
+  ┌──────────┐  flows to    ┌──────────┐  flows to    ┌──────────┐
+  │ known-   │─────────────►│ known-   │─────────────►│ known-   │
+  │ issues   │              │ issues   │              │ issues   │
+  │ v1       │              │ v2       │              │ v3       │
+  │          │              │          │              │          │
+  │ KB: 0    │              │ KB: 3    │              │ KB: 3    │
+  │ KD: 0    │              │ KD: 5    │              │ KD: 8    │
+  │ heatmap: │              │ heatmap: │              │ heatmap: │
+  │  getting │              │  getting │              │  getting │
+  │  started │              │  started │              │  started │
+  │  :1      │              │  :2      │              │  :3      │
+  │  effects │              │  effects │              │  effects │
+  │  :0      │              │  :1      │              │  :2      │
+  └──────────┘              └──────────┘              └──────────┘
+      │                         │                         │
+      ▼                         ▼                         ▼
+  reviewers ──►summarize    reviewers ──►summarize    reviewers ──►summarize
+      │                         │                         │
+      ▼                         ▼                         ▼
+  ┌──────────┐              ┌──────────┐              ┌──────────┐
+  │ known-   │              │ known-   │              │ known-   │
+  │ issues   │              │ issues   │              │ issues   │
+  │ v1.2     │              │ v2.2     │              │ v3.2     │
+  │          │              │          │              │          │
+  │ KB: 2    │              │ KB: 3    │              │ KB: 4    │
+  │ KD: 4    │              │ KD: 9    │              │ KD: 14   │
+  └──────────┘              └──────────┘              └──────────┘
+                                                          │
+                                                          ▼
+                                                     ┌──────────┐
+                                                     │ analyst  │
+                                                     │ fold     │
+                                                     └──────────┘

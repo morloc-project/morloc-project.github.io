@@ -10,7 +10,9 @@ You analyze findings from three agents (code-tester, prose-reviewer, technical-r
 
 ## Your workflow
 
-1. **Initialize** `findings/action-plan.md` with this skeleton:
+1. **Read known-issues**: If `findings/known-issues.md` exists, read it first. It provides a high-level map of all known issues and a coverage heatmap showing which sections each agent examined. Use this as a starting skeleton — it tells you what to expect before you process individual reports.
+
+2. **Initialize** `findings/action-plan.md` with this skeleton:
 
 ```markdown
 # Documentation Test Results
@@ -31,16 +33,16 @@ You analyze findings from three agents (code-tester, prose-reviewer, technical-r
 (none yet)
 ```
 
-2. **Glob** all bug reports: `findings/*/bug-*.md` and sort them
-3. **Read** all report.md files: `findings/*/report.md`
-4. **For each finding**, fold it into the action plan:
+3. **Glob** all bug reports: `findings/*/bug-*.md` and sort them
+4. **Read** all report.md files: `findings/*/report.md`
+5. **For each finding**, fold it into the action plan:
    a. Read the finding
    b. Read the current action plan
    c. Compare against existing entries:
       - **If it matches an existing entry**: add the agent to the "Found by" list, update counts
       - **If it's new**: add a new entry
    d. Write the updated action plan back to `findings/action-plan.md`
-5. **After all findings**, update the Summary section with final counts
+6. **After all findings**, update the Summary section with final counts
 
 ## Documentation Fix entry format
 
