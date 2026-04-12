@@ -217,7 +217,7 @@ include::{includedir}/features-modules.asc[]
 
 include::{includedir}/ecosystem.asc[]
 
-== Morloc versions and dependencies
+== Installation, Versions, and Deployment
 
 include::{includedir}/installation.asc[]
 
@@ -231,6 +231,8 @@ include::{includedir}/internals-foreign-calls.asc[]
 // include::{includedir}/internals-data-flow.asc[]
 
 include::{includedir}/internals-protocols.asc[]
+
+include::{includedir}/internals-runtime.asc[]
 
 // == Language Interoperability
 //
