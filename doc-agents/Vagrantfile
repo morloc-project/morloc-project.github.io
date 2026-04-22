@@ -13,6 +13,8 @@
 #   vagrant destroy -f           # Clean up
 
 MORLOC_IMAGE = "ghcr.io/morloc-project/morloc/morloc-full:edge"
+# TODO: Update this URL to point to an actual morloc-manager binary release.
+# morloc-manager is a compiled Rust binary, not a shell script.
 MORLOC_MANAGER_URL = "https://raw.githubusercontent.com/morloc-project/morloc-manager/refs/heads/main/morloc-manager.sh"
 
 Vagrant.configure("2") do |config|
@@ -46,8 +48,9 @@ Vagrant.configure("2") do |config|
       curl -o /usr/local/bin/morloc-manager #{MORLOC_MANAGER_URL}
       chmod +x /usr/local/bin/morloc-manager
 
-      # Install morloc as the vagrant user
-      su - vagrant -c "morloc-manager install"
+      # Set up morloc-manager and create a default environment
+      su - vagrant -c "morloc-manager setup --engine docker"
+      su - vagrant -c "morloc-manager new"
 
       # Verify
       su - vagrant -c "morloc-manager run morloc --version" || echo "WARNING: morloc verification failed"
