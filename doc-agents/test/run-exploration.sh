@@ -289,6 +289,7 @@ FOCUS: $FOCUS}$KNOWN_ISSUES_BLOCK"
         log "Running code-tester agent (pass $_pass)"
         if ! claude -p "$CODE_PROMPT" \
             --agent doc-code-tester \
+            --effort max \
             --allowedTools "Bash,Read,Write" \
             --no-session-persistence \
             --output-format text \
