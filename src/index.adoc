@@ -86,14 +86,21 @@ one or more of the supported languages and easily test and benchmark them. These
 libraries are the foundation for an ecosystem where functions may be verified,
 organized/searched by type, and used to build rigorous programs.
 
-=== Make better bioinformatics workflows
+=== Make composable and deployable tools
 
-Within the bioinformatics space, Morloc can serve as a replacement for the
+A Morloc module can be compiled directly into a CLI tool with rich subcommands
+and automatically generated usage statements. These CLI tools can be composed
+with just a few lines to make custom toolboxes. They can also be compiled as
+daemons serving over UNIX sockets, TCP or HTTP.
+
+=== Make better scientific workflows
+
+Within the scientific programming space, Morloc can serve as a replacement for the
 brittle application/file paradigm of workflow design. Replace heavy CLI
 applications with pure function libraries, ad hoc textual file formats with
 explicit data structures, and workflow specifications with function
 compositions. See the first Morloc
-paper for details (https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf[pre-released here]).
+paper for details (https://peerj.com/articles/cs-3435.pdf[here]).
 
 
 // Tired of reimplementing everything in every language? In Morloc, we can define
@@ -140,38 +147,6 @@ paper for details (https://www.zebulun-arendsee.com/images/morloc-paper-001.pdf[
 // polyglot settings and by sharing ecosystems and libraries across languages. This
 // decreases the cost of using specialized or exotic languages, such as BUGS/JAGS
 // for Bayesian models or Futhark for parallel computing.
-
-
-== Current status
-
-Morloc is under heavy development in several areas:
-
- * *language support* – Need to streamline language onboarding and add languages
-   beyond the current three (Python, R, and {cpp})
-
- * *type system* – There’s lots to do here: sum types, constraints, extensible records
-
- * *performance* – The shared library implementation lacks proper memory
-   defragmentation, and there is some unnecessary memory copying between
-   languages
-
- * *scaling* – I’ve implemented some of the infrastructure and syntax for remote
-   job submission, but more work is needed before it can be used in practice
-
- * *tooling* – We need a linter, debugger, better dependency management, more
-   flexible builds
-
-There is one island of stability, though: the native functions Morloc imports
-are fully independent of Morloc itself. For a given Morloc program, most of your
-code will be pure functions in native languages (e.g., Python, {cpp}, or
-R). This code will never have to change between Morloc versions. Where Morloc
-will change is in how it describes these native functions, the syntax it uses to
-compose them, and the particulars of code generation.
-
-*Want to contribute?* The most helpful thing you can do is join the community (see
-the Contact section), try out Morloc, and offer feedback on social media or via
-GitHub issue reports. The community is just starting, and the language is young,
-so you can strongly influence how the system evolves.
 
 
 == Getting Started
