@@ -624,11 +624,11 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_integer_types">4.4. Integer types</a></li>
 <li><a href="#_floating_point_types">4.5. Floating-point types</a></li>
 <li><a href="#_strings">4.6. Strings</a></li>
-<li><a href="#_tuples">4.7. Tuples</a></li>
-<li><a href="#_lists">4.8. Lists</a></li>
+<li><a href="#_tuples_and_lists">4.7. Tuples and Lists</a></li>
+<li><a href="#_records">4.8. Records</a></li>
 <li><a href="#_pattern_functions_for_data_accessupdate">4.9. Pattern functions for data access/update</a></li>
 <li><a href="#_where_and_let_clauses">4.10. <code>where</code> and <code>let</code> clauses</a></li>
-<li><a href="#_guards_2">4.11. Guards</a></li>
+<li><a href="#_conditionals">4.11. Conditionals</a></li>
 <li><a href="#_recursion">4.12. Recursion</a></li>
 <li><a href="#_effects_and_delayed_evaluation">4.13. Effects and delayed evaluation</a></li>
 <li><a href="#_intrinsics">4.14. Intrinsics</a></li>
@@ -637,12 +637,14 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_advanced_types">5. Advanced Types</a>
 <ul class="sectlevel2">
 <li><a href="#_one_term_may_have_many_definitions">5.1. One term may have many definitions</a></li>
-<li><a href="#_overload_terms_with_typeclasses">5.2. Overload terms with typeclasses</a></li>
+<li><a href="#typeclasses">5.2. Overload terms with typeclasses</a></li>
 <li><a href="#_infix_operators">5.3. Infix operators</a></li>
 <li><a href="#_defining_non_primitive_types">5.4. Defining non-primitive types</a></li>
 <li><a href="#_mapping_general_types_to_native_types">5.5. Mapping general types to native types</a></li>
-<li><a href="#_type_hierarchies">5.6. Type hierarchies</a></li>
-<li><a href="#_tensors">5.7. Tensors</a></li>
+<li><a href="#type-hierarchies">5.6. Type hierarchies</a></li>
+<li><a href="#_kind_system">5.7. Kind system</a></li>
+<li><a href="#_tensors">5.8. Tensors</a></li>
+<li><a href="#_tables">5.9. Tables</a></li>
 </ul>
 </li>
 <li><a href="#_human_and_machine_interfaces">6. Human and Machine Interfaces</a>
@@ -3236,7 +3238,19 @@ way for user-written R code to do anything useful with a NUL string.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_tuples"><a class="anchor" href="#_tuples"></a>4.7. Tuples</h3>
+<h3 id="_tuples_and_lists"><a class="anchor" href="#_tuples_and_lists"></a>4.7. Tuples and Lists</h3>
+<div class="paragraph">
+<p>Two of the most common container types are tuples and lists. Tuples have a fixed
+size and may contain elements with different types. Lists have variable size but
+contain elements all of the same type.</p>
+</div>
+<div class="paragraph">
+<p>Tuples and lists both are translated into JSON as arrays. So from the JSON alone
+it is impossible to tell if a value such as <code>[1,2,3]</code> is a list of integers or a
+tuple of three integers.</p>
+</div>
+<div class="sect3">
+<h4 id="_tuples"><a class="anchor" href="#_tuples"></a>4.7.1. Tuples</h4>
 <div class="paragraph">
 <p>Tuples may be used to store a fixed number of terms of different type.</p>
 </div>
@@ -3255,8 +3269,8 @@ bound on tuple arity. Generally, if you have more than a few members in a
 tuple, it is better to define a record type with named values.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_lists"><a class="anchor" href="#_lists"></a>4.8. Lists</h3>
+<div class="sect3">
+<h4 id="_lists"><a class="anchor" href="#_lists"></a>4.7.2. Lists</h4>
 <div class="paragraph">
 <p>Lists are homogeneous, variable-length sequences of values. The base list type
 is <code>List a</code>, which can be written as <code>[a]</code>:</p>
@@ -3272,139 +3286,41 @@ is <code>List a</code>, which can be written as <code>[a]</code>:</p>
 </div>
 <div class="paragraph">
 <p>The default <code>List</code> type maps to each language&#8217;s natural ordered container
-(<code>list</code> in Python, <code>std::vector</code> in C&#43;&#43;, list/vector in R). For
-alternatives such as <code>Deque</code>, <code>Vector</code>, and <code>Array</code>, see the
-<a href="#_type_hierarchies">Type hierarchies</a> chapter.</p>
-</div>
-<div class="sect3">
-<h4 id="_list_operations_are_sourced_functions"><a class="anchor" href="#_list_operations_are_sourced_functions"></a>4.8.1. List operations are sourced functions</h4>
-<div class="paragraph">
-<p>Lists do not yet have dedicated accessor syntax. Operations on lists are
-ordinary functions and typeclass methods drawn from the <code>root</code> standard
-library; importing <code>root-py</code> (or <code>root-cpp</code>/<code>root-r</code>) brings them into scope
-along with their language-specific implementations.</p>
+(<code>list</code> in Python, <code>std::vector</code> in C&#43;&#43;, list/vector in R).</p>
 </div>
 <div class="paragraph">
-<p>The operations group by typeclass:</p>
+<p>While all list types share the same representation on the wire&#8201;&#8212;&#8201;zero or more
+elements in contiguous memory&#8201;&#8212;&#8201;there are several data structures that for
+accessing this data that have different performance tradeoffs. Deques can
+efficiently add elements to the beginning or end of the list. For an
+introduction in how to specialize types, see the <a href="#type-hierarchies">section
+on type hierarchies</a>.</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 16.6666%;">
-<col style="width: 33.3333%;">
-<col style="width: 50.0001%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Typeclass</th>
-<th class="tableblock halign-left valign-top">Methods</th>
-<th class="tableblock halign-left valign-top">Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Functor</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>map</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>map :: (a &#8594; b) &#8594; [a] &#8594; [b]</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Foldable</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fold</code>, <code>fold1</code>, <code>safeFold1</code>, <code>length</code>, <code>sum</code>, <code>any</code>, <code>all</code>, <code>elem</code>, <code>concat</code>, <code>concatMap</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>length</code> requires <code>Foldable</code>; works on <code>[a]</code> but <strong>not</strong> on <code>Str</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Indexed</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>at</code>, <code>slice</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>at 0 [1,2,3] == 1</code>; <code>slice i j xs</code> returns <code>xs[i..j-1]</code> (half-open)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Stack</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cons</code>, <code>uncons</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Prepend / split-from-front</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Queue</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>snoc</code>, <code>unsnoc</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Append / split-from-back</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Semigroup</code>, <code>Monoid</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;&gt;</code>, <code>mempty</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[1,2] &lt;&gt; [3,4] == [1,2,3,4]</code>; <code>mempty :: [a]</code> is <code>[]</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Free-standing list functions</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>reverse</code>, <code>sort</code>, <code>sortBy</code>, <code>groupSort</code>, <code>filter</code>, <code>takeWhile</code>, <code>dropWhile</code>, <code>partition</code>, <code>scanl</code>, <code>iterate</code>, <code>replicate</code>, <code>intersperse</code>, <code>intercalate</code>, <code>enumerate</code>, <code>groupBy</code>, <code>find</code>, <code>unique</code>, <code>zip</code>, <code>zipWith</code>, <code>unzip</code>, <code>range</code>, <code>rangeStep</code>, <code>toDeque</code>, <code>toArray</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Defined in <code>root</code> for <code>List</code>; see <code>root/main.loc</code></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_ranges_and_slices_share_half_open_bounds"><a class="anchor" href="#_ranges_and_slices_share_half_open_bounds"></a>4.8.2. Ranges and slices share half-open bounds</h4>
 <div class="paragraph">
-<p><code>range</code>, <code>rangeStep</code>, and <code>slice</code> all use Python-style half-open upper
-bounds, so a length-<code>N</code> walk reads the same in every form:</p>
+<p>A more rigorous and high-performance alternative to the <code>List</code> type is the
+<code>Vector</code> type, the 1D tensor, that is described in the <a href="#_tensors">Tensors</a> chapter.</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 66.6667%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Expression</th>
-<th class="tableblock halign-left valign-top">Result</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>range 0 5</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[0, 1, 2, 3, 4]</code> (5 elements)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rangeStep 0 10 2</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[0, 2, 4, 6, 8]</code> (5 elements)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>slice 0 5 xs</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">First five elements of <code>xs</code></p></td>
-</tr>
-</tbody>
-</table>
 <div class="paragraph">
-<p>The upper index is never included; to enumerate <code>1..N</code> write <code>range 1 (N+1)</code>.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_concatenation_and_empty_lists"><a class="anchor" href="#_concatenation_and_empty_lists"></a>4.8.3. Concatenation and empty lists</h4>
-<div class="paragraph">
-<p>Lists support concatenation through the <code>Semigroup</code> operator <code>&lt;&gt;</code> and the
-<code>Monoid</code> identity <code>mempty</code>:</p>
+<p>Tuples may be used to store a fixed number of terms of different type.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span>
-<span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">&lt;&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">3</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">4</span><span class="tok-p">]</span><span class="tok-w">   </span><span class="tok-c1">-- [1, 2, 3, 4]</span>
-
-<span class="tok-n">empty</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span>
-<span class="tok-n">empty</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">mempty</span><span class="tok-w">           </span><span class="tok-c1">-- []</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Bool</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-p">)</span>
+<span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kc">True</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mf">6.45</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The same <code>&lt;&gt;</code> operator concatenates strings, deques, and arrays where those
-have <code>Semigroup</code> instances.</p>
+<p>Tuple types and tuple values are both represented as comma-delimited values
+within parentheses. The parenthesized type representation is syntactic sugar for
+a fixed-size tuple type such as <code>Tuple3</code> or <code>Tuple8</code>; the parser generates the
+appropriate <code>TupleN</code> form from the number of fields, so there is no fixed upper
+bound on tuple arity. Generally, if you have more than a few members in a
+tuple, it is better to define a record type with named values.</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_alternative_sequence_types"><a class="anchor" href="#_alternative_sequence_types"></a>4.8.4. Alternative sequence types</h4>
-<div class="paragraph">
-<p><code>List</code> is the default. The standard library also defines <code>Deque</code> (O(1)
-front-and-back access), <code>Vector</code> (O(1) random access, growable at the end),
-and <code>Array</code> (fixed-size random-access). These share the typeclass surface
-with <code>List</code> to varying degrees; see the <a href="#_type_hierarchies">Type hierarchies</a> chapter and the
-<code>root</code> module documentation for the exact instance coverage.
-=== Records</p>
 </div>
+<div class="sect2">
+<h3 id="_records"><a class="anchor" href="#_records"></a>4.8. Records</h3>
 <div class="paragraph">
 <p>A record is a named, fixed set of fields. Each field has a name and a type.
 Records may map to different structures in different languages (e.g., a Python
@@ -3424,8 +3340,8 @@ positionally, but the surface language always binds field values by name.</p>
 </div>
 <div class="paragraph">
 <p>Concrete forms must have the same field names and field types. Since these must
-be the same, they need not be specified. We only need to specify the name of the
-concrete type:</p>
+be the same, they need not be repeated in the concrete definitions. We only need
+to specify the outer name of container:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3437,7 +3353,7 @@ concrete type:</p>
 <div class="paragraph">
 <p>In Python and R, records are typically <code>dict</code> and <code>list</code> types,
 respectively. These types can contain any fields of any type. In C&#43;&#43;, records
-are represented as structs; these must be defined in the C++ code, as shown
+are represented as structs; these must be defined in the C&#43;&#43; code, as shown
 below.</p>
 </div>
 <div class="listingblock">
@@ -3467,17 +3383,12 @@ below.</p>
 <span class="tok-n">cinc</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span></code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Records may, like all <code>morloc</code> types, be passed freely between languages. As
-shown above, records may be written in braces and their type will be inferred.</p>
-</div>
-</div>
 <div class="sect3">
-<h4 id="_record_literals_match_by_field_name"><a class="anchor" href="#_record_literals_match_by_field_name"></a>4.8.5. Record literals match by field name</h4>
+<h4 id="_record_literals_match_by_field_name"><a class="anchor" href="#_record_literals_match_by_field_name"></a>4.8.1. Record literals match by field name</h4>
 <div class="paragraph">
 <p>Field values in a record literal are bound to declared fields by <strong>name</strong>, not by
-position. The order in which fields appear in the literal is irrelevant — the
-two literals below denote the same value:</p>
+position. The order in which fields appear in the literal is irrelevant. The two
+literals below denote the same value:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3498,15 +3409,18 @@ name is a compile-time error.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">bad1</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
-<span class="tok-n">bad1</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-w"> </span><span class="tok-p">}</span><span class="tok-w">                </span><span class="tok-c1">-- error: missing field &#39;age&#39;</span>
+<span class="tok-n">bad1</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-w"> </span><span class="tok-p">}</span><span class="tok-w">  </span><span class="tok-c1">-- error: missing field &#39;age&#39;</span>
 
 <span class="tok-n">bad2</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
 <span class="tok-n">bad2</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">30</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">weight</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">65</span><span class="tok-w"> </span><span class="tok-p">}</span><span class="tok-w">  </span><span class="tok-c1">-- error: unknown field &#39;weight&#39;</span>
 
 <span class="tok-n">bad3</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
-<span class="tok-n">bad3</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Bob&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">30</span><span class="tok-w"> </span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-c1">-- error: duplicate field &#39;name&#39;</span></code></pre>
+<span class="tok-n">bad3</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Bob&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">30</span><span class="tok-w"> </span><span class="tok-p">}</span><span class="tok-w">  </span><span class="tok-c1">-- error: duplicate field &#39;name&#39;</span></code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_language_specific_representation_of_records"><a class="anchor" href="#_language_specific_representation_of_records"></a>4.8.2. Language-specific representation of records</h4>
 <div class="paragraph">
 <p>The "foo.R" file contains the function:</p>
 </div>
@@ -3558,30 +3472,18 @@ name is a compile-time error.</p>
 <p><code>foo</code>, above, initializes a <code>Person</code> record and then increments its age 3 time
 in different languages.</p>
 </div>
-<div class="paragraph">
-<p>Record fields are read with the same dot-prefixed getter syntax used for
-tuples: <code>.fieldName</code> is a function from the record to the value of that field.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">alice</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
-<span class="tok-n">alice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">30</span><span class="tok-w"> </span><span class="tok-p">}</span>
-
-<span class="tok-n">aliceName</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-<span class="tok-n">aliceName</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-n">alice</span><span class="tok-w">           </span><span class="tok-c1">-- &quot;Alice&quot;</span>
-
-<span class="tok-n">aliceAge</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">aliceAge</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-n">alice</span><span class="tok-w">             </span><span class="tok-c1">-- 30</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Getters compose with other patterns. For example, <code>map .name people</code>
-extracts the names from a list of records, and nested getters like
-<code>.address.city alice</code> reach into nested records.</p>
-</div>
-<div class="paragraph">
-<p>Records may contain fields with arbitrarily complex types, but recursive types
-are not currently supported.</p>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/warning.png" alt="Warning">
+</td>
+<td class="content">
+Records may contain fields with arbitrarily complex types, but
+recursive types are not currently supported.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -3589,10 +3491,10 @@ are not currently supported.</p>
 <h3 id="_pattern_functions_for_data_accessupdate"><a class="anchor" href="#_pattern_functions_for_data_accessupdate"></a>4.9. Pattern functions for data access/update</h3>
 <div class="paragraph">
 <p>Data structures may be accessed and modified using pattern functions. These are
-not pattern matching as in Haskell or ML&#8201;&#8212;&#8201;rather, they are a dedicated
-accessor and update syntax for navigating into data structures. Patterns may be
-<em>getters</em> that extract a tuple of values from a data structure or <em>setters</em>
-that update a data structure without changing its type.</p>
+a dedicated accessor and update operators for accessing and rearranging data
+structures. Patterns may be <em>getters</em> that extract a value or a tuple of values
+from a data structure or they may be <em>setters</em> that update a data structure
+without changing its type.</p>
 </div>
 <div class="paragraph">
 <div class="title">Getter patterns</div>
@@ -3720,11 +3622,15 @@ elements of the original field. The same goes for records.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><code>let</code> is the more orderly cousin of <code>where</code>. In a <code>where</code> clause, bindings can
-refer to the function&#8217;s arguments (from the left-hand side) and can be used in
-the main expression (the right-hand side). The bindings in a <code>where</code> block are
-order-independent&#8201;&#8212;&#8201;they may appear in any order and refer to each other
-freely. There may be multiple <code>let</code> assignments before the terminal <code>in</code>.</p>
+<p>In a <code>where</code> clause, bindings can refer to the function&#8217;s arguments (from the
+left-hand side) and can be used in the main expression (the right-hand
+side). The bindings in a <code>where</code> block are order-independent and may refer to
+each other freely (though must not be mutually recursive).</p>
+</div>
+<div class="paragraph">
+<p><code>let</code> is the more orderly cousin of <code>where</code>. There may be multiple <code>let</code>
+assignments before the terminal <code>in</code>. These are guaranteed to be executed in
+order and may only refer to terms bound above them.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3737,32 +3643,25 @@ freely. There may be multiple <code>let</code> assignments before the terminal <
 <div class="sect3">
 <h4 id="_scope_rules_let_shadows_where_does_not"><a class="anchor" href="#_scope_rules_let_shadows_where_does_not"></a>4.10.1. Scope rules: <code>let</code> shadows, <code>where</code> does not</h4>
 <div class="paragraph">
-<p>The two forms differ in how they treat repeated names, and the difference is
-load-bearing. <code>let</code> is <strong>non-recursive sequential</strong>: each binding is in scope
-for everything that follows, and a later binding can shadow an earlier one of
-the same name. <code>where</code> is <strong>order-invariant</strong>: every binding sees every other,
-so a name can only be bound once in a single clause and cannot collide with
-a function parameter.</p>
+<p>The two forms differ in how they treat repeated names. <code>let</code> is <strong>non-recursive
+sequential</strong>: each binding is in scope for everything that follows, and a later
+binding can shadow an earlier one of the same name. <code>where</code> is
+<strong>order-invariant</strong>: every binding sees every other, so a name can only be bound
+once in a single clause and cannot collide with a function parameter.</p>
 </div>
 <div class="paragraph">
-<p>A <code>let</code> block with the layout-free <code>{ &#8230;&#8203; ; &#8230;&#8203; }</code> syntax is exactly the
-non-indented spelling of a chain of single-binding <code>let`s. These two
-expressions are equivalent and both evaluate to `2</code>:</p>
+<p>This code is legal:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- multi-binding let</span>
-<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">   </span><span class="tok-c1">-- evaluates to 2</span>
-
-<span class="tok-c1">-- chain of single-binding lets</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- chain of single-binding lets</span>
 <span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span>
 <span class="tok-w">      </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">2</span>
-<span class="tok-w">       </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">                        </span><span class="tok-c1">-- also evaluates to 2</span></code></pre>
+<span class="tok-w">       </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">       </span><span class="tok-c1">-- evaluates to 2</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The same pattern in a <code>where</code> clause is rejected at compile time. Both of
-the following are errors:</p>
+<p>Whereas similar patterns in a <code>where</code> clause are rejected at compile time:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3777,51 +3676,14 @@ the following are errors:</p>
 <span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span></code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Top-level (module-scope) bindings follow yet a third rule&#8201;&#8212;&#8201;two definitions
-of the same term are accepted only if they are provably equivalent (for
-example, two identical literals, or alternative implementations sourced from
-different languages). See the term polymorphism section.</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 20%;">
-<col style="width: 40%;">
-<col style="width: 40%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Scope</th>
-<th class="tableblock halign-left valign-top">Same name twice</th>
-<th class="tableblock halign-left valign-top">Can shadow a parameter</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>let</code> block</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">allowed (later wins)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">n/a (no enclosing param scope)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>where</code> clause</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">rejected</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">rejected</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">top level / module</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">rejected unless values agree</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">n/a</p></td>
-</tr>
-</tbody>
-</table>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_guards_2"><a class="anchor" href="#_guards_2"></a>4.11. Guards</h3>
+<h3 id="_conditionals"><a class="anchor" href="#_conditionals"></a>4.11. Conditionals</h3>
 <div class="paragraph">
-<p>Guards provide conditional branching within function definitions. Each guard
-clause begins with <code>?</code> followed by a condition and a result expression, with a
-<code>:</code> default that is always required as the final case:</p>
+<p>Guards provide conditional branching. Each guard clause begins with <code>?</code> followed
+by a condition and a result expression, with a <code>:</code> default that is always
+required as the final case:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3885,7 +3747,10 @@ operator, etc.); at top-level assignment position they may be omitted:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">classify</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-<span class="tok-n">classify</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-mi">100</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;big&quot;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-mi">10</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;medium&quot;</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-s">&quot;small&quot;</span>
+<span class="tok-n">classify</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-mi">100</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;big&quot;</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-mi">10</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;medium&quot;</span>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-s">&quot;small&quot;</span>
 
 <span class="tok-c1">-- but inside a larger expression, the parentheses are needed</span>
 <span class="tok-n">labelOf</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
@@ -3936,16 +3801,9 @@ determines (rather inefficiently) whether a number is even or odd:</p>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Recursive Morloc functions are not equally well supported across all target
-languages. Some backends may impose recursion depth limits or lack tail-call
-optimization, which can cause stack overflows for deep recursion.</p>
-</div>
-<div class="paragraph">
-<p>Additionally, if a recursive function calls foreign functions implemented in
-different languages, each recursive step may cross a language boundary. These
-cross-language calls involve data marshalling and inter-process communication, so
-recursion that spans languages will be significantly slower than recursion within
-a single language.</p>
+<p>Recursion is not well supported across all target languages. Some languages
+impose recursion depth limits or lack tail-call optimization, which can cause
+crashes or stack overflows for deep recursion.</p>
 </div>
 </td>
 </tr>
@@ -4524,16 +4382,15 @@ missing values. In R, <code>NULL</code> serves a similar purpose. In both langua
 that may lack values are represented as a union of the original type and the
 <code>null</code> type. JSON, similarly, stores missing values as <code>null</code>. Other languages
 solve this problem in libraries. C++ has the standard template library
-datastructure <code>std::optional&lt;T&gt;</code> for representing values of generic type <code>T</code>
-that have null, <code>std::nullopt</code> types.</p>
+type <code>std::optional&lt;T&gt;</code> for representing values of generic type <code>T</code>
+that may be missing.</p>
 </div>
 <div class="paragraph">
-<p>Haskell offers the <code>Maybe</code> sum type that may be <code>Nothing</code> or <code>Just a</code>. This is
-perhaps the cleanest solution, but it is not practical for Morloc. One of the
-core principles of Morloc is that sourced functions should be idiomatic. So
-Morloc needs a built-in mechanism that can vary freely in language-specific
-implementation while preserving between language consistency. To this end,
-Morloc offers a dedicated "Optional" type with supported implicit coercion.</p>
+<p>One of the core principles of Morloc is that sourced functions should be
+idiomatic. So Morloc needs a built-in mechanism that can vary freely in
+language-specific implementation while preserving between language
+consistency. To this end, Morloc offers a dedicated "optional" type with
+supported implicit coercion.</p>
 </div>
 </div>
 <div class="sect3">
@@ -4568,8 +4425,9 @@ lists (<code>?[Int]</code>) and records (<code>?Person</code>).</p>
 </td>
 <td class="content">
 Morloc uses <code>Null</code> (capitalized) in source code, following the convention
-that constructors begin with an uppercase letter. In JSON output, absent
-optionals are serialized as lowercase <code>null</code> per the JSON standard.
+that constructors begin with an uppercase letter (consistent with the booleans
+<code>True</code> and <code>False</code>). In JSON output, absent optionals are serialized as
+lowercase <code>null</code> per the JSON standard.
 </td>
 </tr>
 </table>
@@ -4631,15 +4489,23 @@ $ ./main testFromNull
 0</pre>
 </div>
 </div>
-<div class="paragraph">
-<p>When the top-level result of an exported function is <code>Null</code> (or <code>()</code>), the
-nexus prints an empty line rather than the literal string <code>null</code>. The
-reasoning is that a compiled Morloc program is a CLI tool, and most UNIX CLI
-tools emit nothing when they run purely for effect&#8201;&#8212;&#8201;always printing <code>null</code>
-would be noise at best, and outright incorrect for tools whose job is to
-write data to <code>STDOUT</code> (a downstream consumer that ingested a stray <code>null</code>
-line could choke or, worse, treat it as a valid record). Pass <code>--keep-null</code>
-to the nexus if you want the literal <code>null</code> emitted instead, as shown above.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
+</td>
+<td class="content">
+When the top-level result of an exported function is <code>Null</code> (or <code>()</code>), the
+nexus prints an empty line rather than the literal string <code>null</code>. The reason is
+that printing <code>null</code> or <code>()</code> would be noisy in a CLI tool and could cause
+problems if it mixes the tailing <code>null</code> with <code>STDOUT</code> (a downstream consumer
+that ingested a stray <code>null</code> line could choke or, worse, treat it as a valid
+record). Pass <code>--keep-null</code> to the nexus if you want the literal <code>null</code> emitted
+instead, as shown above.
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>The same pattern works in C&#43;&#43; (using <code>std::optional</code>) and R (using <code>NULL</code>).
@@ -4677,9 +4543,9 @@ In C&#43;&#43;:</p>
 <div class="sect3">
 <h4 id="_optional_record_fields"><a class="anchor" href="#_optional_record_fields"></a>4.13.9. Optional record fields</h4>
 <div class="paragraph">
-<p>Record fields can be optional. This is useful for data with missing or unknown
-values. The <code>where</code> form below is an alternative syntax for record declarations
-(equivalent to the brace syntax used in the Records section):</p>
+<p>Record fields can be optional as well. This is useful for data with missing or
+unknown values. The <code>where</code> form below is an alternative syntax for record
+declarations (equivalent to the brace syntax used in the Records section):</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -4788,11 +4654,11 @@ serialization so that the value is received correctly:</p>
 <div class="paragraph">
 <p><code>?(?T)</code> is accepted by the parser and the typechecker, but at runtime it
 collapses to a single <code>?T</code>. There is one <code>Null</code>, with no way to distinguish
-"outer Null" from "inner Null". This is by design, not an oversight.</p>
+"outer Null" from "inner Null". This is by design.</p>
 </div>
 <div class="paragraph">
 <p>The reason is rooted in why <code>?</code> is a dedicated language primitive rather than
-a library construct like Haskell&#8217;s <code>Maybe</code>. <code>?</code> must lower to the native
+a library construct like C&#43;&#43;'s <code>Optional</code>. <code>?</code> must lower to the native
 "missing value" of every target language: <code>None</code> in Python, <code>NULL</code> in R,
 <code>std::optional&lt;T&gt;</code> in C&#43;&#43;, and so on. In Python and R&#8201;&#8212;&#8201;and in most
 dynamic languages&#8201;&#8212;&#8201;the null value is structureless. There is no language
@@ -4810,9 +4676,7 @@ representation in every backend.</p>
 <div class="paragraph">
 <p>If you genuinely need layered nullability&#8201;&#8212;&#8201;for example, distinguishing
 "the database lookup failed" from "the lookup succeeded but the field was
-unset"&#8201;&#8212;&#8201;define a custom type that encodes the distinction explicitly. The
-standard library&#8217;s <code>maybe</code> type does exactly this: it is a structured,
-language-agnostic alternative to <code>?</code> that you can extend with more states.</p>
+unset"&#8201;&#8212;&#8201;define a custom type that encodes the distinction explicitly.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -4841,47 +4705,9 @@ language-agnostic alternative to <code>?</code> that you can extend with more st
 Sum types (tagged unions like <code>data Result = Found Int | Missing</code>)
 are planned but not yet supported in Morloc. Their cross-language design is
 the open problem&#8201;&#8212;&#8201;not every backend has a first-class sum representation.
-Until they ship, use records or the standard library&#8217;s <code>maybe</code> type for
-structured "missing-with-reason" data.
 </td>
 </tr>
 </table>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_language_mapping"><a class="anchor" href="#_language_mapping"></a>4.13.13. Language mapping</h4>
-<div class="paragraph">
-<p>Optional types map to native nullable types in each language:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 66.6667%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Language</th>
-<th class="tableblock halign-left valign-top">Representation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Python</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>None</code> for null, plain value otherwise</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">C&#43;&#43;</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>std::optional&lt;T&gt;</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">R</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>NULL</code> for null, plain value otherwise</p></td>
-</tr>
-</tbody>
-</table>
-<div class="paragraph">
-<p>No special type mappings are needed for optionals&#8201;&#8212;&#8201;the <code>?</code> prefix works with
-any type that already has a language mapping.</p>
 </div>
 </div>
 </div>
@@ -5398,7 +5224,7 @@ needed in making these definitions.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_overload_terms_with_typeclasses"><a class="anchor" href="#_overload_terms_with_typeclasses"></a>5.2. Overload terms with typeclasses</h3>
+<h3 id="typeclasses"><a class="anchor" href="#typeclasses"></a>5.2. Overload terms with typeclasses</h3>
 <div class="paragraph">
 <p>Typeclasses allow the same function name to have different implementations for
 different types. Unlike term polymorphism (where the compiler freely chooses
@@ -5732,7 +5558,7 @@ in Python rather than a string:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_type_hierarchies"><a class="anchor" href="#_type_hierarchies"></a>5.6. Type hierarchies</h3>
+<h3 id="type-hierarchies"><a class="anchor" href="#type-hierarchies"></a>5.6. Type hierarchies</h3>
 <div class="paragraph">
 <p>Morloc types form hierarchies through type aliases. A type alias like <code>type
 Bytes = Str</code> declares that <code>Bytes</code> belongs to the same <em>representation family</em>
@@ -6024,9 +5850,12 @@ form a hierarchy rooted at <code>List</code>:</p>
 walks up to <code>List</code> and finds <code>Stack List</code>. Whether this inherited instance is
 usable depends on whether the concrete types are identical&#8201;&#8212;&#8201;if <code>Array</code> maps
 to a different native type than <code>List</code> in the target language, the inherited
-implementation will not apply.
-=== Kind system</p>
+implementation will not apply.</p>
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_kind_system"><a class="anchor" href="#_kind_system"></a>5.7. Kind system</h3>
 <div class="paragraph">
 <p>In morloc, every type variable belongs to one of a few categories called
 "kinds". A kind is what tells the compiler what kind of <strong>thing</strong> a
@@ -6097,9 +5926,8 @@ names" in practice.</p>
 </li>
 </ul>
 </div>
-</div>
 <div class="sect3">
-<h4 id="_nat_dimensions_in_the_type"><a class="anchor" href="#_nat_dimensions_in_the_type"></a>5.6.7. Nat: dimensions in the type</h4>
+<h4 id="_nat_dimensions_in_the_type"><a class="anchor" href="#_nat_dimensions_in_the_type"></a>5.7.1. Nat: dimensions in the type</h4>
 <div class="paragraph">
 <p>The standard library&#8217;s <code>Vector</code> and tensor types carry their dimension
 as a Nat:</p>
@@ -6134,7 +5962,7 @@ caller expecting <code>Table 13 r</code> gets a compile-time error.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_str_column_names_in_the_type"><a class="anchor" href="#_str_column_names_in_the_type"></a>5.6.8. Str: column names in the type</h4>
+<h4 id="_str_column_names_in_the_type"><a class="anchor" href="#_str_column_names_in_the_type"></a>5.7.2. Str: column names in the type</h4>
 <div class="paragraph">
 <p>A <strong>Str-kinded</strong> variable stands for a string literal that exists in both
 the runtime and the type system at once. The label syntax <code>f:Str</code>
@@ -6174,7 +6002,7 @@ accordingly.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_rec_record_schemas_at_the_kind_level"><a class="anchor" href="#_rec_record_schemas_at_the_kind_level"></a>5.6.9. Rec: record schemas at the kind level</h4>
+<h4 id="_rec_record_schemas_at_the_kind_level"><a class="anchor" href="#_rec_record_schemas_at_the_kind_level"></a>5.7.3. Rec: record schemas at the kind level</h4>
 <div class="paragraph">
 <p>A <strong>Rec-kinded</strong> variable stands for a column schema&#8201;&#8212;&#8201;a mapping from
 column names (Str) to column element types (Type). The literal
@@ -6255,7 +6083,7 @@ get a compile-time error.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_list_and_set_collections_of_column_names"><a class="anchor" href="#_list_and_set_collections_of_column_names"></a>5.6.10. List and Set: collections of column names</h4>
+<h4 id="_list_and_set_collections_of_column_names"><a class="anchor" href="#_list_and_set_collections_of_column_names"></a>5.7.4. List and Set: collections of column names</h4>
 <div class="paragraph">
 <p>A <strong>List-kinded</strong> variable holds a literal list of column names at both
 the runtime and the type level. The <code>l:[Str]</code> label syntax introduces
@@ -6283,7 +6111,7 @@ constraints like "the keys of <code>r1</code> and <code>r2</code> are disjoint" 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_reference_type_level_functions"><a class="anchor" href="#_reference_type_level_functions"></a>5.6.11. Reference: type-level functions</h4>
+<h4 id="_reference_type_level_functions"><a class="anchor" href="#_reference_type_level_functions"></a>5.7.5. Reference: type-level functions</h4>
 <div class="paragraph">
 <p>The compiler recognises a small set of named operators on kinded types.
 They look like ordinary type applications (<code>Singleton f a</code>,
@@ -6432,7 +6260,7 @@ literal whenever the structure permits.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_reference_constraints"><a class="anchor" href="#_reference_constraints"></a>5.6.12. Reference: constraints</h4>
+<h4 id="_reference_constraints"><a class="anchor" href="#_reference_constraints"></a>5.7.6. Reference: constraints</h4>
 <div class="paragraph">
 <p>A constraint restricts the values a polymorphic variable can take. It
 is written to the left of <code>&#8658;</code> in a signature:</p>
@@ -6548,7 +6376,7 @@ compiler trades expressiveness for predictable typechecking.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_when_to_think_about_kinds"><a class="anchor" href="#_when_to_think_about_kinds"></a>5.6.13. When to think about kinds</h4>
+<h4 id="_when_to_think_about_kinds"><a class="anchor" href="#_when_to_think_about_kinds"></a>5.7.7. When to think about kinds</h4>
 <div class="paragraph">
 <p>The honest answer is: only when you want the compiler to track
 something it would otherwise have to leave to runtime. Most morloc
@@ -6578,7 +6406,7 @@ notation.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_tensors"><a class="anchor" href="#_tensors"></a>5.7. Tensors</h3>
+<h3 id="_tensors"><a class="anchor" href="#_tensors"></a>5.8. Tensors</h3>
 <div class="paragraph">
 <p>Morloc has built-in tensor types with dimensions tracked in the type system.
 When all dimensions are known at compile time, the compiler can catch shape
@@ -6857,9 +6685,11 @@ honor it.</p>
 <div class="paragraph">
 <p>Arithmetic constraints (like <code>m * n = 18</code>) are checked when all variables are
 known. When some variables remain free, the check is deferred. If it can never
-be resolved, it is effectively unchecked.
-=== Tables</p>
+be resolved, it is effectively unchecked.</p>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_tables"><a class="anchor" href="#_tables"></a>5.9. Tables</h3>
 <div class="paragraph">
 <p>Morloc has a built-in <code>Table</code> type for columnar data, parameterised by a
 row count and a column schema:</p>
