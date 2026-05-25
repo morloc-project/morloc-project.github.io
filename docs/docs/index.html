@@ -631,7 +631,8 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_conditionals">4.11. Conditionals</a></li>
 <li><a href="#_recursion">4.12. Recursion</a></li>
 <li><a href="#_effects_and_delayed_evaluation">4.13. Effects and delayed evaluation</a></li>
-<li><a href="#_intrinsics">4.14. Intrinsics</a></li>
+<li><a href="#_optional_types">4.14. Optional types</a></li>
+<li><a href="#_intrinsics">4.15. Intrinsics</a></li>
 </ul>
 </li>
 <li><a href="#_advanced_types">5. Advanced Types</a>
@@ -3760,6 +3761,8 @@ operator, etc.); at top-level assignment position they may be omitted:</p>
 </div>
 <div class="sect2">
 <h3 id="_recursion"><a class="anchor" href="#_recursion"></a>4.12. Recursion</h3>
+<div class="sect3">
+<h4 id="_recursive_functions"><a class="anchor" href="#_recursive_functions"></a>4.12.1. Recursive functions</h4>
 <div class="paragraph">
 <p>Morloc supports recursive function definitions. A function may refer to itself
 in its body, and the compiler will generate the appropriate code in the target
@@ -3810,16 +3813,281 @@ crashes or stack overflows for deep recursion.</p>
 </table>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_effects_and_delayed_evaluation"><a class="anchor" href="#_effects_and_delayed_evaluation"></a>4.13. Effects and delayed evaluation</h3>
+<div class="sect3">
+<h4 id="_recursive_types"><a class="anchor" href="#_recursive_types"></a>4.12.2. Recursive types</h4>
 <div class="paragraph">
-<p>Morloc is a functional programming language. Here a "function" is a mapping from
-a value in one domain to a value in another domain. This works neatly for pure
-functions. But it becomes complicated when "effects", like interactions with the
-operating system, are introduced.</p>
+<p>A morloc type is <em>recursive</em> when its definition refers to itself. To
+terminate, the recursion must be guarded&#8201;&#8212;&#8201;every cycle through the
+definition must pass under an <code>?T</code> (optional, with <code>Null</code> as the base case)
+or <code>[T]</code> (list, with <code>[]</code> as the base case). Bare self-reference like
+<code>type X = X</code> is rejected at compile time, as are cycles spanning multiple
+type definitions.</p>
 </div>
 <div class="paragraph">
-<p>Consider a simple <code>readFile</code> program:</p>
+<p>The examples below assume one stdlib import for working with optional
+values:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">maybe</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">require</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">isNull</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>isNull</code> tests whether an optional value is absent; <code>require</code> asserts it is
+present and strips the <code>?</code>.</p>
+</div>
+<div class="sect4">
+<h5 id="_linked_lists"><a class="anchor" href="#_linked_lists"></a>Linked lists</h5>
+<div class="paragraph">
+<p>The canonical example is a linked list: a payload paired with an optional
+tail of the same type. Once a value reaches <code>Null</code> in the tail slot, the
+chain terminates.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">LL</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-p">(</span><span class="tok-nc">LL</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A literal value of this type can be written directly, with <code>Null</code> in
+the tail slot at the end of the chain:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">llExample</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">LL</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">llExample</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">42</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">7</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">99</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">)))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A builder generating a descending range:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">llRange</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">LL</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">llRange</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">llRange</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">))</span>
+<span class="tok-w">          </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The recursive call returns <code>LL Int</code>, but the second slot expects <code>?(LL Int)</code>;
+the typechecker&#8217;s element-wise coercion (<code>a &#8594; ?a</code>) handles that
+automatically. The base case writes <code>Null</code> directly into the optional slot.</p>
+</div>
+<div class="paragraph">
+<p>A consumer that counts the chain length. The selectors <code>.0 x</code> and <code>.1 x</code>
+retrieve the first and second tuple slots:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">llLen</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">LL</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">llLen</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">isNull</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span>
+<span class="tok-w">        </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">llLen</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A consumer that sums the payloads, with the same recursion shape:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">llSum</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">LL</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">llSum</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">isNull</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">        </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">llSum</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_branching_binary_trees"><a class="anchor" href="#_branching_binary_trees"></a>Branching: binary trees</h5>
+<div class="paragraph">
+<p>The <code>?</code> guard can appear more than once in a body. A binary tree node
+carries a payload and <em>two</em> independently optional children, so each node
+may have zero, one, or two subtrees.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">BTree</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-p">(</span><span class="tok-nc">BTree</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">),</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-p">(</span><span class="tok-nc">BTree</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A literal binary tree with a root and two leaves:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">btreeExample</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">BTree</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">btreeExample</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">10</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">5</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">),</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">15</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A balanced builder that shares its subtree value via <code>let</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">btreeBuild</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">BTree</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">btreeBuild</span><span class="tok-w"> </span><span class="tok-n">d</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">d</span><span class="tok-w"> </span><span class="tok-o">&lt;=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">)</span>
+<span class="tok-w">             </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">sub</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">btreeBuild</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span>
+<span class="tok-w">               </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sub</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sub</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To sum every payload, factor out the optional-handling into a small helper
+so the recursive function reads as the structural recursion it is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">btreeSum</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">BTree</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">btreeSum</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">maybeSum</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">maybeSum</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
+
+<span class="tok-n">maybeSum</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-p">(</span><span class="tok-nc">BTree</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">maybeSum</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">isNull</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">0</span>
+<span class="tok-w">           </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">btreeSum</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_list_guarded_recursion_rose_trees"><a class="anchor" href="#_list_guarded_recursion_rose_trees"></a>List-guarded recursion: rose trees</h5>
+<div class="paragraph">
+<p>The other allowed guard is <code>[T]</code>. An empty list <code>[]</code> is the natural base
+case, and arbitrary branching is encoded directly as a list of children
+rather than a fixed number of optional slots.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Rose</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Rose</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">])</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A literal rose tree with a root and two leaf children:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">roseExample</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Rose</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">roseExample</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">[]),</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">3</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">[])])</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A builder that produces a complete binary rose tree of a given depth (each
+node has either two or zero children):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">roseBuild</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Rose</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">roseBuild</span><span class="tok-w"> </span><span class="tok-n">d</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">d</span><span class="tok-w"> </span><span class="tok-o">&lt;=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">[])</span>
+<span class="tok-w">            </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">sub</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">roseBuild</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">d</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span>
+<span class="tok-w">              </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">sub</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sub</span><span class="tok-p">])</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Summing the payloads of a rose tree uses the <code>Foldable</code> instance for <code>List</code>
+(via <code>fold</code> from the stdlib) to combine the children&#8217;s sums:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">roseSum</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Rose</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">roseSum</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">acc</span><span class="tok-w"> </span><span class="tok-n">child</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">acc</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">roseSum</span><span class="tok-w"> </span><span class="tok-n">child</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_record_form"><a class="anchor" href="#_record_form"></a>Record form</h5>
+<div class="paragraph">
+<p>The same recursion rules apply to <code>record</code> declarations. The only surface
+difference is that fields are addressed by name rather than position; the
+wire format and the typecheck rules are identical to the tuple-alias form.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">LL</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-n">head</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-w">  </span><span class="tok-n">tail</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">LL</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A literal of the record form uses <code>{&#8230;&#8203;}</code> syntax with named fields:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">llRecordExample</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">LL</span>
+<span class="tok-n">llRecordExample</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">head</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">42</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">tail</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">head</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">7</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">tail</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">}}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The length consumer is the same shape as for the tuple-form <code>LL</code>, with
+<code>.tail x</code> in place of <code>.1 x</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">llLen</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">LL</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">llLen</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">isNull</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-n">tail</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span>
+<span class="tok-w">        </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">llLen</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-n">tail</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_parameterised_recursion"><a class="anchor" href="#_parameterised_recursion"></a>Parameterised recursion</h5>
+<div class="paragraph">
+<p>Recursive types can carry type parameters. The parameter threads through
+every recursive position; the consumer below stays polymorphic in the
+payload.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Container</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">  </span><span class="tok-n">sub</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-p">(</span><span class="tok-nc">Container</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A literal <code>Container Int</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">containerExample</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Container</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">containerExample</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sub</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">sub</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kc">Null</span><span class="tok-p">}}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A polymorphic consumer:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">containerLength</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Container</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">containerLength</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">isNull</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-n">sub</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span>
+<span class="tok-w">                  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">containerLength</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-n">sub</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/caution.png" alt="Caution">
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Mutually recursive type aliases&#8201;&#8212;&#8201;two or more type definitions that
+reference each other in a cycle&#8201;&#8212;&#8201;are not supported. The compiler
+detects these at the frontend and rejects them with a clear error,
+across both general and language-specific scopes. The same rule applies
+whether the cycle lives in one module or spans several.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_effects_and_delayed_evaluation"><a class="anchor" href="#_effects_and_delayed_evaluation"></a>4.13. Effects and delayed evaluation</h3>
+<div class="sect3">
+<h4 id="_why_effects_need_a_name"><a class="anchor" href="#_why_effects_need_a_name"></a>4.13.1. Why effects need a name</h4>
+<div class="paragraph">
+<p>Morloc is a functional language. A function maps a value in one domain to a
+value in another, and the mapping is the function&#8217;s whole meaning. That works
+neatly for arithmetic, for string manipulation, for transforming records. It
+runs into trouble the moment we try to talk about anything that touches the
+world.</p>
+</div>
+<div class="paragraph">
+<p>Consider <code>readFile</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3827,153 +4095,35 @@ operating system, are introduced.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>This Morloc program takes a filename as input and returns a string containing
-the file contents. Logically, this is a function. You are mapping a filename to
-the file contents. At a given slice of time on a given system, there is a
-one-to-one mapping between filenames and files.</p>
+<p>This looks like a function from a filename to a string. Indeed it <strong>is</strong> a
+function at any given instant on a given machine: the filename names a
+particular file, and the file has particular contents. But files change. If we
+read the same file twice in the same program, we may get two different
+answers. So it matters <strong>when</strong> we call the function and we may want to call it a
+several different points in time.</p>
 </div>
 <div class="paragraph">
-<p>You can save the contents in a variable:</p>
+<p>The same problem shows up for "values" that are not really values. What is the
+type of the current time? What is the type of a coin toss?</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">contents</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">readFile</span><span class="tok-w"> </span><span class="tok-s">&quot;myfile.txt&quot;</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>contents</code> is now a value storing a string. But the world is not constant. Files
-change. Let&#8217;s say that <code>myfile.txt</code> is a log file and we want to read it at
-multiple time points. Further, we don&#8217;t want to specify the filename every time
-we call the function. It would be more convenient to partially apply the
-filename and have a function that will map the applied filename to whatever is
-currently at the file location. But partially applying the filename to
-<code>readFile</code> results in a <strong>value</strong> not a <strong>function</strong>. In many familiar
-languages, you can define functions that have no arguments. So you could call
-<code>read_log()</code> and it would read the log and return a fresh contents blob every
-time the function was executed.</p>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s look at an even trickier problem. Suppose we wanted a function that
-returns the current epoch time. How would this be defined in Morloc? You could
-require arguments that transform the problem to a true function. The world state
-could be an argument. This state might be the locale or some other
-reference. The function then becomes</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">time</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">TemporalState</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Time</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>But once again, when we partially apply the function, we again are reduced to a
-value. Perhaps we want a "function" that always returns California time.</p>
-</div>
-<div class="paragraph">
-<p>A second example is random numbers. We can define a family of random functions like so:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">runif</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
-<span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">time</span><span class="tok-w">     </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">???</span>
 <span class="tok-n">coinToss</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">???</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>runif</code> and <code>choose</code> are functions that produce random values when given the
-required arguments. But what is <code>coinToss</code>? There are no arguments. Again, you
-could reparameterize these random functions as pure functions that take a random
-seed, or a stateful random generator, as an argument. That would look something
-like this:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">runif</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">RNG</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Real</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">RNG</span><span class="tok-p">)</span>
-<span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">RNG</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">RNG</span><span class="tok-p">)</span>
-<span class="tok-n">coinToss</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">RNG</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Bool</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">RNG</span><span class="tok-p">)</span></code></pre>
-</div>
+<p>We could try to make them into honest functions by handing them an explicit
+world or an explicit random seed&#8201;&#8212;&#8201;<code>time :: TemporalState &#8594; Time</code>, <code>coinToss
+:: RNG -&gt; (Bool, RNG)</code>&#8201;&#8212;&#8201;and thread the state through every call that needs
+it. This can work, but it pulls extra plumbing into every signature.</p>
 </div>
 <div class="paragraph">
-<p>This is the "right" way to do random effects. But it is certainly not the most
-common way of doing it. In most languages, the random number generator exists in
-global state. Or the random number generator might use actual system noise to
-get truly random values.</p>
-</div>
-<div class="paragraph">
-<p>What we want in Morloc is to preserve the power of partial function application
-but still have the ability to call "functions" with no arguments. We can achieve
-this by annotating functions with <strong>named effects</strong> that indicate what kind of
-side effects they may perform.</p>
-</div>
-<div class="paragraph">
-<p>In Morloc, effects are specified at the type level using angle brackets with
-named labels. For example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">runif</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This declares <code>runif</code> as a function that takes two <code>Real</code> arguments and returns
-a <code>Real</code>, but its return value involves a <code>&lt;Rand&gt;</code> effect&#8201;&#8212;&#8201;the result may be
-different each time it is evaluated.</p>
-</div>
-<div class="paragraph">
-<p>Effect labels are open-ended&#8201;&#8212;&#8201;you can use any uppercase name. Common
-conventions include <code>IO</code> for input/output, <code>Rand</code> for randomness, and <code>Error</code>
-for fallible computations. Multiple effects can be combined:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">riskyRead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s look at some examples:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">time</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Time</span>
-
-<span class="tok-n">readFile</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-
-<span class="tok-c1">-- roll one d-sided dice</span>
-<span class="tok-n">rollDie</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-
-<span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">rollDie</span><span class="tok-w"> </span><span class="tok-mi">20</span></code></pre>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_do_blocks_and_the_operator"><a class="anchor" href="#_do_blocks_and_the_operator"></a>4.13.1. Do-blocks and the <code>!</code> operator</h4>
-<div class="paragraph">
-<p>A <code>do</code>-block creates an effectful computation. It is the standard place to
-force effects: it groups multiple forces, fixes their order of evaluation,
-and surfaces the union of their effect labels in its type. Inside a
-<code>do</code>-block, the <code>!</code> operator forces an effectful expression to execute and
-returns its unwrapped value. The <code>do</code>-block collects all the effect labels
-from its <code>!</code> evaluations and wraps the result.</p>
-</div>
-<div class="paragraph">
-<p>The <code>!</code> operator can also appear at expression position outside a <code>do</code>-block,
-but every force contributes to the surrounding term&#8217;s effect set. The
-surrounding signature must declare those effects or the program is rejected
-(see <a href="#effect-checking">Effect checking</a>). In practice, prefer <code>do</code>-blocks for forcing&#8201;&#8212;&#8201;they
-make the effect surface visible at a glance.</p>
-</div>
-<div class="paragraph">
-<p>Here is a function that rolls two independent d20s:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">roll2d20</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
-<span class="tok-n">roll2d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-p">)</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Each <code>!</code> independently evaluates the effectful expression and returns the plain
-result. The <code>do</code>-block sees two <code>&lt;Rand&gt;</code> evaluations and gives the whole
-expression the type <code>&lt;Rand&gt; (Int, Int)</code>.</p>
+<p>Morloc takes a different route: it gives the effect a <strong>name</strong> at the type
+level. <code>&lt;Rand&gt; Bool</code> is not a <code>Bool</code>; it is a <strong>suspended computation</strong> that, when
+run, performs the <code>Rand</code> effect and yields a <code>Bool</code>. Where the original
+problem was "this looks like a value but doesn&#8217;t act like one", the solution
+is to give it a type that says so.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -3982,398 +4132,330 @@ expression the type <code>&lt;Rand&gt; (Int, Int)</code>.</p>
 <img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
 </td>
 <td class="content">
-The <code>!</code> operator binds tightly to the next atom, like a unary prefix
-operator. So <code>!rollDie 20</code> parses as <code>(!rollDie) 20</code>&#8201;&#8212;&#8201;the force is applied to
-<code>rollDie</code>, and <code>20</code> is then passed as an argument to the result. To force a
-parameterised effectful call, parenthesise the whole expression:
+<code>&lt;E&gt; T</code> is a <strong>suspended computation</strong> that performs effects <code>E</code> and yields
+a <code>T</code>. It is not a <code>T</code>. You obtain a <code>T</code> by running it.
 </td>
 </tr>
 </table>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">rollDie</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)</span></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>This parallels how prefix operators like logical <code>not</code> or numeric negation bind
-in most languages: <code>not x || y</code> means <code>(not x) || y</code>, not <code>not (x || y)</code>.</p>
-</div>
-<div class="paragraph">
-<p>The <code>&#8592;</code> operator is the binding form of <code>!</code>. Writing <code>x &#8592; e</code> is equivalent to
-<code>let x = !e</code>&#8201;&#8212;&#8201;it forces the effect and binds the result to a name. This is
-useful when you need the result in subsequent expressions:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">roll1d20</span>
-<span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">roll1d20</span>
-<span class="tok-w">  </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">y</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Or equivalently using <code>!</code> inline:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Inside a <code>do</code>-block there are four forms of statement:</p>
-</div>
+<div class="sect3">
+<h4 id="_the_mental_model"><a class="anchor" href="#_the_mental_model"></a>4.13.2. The mental model</h4>
 <div class="ulist">
 <ul>
 <li>
-<p><code>!e</code>&#8201;&#8212;&#8201;forces the effectful expression <code>e</code> and returns the unwrapped value
-inline.</p>
+<p><code>&lt;E&gt; T</code> is a suspension. Holding one in a variable does nothing.</p>
 </li>
 <li>
-<p><code>x &#8592; e</code>&#8201;&#8212;&#8201;forces <code>e</code> and binds the result to <code>x</code>. Equivalent to
-<code>let x = !e</code>.</p>
+<p>The bind arrow <code>&lt;-</code> runs a suspension once and gives you a result.</p>
 </li>
 <li>
-<p><code>e</code> (bare statement)&#8201;&#8212;&#8201;forces <code>e</code> for its side effects and discards the
-result.</p>
+<p>A bare statement inside a <code>do</code>-block runs a suspension and throws the result
+away. This is how you sequence side effects whose return values you do not
+need.</p>
 </li>
 <li>
-<p><code>let x = e</code>&#8201;&#8212;&#8201;binds <code>x</code> to <code>e</code> without forcing anything. If <code>e</code> is
-effectful, the effect is deferred until <code>x</code> is later forced with <code>!</code> or <code>&#8592;</code>.</p>
+<p><code>let</code> binds without running. If the right-hand side is effectful, the
+suspension is what gets bound; it only fires when a later <code>&lt;-</code> reaches for
+it.</p>
+</li>
+<li>
+<p>When you export an <code>&lt;E&gt; T</code>, the compiled program runs it for you at the
+boundary. The caller receives a <code>T</code>.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>The final expression in the <code>do</code>-block is the return value.</p>
+<p>Effect labels are names that the compiler propagates and checks for
+coverage. What an effect <strong>means</strong>&#8201;&#8212;&#8201;what <code>Error</code> represents, what <code>IO</code> permits
+at runtime, what <code>Rand</code> looks like operationally&#8201;&#8212;&#8201;is the business of the
+library that defines the effect, not the compiler. The compiler&#8217;s job is to keep
+the labels honest; libraries build behaviour on top.</p>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_syntax"><a class="anchor" href="#_syntax"></a>4.13.3. Syntax</h4>
+<div class="sect4">
+<h5 id="_declaring_an_effect"><a class="anchor" href="#_declaring_an_effect"></a>Declaring an effect</h5>
 <div class="paragraph">
-<p>The distinction between <code>let</code> and <code>&#8592;</code>/<code>!</code> is about <strong>when</strong> effects happen.
-Here is an example:</p>
+<p>Every effect label a program uses must be declared:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">deferredForce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">deferredForce</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sideEffect</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w">    </span><span class="tok-c1">-- t :: &lt;IO&gt; Int (not yet evaluated)</span>
-<span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">sideEffect</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w">       </span><span class="tok-c1">-- evaluated immediately</span>
-<span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-w">                   </span><span class="tok-c1">-- NOW evaluates t</span>
-<span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">y</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">effect</span><span class="tok-w"> </span><span class="tok-nc">IO</span>
+<span class="tok-n">escapable</span><span class="tok-w"> </span><span class="tok-n">effect</span><span class="tok-w"> </span><span class="tok-nc">Error</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Here <code>let t = sideEffect 3</code> stores the effectful expression without evaluating
-it. The effect is only triggered when <code>t</code> is later forced with <code>&#8592;</code>.</p>
+<p>The default form is inescapable; the <code>escapable</code> form is discussed in
+<a href="#escapable">Escapable and inescapable effects</a>. Declarations are global to the program; two modules cannot
+declare the same label with conflicting escapability.</p>
 </div>
 <div class="paragraph">
-<p>Do-block guarantees:</p>
+<p>A <code>&lt;L&gt;</code> that has not been declared is a compile error&#8201;&#8212;&#8201;the compiler does
+not know any effect names of its own.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_annotating_signatures"><a class="anchor" href="#_annotating_signatures"></a>Annotating signatures</h5>
+<div class="paragraph">
+<p>An effect annotation goes immediately before the type it wraps:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">readFile</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">rollDie</span><span class="tok-w">   </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">riskyRead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Multiple labels are comma-separated inside a single pair of angle brackets.
+Order does not matter; <code>&lt;IO, Error&gt;</code> and <code>&lt;Error, IO&gt;</code> are the same row.</p>
+</div>
+<div class="paragraph">
+<p>The empty row <code>&lt;&gt;</code> is the identity: <code>&lt;&gt; T</code> is definitionally equal to <code>T</code>.
+You do not write it; the point is that a pure value satisfies any effect
+slot whose row contains it (see <a href="#rules">The rules</a>).</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_do_blocks"><a class="anchor" href="#_do_blocks"></a>do-blocks</h5>
+<div class="paragraph">
+<p>A <code>do</code>-block strings statements together. It is the only construct in which
+effects are actually run. Inside a block there are exactly three forms of
+statement:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Form</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>x &#8592; e</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run <code>e</code>, bind the result to <code>x</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>e</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">(bare) Run <code>e</code>, discard the result.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>let x = e</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bind <code>x</code> to <code>e</code> without running anything.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The final statement of a <code>do</code>-block is its return value. The block&#8217;s overall
+type is <code>&lt;U&gt; T</code>, where <code>U</code> is the union of all the statements' effects and
+<code>T</code> is the type of the final statement.</p>
+</div>
+<div class="paragraph">
+<p>A worked example covering every form:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">sideEffect</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">add</span><span class="tok-w">        </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-n">example</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">example</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">    </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sideEffect</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w">     </span><span class="tok-c1">-- t :: &lt;IO&gt; Int, NOT run</span>
+<span class="tok-w">    </span><span class="tok-n">sideEffect</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w">              </span><span class="tok-c1">-- runs, result discarded</span>
+<span class="tok-w">    </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">sideEffect</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-w">         </span><span class="tok-c1">-- runs, x = 10</span>
+<span class="tok-w">    </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">add</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w">           </span><span class="tok-c1">-- y = 11, no run</span>
+<span class="tok-w">    </span><span class="tok-n">z</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-w">                    </span><span class="tok-c1">-- NOW t runs; z = 6</span>
+<span class="tok-w">    </span><span class="tok-n">add</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-n">z</span><span class="tok-w">                   </span><span class="tok-c1">-- returns 17</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Both layout-indented form (as above) and brace form
+(<code>do { x &#8592; e; y &#8592; f; &#8230;&#8203; }</code>) are accepted.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_when_do_is_needed_and_when_it_isnt"><a class="anchor" href="#_when_do_is_needed_and_when_it_isnt"></a>When <code>do</code> is needed and when it isn&#8217;t</h5>
+<div class="paragraph">
+<p>A <code>do</code>-block is not always required. A single effectful expression stands on
+its own:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">forceOnce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">forceOnce</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sideEffect</span><span class="tok-w"> </span><span class="tok-mi">5</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use a <code>do</code>-block when you need to sequence multiple statements, bind
+intermediate results, or run a suspension for its effects only. A <code>do</code>-block
+is itself an expression, so it can appear as an argument:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">handle</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kr">do</span>
+<span class="tok-w">    </span><span class="tok-n">v</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">    </span><span class="tok-n">v</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="rules"><a class="anchor" href="#rules"></a>4.13.4. The rules</h4>
+<div class="paragraph">
+<p>The whole type-checking story for effects is four rules.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Same-language fusion guarantee. A pure same-language do-block do { s1; s2;
-&#8230;&#8203;; sn } (every si is a sourced function call or a value-binding of one in
-language L) compiles to one manifold in L. The parent observes exactly one
-foreign-call for the whole block, regardless of n. This holds for n = 1, 2,
-&#8230;&#8203;, N — the example do { a; b; c; d; e } with all five in L is one segment,
-one foreign-call, one worker.</p>
+<p><strong>Empty rows vanish.</strong> <code>&lt;&gt; T == T</code>. A pure <code>T</code> satisfies any <code>&lt;E&gt; T</code> slot;
+the empty row is the subset of every row.</p>
 </li>
 <li>
-<p>Contiguous same-language runs fuse within a mixed do-block. Statements split
-into maximal contiguous runs by language. Each such run becomes one
-manifold. Transitions between languages are foreign-call boundaries. So do {
-Lcpp; Lcpp; Lcpp; Lpy; Lcpp; Lcpp } becomes three manifolds: a 3-Cpp run, a
-1-Py run, and a 2-Cpp run. No cross-language reordering; runs are determined
-by source order.</p>
+<p><strong>More effects are a supertype of fewer.</strong> <code>&lt;E1&gt; T &lt;: &lt;E2&gt; T</code> exactly when
+the concrete labels of <code>E1</code> are a subset of <code>E2</code>. A <code>&lt;IO&gt; Int</code> is usable
+where <code>&lt;IO, Error&gt; Int</code> is expected; the reverse is not.</p>
 </li>
 <li>
-<p>Order is preserved. Fusion never reorders statements. Side effects fire in
-source order, both within a fused run and across runs.</p>
+<p><strong>Effects don&#8217;t leak silently.</strong> A value of type <code>&lt;E&gt; T</code> with non-empty <code>E</code>
+cannot be assigned to a slot of type <code>T</code>, nor to a bare type variable
+with no effect annotation. If you intend the effect to escape, you say so
+in the type.</p>
 </li>
 <li>
-<p>Calls to non-sourced morloc functions stay as manifolds, but local. Inside a
-fused run, calls to morloc-defined (non-sourced) functions remain manifolds
-(they need their own bodies) but are invoked via the pool&#8217;s local_dispatch,
-not via foreign_call. The fused run is the only foreign-call entry into that
-segment from outside.</p>
-</li>
-<li>
-<p>Effect-typed do-blocks (&lt;E&gt;) fuse the same way. The &lt;E&gt; machinery
-(pushForceIntoRemote, EffectT stripping at boundaries) is orthogonal to
-fusion and continues to work; the body of the fused manifold simply contains
-the in-language source calls in order.</p>
-</li>
-<li>
-<p>Out of fusion scope: sibling do-blocks (separate do expressions used as
-independent arguments) do NOT fuse with each other. Two adjacent !(blockA)
-!(blockB) arguments to a Python function remain two foreign
-calls. Cross-do-block fusion is speculative and not attempted.</p>
+<p><strong>A <code>do</code>-block collects.</strong> Its row is the union of its statements' rows; its
+type is <code>&lt;that-union&gt; T</code>, where <code>T</code> is the type of its final statement.</p>
 </li>
 </ol>
 </div>
-</div>
-<div class="sect3">
-<h4 id="_sequencing_and_conditionals"><a class="anchor" href="#_sequencing_and_conditionals"></a>4.13.2. Sequencing and conditionals</h4>
 <div class="paragraph">
-<p>Effects can be combined with guards:</p>
+<p>A few illustrations:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">baseDmg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">baseDmg</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">roll1d20</span>
-<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>For sequencing effects where the return value is not needed, bare statements in
-a <code>do</code>-block are evaluated and discarded:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">mkdir</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">ExitCode</span>
-<span class="tok-n">cd</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">ExitCode</span>
-<span class="tok-n">touch</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">ExitCode</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- Rule 1: pure is a subtype of &lt;IO&gt;</span>
+<span class="tok-n">pureFortyTwo</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">pureFortyTwo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">42</span><span class="tok-w">                  </span><span class="tok-c1">-- OK</span>
 
-<span class="tok-n">script</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">ExitCode</span>
-<span class="tok-n">script</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-n">mkdir</span><span class="tok-w"> </span><span class="tok-s">&quot;foo/bar&quot;</span>
-<span class="tok-w">  </span><span class="tok-n">cd</span><span class="tok-w"> </span><span class="tok-s">&quot;foo/bar&quot;</span>
-<span class="tok-w">  </span><span class="tok-n">touch</span><span class="tok-w"> </span><span class="tok-s">&quot;baz&quot;</span></code></pre>
+<span class="tok-c1">-- Rule 2: widening is fine</span>
+<span class="tok-n">ioFunc</span><span class="tok-w">      </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">testSubtype</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">testSubtype</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">ioFunc</span>
+<span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w">                                </span><span class="tok-c1">-- OK: &lt;IO&gt; &lt;: &lt;IO, Error&gt;</span>
+
+<span class="tok-c1">-- Rule 2: narrowing is rejected</span>
+<span class="tok-n">rint</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">a</span><span class="tok-w">    </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">rint</span><span class="tok-w">                           </span><span class="tok-c1">-- ERROR: Error not in &lt;IO&gt;</span>
+
+<span class="tok-c1">-- Rule 3: effects can&#39;t be dropped into a pure slot</span>
+<span class="tok-n">rint</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">b</span><span class="tok-w">    </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">rint</span><span class="tok-w">                           </span><span class="tok-c1">-- ERROR: &lt;IO&gt; Int is not Int</span>
+
+<span class="tok-c1">-- Rule 4: the union of statements&#39; effects</span>
+<span class="tok-n">readValue</span><span class="tok-w">   </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">riskyDouble</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-n">combined</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">combined</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">readValue</span><span class="tok-w">                   </span><span class="tok-c1">-- contributes &lt;IO&gt;</span>
+<span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">riskyDouble</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">               </span><span class="tok-c1">-- contributes &lt;Error&gt;</span>
+<span class="tok-w">  </span><span class="tok-n">y</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Here <code>mkdir</code> and <code>cd</code> are called for their side effects and their return values
-are discarded. The exit code from <code>touch</code> becomes the return value.</p>
-</div>
-<div class="paragraph">
-<p>When an effectful function is exported, the effect is automatically forced at
-the boundary. If <code>script</code> is exported, the CLI user receives a plain <code>ExitCode</code>&#8201;&#8212;&#8201;all <code>&lt;IO&gt;</code> effects are evaluated before returning the result.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_coercion_and_subtyping"><a class="anchor" href="#_coercion_and_subtyping"></a>4.13.3. Coercion and subtyping</h4>
-<div class="paragraph">
-<p>Pure values are automatically coerced to effectful types when needed. If a
-function expects <code>&lt;IO&gt; Int</code>, you can pass a plain <code>Int</code>:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">pureFortyTwo</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">pureFortyTwo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">42</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This implicit coercion means pure code composes freely with effectful code
-without any manual wrapping.</p>
-</div>
-<div class="paragraph">
-<p>Effects support subtyping in <strong>one direction</strong>: fewer effects are a subtype of
-more effects. A value of type <code>&lt;IO&gt; Int</code> can be used wherever <code>&lt;IO, Error&gt; Int</code>
-is expected, since a computation that only does IO is a special case of one
-that does both IO and error handling.</p>
-</div>
-<div class="paragraph">
-<p>The reverse direction is rejected. A value with more effects cannot satisfy a
-slot that declares fewer:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rint</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">rint</span><span class="tok-w">           </span><span class="tok-c1">-- ERROR: Error is not in &lt;IO&gt;</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Likewise, an effectful value cannot inhabit a pure slot. Effects do not
-silently drop&#8201;&#8212;&#8201;the caller must either declare them in its own signature or
-discharge them inside a <code>do</code>-block:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rint</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">rint</span><span class="tok-w">           </span><span class="tok-c1">-- ERROR: cannot discard &lt;IO&gt; to match pure Int</span></code></pre>
-</div>
+<p>There is one more guarantee the user sees but does not write down: an
+exported <code>&lt;E&gt; T</code> is forced automatically at the boundary. The compiled
+program&#8217;s user receives a <code>T</code>. Effects do not escape the binary.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="effect-checking"><a class="anchor" href="#effect-checking"></a>4.13.4. Effect checking</h4>
+<h4 id="_effect_row_variables"><a class="anchor" href="#_effect_row_variables"></a>4.13.5. Effect row variables</h4>
 <div class="paragraph">
-<p>When the typechecker sees a definition with a declared signature, it computes
-the set of effects the body would introduce when evaluated and verifies that
-set is a subset of the effects the signature permits. This catches the
-following cases:</p>
+<p>Combinators that <strong>thread</strong> effects need to be able to talk about sets of unknown
+effects. For that, an effect row may include a single lowercase variable that
+represents a set of zero or more unknown effects:</p>
 </div>
 <div class="paragraph">
-<p><strong>Effects must be declared.</strong> A bare <code>!</code> outside a <code>do</code>-block makes the
-surrounding term carry the forced effect. A pure signature does not cover it:</p>
+<p>The function <code>mapE</code>, below, carries the all the effects of the mapping function
+to the final value:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rint</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">randPure</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">randPure</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">rint</span><span class="tok-w">   </span><span class="tok-c1">-- ERROR: body produces &lt;Rand&gt;, signature permits &lt;&gt;</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">mapE</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">b</span><span class="tok-p">]</span></code></pre>
 </div>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Either add the effect to the signature (`randPure </dt>
-<dd>
-<p>&lt;Rand&gt; Int`) or move the
-force into a <code>do</code>-block that surfaces it in the type.</p>
-</dd>
-</dl>
 </div>
 <div class="paragraph">
-<p><strong>Function bodies are checked the same way.</strong> The effects of the body are
-matched against the return-position effects of the declared function type:</p>
+<p>Effect variables and constants may be mixed, but there may be no more than one
+effect variable associated with a given term.</p>
+</div>
+<div class="paragraph">
+<p>In the following code, the signature states the requirement that function <code>f</code>
+produce a random effect, but allows other effects to be produced as well.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rint</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">add</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">purePlusEff</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">purePlusEff</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">add</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">rint</span><span class="tok-w">   </span><span class="tok-c1">-- ERROR: &lt;Rand&gt; not in &lt;&gt;</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-p">,</span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-p">,</span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">  </span><span class="tok-n">y</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The fix is the same: either declare the effect in the return type
-(<code>purePlusEff :: Int &#8594; &lt;Rand&gt; Int</code>) or sequence the force in a <code>do</code>-block.</p>
-</div>
-<div class="paragraph">
-<p><strong>Let-bound forces also escape.</strong> Binding a force to a name inside a <code>let</code>
-does not change which term is responsible for the effect&#8201;&#8212;&#8201;the surrounding
-definition must declare it:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rint</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">letPureForce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">letPureForce</span><span class="tok-w"> </span><span class="tok-o">=</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">rint</span>
-<span class="tok-w">  </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">                          </span><span class="tok-c1">-- ERROR: &lt;Rand&gt; escapes the let</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><strong>Arguments cannot widen at the call site.</strong> Passing a more-effectful value
-into a parameter slot that declares fewer effects is rejected:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rint</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">consume</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">consume</span><span class="tok-w"> </span><span class="tok-n">rint</span><span class="tok-w">                </span><span class="tok-c1">-- ERROR: &lt;Error&gt; not in &lt;IO&gt;</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><strong><code>do</code>-blocks and lambdas are thunks.</strong> A <code>do</code>-block or lambda captures its
-internal effects in its <strong>type</strong>, not at the evaluation of the surrounding
-expression. So storing or passing one of these values does not require the
-surrounding term to declare the inner effects:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">rint</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">randAction</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">randAction</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">rint</span><span class="tok-w">          </span><span class="tok-c1">-- OK: effect lives in the do-block&#39;s type</span>
-
-<span class="tok-n">useLater</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">useLater</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">randAction</span><span class="tok-w">           </span><span class="tok-c1">-- OK: forwarding a thunk, no force here</span>
-
-<span class="tok-n">samplerOf</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">samplerOf</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">rint</span><span class="tok-w">              </span><span class="tok-c1">-- OK: lambda returns an effectful value;</span>
-<span class="tok-w">                                </span><span class="tok-c1">-- the effect fires only when called and forced</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The rule of thumb: forcing fires an effect, references and lambdas do not.
-Any <code>!</code> (or <code>&#8592;</code>) you write must be covered by the surrounding signature, and
-the simplest way to cover it is to write a <code>do</code>-block whose type the compiler
-can read.</p>
-</div>
-<div class="paragraph">
-<p><strong>Declared but unused is allowed.</strong> A signature may list effects the body
-does not actually introduce; pure-to-effect coercion lifts the body to match.
-This is sometimes intentional (forward-compatible stubs) and is permitted.
-A future warning may flag declarations that overstate their effects, but it
-is not currently an error.</p>
+<p>If the programmer had instead specified the effect <code>&lt;Rand&gt;</code>, then only the
+<code>Rand</code> effect would be allowed and any additional effects would raise an error
+in the typechecker.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_cross_language_effects"><a class="anchor" href="#_cross_language_effects"></a>4.13.5. Cross-language effects</h4>
+<h4 id="escapable"><a class="anchor" href="#escapable"></a>4.13.6. Escapable and inescapable effects</h4>
 <div class="paragraph">
-<p>Effects work seamlessly across language boundaries. A <code>do</code>-block can mix
-effectful calls to functions implemented in different languages:</p>
+<p>The default form <code>effect E</code> is <strong>inescapable</strong>. An inescapable effect that
+appears in a function&#8217;s arguments must also appear in its result.
+The compiler enforces this on every signature, sourced or defined.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;stats.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;sampleCpp&quot;</span><span class="tok-p">)</span>
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;stats.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;analyzePy&quot;</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">effect</span><span class="tok-w"> </span><span class="tok-nc">Cap</span><span class="tok-w">                         </span><span class="tok-c1">-- inescapable</span>
 
-<span class="tok-n">sampleCpp</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span>
-<span class="tok-n">analyzePy</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Report</span>
-
-<span class="tok-n">pipeline</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Report</span>
-<span class="tok-n">pipeline</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-n">samples</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">sampleCpp</span><span class="tok-w"> </span><span class="tok-mi">1000</span>
-<span class="tok-w">  </span><span class="tok-n">analyzePy</span><span class="tok-w"> </span><span class="tok-n">samples</span></code></pre>
+<span class="tok-n">passt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Cap</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Cap</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w">    </span><span class="tok-c1">-- OK: Cap propagates</span>
+<span class="tok-n">bad</span><span class="tok-w">   </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Cap</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w">       </span><span class="tok-c1">-- ERROR: Cap dropped from result</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The compiler handles all cross-language serialization and process coordination
-automatically. Each <code>&#8592;</code> in the <code>do</code>-block may cross a language boundary, with
-data serialized between processes as needed.</p>
+<p>Effects may alternatively be explicitly defined as <strong>escapable</strong> and then
+functions may be sourced to handle the effect.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">escapable</span><span class="tok-w"> </span><span class="tok-n">effect</span><span class="tok-w"> </span><span class="tok-nc">Error</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;ops.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;foo&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;handle_error&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">handleError</span><span class="tok-p">)</span>
+
+<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Error</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-c1">-- a handler that discharges Error and lets every other effect through</span>
+<span class="tok-n">handleError</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Error</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+
+<span class="tok-c1">-- four equivalent ways to write the same call</span>
+<span class="tok-n">gDirect</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">gDoWrap</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">gDoForce</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">gDoBind</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-n">gDirect</span><span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">handleError</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
+<span class="tok-n">gDoWrap</span><span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">handleError</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">}</span>
+<span class="tok-n">gDoForce</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">handleError</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-w"> </span><span class="tok-p">})</span>
+<span class="tok-n">gDoBind</span><span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">handleError</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-p">})</span></code></pre>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_known_limitations"><a class="anchor" href="#_known_limitations"></a>4.13.6. Known limitations</h4>
-<div class="paragraph">
-<p>The effect system is intentionally narrow. A few rough edges remain:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Effect variables are not solved.</strong> When a function&#8217;s type contains an
-unresolved effect variable (which can arise during inference of
-intermediate <code>do</code>-block statements), the typechecker permissively
-accepts any subset relation involving it. This is a known soundness
-hole and will tighten once effect-variable solving lands.</p>
-</li>
-<li>
-<p><strong>Effects are not polymorphic.</strong> You cannot write <code>forall e. &lt;e&gt; T</code>. The
-compiler does not need this for generic higher-order combinators: an
-effectful argument&#8217;s type unifies normally so the result type carries</p>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">the effect (e.g. `map (rint </dt>
-<dd>
-<p>Int &#8594; &lt;Rand&gt; Int) xs` has type
-<code>[&lt;Rand&gt; Int]</code>). Collapsing a list of effectful values into a single
-effectful list (<code>&lt;Rand&gt; [Int]</code>) requires an explicit combinator such
-as <code>sequenceE</code> rather than implicit lifting.</p>
-</dd>
-</dl>
 </div>
-</li>
-<li>
-<p><strong>Effects are not inferred across the FFI.</strong> A <code>source</code> signature must
-declare its effects explicitly; the compiler cannot infer them from
-the foreign body.</p>
-</li>
-<li>
-<p><strong>Labels carry no semantics.</strong> <code>IO</code>, <code>Rand</code>, <code>Error</code>, and any other
-  uppercase identifier are treated as opaque tags. The compiler will
-  propagate them through a composition and check coverage, but it will
-  not, for example, recognise that <code>Error</code> should short-circuit a
-  <code>sequenceE</code>&#8201;&#8212;&#8201;that behaviour belongs to the standard-library
-  combinator, not to the label.
-=== Optional types</p>
-</li>
-</ul>
-</div>
+<div class="sect2">
+<h3 id="_optional_types"><a class="anchor" href="#_optional_types"></a>4.14. Optional types</h3>
 <div class="paragraph">
 <p>All programming languages must have a way to deal with missing values. If you
 query a database for a record that doesn&#8217;t exist, what is returned? If a
@@ -4392,9 +4474,8 @@ language-specific implementation while preserving between language
 consistency. To this end, Morloc offers a dedicated "optional" type with
 supported implicit coercion.</p>
 </div>
-</div>
 <div class="sect3">
-<h4 id="_syntax"><a class="anchor" href="#_syntax"></a>4.13.7. Syntax</h4>
+<h4 id="_syntax_2"><a class="anchor" href="#_syntax_2"></a>4.14.1. Syntax</h4>
 <div class="paragraph">
 <p>The <code>?</code> prefix marks a type as optional and the <code>Null</code> constructor indicates an
 absent value. <code>?Int</code> is an integer that might be <code>Null</code>, <code>?Str</code> is a string that
@@ -4434,7 +4515,7 @@ lowercase <code>null</code> per the JSON standard.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_working_with_optional_values"><a class="anchor" href="#_working_with_optional_values"></a>4.13.8. Working with optional values</h4>
+<h4 id="_working_with_optional_values"><a class="anchor" href="#_working_with_optional_values"></a>4.14.2. Working with optional values</h4>
 <div class="paragraph">
 <p>Functions that produce or consume optional values are sourced from foreign
 languages like any other function. Here is a complete example in Python:</p>
@@ -4541,7 +4622,7 @@ In C&#43;&#43;:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_optional_record_fields"><a class="anchor" href="#_optional_record_fields"></a>4.13.9. Optional record fields</h4>
+<h4 id="_optional_record_fields"><a class="anchor" href="#_optional_record_fields"></a>4.14.3. Optional record fields</h4>
 <div class="paragraph">
 <p>Record fields can be optional as well. This is useful for data with missing or
 unknown values. The <code>where</code> form below is an alternative syntax for record
@@ -4570,7 +4651,7 @@ age field of <code>bob</code> becomes <code>null</code>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_optional_values_across_languages"><a class="anchor" href="#_optional_values_across_languages"></a>4.13.10. Optional values across languages</h4>
+<h4 id="_optional_values_across_languages"><a class="anchor" href="#_optional_values_across_languages"></a>4.14.4. Optional values across languages</h4>
 <div class="paragraph">
 <p>Optional types work seamlessly across language boundaries. A function in one
 language can produce an optional value that is consumed by a function in another:</p>
@@ -4601,7 +4682,7 @@ manually.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_implicit_coercion"><a class="anchor" href="#_implicit_coercion"></a>4.13.11. Implicit coercion</h4>
+<h4 id="_implicit_coercion"><a class="anchor" href="#_implicit_coercion"></a>4.14.5. Implicit coercion</h4>
 <div class="paragraph">
 <p>Morloc automatically coerces a non-optional value to an optional when the
 context requires it. If a function expects <code>?Int</code>, you can pass a plain <code>Int</code>
@@ -4650,7 +4731,7 @@ serialization so that the value is received correctly:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_nested_optionals_are_idempotent"><a class="anchor" href="#_nested_optionals_are_idempotent"></a>4.13.12. Nested optionals are idempotent</h4>
+<h4 id="_nested_optionals_are_idempotent"><a class="anchor" href="#_nested_optionals_are_idempotent"></a>4.14.6. Nested optionals are idempotent</h4>
 <div class="paragraph">
 <p><code>?(?T)</code> is accepted by the parser and the typechecker, but at runtime it
 collapses to a single <code>?T</code>. There is one <code>Null</code>, with no way to distinguish
@@ -4712,15 +4793,13 @@ the open problem&#8201;&#8212;&#8201;not every backend has a first-class sum rep
 </div>
 </div>
 <div class="sect2">
-<h3 id="_intrinsics"><a class="anchor" href="#_intrinsics"></a>4.14. Intrinsics</h3>
+<h3 id="_intrinsics"><a class="anchor" href="#_intrinsics"></a>4.15. Intrinsics</h3>
 <div class="paragraph">
 <p>Intrinsics are compiler-generated special functions. They are prefixed with <code>@</code>
-and provide capabilities that cannot be implemented as ordinary sourced
-functions&#8201;&#8212;&#8201;they require the compiler to generate specialized code based on the
-types involved.</p>
+and provide access to the Morloc runtime.</p>
 </div>
 <div class="sect3">
-<h4 id="_reference_table"><a class="anchor" href="#_reference_table"></a>4.14.1. Reference table</h4>
+<h4 id="_reference_table"><a class="anchor" href="#_reference_table"></a>4.15.1. Reference table</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 16.6666%;">
@@ -4783,12 +4862,12 @@ types involved.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@schema</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The serialization schema string for the given type (value is ignored at runtime)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The serialization schema string for the given type</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@typeof</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The morloc abstract type name for the given type, e.g. <code>"Int"</code>, <code>"[Str]"</code>, <code>"?Real"</code>, <code>"(Int, Str)"</code> (value is ignored at runtime)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The morloc abstract type name for the given type, e.g. <code>"Int"</code>, <code>"[Str]"</code>, <code>"?Real"</code>, <code>"(Int, Str)"</code></p></td>
 </tr>
 </tbody>
 </table>
@@ -4802,7 +4881,75 @@ or return plain strings and are resolved at compile time.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_saving_and_loading_data"><a class="anchor" href="#_saving_and_loading_data"></a>4.14.2. Saving and loading data</h4>
+<h4 id="_hashing"><a class="anchor" href="#_hashing"></a>4.15.2. Hashing</h4>
+<div class="paragraph">
+<p><code>@hash</code> computes a fast, non-cryptographic hash (xxhash) of any value. The
+value is first serialized to MessagePack internally, then hashed. The result is
+a 16-character hexadecimal string.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">hashInt</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">hashStr</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
+
+<span class="tok-n">hashInt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">hashInt</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@hash</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
+
+<span class="tok-n">hashStr</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">hashStr</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@hash</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Hashing is deterministic: the same value always produces the same hash. Two
+values of different types may hash differently even if they look similar (e.g.,
+the integer <code>1</code> and the string <code>"1"</code>), because their MessagePack serializations
+differ.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_compile_time_constants"><a class="anchor" href="#_compile_time_constants"></a>4.15.3. Compile-time constants</h4>
+<div class="paragraph">
+<p>The <code>@version</code>, <code>@compiled</code>, and <code>@lang</code> intrinsics are resolved at compile
+time. They can be used anywhere a <code>Str</code> value is expected.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">info</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
+
+<span class="tok-n">info</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span>
+<span class="tok-n">info</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nb">@version</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nb">@compiled</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nb">@lang</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Running <code>./info info</code> might produce:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>["0.85.0", "&lt;compile-timestamp&gt;", "morloc"]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>@lang</code> value depends on where the expression is evaluated. When the list
+literal above is assembled at the nexus level (not inside a sourced function),
+<code>@lang</code> resolves to <code>"morloc"</code>. To observe the language-pool identifier, pass
+<code>@lang</code> into a sourced function and let it be evaluated inside that pool: the
+value will be that pool&#8217;s canonical language identifier&#8201;&#8212;&#8201;the <code>name</code> field
+from its <code>lang.yaml</code> (<code>"py"</code>, <code>"cpp"</code>, <code>"r"</code>, &#8230;&#8203;).</p>
+</div>
+<div class="paragraph">
+<p><code>@lang</code> deliberately returns this short canonical identifier, not a
+human-facing display name like "Python3" or "C&#43;&#43;". Intrinsics are low-level
+primitives where stability outweighs presentation: the <code>lang.yaml</code> <code>name</code> is
+the guaranteed-unique, stable identifier for a language backend, so it is the
+correct value for conditional logic and tooling. Map it to a prettier label
+yourself if you need one.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_saving_and_loading_data"><a class="anchor" href="#_saving_and_loading_data"></a>4.15.4. Saving and loading data</h4>
 <div class="paragraph">
 <p>The <code>@save</code>, <code>@savem</code>, and <code>@savej</code> intrinsics write a value to a file path.
 <code>@load</code> reads it back. Together they provide a type-safe file persistence
@@ -4810,7 +4957,7 @@ mechanism.</p>
 </div>
 <div class="paragraph">
 <p><code>@save</code> uses the flat binary format, which is the fastest option&#8201;&#8212;&#8201;the value&#8217;s
-in-memory representation is written almost directly to disk with minimal
+in-memory representation is written to disk with minimal
 serialization overhead (no text encoding or schema parsing, only pointer
 translation). <code>@savem</code> uses MessagePack, which is compact and portable
 across different machines and architectures. <code>@savej</code> writes plain JSON, which
@@ -4868,7 +5015,7 @@ editor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_caching_with_save_and_load"><a class="anchor" href="#_caching_with_save_and_load"></a>4.14.3. Caching with save and load</h4>
+<h4 id="_caching_with_save_and_load"><a class="anchor" href="#_caching_with_save_and_load"></a>4.15.5. Caching with save and load</h4>
 <div class="paragraph">
 <p>A common pattern is to check whether a cached result exists before recomputing
 it. Since <code>@load</code> returns <code>null</code> when the file is missing, you can branch on
@@ -4928,75 +5075,7 @@ serialized form.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_hashing"><a class="anchor" href="#_hashing"></a>4.14.4. Hashing</h4>
-<div class="paragraph">
-<p><code>@hash</code> computes a fast, non-cryptographic hash (xxhash) of any value. The
-value is first serialized to MessagePack internally, then hashed. The result is
-a 16-character hexadecimal string.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">hashInt</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">hashStr</span><span class="tok-p">)</span>
-
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
-
-<span class="tok-n">hashInt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-<span class="tok-n">hashInt</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@hash</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
-
-<span class="tok-n">hashStr</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-<span class="tok-n">hashStr</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@hash</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Hashing is deterministic: the same value always produces the same hash. Two
-values of different types may hash differently even if they look similar (e.g.,
-the integer <code>1</code> and the string <code>"1"</code>), because their MessagePack serializations
-differ.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_compile_time_constants"><a class="anchor" href="#_compile_time_constants"></a>4.14.5. Compile-time constants</h4>
-<div class="paragraph">
-<p>The <code>@version</code>, <code>@compiled</code>, and <code>@lang</code> intrinsics are resolved at compile
-time. They can be used anywhere a <code>Str</code> value is expected.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">info</span><span class="tok-p">)</span>
-
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
-
-<span class="tok-n">info</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span>
-<span class="tok-n">info</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nb">@version</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nb">@compiled</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nb">@lang</span><span class="tok-p">]</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Running <code>./info info</code> might produce:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>["0.85.0", "&lt;compile-timestamp&gt;", "morloc"]</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The <code>@lang</code> value depends on where the expression is evaluated. When the list
-literal above is assembled at the nexus level (not inside a sourced function),
-<code>@lang</code> resolves to <code>"morloc"</code>. To observe the language-pool identifier, pass
-<code>@lang</code> into a sourced function and let it be evaluated inside that pool: the
-value will be that pool&#8217;s canonical language identifier&#8201;&#8212;&#8201;the <code>name</code> field
-from its <code>lang.yaml</code> (<code>"py"</code>, <code>"cpp"</code>, <code>"r"</code>, &#8230;&#8203;).</p>
-</div>
-<div class="paragraph">
-<p><code>@lang</code> deliberately returns this short canonical identifier, not a
-human-facing display name like "Python3" or "C++". Intrinsics are low-level
-primitives where stability outweighs presentation: the <code>lang.yaml</code> <code>name</code> is
-the guaranteed-unique, stable identifier for a language backend, so it is the
-correct value for conditional logic and tooling. Map it to a prettier label
-yourself if you need one.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_accessing_installed_data_files"><a class="anchor" href="#_accessing_installed_data_files"></a>4.14.6. Accessing installed data files</h4>
+<h4 id="_accessing_installed_data_files"><a class="anchor" href="#_accessing_installed_data_files"></a>4.15.6. Accessing installed data files</h4>
 <div class="paragraph">
 <p>The <code>@datafile</code> intrinsic resolves a relative file path to its location in
 the installed program directory. When you compile with <code>morloc make --install</code>,
@@ -5045,7 +5124,7 @@ the program is run from the project directory or installed.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_type_introspection"><a class="anchor" href="#_type_introspection"></a>4.14.7. Type introspection</h4>
+<h4 id="_type_introspection"><a class="anchor" href="#_type_introspection"></a>4.15.7. Type introspection</h4>
 <div class="paragraph">
 <p>The <code>@schema</code> and <code>@typeof</code> intrinsics return information about how the compiler
 represents a type. The value argument is not evaluated at runtime&#8201;&#8212;&#8201;only its
@@ -5160,15 +5239,16 @@ inspect morloc wire formats.</p>
 <div class="sect2">
 <h3 id="_one_term_may_have_many_definitions"><a class="anchor" href="#_one_term_may_have_many_definitions"></a>5.1. One term may have many definitions</h3>
 <div class="paragraph">
-<p>Morloc supports what might be called <em>term polymorphism</em>. Each
-term may have many definitions. This is most useful for helper functions that
-have reasonable implementations in multiple languages. By providing definitions
-in several languages, the compiler can select the implementation that avoids
-unnecessary cross-language calls&#8201;&#8212;&#8201;allowing the program to collapse around
-specialized, single-language functions. Without term polymorphism, changing the
-language of any component would require manually rewriting and rewiring the
-entire program. For example, the function <code>mean</code> has three
-definitions below:</p>
+<p>Morloc supports <em>term polymorphism</em>. Each term may have many definitions. This
+is most useful for helper functions that have reasonable implementations in
+multiple languages. By providing definitions in several languages, the compiler
+can select implementations that avoid unnecessary cross-language calls. This
+allows the program to collapse around specialized, single-language
+functions. Without term polymorphism, changing the language of any component
+would require manually rewriting and rewiring large sections of the program.</p>
+</div>
+<div class="paragraph">
+<p>The function <code>mean</code>, below, is given three definitions:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -5181,17 +5261,16 @@ definitions below:</p>
 </div>
 </div>
 <div class="paragraph">
-<p><code>mean</code> is sourced directly from C&#43;&#43;, it is defined in terms of the <code>sum</code>
-function, and it is defined more generally with <code>sum</code> written as a fold
-operation. The Morloc compiler is responsible for deciding which
-implementation to use.</p>
+<p>The <code>mean</code> function is 1) sourced directly from C&#43;&#43;, 2) defined in terms of
+the <code>sum</code> function, and 3) defined more generally with <code>sum</code> written as a fold
+operation. The Morloc compiler is responsible for deciding which implementation
+to use.</p>
 </div>
 <div class="paragraph">
 <p>The equals operator in Morloc indicates functional substitutability. When you
 say a term is "equal" to something, you are giving the compiler an option for
-what may be substituted for the term. The function <code>mean</code>, for example, has many
-functionally equivalent definitions. They may be in different languages, or they
-may be more optimal in different situations.</p>
+what may be substituted for the term. The function <code>mean</code>, for example, has three
+functionally equivalent definitions.</p>
 </div>
 <div class="paragraph">
 <p>Now this ability to simply state that two things are the same can be abused. The
@@ -5207,13 +5286,13 @@ following statement is syntactically allowed in Morloc:</p>
 <p>What is <code>x</code> after this code is run? It is 1 <em>or</em> 2. The latter definition does
 not mask the former, it <em>appends</em> the former. Now in this case, the two values
 are certainly not substitutable. Morloc has a simple <em>value checker</em> that will
-catch this type of primitive contradition (literal equality and container size
-contradictions). The value checker is in early development and cannot yet
-catch more nuanced errors, such as:</p>
+catch this type of primitive contradiction (literal equality and container size
+conflicts). The value checker is in early development and cannot yet catch more
+nuanced errors, such as:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-o">/</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-o">/</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span>
 <span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-o">/</span><span class="tok-w"> </span><span class="tok-mi">1</span></code></pre>
 </div>
 </div>
@@ -5221,6 +5300,72 @@ catch more nuanced errors, such as:</p>
 <p>In this case, the type checker cannot check within the implementation of <code>(+)</code>,
 so it cannot know that there is a contradiction. For this reason, some care is
 needed in making these definitions.</p>
+</div>
+<div class="sect3">
+<h4 id="_term_polymorphism_example_polyglot_test_suites"><a class="anchor" href="#_term_polymorphism_example_polyglot_test_suites"></a>5.1.1. Term polymorphism example: Polyglot test suites</h4>
+<div class="paragraph">
+<p>With term polymorphism we can design arbitrarily complex programs that will
+collapse into very different implementations depending on what implementations
+for the terms are subsequently imported. A powerful example of this is the
+approach to testing used in the Morloc standard library.</p>
+</div>
+<div class="paragraph">
+<p>Each "section" in the standard library is comprised of a language-agnostic
+parent module and many language-specific child modules. The parent module defines
+all terms that will be exported and the implements a comprehensive test suite.</p>
+</div>
+<div class="paragraph">
+<p>Here is a stripped down example of the language-agnostic test suite for a toy <code>clock</code> module:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">clock</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">incSec</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">incMin</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">incHour</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span>
+
+<span class="tok-n">incSec</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">incMin</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">incHour</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-nc">Int</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This module defines type signatures for the exported clock functions and it
+imports the language-independent <code>root</code> module (just for <code>Int</code> definitions).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">clock</span><span class="tok-o">.</span><span class="tok-n">test</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">test</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">clock</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">incMin</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">incHour</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">incSec</span><span class="tok-p">)</span>
+
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;test.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;testEqual&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;printMsg&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;printResult&quot;</span><span class="tok-p">)</span>
+<span class="tok-n">testEqual</span>
+<span class="tok-w">    </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-c1">-- description of the test</span>
+<span class="tok-w">    </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">    </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">    </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">-- total number of tests and total fails</span>
+<span class="tok-w">    </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">printMsg</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-n">printResult</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+
+<span class="tok-n">testGroup</span>
+<span class="tok-w">    </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-w">    </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">((</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">))</span>
+<span class="tok-w">    </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">testGroup</span><span class="tok-w"> </span><span class="tok-n">msg</span><span class="tok-w"> </span><span class="tok-n">tests</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">tests</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-w"> </span><span class="tok-n">printMsg</span><span class="tok-w"> </span><span class="tok-n">msg</span>
+
+<span class="tok-n">passed</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span>
+<span class="tok-n">passed</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">.</span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-p">)</span>
+
+<span class="tok-n">test</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">runTests</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-mi">0</span><span class="tok-p">,</span><span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The actual standard library modules define specialized Morloc functions for
+managing test groups, counting failures, pretty-printing results, etc.</p>
+</div>
 </div>
 </div>
 <div class="sect2">
