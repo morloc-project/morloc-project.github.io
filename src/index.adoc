@@ -180,7 +180,7 @@ include::{includedir}/types-typeclasses.asc[]
 include::{includedir}/features-infix.asc[]
 include::{includedir}/types-custom-types.asc[]
 include::{includedir}/types-source.asc[]
-include::{includedir}/types-hierarchies.asc[]
+include::{includedir}/types-newtype.asc[]
 include::{includedir}/types-kinds.asc[]
 include::{includedir}/features-tensors.asc[]
 include::{includedir}/features-tables.asc[]
@@ -189,7 +189,22 @@ include::{includedir}/features-tables.asc[]
 
 include::{includedir}/interface-cli.asc[]
 include::{includedir}/interface-install.asc[]
+include::{includedir}/interface-expose.asc[]
+include::{includedir}/interface-data-transfer.asc[]
 include::{includedir}/interface-daemons.asc[]
+
+== Managing Runs
+
+include::{includedir}/runs-logging.asc[]
+include::{includedir}/runs-rundir.asc[]
+include::{includedir}/runs-caching.asc[]
+include::{includedir}/runs-compression.asc[]
+include::{includedir}/runs-debugging.asc[]
+
+== Utilities
+
+include::{includedir}/utilities-nexus-file.asc[]
+include::{includedir}/utilities-nexus-view.asc[]
 
 == Modules and Libraries
 
