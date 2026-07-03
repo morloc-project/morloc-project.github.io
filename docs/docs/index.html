@@ -671,6 +671,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_caching">7.3. Caching</a></li>
 <li><a href="#_compression">7.4. Compression</a></li>
 <li><a href="#_debugging">7.5. Debugging</a></li>
+<li><a href="#_random_access_and_streaming">7.6. Random access and streaming</a></li>
 </ul>
 </li>
 <li><a href="#_utilities">8. Utilities</a>
@@ -4927,11 +4928,6 @@ and provide access to the Morloc runtime.</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@save</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int &#8594; a &#8594; Str &#8594; &lt;IO&gt; ()</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file in flat binary format (fast, minimal overhead). The first argument is a zstd compression preset in <code>0..=9</code> (<code>0</code> = no compression); see <a href="#_compression">Compression</a> for the level table.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@savem</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str &#8594; &lt;IO&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file in MessagePack format (portable, compact)</p></td>
@@ -4945,6 +4941,71 @@ and provide access to the Morloc runtime.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@load</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO&gt; ?a</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Load a value from file, auto-detecting the format. Returns <code>null</code> if the file does not exist.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@open</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO&gt; a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open a stream file; <code>a</code> is resolved by inline ascription to <code>IFile a</code>, <code>IStream a</code>, or <code>OStream a</code>. See <a href="#_random_access_and_streaming">Random access and streaming</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@close</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; &lt;IO&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Close any stream file handle; writes the final footer for an OStream and releases the handle&#8217;s slot.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@fschema</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO&gt; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Read a stream file&#8217;s element schema without binding a typed handle. Useful for runtime schema discovery.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@flen</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a &#8594; &lt;IO&gt; Int</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total element count of an <code>IFile</code>, read from the file&#8217;s footer.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@write</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int &#8594; [a] &#8594; OStream a &#8594; &lt;IO&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Append a list of elements to an <code>OStream</code>. The first argument is a zstd compression preset in <code>0..=9</code> (<code>0</code> = no compression); see <a href="#_compression">Compression</a> for the level table.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@flush</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OStream a &#8594; &lt;IO&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Force buffered elements to disk as a sub-packet boundary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@append</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO&gt; (OStream a)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reopen an existing stream file for further writes. Schema mismatch errors at open time.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@concat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[Str] &#8594; Str &#8594; &lt;IO&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Byte-level concatenate compatible stream files into a destination via <code>sendfile</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@next</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IStream a &#8594; &lt;IO&gt; [a]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pull the next sub-packet&#8217;s elements from an <code>IStream</code>. Returns <code>[]</code> at EOF.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stream</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a &#8594; &lt;IO&gt; IStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Derive a forward-walking <code>IStream</code> from an open <code>IFile</code>. The two share the underlying file but have independent cursors.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stdin</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; IStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open process stdin as a typed <code>IStream</code> of morloc binary packets. Element type set by inline ascription. See <a href="#_random_access_and_streaming">Random access and streaming</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stdout</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; OStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open process stdout as a typed <code>OStream</code> of morloc binary packets. Element type set by inline ascription.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stderr</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; OStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open process stderr as a typed <code>OStream</code> of morloc binary packets. Element type set by inline ascription. Useful for structured diagnostics that downstream tools can parse.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@hash</code></p></td>
@@ -4984,12 +5045,15 @@ and provide access to the Morloc runtime.</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Several intrinsics are polymorphic in their data argument: <code>@save</code>, <code>@savem</code>,
-<code>@savej</code>, <code>@hash</code>, <code>@schema</code>, and <code>@typeof</code> accept a value of any type. <code>@load</code>
-returns a value of any type, inferred from context. The <code>@save</code>/<code>@savem</code>/<code>@savej</code>
-functions return <code>&lt;IO&gt; ()</code> because they perform I/O as a side effect. The
-remaining intrinsics (<code>@version</code>, <code>@compiled</code>, <code>@lang</code>, <code>@datafile</code>) operate on
-or return plain strings and are resolved at compile time.</p>
+<p>Several intrinsics are polymorphic in their data argument: <code>@savem</code>, <code>@savej</code>,
+<code>@write</code>, <code>@hash</code>, <code>@schema</code>, and <code>@typeof</code> accept a value of any type. <code>@load</code>
+and <code>@next</code> return a value of any type, inferred from context. <code>@stdin</code>,
+<code>@stdout</code>, <code>@stderr</code>, and <code>@open</code> are polymorphic in their handle&#8217;s element
+type, which is resolved by inline ascription at the open site. The
+<code>@savem</code>/<code>@savej</code>/<code>@write</code> functions return <code>&lt;IO&gt; ()</code> because they perform I/O
+as a side effect. The remaining intrinsics (<code>@version</code>, <code>@compiled</code>, <code>@lang</code>,
+<code>@datafile</code>) operate on or return plain strings and are resolved at compile
+time.</p>
 </div>
 </div>
 <div class="sect3">
@@ -5063,24 +5127,22 @@ yourself if you need one.</p>
 <div class="sect3">
 <h4 id="_saving_and_loading_data"><a class="anchor" href="#_saving_and_loading_data"></a>4.15.4. Saving and loading data</h4>
 <div class="paragraph">
-<p>The <code>@save</code>, <code>@savem</code>, and <code>@savej</code> intrinsics write a value to a file path.
-<code>@load</code> reads it back. Together they provide a type-safe file persistence
-mechanism.</p>
+<p>The <code>@savem</code> and <code>@savej</code> intrinsics write a single value to a file path; <code>@load</code>
+reads it back. Together they provide a type-safe file persistence mechanism for
+one-shot writes. For multi-element accumulation use an <code>OStream</code> and <code>@write</code>
+instead (see <a href="#_random_access_and_streaming">Random access and streaming</a>).</p>
 </div>
 <div class="paragraph">
-<p><code>@save</code> uses the flat binary format, which is the fastest option&#8201;&#8212;&#8201;the value&#8217;s
-in-memory representation is written to disk with minimal
-serialization overhead (no text encoding or schema parsing, only pointer
-translation). <code>@savem</code> uses MessagePack, which is compact and portable
-across different machines and architectures. <code>@savej</code> writes plain JSON, which
-is human-readable and can be edited by hand or consumed by other tools.</p>
+<p><code>@savem</code> uses MessagePack, which is compact and portable across different
+machines and architectures. <code>@savej</code> writes plain JSON, which is human-readable
+and can be edited by hand or consumed by other tools.</p>
 </div>
 <div class="paragraph">
-<p><code>@load</code> auto-detects the file format. Files written by <code>@save</code> or <code>@savem</code>
-carry a small header that <code>@load</code> uses to distinguish the binary and MessagePack
-formats. If no header is present, <code>@load</code> tries to parse the file as JSON. This
-means <code>@load</code> can read files written by any of the three save intrinsics, and it
-can also read plain JSON files that were created outside of Morloc.</p>
+<p><code>@load</code> auto-detects the file format. Files written by <code>@savem</code> carry a small
+header that identifies them as MessagePack. If no header is present, <code>@load</code>
+tries to parse the file as JSON. <code>@load</code> also recognises morloc stream and
+voidstar packets, so any file produced by the morloc runtime round-trips through
+it.</p>
 </div>
 <div class="paragraph">
 <p>Since <code>@load</code> returns <code>&lt;IO&gt; ?a</code>, it is an effectful computation that yields an
@@ -5099,12 +5161,12 @@ data.</p>
 
 <span class="tok-n">roundTrip</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int</span>
 <span class="tok-n">roundTrip</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-nb">@save</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">path</span>
+<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">path</span>
 <span class="tok-w">  </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">path</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>@save</code> call writes the integer to the given path. Then <code>@load</code> reads it
+<p>The <code>@savem</code> call writes the integer to the given path. Then <code>@load</code> reads it
 back. Because <code>@load</code> is the final expression in the <code>do</code> block, its result
 is the return value of <code>roundTrip</code>.</p>
 </div>
@@ -5127,7 +5189,7 @@ editor.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_caching_with_save_and_load"><a class="anchor" href="#_caching_with_save_and_load"></a>4.15.5. Caching with save and load</h4>
+<h4 id="_caching_with_savem_and_load"><a class="anchor" href="#_caching_with_savem_and_load"></a>4.15.5. Caching with <code>@savem</code> and <code>@load</code></h4>
 <div class="paragraph">
 <p>A common pattern is to check whether a cached result exists before recomputing
 it. Since <code>@load</code> returns <code>null</code> when the file is missing, you can branch on
@@ -5147,7 +5209,7 @@ the result:</p>
 <span class="tok-n">cachedResult</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-n">cached</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cached</span>
-<span class="tok-w">  </span><span class="tok-nb">@save</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
+<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
 <span class="tok-w">  </span><span class="tok-n">result</span></code></pre>
 </div>
 </div>
@@ -5177,7 +5239,7 @@ depends on the input:</p>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;/tmp/cache_&quot;</span><span class="tok-w"> </span><span class="tok-o">&lt;&gt;</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-o">&lt;&gt;</span><span class="tok-w"> </span><span class="tok-s">&quot;.bin&quot;</span>
 <span class="tok-w">  </span><span class="tok-n">cached</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cached</span>
-<span class="tok-w">  </span><span class="tok-nb">@save</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
+<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
 <span class="tok-w">  </span><span class="tok-n">result</span></code></pre>
 </div>
 </div>
@@ -7520,14 +7582,13 @@ be removed in a future release.</p>
 <div class="paragraph">
 <p>By default, the CLI accepts inline JSON or a file path and figures the rest
 out. The <code>source</code> / <code>form</code> / <code>check.*</code> tags override that default when an
-argument needs a specific shape. Every value is a single atom&#8201;&#8212;&#8201;no
-chains, no <code>auto</code> keyword.</p>
+argument needs a specific shape.</p>
 </div>
 <div class="paragraph">
 <p>The available combinations depend on the argument&#8217;s type:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 2. Non-<code>Str</code> primitives (<code>Int</code>, <code>Bool</code>, <code>Real</code>, sized Int/UInt/Float)</caption>
+<caption class="title">Table 2. Non-<code>Str</code> primitives (numeric values and booleans)</caption>
 <colgroup>
 <col style="width: 40%;">
 <col style="width: 60%;">
@@ -7563,13 +7624,13 @@ chains, no <code>auto</code> keyword.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">argv is the literal string value, verbatim.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source: file</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file&#8217;s contents become the string.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>check.path: r</code> / <code>w</code> / <code>c</code> (or combinations like <code>rw</code>, <code>rwc</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">argv must be a path that exists and is readable (<code>r</code>), writable (<code>w</code>),
-or creatable in a writable directory (<code>c</code>). Mutex with <code>source: file</code>.</p></td>
+or creatable in a writable directory (<code>c</code>). Mutually exclusive with <code>source: file</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source: file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file&#8217;s contents become the string. The file must be readable.</p></td>
 </tr>
 </tbody>
 </table>
@@ -7608,7 +7669,7 @@ as packed raw bytes.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>source: inline</code> + <code>form: bytes</code> or <code>bytes-only</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Only on <code>[UInt8]</code>. argv is the literal byte sequence (each character is
 one byte; <code>\xNN</code>, <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\0</code>, <code>\\</code> escapes recognized).
-Useful for DNA / RNA strings.</p></td>
+Useful for ASCII encoded sequences that are treated as byte arrays.</p></td>
 </tr>
 </tbody>
 </table>
@@ -10717,39 +10778,43 @@ entry.</p>
 <div class="paragraph">
 <p>Morloc data packets carry a compression byte in their header, so any
 packet written to disk can transparently round-trip through a
-compressor. Two surfaces expose this: the <code>@save</code> intrinsic accepts a
-per-call compression level, and the nexus accepts a <code>-z</code> flag that
-compresses whatever result it would normally write to <code>-o &lt;file&gt;</code> as a
-packet.</p>
+compressor. Two surfaces expose this: the <code>@write</code> intrinsic accepts a
+per-call compression level for each <code>OStream</code> sub-packet, and the
+nexus accepts a <code>-z</code> flag that compresses whatever result it would
+normally write to <code>-o &lt;file&gt;</code> as a packet.</p>
 </div>
 <div class="paragraph">
 <p>The pipeline is end-to-end: a compressed packet on disk is recognized
-by <code>@load</code> (and by the nexus when reading back a packet file), so the
-user never has to call a decompress step. Pool processes never see
-compressed bytes&#8201;&#8212;&#8201;decompression happens at the I/O boundary.</p>
+by <code>@load</code> and by every <code>IFile</code> / <code>IStream</code> open, so the user never
+has to call a decompress step. Pool processes never see compressed
+bytes&#8201;&#8212;&#8201;decompression happens at the I/O boundary.</p>
 </div>
 <div class="sect3">
-<h4 id="_compression_in_save"><a class="anchor" href="#_compression_in_save"></a>7.4.1. Compression in <code>@save</code></h4>
+<h4 id="_compression_in_write"><a class="anchor" href="#_compression_in_write"></a>7.4.1. Compression in <code>@write</code></h4>
 <div class="paragraph">
-<p><code>@save</code> takes a compression preset as its first argument. The preset
-is an integer in the range <code>0..=9</code>; <code>0</code> writes the legacy uncompressed
-shape and the other values map to zstd presets that trade speed for
-ratio.</p>
+<p><code>@write</code> takes a compression preset as its first argument. The preset
+is an integer in the range <code>0..=9</code>; <code>0</code> writes the sub-packet
+uncompressed and the other values map to zstd presets that trade speed
+for ratio.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">saveBig</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">writeBig</span><span class="tok-p">)</span>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
 
-<span class="tok-n">saveBig</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
-<span class="tok-n">saveBig</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@save</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">path</span></code></pre>
+<span class="tok-n">writeBig</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+<span class="tok-n">writeBig</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>@load</code> is unchanged: it reads the file, inspects the packet header,
-and decompresses on the fly before format detection. The same call
-site reads both compressed and uncompressed packets without any
+<p>The level is set per <code>@write</code> call, not per stream: each call
+chooses its own preset independently. Reading is unchanged&#8201;&#8212;&#8201;<code>@open path :: &lt;IO&gt; IFile Int</code> (or <code>IStream</code>) inspects each
+sub-packet&#8217;s header and decompresses on the fly. The same call site
+reads both compressed and uncompressed sub-packets without any
 syntactic difference.</p>
 </div>
 <div class="paragraph">
@@ -10887,7 +10952,7 @@ and consumes its own compressed packets, so the underlying algorithm is
 an implementation detail. zstd is the current choice (modern Pareto
 winner on speed vs. ratio), but a future release may switch to a
 different codec without changing the <code>-z 0..9</code> semantics or the
-<code>@save</code> signature. The packet header records the algorithm it was
+<code>@write</code> signature. The packet header records the algorithm it was
 written with, so old packets remain readable across algorithm changes.</p>
 </div>
 <div class="paragraph">
@@ -11190,6 +11255,311 @@ naturally. A cached call that hits the cache never enters the foreign
 function, so no debug-trace frame fires. A cached call that misses,
 falls through to the foreign function, and throws produces a frame just
 like an uncached call would. The two systems share no state.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_random_access_and_streaming"><a class="anchor" href="#_random_access_and_streaming"></a>7.6. Random access and streaming</h3>
+<div class="paragraph">
+<p>Three abstract types describe a value that lives in a file rather than
+in memory:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Random-access reader. The file is open for indexed and
+                pattern access; elements are decoded on demand. <code>a</code> is the
+                type of the data in the file.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sequential writer. Elements are buffered, compressed,
+                and flushed to disk as sub-packets. The output type is
+                always of type <code>[a]</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sequential reader. The file is walked forward one
+                sub-packet at a time; element order is preserved. Input
+                is always of type <code>[a]</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>All three are opened with the same <code>@open</code> intrinsic, which returns an integer
+handle that lives in a shared SHM registry, so the handle can be passed
+transparently across pool boundaries.</p>
+</div>
+<div class="sect3">
+<h4 id="_random_access_with_ifile"><a class="anchor" href="#_random_access_with_ifile"></a>7.6.1. Random access with IFile</h4>
+<div class="paragraph">
+<p><code>@open path</code> opens an existing morloc stream file for random access. The file&#8217;s
+element schema is read out of the header and must match the <code>IFile</code> parameter
+type; a mismatch errors at open time.</p>
+</div>
+<div class="paragraph">
+<p>Once open, an <code>IFile a</code> is indexable and sliceable using the bracket
+patterns documented in <a href="#_patterns">Patterns</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">lookup</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">slice</span><span class="tok-p">)</span>
+
+<span class="tok-n">lookup</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
+<span class="tok-n">lookup</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-n">i</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">IFile</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-p">[</span><span class="tok-n">i</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-n">f</span>
+<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">f</span>
+<span class="tok-w">  </span><span class="tok-n">p</span>
+
+<span class="tok-n">slice</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Person</span><span class="tok-p">]</span>
+<span class="tok-n">slice</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">IFile</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-p">[</span><span class="tok-mi">100</span><span class="tok-o">:</span><span class="tok-mi">200</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-n">f</span>
+<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">f</span>
+<span class="tok-w">  </span><span class="tok-n">xs</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A slice that spans multiple sub-packets decompresses each sub-packet
+once, in parallel, and copies just the selected elements into the
+result. The decompressed sub-packets are cached per handle so a second
+access to a nearby element is a pointer add rather than another zstd
+pass. <code>@flen f</code> returns the total element count without scanning the
+file.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_sequential_writing_with_ostream"><a class="anchor" href="#_sequential_writing_with_ostream"></a>7.6.2. Sequential writing with OStream</h4>
+<div class="paragraph">
+<p>The line</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>creates a new stream file. The OStream serializes elements into a write buffer;
+once the buffer reaches its cap, the contents flush to disk as one
+zstd-compressed sub-packet. Element atomicity is preserved: an element larger
+than the buffer flushes as its own oversize sub-packet rather than splitting
+across boundaries.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">writeMany</span><span class="tok-p">)</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;compute.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;produceBatch&quot;</span><span class="tok-p">)</span>
+<span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Person</span><span class="tok-p">]</span>
+
+<span class="tok-n">writeMany</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+<span class="tok-n">writeMany</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@flush</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>@write level xs o</code> appends <code>xs</code> to <code>o</code> using <code>level</code> as the zstd
+preset for the resulting sub-packet (<code>0</code> disables compression; the
+preset table is the same as for <a href="#_compression">Compression</a>).
+<code>@flush o</code> forces the buffer to disk as a sub-packet boundary;
+without it, a partially-filled buffer is held until the next write
+that overflows it, or until <code>@close</code>. <code>@close</code> writes the final
+footer (full sub-packet index, element count, end-of-file marker)
+and releases the slot; the file is now readable by <code>IFile</code> or
+<code>IStream</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>@append path</code> reopens an existing stream file for further writes. The element
+schema is checked against the file&#8217;s recorded schema and a mismatch errors
+before any byte is written. <code>@concat paths dest</code> byte-level concatenates a list
+of compatible stream files into <code>dest</code> using <code>sendfile</code>, with no userspace copy.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_sequential_reading_with_istream"><a class="anchor" href="#_sequential_reading_with_istream"></a>7.6.3. Sequential reading with IStream</h4>
+<div class="paragraph">
+<p><code>@open path</code> opens a stream file for forward reads. <code>@next s</code> returns the next
+sub-packet&#8217;s elements as a list; when the file is exhausted, <code>@next</code> returns
+<code>[]</code>. The cursor advances under the slot&#8217;s futex, so two pools holding the same
+IStream handle can take turns calling <code>@next</code> and each gets a distinct
+sub-packet.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">drain</span><span class="tok-p">)</span>
+
+<span class="tok-n">drain</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">drain</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">s</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">IStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-w">  </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@next</span><span class="tok-w"> </span><span class="tok-n">s</span>
+<span class="tok-w">  </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@next</span><span class="tok-w"> </span><span class="tok-n">s</span>
+<span class="tok-w">  </span><span class="tok-n">c</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@next</span><span class="tok-w"> </span><span class="tok-n">s</span>
+<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">s</span>
+<span class="tok-w">  </span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">c</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>@stream f</code> derives a fresh IStream from an open <code>IFile a</code>. The derived stream
+has its own slot, fd, and cursor, so walking it does not perturb the IFile&#8217;s
+random-access state. The underlying file is the same&#8201;&#8212;&#8201;closing the IFile
+invalidates the derived IStream&#8217;s next read, which returns a generation-mismatch
+error.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_typed_standard_streams"><a class="anchor" href="#_typed_standard_streams"></a>7.6.4. Typed standard streams</h4>
+<div class="paragraph">
+<p><code>@stdin</code>, <code>@stdout</code>, and <code>@stderr</code> are nullary intrinsics that expose the
+process&#8217;s standard streams as typed morloc streams. Their element types are
+fixed by inline ascription at the open site, exactly like <code>@open</code>:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Intrinsic</th>
+<th class="tableblock halign-left valign-top">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stdin</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; IStream a</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stdout</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; OStream a</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stderr</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; OStream a</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Once opened, they support the same <code>@next</code> / <code>@write</code> / <code>@flush</code> / <code>@close</code>
+API as their file-backed cousins. The point is type-safe stream IO between
+morloc programs: the compiler checks the connection at the source level, and
+the runtime validates each sub-packet&#8217;s wire schema on arrival. Piped
+morloc programs can carry structured data without falling back to ad-hoc
+text formats.</p>
+</div>
+<div class="paragraph">
+<p>The canonical Unix-filter shape:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">producer</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">doubler</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-n">producer</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+<span class="tok-n">producer</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@stdout</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">4</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">6</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span>
+
+<span class="tok-n">doubler</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+<span class="tok-n">doubler</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">s</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@stdin</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">IStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@stdout</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-w">  </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@next</span><span class="tok-w"> </span><span class="tok-n">s</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-n">ys</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@next</span><span class="tok-w"> </span><span class="tok-n">s</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">ys</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">s</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Piping <code>producer | doubler</code> connects them at the packet level; the compiler
+enforces that both sides agree on element type <code>Int</code>.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/warning.png" alt="Warning">
+</td>
+<td class="content">
+<code>@stdin</code> / <code>@stdout</code> / <code>@stderr</code> carry morloc&#8217;s binary sub-packet
+format&#8201;&#8212;&#8201;the same wire format used on disk for <code>IFile</code> / <code>IStream</code> /
+<code>OStream</code>. It is <strong>not</strong> human-readable text. If a sourced foreign function
+writes to the same standard stream while morloc holds it open (<code>print</code> in
+Python, <code>std::cout &lt;&lt;</code> in C&#43;&#43;, <code>cat</code> / <code>message</code> in R), those raw bytes
+interleave with the morloc packet stream and the reader&#8217;s next <code>@next</code>
+fails with a schema-decode error. Either use file-based <code>IFile</code> /
+<code>OStream</code> for structured output, or ensure no foreign code writes to a
+standard stream that morloc has opened.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_environment_variables"><a class="anchor" href="#_environment_variables"></a>7.6.5. Environment variables</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Variable</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MORLOC_REGISTRY_SLOT_COUNT</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of concurrent stream handles per nexus invocation. Default
+  <code>4096</code>. Each slot occupies 512 bytes of SHM; the table is
+  allocated once at nexus startup.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MORLOC_WRITE_BUFFER_BYTES</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Per-OStream write buffer cap. Default 16 MiB. Smaller values
+  produce more sub-packets (finer reader granularity, more
+  per-flush overhead); larger values amortise zstd overhead over
+  more elements (coarser granularity, longer end-of-run flush).
+  An element larger than the buffer is always written as its own
+  oversize sub-packet regardless of this setting.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MORLOC_IFILE_CACHE_BYTES</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Per-handle SHM cache for decompressed IFile sub-packets. Default
+  256 MiB. The cache uses an approximate clock-hand LRU and is
+  released on <code>@close</code>. Set to <code>0</code> to disable, in which case every
+  IFile access decompresses anew.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The <code>MORLOC_FRAME_WORKERS</code> knob from
+<a href="#_compression">Compression</a> also applies: an IFile cache miss
+on a sub-packet with multiple zstd frames decompresses the frames
+in parallel using the same worker pool.</p>
 </div>
 </div>
 </div>

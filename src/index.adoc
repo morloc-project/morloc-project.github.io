@@ -200,6 +200,7 @@ include::{includedir}/runs-rundir.asc[]
 include::{includedir}/runs-caching.asc[]
 include::{includedir}/runs-compression.asc[]
 include::{includedir}/runs-debugging.asc[]
+include::{includedir}/runs-streaming.asc[]
 
 == Utilities
 
@@ -233,9 +234,14 @@ include::{includedir}/internals-runtime.asc[]
 //
 // include::{includedir}/serialization.asc[]
 
+
 == Future Directions
 
 include::{includedir}/future-directions.asc[]
+
+// == Case Studies
+//
+// include::{includedir}/case-sequence-trimming.asc[]
 
 == Q&A
 
