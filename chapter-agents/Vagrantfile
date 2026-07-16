@@ -1,0 +1,70 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile for chapter-walking documentation review.
+# Single Fedora VM with Docker + morloc container + morloc-manager wrapper.
+#
+# You must place (or symlink) the morloc-manager binary next to this
+# Vagrantfile before running `vagrant up`. The rsync sync uses --copy-links
+# so a symlink to the compiled binary works. Example:
+#
+#   ln -s ../../../compiler/morloc/out/morloc-manager morloc-manager
+#
+# Prerequisites:
+#   vagrant plugin install vagrant-libvirt
+#
+# Usage:
+#   vagrant up fedora
+#   vagrant ssh fedora
+#   vagrant destroy -f fedora
+
+MORLOC_IMAGE = "ghcr.io/morloc-project/morloc/morloc-full:edge"
+
+Vagrant.configure("2") do |config|
+  config.vm.provider :libvirt do |lv|
+    lv.memory = 4096
+    lv.cpus = 2
+    lv.machine_virtual_size = 60
+  end
+
+  # --copy-links dereferences the morloc-manager symlink into the guest.
+  config.vm.synced_folder ".", "/vagrant", type: "rsync",
+    rsync__exclude: [".git/", "findings/"],
+    rsync__args: ["--verbose", "--archive", "--delete", "-z", "--copy-links"]
+
+  config.vm.define "fedora" do |node|
+    node.vm.box = "bento/fedora-40"
+    node.vm.provision "shell", inline: <<-SHELL
+      set -e
+
+      # Install Docker
+      dnf install -y dnf-plugins-core || true
+      dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo 2>/dev/null || true
+      dnf install -y docker-ce docker-ce-cli containerd.io || dnf install -y moby-engine
+      systemctl enable --now docker
+
+      # Add vagrant to docker group
+      usermod -aG docker vagrant
+
+      # Pull morloc container image
+      docker pull #{MORLOC_IMAGE} || echo "WARNING: docker pull failed"
+
+      # Install morloc-manager from the synced folder.
+      if [ ! -f /vagrant/morloc-manager ]; then
+        echo "ERROR: /vagrant/morloc-manager not found."
+        echo "Place (or symlink) the morloc-manager binary next to the"
+        echo "Vagrantfile before running 'vagrant up'. See the header of the"
+        echo "Vagrantfile for an example."
+        exit 1
+      fi
+      install -m 0755 /vagrant/morloc-manager /usr/local/bin/morloc-manager
+
+      # Set up morloc-manager and create a default environment
+      su - vagrant -c "morloc-manager setup --engine docker"
+      su - vagrant -c "morloc-manager new"
+
+      # Verify
+      su - vagrant -c "morloc-manager run morloc --version" || echo "WARNING: morloc verification failed"
+    SHELL
+  end
+end

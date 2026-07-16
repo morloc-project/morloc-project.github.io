@@ -1,0 +1,12 @@
+Both files are written. Summary of what I did:
+
+- Read `getting-started.asc` end to end.
+- Set up a working morloc environment (the harness-provided `morloc-manager` binary was a 404 HTML page; I fetched the real one and worked around a broken `morloc init` step that skips C++/Python/R extension setup).
+- Executed every code example: `hello.loc`, `units.loc` (C++-sourced), `units2.loc` (language-agnostic typecheck), `main.loc` composing the two, the polyglot `report` example, and the `sumOfSums` parallel example. All produced the outputs the docs claim once the environment was fixed.
+
+**Findings written to `findings/reports/getting-started.md`:**
+- 2 blockers: the documented `morloc-manager new` flow leaves the env unusable (root cause traced to `SystemConfig.hs`); the `tutorial-development.asc` link is dead.
+- 5 confusing issues: default tag is `:edge` not `:latest`, filename gap between `units.loc` and `units2.loc`, `./units -h` claim describes the `--help` output, task prompt's un-`--`d `run` syntax, and the `pools/` directory claim.
+- 4 minor typos (`can be followed can be followed`, `everthing`, `that that`, `beind`), plus `/home/z/` vs `/home/username/` inconsistency.
+
+**Summary written to `findings/summaries/getting-started.md`:** 100-line snapshot of morloc facts for downstream chapter agents — toolchain, module/source syntax, build behavior, nexus CLI, docstring semantics, and the compiler source layout for cross-checks.

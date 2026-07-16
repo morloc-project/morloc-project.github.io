@@ -1,0 +1,8 @@
+Findings and summary written. Summary is 89 lines.
+
+**Key results for chapter 15 (features-optionals.asc):**
+
+- **1 blocker**: `safeHead` example uses `at 0 xs`, but no `at` function exists in stdlib. Copy-paste fails with "Undefined term: at". Smallest fix: `.[0] xs`.
+- **2 confusing items**: chapter's `require :: a -> ?a -> a` shadows and conflicts with stdlib's `require :: ?a -> a` from `maybe-py`; single-export nexus needs `./m --keep-null @` (not shown or implied anywhere).
+- **3 minor items**: C++/R prose sections lack runnable boilerplate; `require`'s intro is undocumented in the Syntax block; `--keep-null` note vs. inner-null behavior.
+- Nested-optional idempotence, cross-language optionals, `T → ?T` implicit coercion, and `record ... where` syntax all match the docs and the compiler source.

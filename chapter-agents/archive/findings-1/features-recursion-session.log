@@ -1,0 +1,9 @@
+Both files are written. Summary of the walk:
+
+**Chapter 13 (features-recursion) — 6 findings**
+
+- **1 blocker**: `containerLength` polymorphic export silently dropped from nexus, dead example for a first-time reader.
+- **2 confusing**: no module/import wrapping on any snippet (must be added by reader); the phrase "the `?` guard can appear more than once" reuses `?` for a different feature than in features-guards, and `btreeExample` doesn't demonstrate the promised "one" subtree.
+- **3 minor**: `require`'s docstring overpromises ("asserts it is present") vs the `id` implementation; the record `LL` example is monomorphic while the tuple `LL a` is parameterised (asymmetry not called out); nexus schema drops the type parameter in `sub :: ?Container`.
+
+All 15 code snippets ran successfully once wrapped with `module`/`import root`/`import root-py`. Compiler cross-checks confirmed both rejection messages (`vacuous body`, `Mutual recursion between`) at their source locations in `library/Morloc/Frontend/{Desugar,Restructure}.hs`.

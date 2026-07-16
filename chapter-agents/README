@@ -1,0 +1,63 @@
+Chapter-walking agentic review of the morloc documentation.
+
+A single user-chosen persona walks src/index.adoc one included .asc file at
+a time, in order. For each chapter, an agent runs every code example on a
+VM (completing partial code where needed), cross-checks the morloc compiler
+when in doubt, and writes two files:
+
+  findings/reports/<chapter>.md      — issues found in this chapter
+  findings/summaries/<chapter>.md    — 100-line knowledge snapshot for the
+                                       next chapter agent
+
+Every subsequent chapter agent gets all prior summaries folded into its
+context, so morloc knowledge accumulates without re-feeding raw docs. Every
+chapter agent also receives the same user-supplied focus.
+
+An optional final analyst step consolidates every report into
+findings/action-plan.md.
+
+Prerequisites
+-------------
+  - vagrant + vagrant-libvirt plugin
+  - claude CLI (Claude Code)
+  - A local morloc-manager binary (or symlink to one) placed next to the
+    Vagrantfile. The VM provisioner installs from /vagrant/morloc-manager
+    and will refuse to boot if it is missing. Typical setup:
+
+      cd chapter-agents/
+      ln -s ../../../compiler/morloc/out/morloc-manager morloc-manager
+
+    The synced_folder is configured with --copy-links, so a symlink to the
+    compiled binary is fine.
+
+Quick start
+-----------
+  ./test/run-chapters.sh --info                          # list personas + chapters
+  ./test/run-chapters.sh -p skeptical-tester             # full run
+  ./test/run-chapters.sh -p spec-lawyer \
+      --chapters getting-started,features-functions \
+      --no-destroy                                       # 2-chapter dry run
+  ./test/run-chapters.sh -p curious-newbie \
+      --start-at features-effects --no-setup             # resume mid-run
+
+Adding a persona
+----------------
+Drop a markdown file into test/personas/. First line is a one-sentence
+descriptor (shown by --info). See existing personas for the pattern.
+
+Layout
+------
+  Vagrantfile                     Fedora + Docker + morloc-manager (same as doc-agents)
+  test/run-chapters.sh            orchestrator
+  test/chapter-context.md         common instructions injected into every agent
+  test/analyst-context.md         instructions for the final consolidator
+  test/personas/*.md              persona definitions
+  findings/reports/*.md           per-chapter issue reports (created on first run)
+  findings/summaries/*.md         per-chapter knowledge snapshots
+  findings/action-plan.md         consolidated output
+
+Compared to the neighboring pipelines
+-------------------------------------
+  doc-agents/       parallel code-tester + reviewers, multi-pass, all-docs-at-once
+  coding-agents/    persona rotation, one project per run, docs-bundle-based
+  chapter-agents/   one persona, chapter-by-chapter, summaries chain forward

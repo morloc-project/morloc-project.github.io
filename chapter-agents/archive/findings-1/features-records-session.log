@@ -1,0 +1,14 @@
+Both files written.
+
+**Summary of findings for features-records.asc:**
+
+- **Blocker (1):** The WARNING claiming "recursive types are not currently supported" is factually wrong. List-guarded recursion (`children :: [Tree]`) works end-to-end, including a three-level Python↔C++ round-trip. The compiler's `classifyRecursion` (`library/Morloc/Frontend/Restructure.hs:74-134`) explicitly permits `[T]`- and `?T`-guarded self-reference; only bare self-recursion is rejected.
+
+- **Confusing (3):**
+  - The doubled `Person` in `record Person = Person { ... }` is never explained; the tag has no term-level meaning, but a Haskell-trained reader would expect `Person "Alice" 30` to work (it doesn't parse).
+  - The C++ concrete form silently depends on the sourced `foo.hpp` also containing the struct definition; not stated.
+  - The `foo` example lacks a type signature, which conflicts with earlier chapters' pattern of "annotate to expose the export" — worth adding `foo :: Str -> Int -> Person` even though it works without.
+
+- **Minor (2-3):** "3 time" → "3 times"; inconsistent `[source, c++]` vs `[source, cpp]`.
+
+Verified working: general/concrete record syntax, cross-language rinc/pinc/cinc example, name-based field binding, error messages for missing/unknown/duplicate/type-mismatched fields, records containing lists of records, and the composed-`foo` pipeline (returns `age = 33` after three increments).

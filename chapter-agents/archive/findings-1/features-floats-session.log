@@ -1,0 +1,9 @@
+Chapter 6 (features-floats) walkthrough complete. Report and summary written to `findings/reports/features-floats.md` and `findings/summaries/features-floats.md`.
+
+Two blockers, one confusing point:
+
+1. **blocker** — `Tensor1 1000 Float32` in the "Literal forms" code block references a type that doesn't exist in the stdlib (only `Matrix`, `Tensor3`, `Tensor4`, `Tensor5` are defined). Same block also mixes a bare signature into a set of otherwise complete definitions.
+2. **blocker** — the "parsed as an Int" wording on bare-integer literals in `Real` context understates the trap: the compiler accepts it silently and prints `4.94065645841247e-324` at runtime (same corruption bug as features-integers).
+3. **confusing** — overflow checks fire only on `morloc make`, not `morloc typecheck`, but the doc doesn't say so.
+
+Everything else executable in the chapter reproduces exactly: the full IEEE 754 arithmetic table (Python and spot-checked C++), the `"inf"`/`"-inf"`/`"nan"` wire form, the `Inf`/`-Inf`/`NaN` atomic-token behavior in pure-morloc contexts, the overflow error text and caret positions for both `Float64` and `Float32`, the Python vs C++/R `1/0` divergence, and the C++/Python/R type mappings.

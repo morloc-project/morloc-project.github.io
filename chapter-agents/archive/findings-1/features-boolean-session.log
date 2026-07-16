@@ -1,0 +1,15 @@
+Both files written.
+
+**Summary of findings for features-boolean.asc:**
+
+- **Blocker (2):**
+  - The doc's claim that `&&` and `||` are short-circuiting is **only true for C++**. In Python, both operands are always evaluated. Verified with a `crash`-on-RHS test: `False && crash x` raises in Python but returns `false` in C++. Traced to codegen: C++ pool emits native `(false && m1363(n0))`, Python pool emits `morloc_and(n0, n1)` which forces both args.
+  - `sameLength :: [a] -> [b] -> Bool` in the comparison-ops example is silently dropped by `morloc make` (`Warning: skipping generic export 'sameLength'`) — same generic-export skipping seen in chapter 3. A reader assembling the example verbatim gets no `sameLength` in the nexus.
+
+- **Confusing (2):**
+  - Opening line says "imported from the `root` modules" (plural). Bare `import root` fails on `>` with `No instance found for Ord::<=`; instances live in `root-py`/`root-cpp`.
+  - Source-level `True`/`False` vs. lowercase JSON `true`/`false` in output; lowercase in source is rejected.
+
+- **Minor (2):** dangling "See the Guards section" cross-reference (no anchor); `yes/no` identifiers may read as reserved.
+
+Right-associativity and precedence (`infixr 3 &&`, `infixr 2 ||`) confirmed against `/opt/morloc/src/morloc/plane/default/root/main.loc:5-6`. Guards (`?`/`:`), `xor`, `nand`, `any`, `all`, `elem`, `not` all work as documented.

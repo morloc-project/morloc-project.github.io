@@ -1,0 +1,21 @@
+Summary is now 95 lines (under 100). Both files written.
+
+Chapter 14 (features-effects) walk complete. Report and summary written to `findings/reports/features-effects.md` and `findings/summaries/features-effects.md`.
+
+Findings at a glance:
+
+**Blockers**
+1. `gDirect, gDoWrap, gDoForce, gDoBind :: Int -> Int` — multi-name signature syntax rejected by parser (`Parser.y:186`).
+2. `foo :: (Int -> <Rand,e> Int) -> <Rand,e> Int` + `foo f x = ...` — arity mismatch; with an export list, the typechecker OOMs the container (exit 137).
+
+**Confusing**
+3. `IO` is pre-declared inescapable in `internal/main.loc`; the doc's `effect IO` example is redundant, and `escapable effect IO` breaks.
+4. Stdlib `random` still has `effect escapable Random` (wrong order); `import stdlib` remains broken.
+5. "no more than one effect variable associated with a given term" is actually "per row".
+
+**Minor**
+6. `Path` used in signature examples isn't in `root`.
+7. `handle (do ...)` fragment uses undefined `handle`.
+8. Typo "carries the all the effects" (line 236).
+
+Every runnable example, once wrapped with `module`/`import`/language-root lines, works as claimed: `example → 17`, `forceOnce → 10`, the four handler forms all return `105`, and Rules 1-4 either accept or reject with clean error messages.

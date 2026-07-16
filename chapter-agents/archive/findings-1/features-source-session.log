@@ -1,0 +1,15 @@
+Both files written.
+
+**Summary of findings for features-source.asc:**
+
+- **Blocker (2):**
+  - The "Importing builtin functions" example prose says "if we directly sourced the builtins" but the code block is identical to the earlier `morloc_map`/`morloc_sum` version — it doesn't demonstrate the case being described. Verified end-to-end that with the corrected line and without the `from builtins import` re-export, Python fails at runtime.
+  - The chapter's headline example, assembled minimally, produces no runnable command. `morloc make` silently emits `Warning: skipping generic export 'mapSum'` and no pools. The reader isn't told they need a monomorphic signature.
+
+- **Confusing (2):** C++ `// sum :: [a] -> a` comment contradicts the general `sum :: [Real] -> Real` signature; the highlighter token `c++` vs the parser token `Cpp` is never explained (and would fail if literally typed).
+
+- **Minor (3):** `foo.py` needed for the first source line is never shown; optional `from` clause and the `where { ... }` source syntax are undocumented; nothing tells the reader that tuples wire as JSON arrays.
+
+Cross-checked against `library/Morloc/Frontend/Parser.y` (`source_decl` at 522, `typedef_decl` at 289, `lang_token` at 366).
+
+Notes were also included in the summary for downstream agents: watch for generic exports being skipped, and both source syntaxes exist.

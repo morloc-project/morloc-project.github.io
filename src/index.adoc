@@ -18,9 +18,9 @@
 :toc: left
 :toclevels: 2
 :includedir: content
-:mermaid-theme: dark
-:mermaid-format: svg
-:mermaid-background: transparent
+:kroki-server-url: https://kroki.io
+:kroki-fetch-diagram:
+:kroki-default-format: svg
 
 [latexmath]
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

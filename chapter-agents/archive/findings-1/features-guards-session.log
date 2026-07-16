@@ -1,0 +1,8 @@
+Wrote both files. Chapter is short (73 lines, 5 examples); all examples run correctly once you supply `module` + `import root` + `import root-py`.
+
+Findings:
+- **confusing**: The parenthesization rule at end of chapter is wrong. Docs claim parens are needed inside lists, on operator RHS, or as function args. Empirically only function-application position requires them; lists and operator RHS work fine without parens (`guard_expr` is a valid `expr` in the grammar).
+- **minor**: All 5 snippets are bare fragments — no module/import context; a first-time reader would have to guess.
+- **minor**: `classify` is defined twice; copying both into one file breaks.
+- **minor**: `neg` is used with zero explanation.
+- Corroborated: `:` default is enforced, and guard *conditions* are lazily evaluated even in Python (verified via a Python `boom` in a later condition), because guards lower to `IfE` in `Desugar.hs`.

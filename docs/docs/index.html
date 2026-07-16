@@ -626,7 +626,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_strings">4.6. Strings</a></li>
 <li><a href="#_tuples_and_lists">4.7. Tuples and Lists</a></li>
 <li><a href="#_records">4.8. Records</a></li>
-<li><a href="#_pattern_functions_for_data_accessupdate">4.9. Pattern functions for data access/update</a></li>
+<li><a href="#_patterns">4.9. Patterns</a></li>
 <li><a href="#_where_and_let_clauses">4.10. <code>where</code> and <code>let</code> clauses</a></li>
 <li><a href="#_conditionals">4.11. Conditionals</a></li>
 <li><a href="#_recursion">4.12. Recursion</a></li>
@@ -654,7 +654,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_the_command_line_interface">6.2. The Command Line Interface</a></li>
 <li><a href="#_quick_evaluation_with_morloc_eval">6.3. Quick evaluation with <code>morloc eval</code></a></li>
 <li><a href="#_composing_cli_tools">6.4. Composing CLI Tools</a></li>
-<li><a href="#_single_command_vs_multi_command_programs">6.5. Single-command vs multi-command programs</a></li>
+<li><a href="#_zones_nexus_options_vs_command_arguments">6.5. Zones: nexus options vs command arguments</a></li>
 <li><a href="#_user_arguments_and_outputs">6.6. User arguments and outputs</a></li>
 <li><a href="#_inspecting_and_converting_data_files">6.7. Inspecting and converting data files</a></li>
 <li><a href="#_system_scope_environments">6.8. System-scope environments</a></li>
@@ -1342,9 +1342,12 @@ compiler also generates help statements:</p>
 </div>
 <div class="paragraph">
 <p><code>./units -h</code> lists the two exported commands (<code>cels2fahr</code> and
-<code>meters2feet</code>) plus the standard nexus options (output format, run
-directory, pretty-printing, and so on). Per-command help is available
-with <code>./units cels2fahr -h</code>.</p>
+<code>meters2feet</code>) under a General Options section. <code>-h</code> and <code>--help</code>
+are position-based synonyms: the long form additionally appends a
+"Nexus Options:" block covering the standard run options (output
+format, run directory, pretty-printing, and so on), and
+<code>./units -h @</code> renders that same nexus-run help. Per-command help
+is available with <code>./units cels2fahr -h</code>.</p>
 </div>
 <div class="sect3">
 <h4 id="_defining_language_agnostic_functions"><a class="anchor" href="#_defining_language_agnostic_functions"></a>3.4.1. Defining language-agnostic functions</h4>
@@ -1810,6 +1813,29 @@ must be re-exported at the top of the source file:</p>
 <div class="paragraph">
 <p>For third-party modules, any term that is passed to Morloc will need to be
 locally defined (<code>def bar(&#8230;&#8203;)</code>) or specifically imported (<code>from somemodule import bar</code>).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_keyword_shaped_foreign_operators"><a class="anchor" href="#_keyword_shaped_foreign_operators"></a>4.2.2. Keyword-shaped foreign operators</h4>
+<div class="paragraph">
+<p>Some foreign symbols are neither callable identifiers nor symbol operators.
+Python&#8217;s <code>and</code> and <code>or</code>, for example, are language keywords: they only exist
+as infix syntax, so <code>and(x, y)</code> is a parse error and <code>import and</code> is illegal.
+Backtick-quoted names mark the sourced binding as an infix operator whose
+emitted string is the enclosed text:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;core.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-err">`</span><span class="tok-n">and</span><span class="tok-err">`</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">&amp;&amp;</span><span class="tok-p">),</span><span class="tok-w"> </span><span class="tok-err">`</span><span class="tok-n">or</span><span class="tok-err">`</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">||</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>At every call site, the generated Python pool now emits the backtick-quoted
+text between the two arguments&#8201;&#8212;&#8201;so <code>x &amp;&amp; y</code> becomes <code>(x and y)</code> in
+<code>pool.py</code>, matching the inline emission of <code>(x || y)</code> in C++. No wrapper
+function is needed on the Python side. The backtick contents are emitted
+verbatim, so any two-argument infix operator that the target language
+recognises (Python <code>is</code>, <code>in</code>, <code>not in</code>, R <code>%in%</code>, etc.) works the same way.</p>
 </div>
 </div>
 </div>
@@ -2374,7 +2400,52 @@ higher performance types and shared memory.
 </div>
 </div>
 <div class="sect3">
-<h4 id="_negation_and_unary_minus"><a class="anchor" href="#_negation_and_unary_minus"></a>4.4.7. Negation and unary minus</h4>
+<h4 id="_converting_between_integer_types"><a class="anchor" href="#_converting_between_integer_types"></a>4.4.7. Converting between integer types</h4>
+<div class="paragraph">
+<p>Two typeclasses in <code>root</code> cover numeric conversions. <code>into</code> is reserved
+for conversions that never fail and never lose information; <code>tryInto</code>
+handles the rest and returns <code>?b</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">class</span><span class="tok-w"> </span><span class="tok-nc">TotalInto</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-n">into</span><span class="tok-w">    </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span>
+
+<span class="tok-kr">class</span><span class="tok-w"> </span><span class="tok-nc">PartialInto</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-n">tryInto</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">b</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use <code>into</code> to widen: signed-to-wider-signed, unsigned-to-wider-unsigned,
+and unsigned to a strictly wider signed target. A reflexive
+<code>TotalInto a a</code> blanket covers the identity case.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">wide</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int8</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int64</span>
+<span class="tok-n">wide</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">into</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use <code>tryInto</code> for anything that can fail&#8201;&#8212;&#8201;narrowing, negative-to-
+unsigned, or unsigned-into-a-same-or-narrower signed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">byte</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int32</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">UInt8</span>
+<span class="tok-n">byte</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">tryInto</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">        </span><span class="tok-c1">-- Null on x &lt; 0 or x &gt; 255</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Int</code> is given the most restrictive semantics because its width varies
+across backends (32-bit in R and C++, unbounded in Python). Any
+<code>Int &#8594; Int&lt;N&gt;</code>&#8201;&#8212;&#8201;even <code>Int &#8594; Int64</code>&#8201;&#8212;&#8201;goes through <code>tryInto</code>, and
+converting <code>UInt32</code> or wider <em>into</em> <code>Int</code> also uses <code>tryInto</code>. This
+keeps behavior portable across backends.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_negation_and_unary_minus"><a class="anchor" href="#_negation_and_unary_minus"></a>4.4.8. Negation and unary minus</h4>
 <div class="paragraph">
 <p>Morloc supports unary minus (<code>-</code>) on any numeric type. The same glyph plays
 two roles&#8201;&#8212;&#8201;the binary subtraction operator and the unary negation operator&#8201;&#8212;&#8201;and the rule for distinguishing them is whitespace-sensitive.</p>
@@ -2651,7 +2722,7 @@ the default; <code>Float32</code> and <code>Float64</code> are explicit precisio
 <span class="tok-n">boltzmann</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mf">1.380649e-23</span>
 
 <span class="tok-c1">-- 32-bit float for reduced memory in tensors</span>
-<span class="tok-n">weights</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tensor1</span><span class="tok-w"> </span><span class="tok-mi">1000</span><span class="tok-w"> </span><span class="tok-nc">Float32</span></code></pre>
+<span class="tok-n">weights</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Vector</span><span class="tok-w"> </span><span class="tok-mi">1000</span><span class="tok-w"> </span><span class="tok-nc">Float32</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2989,7 +3060,63 @@ when memory or interop with single-precision hardware demands it.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_negation_of_real_values"><a class="anchor" href="#_negation_of_real_values"></a>4.5.6. Negation of Real values</h4>
+<h4 id="_converting_to_and_from_floating_point"><a class="anchor" href="#_converting_to_and_from_floating_point"></a>4.5.6. Converting to and from floating point</h4>
+<div class="paragraph">
+<p>The <code>TotalInto</code> / <code>PartialInto</code> classes introduced in the integer chapter
+extend naturally to floats. Widening an integer whose full range fits in
+the target mantissa (24 bits for <code>Float32</code>, 53 for <code>Float64</code>) uses
+<code>into</code>, and <code>Float32 &#8594; Float64</code> is also <code>TotalInto</code>. <code>Real</code> and
+<code>Float64</code> are interconvertible with <code>into</code> in both directions&#8201;&#8212;&#8201;representationally identical in every current backend.</p>
+</div>
+<div class="paragraph">
+<p>Integer-to-float conversions that <em>may</em> lose precision use a dedicated
+class:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">class</span><span class="tok-w"> </span><span class="tok-nc">RealLike</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-n">toReal</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>toReal</code> never fails but may lose precision above <code>2^53</code>. Instances
+cover every numeric type. The canonical use is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+<span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">/</span><span class="tok-w"> </span><span class="tok-n">toReal</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>size</code> returns <code>UInt64</code>; <code>toReal</code> bridges it into the <code>Real</code> denominator.
+The precision loss is theoretical for realistic container sizes and named
+explicitly so a reader can see it.</p>
+</div>
+<div class="paragraph">
+<p>Float-to-integer conversion goes through <code>tryInto</code> and returns <code>?T</code>. It
+fails on <code>NaN</code>, <code>Inf</code>, non-integer values, and values outside the target
+integer&#8217;s range:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">approx</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int32</span>
+<span class="tok-n">approx</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">tryInto</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">      </span><span class="tok-c1">-- Null on NaN, Inf, 3.5, or 1e20</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For rounding to a nearby integer, apply <code>round</code> / <code>floor</code> / <code>ceil</code> /
+<code>trunc</code> from the <code>math</code> module first, then <code>tryInto</code> the result.</p>
+</div>
+<div class="paragraph">
+<p>Narrowing <code>Float64 &#8594; Float32</code> and <code>Real &#8594; Float32</code> are <em>not</em> provided
+as <code>TotalInto</code> instances&#8201;&#8212;&#8201;they lose precision on every input. Users
+who need this conversion source an explicit foreign function so the
+lossy step is visible at the call site.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_negation_of_real_values"><a class="anchor" href="#_negation_of_real_values"></a>4.5.7. Negation of Real values</h4>
 <div class="paragraph">
 <p>Negation works on <code>Real</code>, <code>Float32</code>, and <code>Float64</code> the same way it does on
 integers, via the <code>Negatable</code> typeclass. See the integers chapter for the
@@ -3437,29 +3564,194 @@ name is a compile-time error.</p>
 <p><code>foo</code>, above, initializes a <code>Person</code> record and then increments its age 3 time
 in different languages.</p>
 </div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="static/img/admonition_icons/warning.png" alt="Warning">
-</td>
-<td class="content">
-Records may contain fields with arbitrarily complex types, but
-recursive types are not currently supported.
-</td>
-</tr>
-</table>
-</div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_pattern_functions_for_data_accessupdate"><a class="anchor" href="#_pattern_functions_for_data_accessupdate"></a>4.9. Pattern functions for data access/update</h3>
+<h3 id="_patterns"><a class="anchor" href="#_patterns"></a>4.9. Patterns</h3>
 <div class="paragraph">
-<p>Data structures may be accessed and modified using pattern functions. These are
-a dedicated accessor and update operators for accessing and rearranging data
-structures. Patterns may be <em>getters</em> that extract a value or a tuple of values
-from a data structure or they may be <em>setters</em> that update a data structure
-without changing its type.</p>
+<p>Morloc has two kinds of patterns:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Irrefutable patterns</strong> destructure a value into named parts at binding
+positions&#8201;&#8212;&#8201;lambda parameters, function-definition arguments, <code>let</code> LHS,
+and <code>do</code>-block <code>&#8592;</code> binds. Every well-typed receiver matches, so patterns
+contain only variable names, wildcards, and structural constructors (no
+literals, no alternatives)&#8201;&#8212;&#8201;hence "irrefutable".</p>
+</li>
+<li>
+<p><strong>Pattern functions</strong> (<code>.0</code>, <code>.field</code>, <code>.[i:j]</code>, &#8230;&#8203;) are first-class getter
+and setter functions that access or update parts of a data structure. They
+are ordinary values and compose like any other function.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The two forms are complementary. Irrefutable patterns give you names for parts
+of a value inside a scope; pattern functions give you reusable projections you
+can pass around, map, or compose.</p>
+</div>
+<div class="paragraph">
+<div class="title">Irrefutable patterns</div>
+<p>The supported shapes are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>variable&#8201;&#8212;&#8201;<code>x</code> binds the whole value</p>
+</li>
+<li>
+<p>wildcard&#8201;&#8212;&#8201;<code>_</code> matches without binding</p>
+</li>
+<li>
+<p>tuple&#8201;&#8212;&#8201;<code>(x, y)</code> binds each component; full arity required; wildcards fill
+positions you want to ignore (<code>(x, _, _)</code>)</p>
+</li>
+<li>
+<p>record&#8201;&#8212;&#8201;<code>{a = x, b = y}</code> binds fields by name; extra fields are ignored,
+field order does not matter, and the receiver only has to <strong>have</strong> the keys
+the pattern mentions (structural / row-polymorphic, the same as the
+<code>.(.a, .b)</code> group getter)</p>
+</li>
+<li>
+<p>as-pattern&#8201;&#8212;&#8201;<code>label@atom</code> binds <code>label</code> to the whole receiver and
+destructures further through <code>atom</code></p>
+</li>
+<li>
+<p>nesting is free&#8201;&#8212;&#8201;<code>(x, {a = y, b = _}, q@(l, r))</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The four binding sites:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- lambda parameter</span>
+<span class="tok-n">first</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">\</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+
+<span class="tok-c1">-- function-definition argument</span>
+<span class="tok-n">snd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-bp">_</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">y</span>
+
+<span class="tok-c1">-- let-binding</span>
+<span class="tok-n">demo</span><span class="tok-w"> </span><span class="tok-n">pair</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">pair</span><span class="tok-w"> </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">a</span>
+
+<span class="tok-c1">-- do-block bind</span>
+<span class="tok-n">readPair</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">useIt</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">readPair</span>
+<span class="tok-w">  </span><span class="tok-n">a</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Records mix cleanly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Pair</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Pair</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-p">}</span>
+
+<span class="tok-c1">-- field-polymorphic: any record with keys &#39;a&#39; and &#39;b&#39;</span>
+<span class="tok-n">pickA</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-bp">_</span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span>
+
+<span class="tok-c1">-- nested</span>
+<span class="tok-n">combine</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Pair</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">combine</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">n</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">q</span><span class="tok-p">})</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">q</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Wildcards</div>
+<p>The wildcard <code>_</code> matches without binding. In a <code>let</code> LHS or <code>do</code>-bind position
+the RHS is still evaluated (so effects fire); in a lambda or function-argument
+position the parameter slot is accepted and discarded.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- discard the first tuple element</span>
+<span class="tok-n">snd</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-bp">_</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">y</span>
+
+<span class="tok-c1">-- do-bind: effect fires, value discarded</span>
+<span class="tok-n">setup</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">setup</span>
+<span class="tok-w">  </span><span class="tok-n">work</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">As-patterns</div>
+<p><code>label@atom</code> binds <code>label</code> to the whole receiver <strong>and</strong> destructures further
+through <code>atom</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- both the whole pair and its components are in scope</span>
+<span class="tok-n">tag</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-o">@</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">p</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">y</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>There must be <strong>no whitespace</strong> around <code>@</code>. Write <code>p@(x, y)</code>, not <code>p @ (x, y)</code>.
+This mirrors the tight-binding style of morloc&#8217;s other qualifier operators
+(<code>.</code> for namespaces, <code>:</code> for group labels). An <code>@name</code> in a fresh position
+(start of line, after whitespace, after a delimiter) still denotes an
+intrinsic like <code>@stdout</code>.</p>
+</div>
+<div class="paragraph">
+<div class="title">Record patterns on <code>let</code> and <code>do</code>: parenthesize</div>
+<p><code>let</code> and <code>do</code> claim an explicit <code>{</code> immediately after the keyword as an
+alternative to layout-based blocks:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w">       </span><span class="tok-c1">-- explicit-brace form of a two-binding let</span>
+<span class="tok-kr">do</span><span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">readValue</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-n">useIt</span><span class="tok-w"> </span><span class="tok-p">}</span><span class="tok-w">        </span><span class="tok-c1">-- explicit-brace form of a do-block</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Because of this, a record pattern on a <code>let</code> LHS or <code>do</code>-bind must be
+parenthesized so its <code>{</code> reads as a record literal:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- required</span>
+<span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-p">({</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">q</span><span class="tok-p">})</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">mkPair</span><span class="tok-w"> </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">p</span>
+<span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-p">({</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">q</span><span class="tok-p">})</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">fetch</span>
+<span class="tok-w">  </span><span class="tok-n">p</span>
+
+<span class="tok-c1">-- illegal: parses as an explicit let-bindings block</span>
+<span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">q</span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">mkPair</span><span class="tok-w"> </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">p</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Function-def and lambda positions are unaffected&#8201;&#8212;&#8201;neither <code>\</code> nor a
+function-name is a layout keyword, so <code>foo {a = x, b = y} = x</code> and
+<code>\ {a = x, b = y} &#8594; x</code> parse without parens. Tuple and as-patterns on
+<code>let</code>/<code>do</code> LHS also work without parens because they don&#8217;t start with <code>{</code>.</p>
+</div>
+<div class="ulist">
+<div class="title">Not yet supported</div>
+<ul>
+<li>
+<p>List and vector patterns (<code>[x, y, z] = xs</code>). These are only sound when the
+receiver&#8217;s length is statically known; deferred until morloc&#8217;s fixed-width
+vs. variable-length list story is settled.</p>
+</li>
+<li>
+<p>Refutable pattern matching (multiple clauses dispatching on value shape).
+Morloc&#8217;s typeclass system permits multiple implementations per term name, so
+the Haskell-style <code>foo True = &#8230;&#8203;; foo False = &#8230;&#8203;</code> form would be ambiguous
+about which clause belongs to which implementation. Refutable matching will
+land later under a distinguishing syntax.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Pattern functions</div>
+<p>Pattern functions are dedicated accessor and update operators for reaching
+into and rearranging data structures. They come in three flavors: <em>getter</em>
+patterns extract a value or a tuple of values, <em>setter</em> patterns update a
+data structure without changing its type, and <em>bracket</em> patterns index or
+slice into a list.</p>
 </div>
 <div class="paragraph">
 <div class="title">Getter patterns</div>
@@ -4507,7 +4799,7 @@ to the final value:</p>
 </div>
 <div class="paragraph">
 <p>Effect variables and constants may be mixed, but there may be no more than one
-effect variable associated with a given term.</p>
+effect variable can exist in a given effect row. So this <code>&lt;A,B,e&gt;</code> is OK, but <code>&lt;A,e,f&gt;</code> is not.</p>
 </div>
 <div class="paragraph">
 <p>In the following code, the signature states the requirement that function <code>f</code>
@@ -4557,7 +4849,10 @@ functions may be sourced to handle the effect.</p>
 <span class="tok-n">handleError</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Error</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
 
 <span class="tok-c1">-- four equivalent ways to write the same call</span>
-<span class="tok-n">gDirect</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">gDoWrap</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">gDoForce</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">gDoBind</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">gDirect</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">gDoWrap</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">gDoForce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">gDoBind</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 
 <span class="tok-n">gDirect</span><span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">handleError</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
 <span class="tok-n">gDoWrap</span><span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">handleError</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">}</span>
@@ -4929,13 +5224,13 @@ and provide access to the Morloc runtime.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@savem</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str &#8594; &lt;IO&gt; ()</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file in MessagePack format (portable, compact)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; a &#8594; &lt;IO&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file in MessagePack format (portable, compact). Path-first for partial application (<code>@savem path</code> is a reusable sink).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@savej</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str &#8594; &lt;IO&gt; ()</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file as plain JSON text (human-readable)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; a &#8594; &lt;IO&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file as plain JSON text (human-readable). Path-first for partial application.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@load</code></p></td>
@@ -4964,7 +5259,7 @@ and provide access to the Morloc runtime.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@write</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int &#8594; [a] &#8594; OStream a &#8594; &lt;IO&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int &#8594; OStream a &#8594; [a] &#8594; &lt;IO&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Append a list of elements to an <code>OStream</code>. The first argument is a zstd compression preset in <code>0..=9</code> (<code>0</code> = no compression); see <a href="#_compression">Compression</a> for the level table.</p></td>
 </tr>
 <tr>
@@ -5161,7 +5456,7 @@ data.</p>
 
 <span class="tok-n">roundTrip</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int</span>
 <span class="tok-n">roundTrip</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">path</span>
+<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">path</span></code></pre>
 </div>
 </div>
@@ -5180,7 +5475,7 @@ is the return value of <code>roundTrip</code>.</p>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
 
 <span class="tok-n">saveReadable</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
-<span class="tok-n">saveReadable</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@savej</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-s">&quot;output.json&quot;</span></code></pre>
+<span class="tok-n">saveReadable</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@savej</span><span class="tok-w"> </span><span class="tok-s">&quot;output.json&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5209,7 +5504,7 @@ the result:</p>
 <span class="tok-n">cachedResult</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-n">cached</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cached</span>
-<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
+<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-n">result</span></code></pre>
 </div>
 </div>
@@ -5239,7 +5534,7 @@ depends on the input:</p>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;/tmp/cache_&quot;</span><span class="tok-w"> </span><span class="tok-o">&lt;&gt;</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-o">&lt;&gt;</span><span class="tok-w"> </span><span class="tok-s">&quot;.bin&quot;</span>
 <span class="tok-w">  </span><span class="tok-n">cached</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cached</span>
-<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
+<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">result</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-n">result</span></code></pre>
 </div>
 </div>
@@ -5430,8 +5725,8 @@ would require manually rewriting and rewiring large sections of the program.</p>
 
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;mean.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;mean&quot;</span><span class="tok-p">)</span>
 <span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">//</span><span class="tok-w"> </span><span class="tok-n">length</span><span class="tok-w"> </span><span class="tok-n">xs</span>
-<span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">+</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">//</span><span class="tok-w"> </span><span class="tok-n">length</span><span class="tok-w"> </span><span class="tok-n">xs</span></code></pre>
+<span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">//</span><span class="tok-w"> </span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">xs</span>
+<span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">+</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">//</span><span class="tok-w"> </span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">xs</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5756,7 +6051,7 @@ deconstruct a complex type.</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;dict&quot;</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-n">val</span>
 <span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;std::map&lt;$1,$2&gt;&quot;</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-n">val</span>
-<span class="tok-kr">instance</span><span class="tok-w"> </span><span class="tok-nc">Packable</span><span class="tok-w"> </span><span class="tok-p">([</span><span class="tok-n">a</span><span class="tok-p">],[</span><span class="tok-n">b</span><span class="tok-p">])</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-kr">instance</span><span class="tok-w"> </span><span class="tok-nc">Packable</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-n">a</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)]</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">where</span>
 <span class="tok-w">    </span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;map-packing.hpp&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;pack&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;unpack&quot;</span><span class="tok-p">)</span>
 <span class="tok-w">    </span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;map-packing.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;pack&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;unpack&quot;</span><span class="tok-p">)</span></code></pre>
 </div>
@@ -5779,7 +6074,7 @@ raise an error. So we can write:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-n">val</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;list&quot;</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-n">val</span>
-<span class="tok-kr">instance</span><span class="tok-w"> </span><span class="tok-nc">Packable</span><span class="tok-w"> </span><span class="tok-p">([</span><span class="tok-nc">Str</span><span class="tok-p">],[</span><span class="tok-n">b</span><span class="tok-p">])</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-kr">instance</span><span class="tok-w"> </span><span class="tok-nc">Packable</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-nc">Str</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)]</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">where</span>
 <span class="tok-w">    </span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;map-packing.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;pack&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;unpack&quot;</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
@@ -6185,16 +6480,30 @@ rejects <code>newtype A = B; newtype B = A</code>.</p>
 </div>
 <div class="sect2">
 <h3 id="_kind_system"><a class="anchor" href="#_kind_system"></a>5.7. Kind system</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/warning.png" alt="Warning">
+</td>
+<td class="content">
+<div class="title">Experimental Feature</div>
+<div class="paragraph">
+<p>The kind system is experimental, likely to be revised, and possibly buggy.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>In morloc, every type variable belongs to one of a few categories called
-"kinds". A kind is what tells the compiler what kind of <strong>thing</strong> a
-variable stands for: an ordinary type (like <code>Int</code>), a number (like a
-dimension), a string (like a column name), a record schema, or a list
-of strings. Most morloc code never has to think about kinds because the
-default kind&#8201;&#8212;&#8201;ordinary type&#8201;&#8212;&#8201;is what nearly every type variable is.
-Kinds become visible when you want the compiler to track values that
-would otherwise be "merely runtime data" alongside the types they appear
-in.</p>
+"kinds". A kind is what tells the compiler what kind of <strong>thing</strong> a variable
+stands for: an ordinary type (like <code>Int</code>), a number (like a dimension), a string
+(like a column name), a record schema, or a list of strings. Most morloc code
+never has to think about kinds because the default kind&#8201;&#8212;&#8201;ordinary type&#8201;&#8212;&#8201;is
+what most type variables are. Kinds become visible when you want the compiler to
+track values that would otherwise be "merely runtime data" alongside the types
+they appear in.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -6204,7 +6513,7 @@ in.</p>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Kinds are <strong>phantom descriptions of types</strong>, not types themselves. A kind
+<p>Kinds are <strong>descriptions of types</strong>, not types themselves. A kind
 classifies what sort of expression fits in a particular slot of a type
 constructor; it has no runtime presence and cannot be inhabited by a
 value. The Nat kind tells the compiler "this slot holds a natural
@@ -6704,35 +7013,6 @@ check; richer constraint languages quickly become undecidable, so the
 compiler trades expressiveness for predictable typechecking.</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_when_to_think_about_kinds"><a class="anchor" href="#_when_to_think_about_kinds"></a>5.7.7. When to think about kinds</h4>
-<div class="paragraph">
-<p>The honest answer is: only when you want the compiler to track
-something it would otherwise have to leave to runtime. Most morloc
-functions over ordinary types never need a kind annotation. You reach
-for them when:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>dimensions or counts matter (use <code>Nat</code>),</p>
-</li>
-<li>
-<p>column or field names matter (use <code>Str</code> and <code>Rec</code>),</p>
-</li>
-<li>
-<p>the <strong>list</strong> of names matters as a whole (use <code>List</code>).</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>The table API in the standard library is the densest practical example
-in morloc&#8201;&#8212;&#8201;every signature uses Nat for the row count, Rec for the
-schema, Str for column names, and List for column-name lists. Reading
-through <code>table/main.loc</code> is the recommended way to internalise the
-notation.</p>
-</div>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_tensors"><a class="anchor" href="#_tensors"></a>5.8. Tensors</h3>
@@ -7025,6 +7305,22 @@ be resolved, it is effectively unchecked.</p>
 </div>
 <div class="sect2">
 <h3 id="_tables"><a class="anchor" href="#_tables"></a>5.9. Tables</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/warning.png" alt="Warning">
+</td>
+<td class="content">
+<div class="title">Experimental Feature</div>
+<div class="paragraph">
+<p>The typed tables presented here pass basic internal tests, but will be heavily
+revised in the future and are probably buggy.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Morloc has a built-in <code>Table</code> type for columnar data, parameterised by a
 row count and a column schema:</p>
@@ -7318,19 +7614,23 @@ of the same formats. The output format is selected by <code>--output-form</code>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>./prog<span class="tok-w"> </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w"> </span>--output-form<span class="tok-w"> </span>json<span class="tok-w">     </span><span class="tok-c1"># default; row-oriented JSON</span>
-./prog<span class="tok-w"> </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w"> </span>--output-form<span class="tok-w"> </span>arrow<span class="tok-w">    </span><span class="tok-c1"># Arrow IPC, ARROW1 framed</span>
-./prog<span class="tok-w"> </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w"> </span>--output-form<span class="tok-w"> </span>parquet<span class="tok-w">  </span><span class="tok-c1"># Parquet</span>
-./prog<span class="tok-w"> </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w"> </span>--output-form<span class="tok-w"> </span>csv<span class="tok-w">      </span><span class="tok-c1"># CSV with header row</span></code></pre>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>./prog<span class="tok-w"> </span>--output-form<span class="tok-w"> </span>json<span class="tok-w">    </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w">  </span><span class="tok-c1"># default; row-oriented JSON</span>
+./prog<span class="tok-w"> </span>--output-form<span class="tok-w"> </span>arrow<span class="tok-w">   </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w">  </span><span class="tok-c1"># Arrow IPC, ARROW1 framed</span>
+./prog<span class="tok-w"> </span>--output-form<span class="tok-w"> </span>parquet<span class="tok-w"> </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w">  </span><span class="tok-c1"># Parquet</span>
+./prog<span class="tok-w"> </span>--output-form<span class="tok-w"> </span>csv<span class="tok-w">     </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w">  </span><span class="tok-c1"># CSV with header row</span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p><code>--output-form</code> is a nexus option and must appear left of the
+subcommand (or left of <code>@</code> in single-command mode).</p>
 </div>
 <div class="paragraph">
 <p>Round-tripping is byte-stable for the columnar contents:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>./prog<span class="tok-w"> </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w"> </span>--output-form<span class="tok-w"> </span>arrow<span class="tok-w"> </span>&gt;<span class="tok-w"> </span>census.arrow
-./prog<span class="tok-w"> </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w"> </span>--output-form<span class="tok-w"> </span>parquet<span class="tok-w"> </span>&gt;<span class="tok-w"> </span>census.parquet
+<pre class="pygments highlight"><code data-lang="bash"><span></span>./prog<span class="tok-w"> </span>--output-form<span class="tok-w"> </span>arrow<span class="tok-w">   </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w"> </span>&gt;<span class="tok-w"> </span>census.arrow
+./prog<span class="tok-w"> </span>--output-form<span class="tok-w"> </span>parquet<span class="tok-w"> </span>top10<span class="tok-w"> </span><span class="tok-m">2024</span><span class="tok-w"> </span>&gt;<span class="tok-w"> </span>census.parquet
 diff<span class="tok-w"> </span>&lt;<span class="tok-o">(</span>./prog<span class="tok-w"> </span>identity<span class="tok-w"> </span>census.arrow<span class="tok-o">)</span><span class="tok-w"> </span>&lt;<span class="tok-o">(</span>./prog<span class="tok-w"> </span>identity<span class="tok-w"> </span>census.parquet<span class="tok-o">)</span></code></pre>
 </div>
 </div>
@@ -7473,10 +7773,16 @@ the backend.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The generated help lists the run-mode options (<code>-p</code>/<code>--print</code>,
+<p>The generated help lists the available commands under a General
+Options section. <code>-h</code> and <code>--help</code> are position-based synonyms:
+<code>./nexus -h</code> renders the manifest-driven program help (this
+listing); <code>./nexus --help</code> additionally appends a "Nexus Options:"
+block enumerating the run-mode options (<code>-p</code>/<code>--print</code>,
 <code>-o</code>/<code>--output-file</code>, <code>-f</code>/<code>--output-form</code>, <code>--keep-null</code>,
-<code>--log-dir</code>, <code>--quiet</code>) followed by the available commands. Each
-exported function becomes a command:</p>
+<code>--log-dir</code>, <code>--quiet</code>). Placing <code>-h</code> on the nexus side of <code>@</code>&#8201;&#8212;&#8201;<code>./nexus -h @</code>&#8201;&#8212;&#8201;renders the same nexus-run help.</p>
+</div>
+<div class="paragraph">
+<p>Each exported function becomes a command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -7484,10 +7790,6 @@ exported function becomes a command:</p>
   foo  Take two reals and do thing
   bar  Convert a list of reals into a thing</pre>
 </div>
-</div>
-<div class="paragraph">
-<p>Daemon mode and the multi-program router are separate subcommands of
-the <code>morloc-nexus</code> binary; see <a href="#_building_api_interfaces">Building API interfaces</a>.</p>
 </div>
 <div class="paragraph">
 <p>More detailed information about each exported subcommand may be accessed as well:</p>
@@ -7571,9 +7873,11 @@ an argument (a path to a file? raw bytes? a packet? newline-separated
 elements?). See the next section.</p>
 </li>
 <li>
-<p><code>literal</code> (deprecated) - alias for <code>source: inline</code> on <code>Str</code>. Strings are
-inline by default now, so <code>literal: true</code> is a no-op and the field will
-be removed in a future release.</p>
+<p><code>with</code> - attach a compile-time "terminal action" to the export as a
+command-scoped flag; invoking the flag routes the return value through
+a named function before it hits the wire. Used for stdout formatters,
+file sinks, and reformatters that swap the return type. See "Output
+actions" below.</p>
 </li>
 </ul>
 </div>
@@ -7624,9 +7928,12 @@ argument needs a specific shape.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">argv is the literal string value, verbatim.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>check.path: r</code> / <code>w</code> / <code>c</code> (or combinations like <code>rw</code>, <code>rwc</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv must be a path that exists and is readable (<code>r</code>), writable (<code>w</code>),
-or creatable in a writable directory (<code>c</code>). Mutually exclusive with <code>source: file</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>check.path: r</code> / <code>w</code> / <code>x</code> / <code>rw</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv must be a filesystem path satisfying the requested mode. <code>r</code> = exists
+and is readable; <code>w</code> = writable (existing writable file, or a non-existent
+file in a writable directory); <code>x</code> = does not yet
+exist and the parent directory is writable (exclusive create); <code>rw</code> = exists
+and is both readable and writable. Mutually exclusive with <code>source: file</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>source: file</code></p></td>
@@ -7635,7 +7942,7 @@ or creatable in a writable directory (<code>c</code>). Mutually exclusive with <
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. Arrays of fixed-width scalars (<code>[UInt8]</code>, <code>[Int32]</code>, <code>[Float64]</code>, <code>[Bool]</code>, &#8230;&#8203;)</caption>
+<caption class="title">Table 4. Arrays of fixed-width scalars (<code>[UInt8]</code>, <code>[Int32]</code>, <code>[Float64]</code>, <code>[Bool]</code>, etc.)</caption>
 <colgroup>
 <col style="width: 40%;">
 <col style="width: 60%;">
@@ -7688,8 +7995,11 @@ Useful for ASCII encoded sequences that are treated as byte arrays.</p></td>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: list</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a file (or <code>-</code> for stdin) with one element per line. Tuple
-elements accept JSON-array-per-line, TSV, or CSV.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a file (or <code>-</code> for stdin) with one element per line, OR
+an inline JSON array (e.g. <code>'[["a",5],["b",25]]'</code>). Any argv token
+whose first byte is <code>[</code> is parsed as inline JSON; anything else is
+treated as a path. Tuple elements accept JSON-array-per-line, TSV,
+or CSV.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: list</code> + <code>list.source: file</code></p></td>
@@ -7707,14 +8017,15 @@ per-element file is auto-classified: JSON / MessagePack / packet).</p></td>
 element must be a fixed-width-scalar array.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: list</code> + <code>list.check.path: r</code> (or <code>w</code> / <code>c</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Each line of the outer file must be an existing readable / writable /
-creatable path. Element type must be <code>Str</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: list</code> + <code>list.check.path: r</code> (or <code>w</code> / <code>x</code> / <code>rw</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Each line of the outer file must be a filesystem path satisfying the
+requested mode (same semantics as the top-level <code>check.path</code>). Element type
+must be <code>Str</code>.</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 6. Tuples, records, maps</caption>
+<caption class="title">Table 6. Tuples, records, and other non-list compound types</caption>
 <colgroup>
 <col style="width: 40%;">
 <col style="width: 60%;">
@@ -7733,6 +8044,80 @@ no outer modifiers are allowed.</p></td>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>The shape classification runs on each argument&#8217;s <strong>wire form</strong>, not on
+its source-level type name. A type declared with <code>Packable [(a, b)] T</code>
+serializes across the language boundary as a list of pairs, so the
+CLI treats it as <code>[T]</code>&#8201;&#8212;&#8201;every <code>form: list</code> and <code>list.*</code> modifier
+above is available. The stdlib <code>Map a b</code> type is the primary case:
+its Packable wire form is <code>[(a, b)]</code>, so a <code>Map Str Int</code> argument can
+be read from a two-column TSV or CSV file the same way <code>[(Str, Int)]</code>
+would:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; Count entries in a two-column table read as a Map.</span>
+<span class="tok-cs">--&#39; The file has one `key&lt;TAB&gt;value` pair per line.</span>
+<span class="tok-n">tally</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">form</span><span class="tok-p">: </span><span class="tok-s">list</span>
+<span class="tok-w">  </span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">tally</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">m</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>cat<span class="tok-w"> </span>counts.tsv
+<span class="tok-go">apple	3</span>
+<span class="tok-go">banana	7</span>
+<span class="tok-go">cherry	1</span>
+
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>tally<span class="tok-w"> </span>counts.tsv
+<span class="tok-go">3</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The same file works with <code>list.check.path: r</code>, per-line file
+dispatch (<code>list.source: file</code>), and every other list modifier;
+JSON-array-per-line (<code>["apple",3]</code>) is also accepted as the default
+fallback. This applies to any user-defined type whose Packable
+instance targets a list of tuples&#8201;&#8212;&#8201;no special-casing for <code>Map</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong><code>form: list</code> is headerless.</strong> Delimited files (TSV, CSV) read via
+<code>form: list</code> are parsed as raw tuples row-by-row&#8201;&#8212;&#8201;there is no
+header row, and no <code>--csv-header</code> toggle exists to enable one.
+Tuples and list-shaped compound types have no column names, so a
+header row would just be interpreted as a data row and fail schema
+check on the first field.</p>
+</div>
+<div class="paragraph">
+<p>If you need a full-featured table with column names&#8201;&#8212;&#8201;headers,
+column-name-to-field alignment, mixed types verified against the
+declared columns&#8201;&#8212;&#8201;declare the argument as <code>Table</code> instead. The
+<code>Table</code> loader path honors headers; <code>form: list</code> intentionally
+doesn&#8217;t. This split keeps the two paths simple: <code>Table</code> is for
+tables, <code>form: list</code> is for streams of rows.</p>
+</div>
+<div class="paragraph">
+<p>When a delimited parse under <code>form: list</code> fails and the first row
+looks like plain column names against a numeric row schema, the
+loader appends the hint <code>the first row (&#8230;&#8203;) looks like a
+column-name header. form: list is headerless&#8201;&#8212;&#8201;remove the header
+row, or declare the argument as Table if you need column names</code>.
+No auto-skip: the file must be edited (or the arg&#8217;s type changed
+to <code>Table</code>).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Compile-time validation rejects every nonsensical combination (e.g.
 <code>source: file</code> on a non-<code>Str</code> primitive, <code>form: bytes</code> on <code>[Int]</code> because
@@ -7949,6 +8334,209 @@ per-field load are tagged with the field name:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>-t<span class="tok-w"> </span>notanumber<span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
 <span class="tok-go">field &#39;nthreads&#39;: ...</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_output_actions_with"><a class="anchor" href="#_output_actions_with"></a>6.2.3. Output actions: <code>with</code></h4>
+<div class="paragraph">
+<p>An export can carry one or more <code>with:</code> docstring fields that attach <strong>terminal
+actions</strong> to the command as short/long flags. Each field names a morloc term;
+invoking the flag dispatches to a compiler-synthesized entry point that composes
+the named term with the export&#8217;s return value before it hits the wire. This lets
+a single typed function project multiple presentation shapes without adding
+sibling exports. Output actions allow the behavior of the CLI or APIs to be
+modified without cluttering the module exports.</p>
+</div>
+<div class="paragraph">
+<p>The two most common uses are <strong>sinks</strong> and <strong>reformatters</strong>. Sinks write the
+return value to stdout, a file, or another resource. <strong>reformatters</strong> transform
+the value to a different type before serialization.</p>
+</div>
+<div class="paragraph">
+<p>Consider a recursive <code>grep</code>-like search that returns every matching
+line paired with the file it came from:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;helpers.py&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;grep_recursive&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">grepR</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;print_hits_tty&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">printHitsTTY</span>
+<span class="tok-w">  </span><span class="tok-p">)</span>
+
+<span class="tok-cs">--&#39; Print each hit as `&lt;path&gt;:&lt;line&gt;`, one per line;</span>
+<span class="tok-cs">--&#39; silent when there are no matches.</span>
+<span class="tok-n">printHitsTTY</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-nc">Path</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-p">)]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+
+<span class="tok-cs">--&#39; Recursively search under a directory for lines matching a</span>
+<span class="tok-cs">--&#39; pattern, returning every hit paired with its file.</span>
+<span class="tok-cs">--&#39; with: -y/--tty=printHitsTTY</span>
+<span class="tok-cs">--&#39; with: -c/--count=size</span>
+<span class="tok-n">grepR</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; The pattern to search for</span>
+<span class="tok-w">  </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; The root directory to walk</span>
+<span class="tok-w">  </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-nc">Path</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-p">)]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The default wire output is the raw list of tuples&#8201;&#8212;&#8201;structurally correct but
+inconvenient to a human reader (<code>/</code> is escaped as <code>\/</code>, as JSON allows):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src
+<span class="tok-go">[[&quot;.\/src\/a.py&quot;,&quot;def foo():&quot;],[&quot;.\/src\/lib\/b.py&quot;,&quot;    x = foo(1)&quot;],[&quot;.\/src\/lib\/b.py&quot;,&quot;foo = 42&quot;]]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>-y</code> (or <code>--tty</code>) routes the result through the TTY sink&#8201;&#8212;&#8201;one line per hit,
+nothing when the search is empty:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--tty<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src
+<span class="tok-go">./src/a.py:def foo():</span>
+<span class="tok-go">./src/lib/b.py:    x = foo(1)</span>
+<span class="tok-go">./src/lib/b.py:foo = 42</span>
+
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>-y<span class="tok-w"> </span><span class="tok-s2">&quot;nowheretobefound&quot;</span><span class="tok-w"> </span>./src
+<span class="tok-gp">$</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>-c</code> (or <code>--count</code>) uses <code>size</code> from the standard library as a
+reformatter&#8201;&#8212;&#8201;the composed entry has type <code>Str &#8594; Path &#8594; &lt;IO&gt; Int</code>,
+so the wire result is just the hit count:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--count<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src
+<span class="tok-go">3</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The referenced term&#8217;s own docstring becomes the flag&#8217;s help text, and
+each terminal action appears under "General Options" in
+<code>&lt;cmd&gt; --help</code>. The base export&#8217;s declared return type is unchanged,
+so downstream morloc code composing <code>grepR</code> still sees
+<code>&lt;IO&gt; [(Path, Str)]</code>.</p>
+</div>
+<div class="sect4">
+<h5 id="_flag_spec_grammar"><a class="anchor" href="#_flag_spec_grammar"></a>Flag-spec grammar</h5>
+<div class="paragraph">
+<p>The value on the left of <code>=</code> is the CLI flag; the value on the right
+is the morloc identifier of the terminal action.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>-x/--long</code>&#8201;&#8212;&#8201;both short and long</p>
+</li>
+<li>
+<p><code>--long</code>&#8201;&#8212;&#8201;long-only (short is optional; long is required so
+<code>--help</code> has a stable descriptor)</p>
+</li>
+<li>
+<p>Short must be a single ASCII letter (<code>a-z</code> / <code>A-Z</code>); digits are
+rejected because they collide with negative-number argv values</p>
+</li>
+<li>
+<p>Long must be lowercase-kebab (<code>[a-z][a-z0-9-]*</code>)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_type_discipline"><a class="anchor" href="#_type_discipline"></a>Type discipline</h5>
+<div class="paragraph">
+<p>The terminal action is any typechecked function <code>A &#8594; B</code> where <code>A</code>
+unifies with the export&#8217;s return-position payload (after stripping
+<code>&lt;IO&gt;</code> etc.):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>B = ()</code>&#8201;&#8212;&#8201;a <strong>sink</strong>; the composed entry emits nothing on the wire
+beyond what the terminal itself wrote.</p>
+</li>
+<li>
+<p><code>B != ()</code>&#8201;&#8212;&#8201;a <strong>reformatter</strong>; the composed entry returns <code>B</code>,
+which flows through the nexus&#8217;s normal wire serialization.</p>
+</li>
+<li>
+<p>Effect on the terminal is unconstrained. Pure <code>A &#8594; B</code> composes
+cleanly; the composed entry inherits <code>&lt;IO&gt;</code> from the parent iff the
+parent had it.</p>
+</li>
+<li>
+<p>Typeclass methods are legal terminals; the right instance resolves
+per composed binding, so one class method can drive terminals on
+multiple exports with different return shapes.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_composing_with_f"><a class="anchor" href="#_composing_with_f"></a>Composing with <code>-f</code></h5>
+<div class="paragraph">
+<p>The nexus-level <code>-f</code> output-form flag and terminal actions are
+complementary, not exclusive. Continuing the <code>grepR</code> example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>json<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--count<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src<span class="tok-w">    </span><span class="tok-c1"># -f re-encodes the Int</span>
+<span class="tok-go">3</span>
+
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--count<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src<span class="tok-w">   </span><span class="tok-c1"># same Int via jsonl</span>
+<span class="tok-go">3</span>
+
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>json<span class="tok-w"> </span>grepR<span class="tok-w"> </span>-y<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src<span class="tok-w">         </span><span class="tok-c1"># sink writes stdout; -f harmless</span>
+<span class="tok-go">./src/a.py:def foo():</span>
+<span class="tok-go">./src/lib/b.py:    x = foo(1)</span>
+<span class="tok-go">./src/lib/b.py:foo = 42</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The terminal decides <strong>what</strong> the return is; <code>-f</code> decides <strong>how</strong> it is
+encoded on the wire. Reformatters are the "switch return type via an
+option" pattern: one function, several presentation shapes, each
+still round-trippable through the standard serialization layer.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_rules_and_rejections"><a class="anchor" href="#_rules_and_rejections"></a>Rules and rejections</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>At most one terminal flag per invocation. Siblings are mutually
+exclusive via clap&#8217;s <code>ArgGroup</code> and rejected at parse time.</p>
+</li>
+<li>
+<p><code>--' with:</code> must live in the signature preamble (the <code>--'</code> lines
+directly above <code>name ::</code>), not on argument-level docstrings, record
+fields, or type aliases.</p>
+</li>
+<li>
+<p>An explicit signature above the definition is required.</p>
+</li>
+<li>
+<p>Long and short names must not collide with the signature&#8217;s own
+argument-declared flags (<code>arg:</code> / <code>true:</code> / <code>false:</code>), with each
+other, or with the reserved command-scope flags <code>-h</code> / <code>--help</code>.</p>
+</li>
+<li>
+<p>Two <code>--' with:</code> atoms whose long flags collapse to the same
+internal name (e.g. <code>--bar-baz</code> and <code>--bar_baz</code>) are rejected, as
+are collisions between a synthesized entry name and an existing
+top-level identifier in the same module.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -8193,62 +8781,131 @@ subcommands; the per-language pools are spawned on demand.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_single_command_vs_multi_command_programs"><a class="anchor" href="#_single_command_vs_multi_command_programs"></a>6.5. Single-command vs multi-command programs</h3>
+<h3 id="_zones_nexus_options_vs_command_arguments"><a class="anchor" href="#_zones_nexus_options_vs_command_arguments"></a>6.5. Zones: nexus options vs command arguments</h3>
 <div class="paragraph">
-<p>A Morloc program can export one function or many. The two cases produce
-slightly different command-line interfaces.</p>
+<p>Every invocation of a compiled Morloc program partitions its argv into
+two zones. The <strong>nexus zone</strong> holds options consumed by the nexus itself
+(<code>-p</code>, <code>-o</code>, <code>-f</code>, <code>--log-dir</code>, <code>--keep-null</code>, and so on) and is
+parsed against the run-subcommand help. The <strong>command zone</strong> holds
+everything belonging to the user&#8217;s exported function: its
+positionals, its declared flags, terminal-action flags like <code>-y</code>, and
+so on. It is parsed against the manifest-driven help for the chosen
+command.</p>
 </div>
 <div class="paragraph">
-<p><strong>Multi-command programs</strong> (two or more exports) require a COMMAND name on
-every invocation:</p>
+<p>The rules that partition argv are the same in every mode:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Value-taking nexus flags consume their next token as a value, even
+when that token is <code>@</code>, <code>-h</code>, or <code>--help</code>.</p>
+</li>
+<li>
+<p>The zones split at whichever comes first: an unconsumed <code>@</code> token,
+or (in multi-command mode) the first non-flag positional matching a
+declared subcommand or group name. When neither is present, all
+post-target argv sits in the nexus zone (single-command mode with
+no user args) or the command zone (single-command mode where the
+first user positional starts it).</p>
+</li>
+<li>
+<p>Nexus flags may appear only in the nexus zone; the same rule
+applies to command args in the command zone. Placing either in the
+wrong zone produces a "did-you-mean" error from the corresponding
+parser.</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_single_command_programs"><a class="anchor" href="#_single_command_programs"></a>6.5.1. Single-command programs</h4>
+<div class="paragraph">
+<p>For a program with exactly one export, every argv token after the
+wrapper target belongs to the command zone by default&#8201;&#8212;&#8201;there is no
+implicit boundary between nexus flags and command args. All four of
+the following invoke the sole export the same way:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./hw<span class="tok-w">                     </span><span class="tok-c1"># sole export runs with no args</span>
+<span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>--greeting<span class="tok-w"> </span>Weena<span class="tok-w">    </span><span class="tok-c1"># user flag reaches the command zone directly</span>
+<span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>hello<span class="tok-w"> </span>Weena<span class="tok-w">         </span><span class="tok-c1"># optional subcommand name, stripped by phase 2</span>
+<span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>@<span class="tok-w"> </span>--greeting<span class="tok-w"> </span>Weena<span class="tok-w">  </span><span class="tok-c1"># explicit @ separator, empty nexus zone</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To pass a nexus option in single-command mode, place it left of <code>@</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>--log-dir<span class="tok-w"> </span>./logs<span class="tok-w"> </span>@<span class="tok-w"> </span>--greeting<span class="tok-w"> </span>Weena
+<span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>-p<span class="tok-w"> </span>@<span class="tok-w"> </span>--greeting<span class="tok-w"> </span>Weena</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Writing a nexus flag right of the target without an <code>@</code> sends it to
+the command zone and clap-manifest rejects it as unknown&#8201;&#8212;&#8201;the
+error text will prompt you to insert the separator.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_multi_command_programs"><a class="anchor" href="#_multi_command_programs"></a>6.5.2. Multi-command programs</h4>
+<div class="paragraph">
+<p>For a program with two or more exports (or any groups declared),
+argv looks like:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>cal
-<span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>-p<span class="tok-w"> </span>d20<span class="tok-w"> </span><span class="tok-m">5</span><span class="tok-w">    </span><span class="tok-c1"># nexus options before COMMAND</span></code></pre>
+<span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>-p<span class="tok-w"> </span>d20<span class="tok-w"> </span><span class="tok-m">5</span><span class="tok-w">                        </span><span class="tok-c1"># nexus flag before subcommand</span>
+<span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>--log-dir<span class="tok-w"> </span>./logs<span class="tok-w"> </span>d20<span class="tok-w"> </span><span class="tok-m">5</span><span class="tok-w">          </span><span class="tok-c1"># nexus flag before subcommand</span>
+<span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>@<span class="tok-w"> </span>d20<span class="tok-w"> </span><span class="tok-m">5</span><span class="tok-w">                         </span><span class="tok-c1"># explicit @ works too</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The COMMAND name partitions argv: anything before it is a nexus option,
-anything after it belongs to the subcommand. This separation lets the
-subcommand freely use any short flag (including <code>-p</code>, <code>-o</code>, <code>-f</code>)
-without colliding with the nexus.</p>
+<p>The subcommand token (<code>cal</code>, <code>d20</code>) marks the zone boundary and
+belongs to the command zone. Nexus flags placed <strong>after</strong> the
+subcommand are rejected by the manifest-driven parser as unknown&#8201;&#8212;&#8201;this is intentional; keep nexus flags to the left of the subcommand
+or <code>@</code>.</p>
 </div>
 <div class="paragraph">
-<p><strong>Single-command programs</strong> (exactly one export) make the COMMAND name
-optional. Both forms are equivalent:</p>
+<p>A typo in the subcommand name produces a suggestion:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>hello
-<span class="tok-gp">$ </span>./hw<span class="tok-w">           </span><span class="tok-c1"># implicit: the only exported command runs</span></code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>d21<span class="tok-w"> </span><span class="tok-m">5</span>
+<span class="tok-go">Error: no such command &#39;d21&#39;. Did you mean &#39;d20&#39;?</span></code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Single-command programs accept the full set of nexus options (short and
-long forms): <code>./hw -p</code>, <code>./hw --keep-null</code>, <code>./hw --log-dir ./logs</code>,
-etc., all work.</p>
 </div>
 <div class="sect3">
-<h4 id="_the_zone_separator"><a class="anchor" href="#_the_zone_separator"></a>6.5.1. The <code>@</code> zone separator</h4>
+<h4 id="_h_and_help"><a class="anchor" href="#_h_and_help"></a>6.5.3. <code>-h</code> and <code>--help</code></h4>
 <div class="paragraph">
-<p>When nexus options and user arguments share argv&#8201;&#8212;&#8201;a single-command
-program, or any case where it isn&#8217;t obvious where the nexus zone ends
-and the user zone begins&#8201;&#8212;&#8201;an explicit <code>@</code> token can be placed
-between the two zones:</p>
+<p><code>-h</code> and <code>--help</code> are synonyms and follow their argv position: in
+the nexus zone they render nexus/run help; in the command zone they
+render command-specific help (or, in multi-command mode with no
+subcommand chosen, top-level program help). Because every post-
+target token defaults to the command zone unless it&#8217;s left of <code>@</code>
+or (multi-mode) left of the subcommand, the natural invocations
+render program help:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>-p<span class="tok-w"> </span>@<span class="tok-w"> </span>hello
-<span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>-p<span class="tok-w"> </span>@<span class="tok-w"> </span>d20<span class="tok-w"> </span><span class="tok-m">5</span></code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>-h<span class="tok-w">                 </span><span class="tok-c1"># command help for the sole export</span>
+<span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>--help<span class="tok-w">             </span><span class="tok-c1"># same</span>
+
+<span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>-h<span class="tok-w">            </span><span class="tok-c1"># top-level program help (all subcommands)</span>
+<span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>cal<span class="tok-w"> </span>-h<span class="tok-w">        </span><span class="tok-c1"># help for the `cal` subcommand</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Anything left of <code>@</code> is parsed as nexus options; anything right of <code>@</code>
-is forwarded to the user command. The separator is optional whenever
-the boundary is unambiguous (e.g. multi-command programs always end
-the nexus zone at the COMMAND name). Use <code>@</code> when an argument is
-ambiguous with a nexus flag or when you want to be explicit.</p>
+<p>To reach the nexus/run help, place <code>-h</code> (or <code>--help</code>) left of <code>@</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./hw<span class="tok-w"> </span>-h<span class="tok-w"> </span>@<span class="tok-w">               </span><span class="tok-c1"># nexus zone -&gt; nexus run help</span>
+<span class="tok-gp">$ </span>./toolbox<span class="tok-w"> </span>-h<span class="tok-w"> </span>@<span class="tok-w">          </span><span class="tok-c1"># same</span></code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -8568,7 +9225,7 @@ message directing the user to <code>--schema</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./myprog<span class="tok-w"> </span>mycmd<span class="tok-w"> </span>-f<span class="tok-w"> </span>packet<span class="tok-w"> </span>-o<span class="tok-w"> </span>result.packet
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./myprog<span class="tok-w"> </span>-f<span class="tok-w"> </span>packet<span class="tok-w"> </span>-o<span class="tok-w"> </span>result.packet<span class="tok-w"> </span>mycmd
 <span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>file<span class="tok-w"> </span>result.packet
 <span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>view<span class="tok-w"> </span>result.packet<span class="tok-w"> </span>-f<span class="tok-w"> </span>json<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>jq<span class="tok-w"> </span><span class="tok-s1">&#39;.&#39;</span><span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>less</code></pre>
 </div>
@@ -8868,7 +9525,8 @@ written to <code>~/.local/share/morloc/bin/</code>.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>combat<span class="tok-w"> </span>-h
-<span class="tok-go">... (auto-generated help: nexus options, then the three exported commands)</span>
+<span class="tok-go">... (auto-generated help: the three exported commands under a General Options section;</span>
+<span class="tok-go">     `combat --help` additionally lists the nexus options, and `combat -h @` renders them too)</span>
 <span class="tok-gp">$ </span>combat<span class="tok-w"> </span>fighterDamage<span class="tok-w"> </span><span class="tok-m">15</span>
 <span class="tok-go">12</span>
 <span class="tok-gp">$ </span>combat<span class="tok-w"> </span>fighterDamage<span class="tok-w"> </span><span class="tok-m">15</span>
@@ -10256,7 +10914,7 @@ two-stage pipeline that sums each inner list:</p>
 <span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">+</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mf">0.0</span>
 
 <span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[[</span><span class="tok-nc">Real</span><span class="tok-p">]]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span>
-<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-o">:</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-o">:</span><span class="tok-n">sum</span></code></pre>
+<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-na">a:</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-na">b:</span><span class="tok-n">sum</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -10424,7 +11082,7 @@ existence to detect completion and read <code>status</code> to branch:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="bash"><span></span>./align<span class="tok-w"> </span>--summary<span class="tok-w"> </span><span class="tok-nv">$WORK</span>/align.summary.json<span class="tok-w"> </span>--log-dir<span class="tok-w"> </span><span class="tok-nv">$WORK</span>/logs<span class="tok-w"> </span><span class="tok-se">\</span>
+<pre class="pygments highlight"><code data-lang="bash"><span></span>./align<span class="tok-w"> </span>--summary<span class="tok-w"> </span><span class="tok-nv">$WORK</span>/align.summary.json<span class="tok-w"> </span>--log-dir<span class="tok-w"> </span><span class="tok-nv">$WORK</span>/logs<span class="tok-w"> </span>@<span class="tok-w"> </span><span class="tok-se">\</span>
 <span class="tok-w">        </span>reads.fastq.gz<span class="tok-w"> </span>reference.fa
 <span class="tok-k">case</span><span class="tok-w"> </span><span class="tok-s2">&quot;</span><span class="tok-k">$(</span>jq<span class="tok-w"> </span>-r<span class="tok-w"> </span>.status<span class="tok-w"> </span><span class="tok-nv">$WORK</span>/align.summary.json<span class="tok-k">)</span><span class="tok-s2">&quot;</span><span class="tok-w"> </span><span class="tok-k">in</span>
 <span class="tok-w">  </span>ok<span class="tok-o">)</span><span class="tok-w">   </span>./next_step<span class="tok-w"> </span><span class="tok-p">;;</span>
@@ -10806,7 +11464,7 @@ for ratio.</p>
 <span class="tok-n">writeBig</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
 <span class="tok-n">writeBig</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span></code></pre>
 </div>
 </div>
@@ -11367,15 +12025,15 @@ across boundaries.</p>
 <span class="tok-n">writeMany</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
 <span class="tok-n">writeMany</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-nb">@flush</span><span class="tok-w"> </span><span class="tok-n">o</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">produceBatch</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>@write level xs o</code> appends <code>xs</code> to <code>o</code> using <code>level</code> as the zstd
+<p><code>@write level o xs</code> appends <code>xs</code> to <code>o</code> using <code>level</code> as the zstd
 preset for the resulting sub-packet (<code>0</code> disables compression; the
 preset table is the same as for <a href="#_compression">Compression</a>).
 <code>@flush o</code> forces the buffer to disk as a sub-packet boundary;
@@ -11476,8 +12134,8 @@ text formats.</p>
 <span class="tok-n">producer</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
 <span class="tok-n">producer</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@stdout</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-n">o</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">4</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">6</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-p">]</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">4</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">6</span><span class="tok-p">]</span>
 <span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span>
 
 <span class="tok-n">doubler</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
@@ -11485,9 +12143,9 @@ text formats.</p>
 <span class="tok-w">  </span><span class="tok-n">s</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@stdin</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">IStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@stdout</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-w">  </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@next</span><span class="tok-w"> </span><span class="tok-n">s</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-n">ys</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@next</span><span class="tok-w"> </span><span class="tok-n">s</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">ys</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">ys</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span>
 <span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">s</span></code></pre>
 </div>
@@ -11572,9 +12230,9 @@ in parallel using the same worker pool.</p>
 <h3 id="_morloc_nexus_file"><a class="anchor" href="#_morloc_nexus_file"></a>8.1. <code>morloc-nexus file</code></h3>
 <div class="paragraph">
 <p>A UNIX <code>file</code> like classifier for morloc-compatible data files.
-Recognises morloc packets (<code>data-packet</code>, <code>call-packet</code>, <code>ping-packet</code>),
-JSON, MessagePack, CSV, Arrow IPC, Parquet, ASCII / UTF-8 text, and
-empty files.</p>
+Recognises morloc packets (<code>data-packet</code>, <code>call-packet</code>,
+<code>stream-packet</code>, <code>ping-packet</code>), JSON, MessagePack, CSV, Arrow IPC,
+Parquet, ASCII / UTF-8 text, and empty files.</p>
 </div>
 <div class="paragraph">
 <p>Default output is exactly one line per input file, formatted as
@@ -11584,8 +12242,9 @@ input files.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>file<span class="tok-w"> </span>data.packet<span class="tok-w"> </span>data.json<span class="tok-w"> </span>data.mpk<span class="tok-w"> </span>people.csv<span class="tok-w"> </span>README<span class="tok-w"> </span>empty.bin
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>file<span class="tok-w"> </span>data.packet<span class="tok-w"> </span>log.stream<span class="tok-w"> </span>data.json<span class="tok-w"> </span>data.mpk<span class="tok-w"> </span>people.csv<span class="tok-w"> </span>README<span class="tok-w"> </span>empty.bin
 <span class="tok-go">data.packet: data-packet source=mesg format=msgpack schema=&quot;as&quot; payload=1024 metadata=64 total=1120</span>
+<span class="tok-go">log.stream: stream-packet schema=&quot;ad8&quot; state=final status=closed subpackets=42 elements=524288 payload_full_size=8388608 payload_wire_size=524288</span>
 <span class="tok-go">data.json: json</span>
 <span class="tok-go">data.mpk: msgpack</span>
 <span class="tok-go">people.csv: csv columns=3 delimiter=&quot;,&quot;</span>
@@ -11595,18 +12254,39 @@ input files.</p>
 </div>
 <div class="paragraph">
 <p>For morloc packets, classification is magic-byte based and seek-only,
-so even a multi-gigabyte CALL packet costs a few hundred bytes of
-I/O. The on-disk file size is checked against the size declared in
-the packet header by default; truncated or oversize packets are
-reported and exit non-zero.</p>
+so even a multi-gigabyte CALL or STREAM packet costs a few hundred
+bytes of I/O. The on-disk file size is checked against the size
+declared in the packet header by default; truncated or oversize
+packets are reported and exit non-zero.</p>
+</div>
+<div class="sect3">
+<h4 id="_stream_packets"><a class="anchor" href="#_stream_packets"></a>8.1.1. Stream packets</h4>
+<div class="paragraph">
+<p>Stream-packet output carries the footer&#8217;s summary when one is
+present. <code>state=final</code> marks a cleanly closed stream (final footer
++ end-of-file tail present); <code>state=temp</code> marks an intermediate
+mid-stream footer written by an in-progress <code>@close</code>; <code>state=missing</code>
+marks a stream whose writer exited before writing a footer.</p>
+</div>
+<div class="paragraph">
+<p>For <code>state=missing</code> files, <code>morloc-nexus file</code> runs a bounded
+forward scan of the sub-packet headers to report a best-effort
+<code>subpackets=N</code> and <code>elements=N</code> count. The scan is capped at 10 000
+sub-packets (<code>MORLOC_FILE_MAX_SCAN_SUBPACKETS</code> to override); when the
+cap is hit the counts carry a trailing <code>+</code> and the file is flagged
+as truncated at the scan boundary. Scan results annotate the
+<code>state=missing</code> line but are diagnostic only: the file is left
+untouched. <code>morloc-nexus view</code> reuses the same scan to open the
+file through <code>IStream</code> or the pattern walker.</p>
 </div>
 <div class="paragraph">
 <p>For the remaining formats, classification reads up to one kilobyte of
 the file and feeds it through the same parsers the runtime uses on
 real ingest.</p>
 </div>
+</div>
 <div class="sect3">
-<h4 id="_options"><a class="anchor" href="#_options"></a>8.1.1. Options</h4>
+<h4 id="_options"><a class="anchor" href="#_options"></a>8.1.2. Options</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -11632,7 +12312,10 @@ real ingest.</p>
                                indented <code>&lt;name&gt;:&lt;type&gt;</code> line per
                                column, with type inferred as one of
                                <code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code>, <code>date</code>,
-                               <code>time</code>, or <code>other</code>.</p></td>
+                               <code>time</code>, or <code>other</code>. STREAM packets emit
+                               the extended footer diag (writer pid,
+                               flush timestamps, oversize count,
+                               largest sub-packet, EOF tail window).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-n</code>, <code>--bytes SIZE</code></p></td>
@@ -11670,7 +12353,7 @@ real ingest.</p>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_verbose_example"><a class="anchor" href="#_verbose_example"></a>8.1.2. Verbose example</h4>
+<h4 id="_verbose_example"><a class="anchor" href="#_verbose_example"></a>8.1.3. Verbose example</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>file<span class="tok-w"> </span>-v<span class="tok-w"> </span>people.csv
@@ -11683,7 +12366,19 @@ real ingest.</p>
 <span class="tok-go">call.packet: call-packet midx=42 entrypoint=local nargs=3 payload=72 total=104</span>
 <span class="tok-go">  arg[0]: data-packet source=mesg format=msgpack schema=&quot;i4&quot; payload=4</span>
 <span class="tok-go">  arg[1]: data-packet source=mesg format=msgpack schema=&quot;as&quot; payload=16</span>
-<span class="tok-go">  arg[2]: data-packet source=rptr format=voidstar schema=&quot;ad8&quot; payload=8</span></code></pre>
+<span class="tok-go">  arg[2]: data-packet source=rptr format=voidstar schema=&quot;ad8&quot; payload=8</span>
+
+<span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>file<span class="tok-w"> </span>-v<span class="tok-w"> </span>log.stream
+<span class="tok-go">log.stream: stream-packet schema=&quot;ad8&quot; state=final status=closed subpackets=42 elements=524288 payload_full_size=8388608 payload_wire_size=524288</span>
+<span class="tok-go">  diag_version=1</span>
+<span class="tok-go">  writer_pid=12345</span>
+<span class="tok-go">  n_oversize_subpackets=0</span>
+<span class="tok-go">  writer_start_time=1720000000</span>
+<span class="tok-go">  first_flush_time=1720000001</span>
+<span class="tok-go">  last_flush_time=1720000042</span>
+<span class="tok-go">  largest_packet_uncompressed=262144</span>
+<span class="tok-go">  largest_packet_idx=17</span>
+<span class="tok-go">  tail_window=[...]</span></code></pre>
 </div>
 </div>
 </div>
@@ -11691,11 +12386,13 @@ real ingest.</p>
 <div class="sect2">
 <h3 id="_morloc_nexus_view"><a class="anchor" href="#_morloc_nexus_view"></a>8.2. <code>morloc-nexus view</code></h3>
 <div class="paragraph">
-<p>Reads a data file (morloc packet, <code>.json</code>, <code>.mpk</code>, <code>.arrow</code>,
-<code>.parquet</code>, or <code>.csv</code>) and re-emits it in a chosen output format.
-The intended use is ad-hoc inspection (<code>view foo.packet | jq | less</code>)
-and one-shot format conversion (<code>view foo.json -f mpk --schema "as"
--o foo.mpk</code>).</p>
+<p>Reads a data file (morloc data-packet, morloc stream-packet, <code>.json</code>,
+<code>.mpk</code>, <code>.arrow</code>, <code>.parquet</code>, or <code>.csv</code>) and re-emits it in a chosen
+output format. The intended use is ad-hoc inspection
+(<code>view foo.packet | jq | less</code>), one-shot format conversion
+(<code>view foo.json -f mpk --schema "as" -o foo.mpk</code>), and slicing large
+files down to a subset without materialising the whole thing
+(<code>view foo.packet --pattern ".[100:200]" -f json</code>).</p>
 </div>
 <div class="paragraph">
 <p><code>view</code> reuses the same loader chain <code>run</code> uses for argument ingress
@@ -11706,7 +12403,7 @@ accept, and vice versa.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./myprog<span class="tok-w"> </span>mycmd<span class="tok-w"> </span>-f<span class="tok-w"> </span>packet<span class="tok-w"> </span>-o<span class="tok-w"> </span>result.packet
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./myprog<span class="tok-w"> </span>-f<span class="tok-w"> </span>packet<span class="tok-w"> </span>-o<span class="tok-w"> </span>result.packet<span class="tok-w"> </span>mycmd
 <span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>view<span class="tok-w"> </span>result.packet<span class="tok-w"> </span>-f<span class="tok-w"> </span>json
 <span class="tok-go">[1, 2, 3]</span>
 <span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>view<span class="tok-w"> </span>result.packet<span class="tok-w"> </span>-f<span class="tok-w"> </span>json<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>jq<span class="tok-w"> </span><span class="tok-s1">&#39;. | length&#39;</span>
@@ -11721,7 +12418,25 @@ with a clear error instead of decoding garbage from a partial
 payload.</p>
 </div>
 <div class="sect3">
-<h4 id="_schema_resolution"><a class="anchor" href="#_schema_resolution"></a>8.2.1. Schema resolution</h4>
+<h4 id="_reading_from_stdin"><a class="anchor" href="#_reading_from_stdin"></a>8.2.1. Reading from stdin</h4>
+<div class="paragraph">
+<p>A single <code>-</code> argument reads from stdin. For stream-packet input
+(the IFile / OStream / IStream shape), <code>view -</code> iterates
+sub-packet by sub-packet and emits one element (or one line, for
+<code>-f jsonl</code>) at a time, so a multi-gigabyte stream can
+be viewed in constant memory. For data-packet input, or when the
+selected output form requires a full-value load (e.g. <code>-f arrow</code>),
+stdin is drained to a <code>$TMPDIR</code> temp file and the normal file path
+runs. The temp file is deleted on exit.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./producer<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>morloc-nexus<span class="tok-w"> </span>view<span class="tok-w"> </span>-<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>head<span class="tok-w"> </span>-5</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_schema_resolution"><a class="anchor" href="#_schema_resolution"></a>8.2.2. Schema resolution</h4>
 <div class="paragraph">
 <p><code>view</code> always loads through the typed loader, so a schema is required:</p>
 </div>
@@ -11731,7 +12446,8 @@ payload.</p>
 <p><code>--schema STRING</code> if given.</p>
 </li>
 <li>
-<p>Otherwise, the schema embedded in a morloc-packet&#8217;s metadata.</p>
+<p>Otherwise, the schema embedded in a morloc-packet&#8217;s metadata (data
+or stream).</p>
 </li>
 <li>
 <p>Otherwise, <code>view</code> exits with an error directing the user to
@@ -11741,7 +12457,199 @@ payload.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_options_2"><a class="anchor" href="#_options_2"></a>8.2.2. Options</h4>
+<h4 id="_pattern_extract_a_subset"><a class="anchor" href="#_pattern_extract_a_subset"></a>8.2.3. <code>--pattern</code>: extract a subset</h4>
+<div class="paragraph">
+<p><code>--pattern STR</code> applies a morloc pattern chain to the input before
+emission. The grammar is the same one morloc source uses for
+bracket accessors: field access (<code>.foo</code>), tuple/positional index
+(<code>.0</code>, <code>.1</code>), bracket index and slice (<code>.[i]</code>, <code>.[a:b]</code>,
+<code>.[a:b:c]</code>), grouped projection (<code>.(.a;.b)</code>), and broadcast tails
+after a slice (<code>.[:].name</code>, <code>.[:].[0]</code>, <code>.[:].(.name;.age)</code>).</p>
+</div>
+<div class="paragraph">
+<p>The pattern is parsed and type-checked against the input&#8217;s schema
+before any I/O happens. Mismatches (a <code>.foo</code> on an integer, a slice
+on a scalar) fail with a diagnostic that points at the offending
+pattern fragment.</p>
+</div>
+<div class="paragraph">
+<p>Note that the CLI uses <code>;</code> as the group separator (<code>.(.a;.b)</code>) so a
+single argument stays shell-safe; in morloc source the separator is
+<code>,</code> (<code>.(.a,.b)</code>). Both mean the same thing.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>view<span class="tok-w"> </span>people.packet<span class="tok-w"> </span>--pattern<span class="tok-w"> </span><span class="tok-s2">&quot;.[0:10].(.name;.age)&quot;</span><span class="tok-w"> </span>-f<span class="tok-w"> </span>json
+<span class="tok-go">[[&quot;Alice&quot;,30],[&quot;Bob&quot;,25],...]</span>
+
+<span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>view<span class="tok-w"> </span>timeseries.stream<span class="tok-w"> </span>--pattern<span class="tok-w"> </span><span class="tok-s2">&quot;.[100000:100010]&quot;</span><span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl
+<span class="tok-go">{&quot;t&quot;:1.0,&quot;v&quot;:3.14}</span>
+<span class="tok-go">{&quot;t&quot;:1.01,&quot;v&quot;:3.15}</span>
+<span class="tok-go">...</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The pattern dispatches through the same IFile walker <code>IFile a</code>
+values use in morloc code (<code>mlc_ifile_walk</code>)&#8201;&#8212;&#8201;for a data packet,
+a single mmap + slice; for a stream packet with a valid footer,
+<code>log2(K)</code> seeks over <code>K</code> sub-packets. For footer-less streams,
+<code>view</code> forward-scans the file to reconstruct the sub-packet index
+before dispatch (see <a href="#_footer_less_streams">Footer-less streams</a>
+below).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_packet_shape_output_s_d_p"><a class="anchor" href="#_packet_shape_output_s_d_p"></a>8.2.4. Packet-shape output: <code>-s</code> / <code>-d</code> / <code>-p</code></h4>
+<div class="paragraph">
+<p>Three mutually exclusive flags control the packet shape when the
+output form is a morloc packet:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s</code>, <code>--stream-packet</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Emit a <code>MORLOC_STREAM_PACKET</code> file. The
+                              value (or the pattern result) must be
+                              a list. Implies <code>-f packet</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d</code>, <code>--data-packet</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Emit a <code>MORLOC_DATA_PACKET</code> file (the
+                              default packet shape). Implies
+                              <code>-f packet</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-p</code>, <code>--preserve-packet</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mirror the input packet&#8217;s shape on
+                              output: data-in / data-out,
+                              stream-in / stream-out. Errors when
+                              the input is not a morloc packet.
+                              Implies <code>-f packet</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Bare <code>-f packet</code> (no <code>-s</code>/<code>-d</code>/<code>-p</code>) emits a data packet. Any of
+<code>-s</code>/<code>-d</code>/<code>-p</code> combined with <code>-f &lt;not packet&gt;</code> is an error.</p>
+</div>
+<div class="paragraph">
+<p>The four conversion arms all preserve typed semantics through the
+runtime&#8217;s authoritative packet writers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>DATA &#8594; DATA</strong> is a byte-level copy (or a loader re-emit when the
+<code>--schema</code> differs from the one embedded in the input).</p>
+</li>
+<li>
+<p><strong>DATA &#8594; STREAM</strong> opens the input as an IFile, chunks the array
+via bracket-slice, and writes each chunk through an OStream so
+the output is chunked, compressed, and indexed like any other
+stream file.</p>
+</li>
+<li>
+<p><strong>STREAM &#8594; STREAM</strong> drains the input via IStream <code>@next</code> and
+rewrites via OStream <code>@write</code>, so recompression, schema override,
+and footer normalisation all flow through the canonical writers.
+When <code>--compression-level</code> matches the source, a fast path
+verbatim-copies sub-packet payloads and only rewrites the footer.</p>
+</li>
+<li>
+<p><strong>STREAM &#8594; DATA</strong> materialises the whole stream to memory via the
+IFile walker and re-emits as a data packet. Gated by the size
+guardrail below.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_f_jsonl_line_delimited_json"><a class="anchor" href="#_f_jsonl_line_delimited_json"></a>8.2.5. <code>-f jsonl</code>: line-delimited JSON</h4>
+<div class="paragraph">
+<p><code>jsonl</code> output emits one JSON value per input element, one per
+line. JSON emission is element-by-element in all cases, so peak
+per-line memory is one element&#8217;s JSON body regardless of input
+size. Input buffering depends on the source:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>stdin (<code>view - -f jsonl</code>) reads one sub-packet at a time and
+serialises its elements before reading the next, so a multi-GB
+producer streams through in constant memory.</p>
+</li>
+<li>
+<p>File-based stream input goes through the buffered loader: the
+whole list is materialised, then emitted line-by-line. Combine
+with <code>--pattern .[a:b]</code> (or <code>-f jsonl</code> on stdin) for a
+constant-memory shape on multi-GB inputs.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_size_guardrails_and_force"><a class="anchor" href="#_size_guardrails_and_force"></a>8.2.6. Size guardrails and <code>--force</code></h4>
+<div class="paragraph">
+<p>Two guardrails refuse large operations without an explicit
+<code>--force</code>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Any buffered path (stream input to a non-<code>jsonl</code> text output,
+stream input to a data packet, single-value binary output) whose
+projected working set exceeds 1 GiB.</p>
+</li>
+<li>
+<p>Binary output (<code>-f packet</code>, <code>-f mpk</code>, <code>-f voidstar</code>, <code>-f arrow</code>,
+<code>-f parquet</code>) to a terminal.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><code>--force</code> lifts both. Refusal messages state which guardrail fired
+and suggest an alternative (<code>-s</code>, <code>-f jsonl</code>, <code>--pattern
+".[a:b]"</code>, or <code>-o FILE</code>). The buffered-path threshold can be
+overridden with <code>MORLOC_VIEW_MAX_BUFFER_BYTES</code>.</p>
+</div>
+<div class="paragraph">
+<p>For footer-less stream input the projected size falls back to the
+compressed file&#8217;s on-disk length as a conservative lower bound, so
+a partially-written multi-GB stream still hits the guardrail rather
+than silently OOM&#8217;ing the buffered path.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_footer_less_streams"><a class="anchor" href="#_footer_less_streams"></a>8.2.7. Footer-less streams</h4>
+<div class="paragraph">
+<p>A stream file whose final footer is missing (writer crashed before
+<code>@close</code>, <code>program &gt; out.stream</code> interrupted, etc.) is still usable
+through <code>view</code>. The classifier reports the missing footer, and:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>view -p</code> (or explicit <code>-s</code>) re-emits a well-formed stream with
+a canonical footer&#8201;&#8212;&#8201;the runtime&#8217;s IStream drains forward
+regardless of footer state, and OStream writes a fresh footer.</p>
+</li>
+<li>
+<p><code>view -d</code> (buffered materialisation) succeeds subject to the
+size guardrail.</p>
+</li>
+<li>
+<p><code>view --pattern PATTERN</code> forward-scans the file to recover a
+sub-packet-offset index, then dispatches the walker as normal.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_options_2"><a class="anchor" href="#_options_2"></a>8.2.8. Options</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -11751,24 +12659,55 @@ payload.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-f</code>, <code>--output-form FORM</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Output format: <code>json</code> (default),
-                                    <code>mpk</code>, <code>voidstar</code>, <code>packet</code>,
-                                    <code>arrow</code>, <code>parquet</code>, <code>csv</code>. Same
-                                    set as <code>run -f</code>.</p></td>
+                                    <code>jsonl</code>, <code>mpk</code>, <code>voidstar</code>,
+                                    <code>packet</code>, <code>arrow</code>, <code>parquet</code>,
+                                    <code>csv</code>. Same set as <code>run -f</code>
+                                    plus <code>jsonl</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-z</code>, <code>--compression-level N</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">zstd preset <code>0..=9</code>. Only meaningful
-                                    with <code>-f packet</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">zstd preset <code>0..=9</code>. Applies to
+                                    each sub-packet when emitting
+                                    <code>-s</code> (stream packet).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-o</code>, <code>--output-file PATH</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Write to <code>PATH</code> instead of stdout.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-s</code>, <code>--stream-packet</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Emit a stream packet
+                                    (mutex with <code>-d</code>/<code>-p</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-d</code>, <code>--data-packet</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Emit a data packet
+                                    (mutex with <code>-s</code>/<code>-p</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-p</code>, <code>--preserve-packet</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mirror the input packet&#8217;s shape
+                                    (mutex with <code>-s</code>/<code>-d</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--pattern STR</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Apply a pattern chain
+                                    (<code>.[a:b].field</code>,
+                                    <code>.[:].[0]</code>, &#8230;&#8203;) before
+                                    emission.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--force</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lift the size and binary-to-tty
+                                    guardrails.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--schema STRING</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Morloc schema string (compact
                                     format, e.g. <code>"as"</code> for <code>[Str]</code>,
-                                    <code>"ad8"</code> for <code>[Float64]</code>).</p></td>
+                                    <code>"ad8"</code> for <code>[Float64]</code>).
+                                    Overrides the input&#8217;s embedded
+                                    schema.</p></td>
 </tr>
 </tbody>
 </table>
@@ -12753,7 +13692,7 @@ integer list is reduced to a final output integer by <code>reduce</code>:</p>
 <span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 
 <span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-w"> </span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">big</span><span class="tok-o">:</span><span class="tok-n">run</span></code></pre>
+<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-w"> </span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-na">big:</span><span class="tok-n">run</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -12780,10 +13719,10 @@ evaluated. Labels may be arbitrarily nested, as shown in the example below:</p>
 <span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[[</span><span class="tok-nc">Real</span><span class="tok-p">]]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
 
 <span class="tok-n">bigStep</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
-<span class="tok-n">bigStep</span><span class="tok-w"> </span><span class="tok-n">input</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">big</span><span class="tok-o">:</span><span class="tok-n">analyze</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">munge</span><span class="tok-w"> </span><span class="tok-n">input</span><span class="tok-p">))</span>
+<span class="tok-n">bigStep</span><span class="tok-w"> </span><span class="tok-n">input</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-na">big:</span><span class="tok-n">analyze</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">munge</span><span class="tok-w"> </span><span class="tok-n">input</span><span class="tok-p">))</span>
 
 <span class="tok-n">analyzeMany</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-nc">Str</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-p">)]</span>
-<span class="tok-n">analyzeMany</span><span class="tok-w"> </span><span class="tok-n">inputs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">zip</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">big</span><span class="tok-o">:</span><span class="tok-n">bigStep</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">inputs</span></code></pre>
+<span class="tok-n">analyzeMany</span><span class="tok-w"> </span><span class="tok-n">inputs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">zip</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-na">big:</span><span class="tok-n">bigStep</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">inputs</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -13086,9 +14025,9 @@ and only an 8-byte pointer travels over the socket. Pools can also call each
 other directly for cross-language ("foreign") calls, without routing through the
 nexus.</p>
 </div>
-<div class="imageblock">
+<div class="imageblock kroki">
 <div class="content">
-<img loading="lazy" src="static/img/diag-mermaid-md5-49f4162dd16011ccc7e940b2794599f3.svg" alt="Diagram" width="1015" height="676">
+<img loading="lazy" src="static/img/diag-334e01bb4d909869bdcac4a7598ffe360d9cb326f8bc9851cdfc985982e49b6d.svg" alt="Diagram">
 </div>
 </div>
 <div class="paragraph">
@@ -13388,9 +14327,9 @@ and the voidstar data format.</p>
 <p>All communication uses a binary packet protocol over Unix domain sockets.
 Every packet starts with a 32-byte packed header:</p>
 </div>
-<div class="imageblock">
+<div class="imageblock kroki">
 <div class="content">
-<img loading="lazy" src="static/img/diag-mermaid-md5-396249d61e95ec4c2ba3a394b96ecc77.svg" alt="Diagram" width="1026" height="391">
+<img loading="lazy" src="static/img/diag-3a8a4214514fb5bdcf108374d4bfe4f885ff06efcf232eb8b10a5c35ca7a2853.svg" alt="Diagram">
 </div>
 </div>
 <table class="tableblock frame-all grid-all stretch">

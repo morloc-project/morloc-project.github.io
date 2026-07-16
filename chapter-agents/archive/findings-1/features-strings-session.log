@@ -1,0 +1,15 @@
+Both files written.
+
+**Summary of findings for features-strings.asc:**
+
+- **Blocker (2):**
+  - The documented runtime NUL diagnostic (`Error: r does not support embedded NUL bytes in strings (at args[0] (byte 3 of 7))`) does not fire in v0.93.0 direct-exec mode. Verified with both the compiler's own golden-test recipe (`--' source: file` + a NUL-containing file) and a Python→R route; both surface R's raw `embedded nul in string` error. `MORLOC_SKIP_NULL_CHECK=1` and `--unsafe-skip-null-check` have no observable effect because the guard doesn't fire.
+  - The example error format in the doc has a newline+7-space indent between `strings` and `(at args[0]...)`, but the Rust code at `data/rust/morloc-nexus/src/dispatch.rs` uses a single-line format string. Grepping for the multi-line version finds nothing.
+
+- **Confusing (2):**
+  - Multi-line trimming rules are looser than the algorithm — verified `"""abc\n  def"""` → `"abc\n  def"` (nothing trimmed because the first line has content). Compiler at `library/Morloc/Frontend/Lexer.hs:1061-1082` only drops the first/last line if it is whitespace-only, and rule 3 ignores blank lines when computing min-indent.
+  - The Null-strings section conflates the compile-time literal check (works, but with a different message than shown) with the runtime scan (does not fire on user-reachable paths).
+
+- **Minor (multiple typos):** "Unicode unicode" duplication (line 3); "tripple" ×2 (line 47); "suports" → "supports" (line 104); `Int` should be `Str` (line 104); "vale" → "value" (line 109); the runtime-error example silently requires the `--' source: file` docstring form, which no chapter up to #7 has introduced.
+
+Confirmed working as documented: Unicode literals, `#{...}` interpolation (Str-only, `show` required for other types), all six escape sequences (`\n \t \r \0 \\ \"`), invalid-escape lex errors, `"""` and `'''` triple quotes, Windows path example, `--unsafe-skip-null-check` CLI flag exists.

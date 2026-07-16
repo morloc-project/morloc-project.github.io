@@ -1,0 +1,3 @@
+Both files are written. Summary is under the 100-line cap.
+
+Chapter 11 (features-where) walked. Two blockers found: (1) mutually-recursive `where` bindings crash the compiler internally rather than producing the documented rejection, and (2) the "chain of single-binding lets" example uses a morloc-specific parser extension (`let ... let ... in ...` with no intervening `in`) that the chapter shows without explaining. Two confusing bits: the nested-`where` example silently demonstrates outer-scope lookup, and `let`'s "must only refer to terms bound above" surfaces as a generic `Undefined term` error. Six passing examples verified end-to-end.

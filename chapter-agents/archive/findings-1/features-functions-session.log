@@ -1,0 +1,10 @@
+Both files written. Summary:
+
+- `findings/reports/features-functions.md`: 6 issues.
+  - **1 blocker**: `slice` doesn't exist in stdlib — every partial-application example in the chapter's showcase section fails (`Undefined term: slice`). Even mocking `slice`, the `firstFive` example still needs a signature the docs omit.
+  - **3 confusing**: `head = slice 0 1` returns a list not the first element; the `internal` module sentence is grammatically broken ("a stdlib modules") and factually loose; the "section on effects and delayed evaluation" reference is prose instead of `<<...>>`.
+  - **1 minor factual**: "and other `Numeric` types" — only `Real` is a `Numeric` instance.
+  - **2 typos**: `explict`, `ever list`.
+  - Everything else (composition, `$`, operator sections `(/ 2.0)` and `(2.0 /)`, `//`, lambda, zero-arg-lambda rejection, non-polymorphic literals) built and ran as documented.
+
+- `findings/summaries/features-functions.md`: language facts for downstream agents — operator locations in `internal/`, non-polymorphic numeric literals, `Integral`/`Numeric` class layout, lambda rules, plus two stdlib gotchas (`slice`/`head`/`take` missing; `import stdlib` currently crashes the parser on `random/main.loc:3` — prefer explicit `root`/`root-cpp` imports).

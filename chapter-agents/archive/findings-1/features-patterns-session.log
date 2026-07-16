@@ -1,0 +1,15 @@
+Both files written.
+
+**Summary of findings for features-patterns.asc:**
+
+Chapter 10 is in unusually good shape — this is the strongest chapter so far. Every code example executes and produces the documented output on morloc 0.93.0. The class definitions in "Adding bracket support to your own types" match `internal/main.loc` verbatim, and the two "not yet available" features (bracket setters, multi-axis `.[i,j]`) both fail with precise, source-caret-carrying diagnostics from the compiler.
+
+- **Blockers (0):** none.
+- **Confusing (4):**
+  - `map .1 [(1,2),(2,3)]` cannot be pasted into `morloc eval`; the polymorphic numeric type triggers "skipping generic export". Requires a `:: [Int]` annotation the doc never mentions. Same trap the last five chapters hit.
+  - Doc writes tuple results as `(1,3)` but they marshal as JSON arrays `[1,3]`. Not wrong, but the doc's notation and the terminal output don't match.
+  - "Pass-through `Null` as `Nothing`" mixes two different optional-type names and is unclear without prior context.
+  - The claim "the compiler picks `SliceableDim` automatically when `Sliceable` is absent" has no runnable example on the page.
+- **Minor (1):** the comparison-table row `foo .0 xs` (patterns as higher-order args other than `map`) has no inline example. Verified to work with `apply .0 (7,8)` → `7`.
+
+Verified working: all 6 getter examples, all 2 setter examples, all 12 bracket examples, all 8 composed-bracket examples, the mixed-width `IndexLike` claim (`Int8`/`UInt32`), and both "not yet available" error messages.

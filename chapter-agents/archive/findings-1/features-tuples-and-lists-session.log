@@ -1,0 +1,7 @@
+Both files written. Summary of findings for `features-tuples-and-lists.asc`:
+
+- **Blocker (1):** The Tuples section (lines 11-26) is duplicated verbatim at lines 56-69, dangling at the end of the Lists section — a copy-paste editorial error.
+- **Confusing (1):** Broken grammar at lines 45-50: "several data structures that for accessing this data that have different performance tradeoffs" (double `that`).
+- **Minor (2):** `morloc typecheck` only pretty-prints paren tuple sugar for arity ≤ 8 (verified in `library/Morloc/Namespace/Type.hs:1326-1332`); `Tuple10`/`Tuple20`/`Tuple50` render with the prefix `Tuple<N> A B ...` form. Also, the interchangeability of `TupleN` and paren-sugar syntax is never shown, and the chapter never demonstrates a runnable list example (both examples are pure-data declarations).
+
+**Working as documented:** tuple/list type-check cleanly, parser accepts any tuple arity (`Tuple50` builds and runs end-to-end), `Deque` really exists in `root`, `Vector n a` really exists in the `vector` module, both cross-references (`types-newtype`, `Tensors`) resolve to real anchors.

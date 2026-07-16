@@ -1,0 +1,19 @@
+Both files written. Summary of findings for `features-integers.asc`:
+
+**Blockers (2):**
+- Integer literals in a `Real` context (e.g. `[-1.5, -2.0e-3, -0xff]` in the doc's `ys :: [Real]`) are silently accepted but produce garbage — `255 :: Real` gives `1.26e-321`, `-255 :: Real` gives `"nan"`. The compiler reinterprets the integer's bytes as a double instead of converting or rejecting.
+- The `factR 100` example uses an undefined command (`factR` is never defined in the accompanying module, no `import root-r`, no `idr`). Once I completed the example, the runtime error differs from the doc's canonical form: it's wrapped in an R traceback, contains a stray `rmorloc.c:1022 in from_voidstar_inner` leak, and is missing the trailing hint `"Use a fixed-width type ..."`.
+
+**Confusing (3):**
+- `morloc eval -e "-<anything>"` fails because the option parser eats the leading dash — worth a note in the negation section.
+- Python `Int` advertised as "arbitrary precision" only holds within the Python pool; the cross-language qualification is documented but two sections later.
+- Wire-format detail ("16 bytes inline, spill to array of 64-bit limbs") appears without context in an otherwise user-level chapter.
+
+**Minor (3):**
+- `UInt8` overflow error shows `main.loc:2:12` — assumes the reader hasn't added the required `module` header (which shifts the line to 4:12).
+- `morloc make -o calc` used without introducing the `-o` flag.
+- R Python-column-all-int table is fine but the numpy-specialization pointer to a later "Type Hierarchies" section isn't cross-linked.
+
+**Passed exactly as documented:** literal lexing (dec/hex/oct/bin + malformed hex error), `fact 100`, `factCpp 100` overflow, `UInt8` bounds check body, all negation examples (`neg1`..`neg4`, `double`, explicit `negate`), asymmetric-whitespace rule, two-adjacent-dash rejection, `Negatable` class/instance locations in the installed stdlib.
+
+**Environment note filed in summary:** the compiler source path the harness expected (`/home/z/projects/morloc-core/compiler/morloc`) does not exist on this host. Doc source also missing locally — fetched from the GitHub `master` branch. Downstream chapters should use the installed stdlib on the VM (`/opt/morloc/src/morloc/plane/default/...`) for cross-checks.
