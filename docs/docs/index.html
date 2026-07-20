@@ -1555,7 +1555,7 @@ implemented in cpp:</p>
 background in the Algol family of languages (such as C and Python).</p>
 </div>
 <div class="paragraph">
-<p>The Morloc <code>internal</code> module, which is imported into a stdlib modules, defines
+<p>The Morloc <code>internal</code> module, which is re-exported from the <code>root</code> module, defines
 the composition (<code>.</code>) and application (<code>$</code>) operators.</p>
 </div>
 <div class="paragraph">
@@ -1593,20 +1593,20 @@ it can be used to avoid parentheses:</p>
 <div class="paragraph">
 <p>Morloc supports partial application of arguments. If you take a function that
 requires N arguments, and provide it one argument, you will get a new function
-of (N-1) arguments. Let&#8217;s take the <code>slice</code> function which takes three arguments:
-a start index, an end index, and a list of values. It returns a sublist. Here
+of (N-1) arguments. Let&#8217;s take the <code>fold</code> function which takes three arguments:
+a reducing function, an initial value, and a list of values. Here
 are a few examples of partial application:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-o">#</span><span class="tok-w"> </span><span class="tok-n">create</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">new</span><span class="tok-w"> </span><span class="tok-s">&quot;take&quot;</span><span class="tok-w"> </span><span class="tok-n">function</span>
-<span class="tok-n">take</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">slice</span><span class="tok-w"> </span><span class="tok-mi">0</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-o">#</span><span class="tok-w"> </span><span class="tok-n">concat</span><span class="tok-w"> </span><span class="tok-n">things</span><span class="tok-w"> </span><span class="tok-n">to</span><span class="tok-w"> </span><span class="tok-n">an</span><span class="tok-w"> </span><span class="tok-n">initial</span><span class="tok-w"> </span><span class="tok-n">value</span>
+<span class="tok-n">concatTo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">)</span>
 
-<span class="tok-o">#</span><span class="tok-w"> </span><span class="tok-n">define</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">new</span><span class="tok-w"> </span><span class="tok-s">&quot;head&quot;</span><span class="tok-w"> </span><span class="tok-n">function</span><span class="tok-w"> </span><span class="tok-n">that</span><span class="tok-w"> </span><span class="tok-n">returns</span><span class="tok-w"> </span><span class="tok-n">the</span><span class="tok-w"> </span><span class="tok-n">first</span><span class="tok-w"> </span><span class="tok-n">element</span><span class="tok-w"> </span><span class="tok-n">of</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">list</span>
-<span class="tok-n">head</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">slice</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-mi">1</span>
+<span class="tok-o">#</span><span class="tok-w"> </span><span class="tok-n">extend</span><span class="tok-w"> </span><span class="tok-n">an</span><span class="tok-w"> </span><span class="tok-n">initial</span><span class="tok-w"> </span><span class="tok-n">list</span>
+<span class="tok-n">extend</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-mi">3</span><span class="tok-p">]</span>
 
-<span class="tok-o">#</span><span class="tok-w"> </span><span class="tok-n">extract</span><span class="tok-w"> </span><span class="tok-n">the</span><span class="tok-w"> </span><span class="tok-n">first</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-w"> </span><span class="tok-n">elements</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-n">ever</span><span class="tok-w"> </span><span class="tok-n">list</span><span class="tok-w"> </span><span class="tok-kr">in</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">list</span><span class="tok-w"> </span><span class="tok-n">of</span><span class="tok-w"> </span><span class="tok-n">lists</span>
-<span class="tok-n">firstFive</span><span class="tok-w"> </span><span class="tok-n">xss</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">slice</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">xss</span></code></pre>
+<span class="tok-o">#</span><span class="tok-w"> </span><span class="tok-n">append</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-n">list</span><span class="tok-w"> </span><span class="tok-n">of</span><span class="tok-w"> </span><span class="tok-n">values</span><span class="tok-w"> </span><span class="tok-n">to</span><span class="tok-w"> </span><span class="tok-n">an</span><span class="tok-w"> </span><span class="tok-n">initial</span><span class="tok-w"> </span><span class="tok-n">value</span>
+<span class="tok-n">append</span><span class="tok-w"> </span><span class="tok-n">xss</span><span class="tok-w"> </span><span class="tok-n">ys</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">&lt;&gt;</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">ys</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">xss</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2108,12 +2108,12 @@ fixed-width types for performance-critical code.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Default integer for most code. Works across all languages.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int8</code>, <code>Int16</code>, <code>Int32</code>, <code>Int64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>I8</code>, <code>I16</code>, <code>I32</code>, <code>I64</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">8, 16, 32, 64 bits (signed)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Performance-critical code with known bounds.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>UInt8</code>, <code>UInt16</code>, <code>UInt32</code>, <code>UInt64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>U8</code>, <code>U16</code>, <code>U32</code>, <code>U64</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">8, 16, 32, 64 bits (unsigned)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bit manipulation, byte data, indices.</p></td>
 </tr>
@@ -2161,7 +2161,7 @@ spill to a pointer to an array of 64-bit limbs. The <strong>in-language</strong>
 </table>
 <div class="paragraph">
 <p>A morloc program that needs a value above 32 bits in C or R should declare
-the field as `Int64` (or `UInt64`), which maps to `int64_t` in C and to R&#8217;s
+the field as `I64` (or `U64`), which maps to `int64_t` in C and to R&#8217;s
 <code>numeric</code> (with 53-bit integer precision via double).</p>
 </div>
 <div class="paragraph">
@@ -2264,7 +2264,7 @@ precision via doubles:</p>
 <span class="tok-go">Error: run failed</span>
 <span class="tok-go">Integer overflow: 9-limb integer (576 bits) does not fit in</span>
 <span class="tok-go">R&#39;s numeric type (max 2^53 for integer precision).</span>
-<span class="tok-go">Use a fixed-width type (Int32, Int64) or keep computation in Python.</span></code></pre>
+<span class="tok-go">Use a fixed-width type (I32, I64) or keep computation in Python.</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2284,7 +2284,7 @@ sourced error pointing at the literal:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">tooLarge</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">UInt8</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">tooLarge</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">U8</span>
 <span class="tok-n">tooLarge</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1000</span></code></pre>
 </div>
 </div>
@@ -2292,7 +2292,7 @@ sourced error pointing at the literal:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
 <span class="tok-go">main.loc:2:12: error:</span>
-<span class="tok-go">Integer literal 1000 overflows UInt8 (range 0 to 255)</span>
+<span class="tok-go">Integer literal 1000 overflows U8 (range 0 to 255)</span>
 <span class="tok-go">  |</span>
 <span class="tok-go">2 | tooLarge = 1000</span>
 <span class="tok-go">  |            ^</span></code></pre>
@@ -2327,49 +2327,49 @@ directly to the target language&#8217;s native types:</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>I8</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int8_t</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>integer</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int16</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>I16</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int16_t</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>integer</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>I32</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int32_t</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>integer</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>I64</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int64_t</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>numeric</code> (double)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>UInt8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>U8</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>uint8_t</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>raw</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>UInt16</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>U16</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>uint16_t</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>integer</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>UInt32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>U32</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>uint32_t</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>numeric</code> (double)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>UInt64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>U64</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>uint64_t</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>int</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>numeric</code> (double)</p></td>
@@ -2422,7 +2422,7 @@ and unsigned to a strictly wider signed target. A reflexive
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">wide</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int8</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int64</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">wide</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">I8</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">I64</span>
 <span class="tok-n">wide</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">into</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
 </div>
 </div>
@@ -2432,15 +2432,15 @@ unsigned, or unsigned-into-a-same-or-narrower signed:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">byte</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int32</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">UInt8</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">byte</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">I32</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">U8</span>
 <span class="tok-n">byte</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">tryInto</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">        </span><span class="tok-c1">-- Null on x &lt; 0 or x &gt; 255</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p><code>Int</code> is given the most restrictive semantics because its width varies
 across backends (32-bit in R and C++, unbounded in Python). Any
-<code>Int &#8594; Int&lt;N&gt;</code>&#8201;&#8212;&#8201;even <code>Int &#8594; Int64</code>&#8201;&#8212;&#8201;goes through <code>tryInto</code>, and
-converting <code>UInt32</code> or wider <em>into</em> <code>Int</code> also uses <code>tryInto</code>. This
+<code>Int &#8594; Int&lt;N&gt;</code>&#8201;&#8212;&#8201;even <code>Int &#8594; I64</code>&#8201;&#8212;&#8201;goes through <code>tryInto</code>, and
+converting <code>U32</code> or wider <em>into</em> <code>Int</code> also uses <code>tryInto</code>. This
 keeps behavior portable across backends.</p>
 </div>
 </div>
@@ -2460,8 +2460,8 @@ two roles&#8201;&#8212;&#8201;the binary subtraction operator and the unary nega
 <span class="tok-n">shifted</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">shifted</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span>
 
-<span class="tok-c1">-- works on any numeric primitive (Int, Int8..64, UInt8..64,</span>
-<span class="tok-c1">-- Real, Float32, Float64) via the `Negatable` typeclass</span>
+<span class="tok-c1">-- works on any numeric primitive (Int, I8..64, U8..64,</span>
+<span class="tok-c1">-- Real, F32, F64) via the `Negatable` typeclass</span>
 <span class="tok-n">flipReal</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
 <span class="tok-n">flipReal</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">-</span><span class="tok-n">x</span></code></pre>
 </div>
@@ -2631,7 +2631,7 @@ imported language modules and the surrounding cross-language boundaries.</p>
 <h3 id="_floating_point_types"><a class="anchor" href="#_floating_point_types"></a>4.5. Floating-point types</h3>
 <div class="paragraph">
 <p>Morloc&#8217;s floating-point types are IEEE 754 binary formats. A <code>Real</code> value is
-the default; <code>Float32</code> and <code>Float64</code> are explicit precision controls.</p>
+the default; <code>F32</code> and <code>F64</code> are explicit precision controls.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -2653,12 +2653,12 @@ the default; <code>Float32</code> and <code>Float64</code> are explicit precisio
 <td class="tableblock halign-left valign-top"><p class="tableblock">Default floating point.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Float32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>F32</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">32 bits (IEEE 754 binary32)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Tensors, GPU code, memory-constrained numerics.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Float64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>F64</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">64 bits (IEEE 754 binary64)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Default-precision scientific computation.</p></td>
 </tr>
@@ -2690,13 +2690,13 @@ the default; <code>Float32</code> and <code>Float64</code> are explicit precisio
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>numeric</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Float32</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>F32</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>float</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>float</code> (with f32 conversion at the boundary)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>numeric</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Float64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>F64</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>double</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>float</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>numeric</code></p></td>
@@ -2714,7 +2714,7 @@ the default; <code>Float32</code> and <code>Float64</code> are explicit precisio
 <span class="tok-n">pi</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mf">3.14159265358979</span>
 
 <span class="tok-c1">-- scientific notation (upper or lowercase &#39;e&#39;)</span>
-<span class="tok-n">avogadro</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Float64</span>
+<span class="tok-n">avogadro</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">F64</span>
 <span class="tok-n">avogadro</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mf">6.022e23</span><span class="tok-w">     </span><span class="tok-c1">-- prints as 6.022e+23 (explicit + on the exponent)</span>
 
 <span class="tok-c1">-- negative exponent</span>
@@ -2722,7 +2722,7 @@ the default; <code>Float32</code> and <code>Float64</code> are explicit precisio
 <span class="tok-n">boltzmann</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mf">1.380649e-23</span>
 
 <span class="tok-c1">-- 32-bit float for reduced memory in tensors</span>
-<span class="tok-n">weights</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Vector</span><span class="tok-w"> </span><span class="tok-mi">1000</span><span class="tok-w"> </span><span class="tok-nc">Float32</span></code></pre>
+<span class="tok-n">weights</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Vector</span><span class="tok-w"> </span><span class="tok-mi">1000</span><span class="tok-w"> </span><span class="tok-nc">F32</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2881,7 +2881,7 @@ written into. A literal whose magnitude exceeds the target precision&#8217;s
 representable range is rejected with a sourced error pointing at the literal.</p>
 </div>
 <div class="paragraph">
-<p>For <code>Real</code> and <code>Float64</code> (max ≈ 1.8e308):</p>
+<p>For <code>Real</code> and <code>F64</code> (max ≈ 1.8e308):</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2893,19 +2893,19 @@ representable range is rejected with a sourced error pointing at the literal.</p
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
 <span class="tok-go">main.loc:2:10: error:</span>
-<span class="tok-go">Float literal 1.0e500 overflows Float64 (|x| &gt; 1.8e308)</span>
+<span class="tok-go">Float literal 1.0e500 overflows F64 (|x| &gt; 1.8e308)</span>
 <span class="tok-go">  |</span>
 <span class="tok-go">2 | tooBig = 1e500</span>
 <span class="tok-go">  |          ^</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The check is per-target-precision, so a literal that fits <code>Float64</code> but
-overflows <code>Float32</code> (max ≈ 3.4e38) is rejected when typed as <code>Float32</code>:</p>
+<p>The check is per-target-precision, so a literal that fits <code>F64</code> but
+overflows <code>F32</code> (max ≈ 3.4e38) is rejected when typed as <code>F32</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">tooBigF32</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Float32</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">tooBigF32</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">F32</span>
 <span class="tok-n">tooBigF32</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mf">1e100</span></code></pre>
 </div>
 </div>
@@ -2913,7 +2913,7 @@ overflows <code>Float32</code> (max ≈ 3.4e38) is rejected when typed as <code>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>main.loc
 <span class="tok-go">main.loc:2:13: error:</span>
-<span class="tok-go">Float literal 1.0e100 overflows Float32 (|x| &gt; 3.4e38)</span>
+<span class="tok-go">Float literal 1.0e100 overflows F32 (|x| &gt; 3.4e38)</span>
 <span class="tok-go">  |</span>
 <span class="tok-go">2 | tooBigF32 = 1e100</span>
 <span class="tok-go">  |             ^</span></code></pre>
@@ -2925,7 +2925,7 @@ overflows <code>Float32</code> (max ≈ 3.4e38) is rejected when typed as <code>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-go">main.loc:2:10: error:</span>
-<span class="tok-go">Float literal -1.0e500 overflows Float64 (|x| &gt; 1.8e308)</span>
+<span class="tok-go">Float literal -1.0e500 overflows F64 (|x| &gt; 1.8e308)</span>
 <span class="tok-go">  |</span>
 <span class="tok-go">2 | tooNeg = -1e500</span>
 <span class="tok-go">  |          ^</span></code></pre>
@@ -3023,39 +3023,39 @@ issue entirely.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_float32_precision_considerations"><a class="anchor" href="#_float32_precision_considerations"></a>4.5.5. Float32 precision considerations</h4>
+<h4 id="_f32_precision_considerations"><a class="anchor" href="#_f32_precision_considerations"></a>4.5.5. F32 precision considerations</h4>
 <div class="paragraph">
-<p><code>Float32</code> halves memory usage relative to <code>Float64</code> and is the right choice
+<p><code>F32</code> halves memory usage relative to <code>F64</code> and is the right choice
 for large numerical arrays (tensors, image buffers, GPU input) where the
 extra precision is not needed. The tradeoffs to keep in mind:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Significand has ~7 decimal digits of precision (vs. ~15-17 for <code>Float64</code>).</p>
+<p>Significand has ~7 decimal digits of precision (vs. ~15-17 for <code>F64</code>).</p>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">A literal like `0.1 </dt>
 <dd>
-<p>Float32` rounds to the nearest representable
+<p>F32` rounds to the nearest representable
 <code>binary32</code> value&#8201;&#8212;&#8201;it is not exact.</p>
 </dd>
 </dl>
 </div>
 </li>
 <li>
-<p>Maximum magnitude is ≈ 3.4e38 (vs. 1.8e308 for <code>Float64</code>). Compile-time
+<p>Maximum magnitude is ≈ 3.4e38 (vs. 1.8e308 for <code>F64</code>). Compile-time
 bounds-checking enforces this for literals.</p>
 </li>
 <li>
-<p>All arithmetic on <code>Float32</code> runs at single precision, including the
+<p>All arithmetic on <code>F32</code> runs at single precision, including the
 overflow-to-infinity threshold.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
 <p>For most application code, <code>Real</code> (mapped to <code>double</code> / <code>numeric</code> /
-host-language float) is the right default. Reach for <code>Float32</code> deliberately
+host-language float) is the right default. Reach for <code>F32</code> deliberately
 when memory or interop with single-precision hardware demands it.</p>
 </div>
 </div>
@@ -3064,9 +3064,9 @@ when memory or interop with single-precision hardware demands it.</p>
 <div class="paragraph">
 <p>The <code>TotalInto</code> / <code>PartialInto</code> classes introduced in the integer chapter
 extend naturally to floats. Widening an integer whose full range fits in
-the target mantissa (24 bits for <code>Float32</code>, 53 for <code>Float64</code>) uses
-<code>into</code>, and <code>Float32 &#8594; Float64</code> is also <code>TotalInto</code>. <code>Real</code> and
-<code>Float64</code> are interconvertible with <code>into</code> in both directions&#8201;&#8212;&#8201;representationally identical in every current backend.</p>
+the target mantissa (24 bits for <code>F32</code>, 53 for <code>F64</code>) uses
+<code>into</code>, and <code>F32 &#8594; F64</code> is also <code>TotalInto</code>. <code>Real</code> and
+<code>F64</code> are interconvertible with <code>into</code> in both directions&#8201;&#8212;&#8201;representationally identical in every current backend.</p>
 </div>
 <div class="paragraph">
 <p>Integer-to-float conversions that <em>may</em> lose precision use a dedicated
@@ -3089,7 +3089,7 @@ cover every numeric type. The canonical use is:</p>
 </div>
 </div>
 <div class="paragraph">
-<p><code>size</code> returns <code>UInt64</code>; <code>toReal</code> bridges it into the <code>Real</code> denominator.
+<p><code>size</code> returns <code>U64</code>; <code>toReal</code> bridges it into the <code>Real</code> denominator.
 The precision loss is theoretical for realistic container sizes and named
 explicitly so a reader can see it.</p>
 </div>
@@ -3100,7 +3100,7 @@ integer&#8217;s range:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">approx</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int32</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">approx</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">I32</span>
 <span class="tok-n">approx</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">tryInto</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">      </span><span class="tok-c1">-- Null on NaN, Inf, 3.5, or 1e20</span></code></pre>
 </div>
 </div>
@@ -3109,7 +3109,7 @@ integer&#8217;s range:</p>
 <code>trunc</code> from the <code>math</code> module first, then <code>tryInto</code> the result.</p>
 </div>
 <div class="paragraph">
-<p>Narrowing <code>Float64 &#8594; Float32</code> and <code>Real &#8594; Float32</code> are <em>not</em> provided
+<p>Narrowing <code>F64 &#8594; F32</code> and <code>Real &#8594; F32</code> are <em>not</em> provided
 as <code>TotalInto</code> instances&#8201;&#8212;&#8201;they lose precision on every input. Users
 who need this conversion source an explicit foreign function so the
 lossy step is visible at the call site.</p>
@@ -3118,7 +3118,7 @@ lossy step is visible at the call site.</p>
 <div class="sect3">
 <h4 id="_negation_of_real_values"><a class="anchor" href="#_negation_of_real_values"></a>4.5.7. Negation of Real values</h4>
 <div class="paragraph">
-<p>Negation works on <code>Real</code>, <code>Float32</code>, and <code>Float64</code> the same way it does on
+<p>Negation works on <code>Real</code>, <code>F32</code>, and <code>F64</code> the same way it does on
 integers, via the <code>Negatable</code> typeclass. See the integers chapter for the
 full unary-minus rules. The IEEE 754-relevant differences for <code>Real</code>:</p>
 </div>
@@ -3830,7 +3830,7 @@ end, out-of-range bounds are clamped, and <code>.[::-1]</code> reverses the list
 <div class="paragraph">
 <p>Any morloc integral type can stand in for an index or bound; the conversion to
 the underlying 64-bit width is dispatched through the <code>IndexLike</code> typeclass.
-This means <code>.[(i :: Int8) : (j :: UInt32)] xs</code> is well-typed.</p>
+This means <code>.[(i :: I8) : (j :: U32)] xs</code> is well-typed.</p>
 </div>
 <div class="paragraph">
 <div class="title">Composing brackets with other patterns</div>
@@ -3966,20 +3966,20 @@ in your own library:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-c1">-- Indexing: .[i] xs</span>
 <span class="tok-kr">class</span><span class="tok-w"> </span><span class="tok-nc">Indexable</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-kr">where</span>
-<span class="tok-w">  </span><span class="tok-n">__access_index__</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">  </span><span class="tok-n">__access_index__</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">I64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
 
 <span class="tok-c1">-- Slicing for shape-preserving containers (List, Str, ...)</span>
 <span class="tok-kr">class</span><span class="tok-w"> </span><span class="tok-nc">Sliceable</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-kr">where</span>
-<span class="tok-w">  </span><span class="tok-n">__get_slice__</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">  </span><span class="tok-n">__get_slice__</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">I64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">I64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">I64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">a</span>
 
 <span class="tok-c1">-- Slicing for Nat-parameterized containers (Vector, Tensor, ...) where the</span>
 <span class="tok-c1">-- output length differs from the input length</span>
 <span class="tok-kr">class</span><span class="tok-w"> </span><span class="tok-nc">SliceableDim</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-kr">where</span>
-<span class="tok-w">  </span><span class="tok-n">__get_slice_dim__</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">  </span><span class="tok-n">__get_slice_dim__</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">I64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">I64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">I64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-n">a</span>
 
-<span class="tok-c1">-- Casting any user expression in a bound position to ?Int64</span>
+<span class="tok-c1">-- Casting any user expression in a bound position to ?I64</span>
 <span class="tok-kr">class</span><span class="tok-w"> </span><span class="tok-nc">IndexLike</span><span class="tok-w"> </span><span class="tok-n">i</span><span class="tok-w"> </span><span class="tok-kr">where</span>
-<span class="tok-w">  </span><span class="tok-n">__to_index__</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">i</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int64</span></code></pre>
+<span class="tok-w">  </span><span class="tok-n">__to_index__</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">i</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">I64</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3993,7 +3993,7 @@ compiler picks <code>SliceableDim</code> automatically when <code>Sliceable</cod
 position, the compiler casts it via that type&#8217;s <code>IndexLike</code> instance; you can
 extend bracket syntax to accept new bound types (e.g. a <code>Char</code> index, a fixed-
 point coordinate) just by adding an <code>IndexLike</code> instance with a <code><em>to_index</em></code>
-that returns <code>?Int64</code>. Pass-through <code>Null</code> as <code>Nothing</code> to compose cleanly with
+that returns <code>?I64</code>. Pass-through <code>Null</code> as <code>Nothing</code> to compose cleanly with
 omitted positions in <code>.[i:]</code>, <code>.[:j]</code>, <code>.[::]</code>, etc.</p>
 </div>
 <div class="paragraph">
@@ -4096,7 +4096,7 @@ required as the final case:</p>
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">abs</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">abs</span><span class="tok-w"> </span><span class="tok-n">x</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">x</span>
-<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">neg</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">neg</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w">       </span><span class="tok-c1">-- negate a term</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4145,10 +4145,7 @@ conditions and result expressions:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Guards can also be used as inline expressions anywhere a value is expected.
-The parentheses are required only when the inline guard appears <strong>inside</strong> a
-larger expression (as a function argument, inside a list, on the right of an
-operator, etc.); at top-level assignment position they may be omitted:</p>
+<p>Guards can also be used as inline expressions anywhere a value is expected.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -4158,7 +4155,7 @@ operator, etc.); at top-level assignment position they may be omitted:</p>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-mi">10</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;medium&quot;</span>
 <span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-s">&quot;small&quot;</span>
 
-<span class="tok-c1">-- but inside a larger expression, the parentheses are needed</span>
+<span class="tok-c1">-- parentheses may be used for clarity, but not required</span>
 <span class="tok-n">labelOf</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 <span class="tok-n">labelOf</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;label: &quot;</span><span class="tok-w"> </span><span class="tok-o">&lt;&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;pos&quot;</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-s">&quot;non-pos&quot;</span><span class="tok-p">)</span></code></pre>
 </div>
@@ -4560,9 +4557,14 @@ away. This is how you sequence side effects whose return values you do not
 need.</p>
 </li>
 <li>
-<p><code>let</code> binds without running. If the right-hand side is effectful, the
-suspension is what gets bound; it only fires when a later <code>&lt;-</code> reaches for
-it.</p>
+<p><code>let</code> binds without running. If the right-hand side is a plain effectful
+expression, the suspension is what gets bound; it only fires when a later
+<code>&lt;-</code> reaches for it.</p>
+</li>
+<li>
+<p><code>!e</code> is inline shorthand for <code>&lt;-</code>. Instead of writing <code>x &lt;- e</code> and using
+<code>x</code> downstream, write <code>!e</code> where you want the value; the compiler inserts
+the bind at the nearest enclosing scope.</p>
 </li>
 <li>
 <p>When you export an <code>&lt;E&gt; T</code>, the compiled program runs it for you at the
@@ -4698,15 +4700,71 @@ its own:</p>
 </div>
 <div class="paragraph">
 <p>Use a <code>do</code>-block when you need to sequence multiple statements, bind
-intermediate results, or run a suspension for its effects only. A <code>do</code>-block
-is itself an expression, so it can appear as an argument:</p>
+intermediate results, or run a suspension for its effects only. A <code>do</code>-block is
+itself an expression, so it can appear as an argument.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_the_eval_prefix"><a class="anchor" href="#_the_eval_prefix"></a>The <code>!</code> eval prefix</h5>
+<div class="paragraph">
+<p>Inside an expression, <code>!e</code> runs <code>e</code> in place. It is surface syntax only: the
+compiler rewrites it to a <code>&#8592;</code> bind at the nearest enclosing scope and threads
+the bound name through. Effects propagate outward exactly as they would if you
+had written the bind by hand.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">handle</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kr">do</span>
-<span class="tok-w">    </span><span class="tok-n">v</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">x</span>
-<span class="tok-w">    </span><span class="tok-n">v</span><span class="tok-p">)</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">readValue</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-n">pair</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">pair</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">!</span><span class="tok-n">readValue</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">readValue</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-c1">-- equivalent to `do { a &lt;- readValue ; b &lt;- readValue ; (a, b) }`</span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>The rewrite lands at the <strong>nearest</strong> enclosing scope. Inside a lambda body the
+inserted <code>do</code>-block goes in the body, so the effect fires when the lambda is
+applied, not when it is created:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">addOne</span><span class="tok-w">   </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-n">readOnce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">()</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">readOnce</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-o">\</span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">addOne</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-c1">-- equivalent to `\_ -&gt; do { v &lt;- addOne 1 ; v }`</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Inside an <code>if</code> (or guard) branch each branch gets its own scope, so only the
+taken branch&#8217;s effect fires. Inside an existing <code>do</code>-block, <code>!e</code> becomes a
+bind inserted immediately before the current statement, preserving left-to-right
+effect order.</p>
+</div>
+<div class="paragraph">
+<p>The prefix binds tightly: <code>f !x</code> parses as <code>f (!x)</code>, not as <code>!(f x)</code>. Use
+parentheses for the latter.</p>
+</div>
+<div class="paragraph">
+<p><code>!</code> is rejected at positions where it would be redundant or would put an effect
+where the surface reads as pure:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>x &lt;- !e</code>&#8201;&#8212;&#8201;the bind already runs <code>e</code>; write <code>x &lt;- e</code>.</p>
+</li>
+<li>
+<p><code>!e</code> as a bare non-final <code>do</code>-statement&#8201;&#8212;&#8201;bare statements already run.</p>
+</li>
+<li>
+<p><code>let x = !e</code> (or any <code>!</code> whose scope would land above the <code>let</code>)&#8201;&#8212;&#8201;<code>let</code>
+binds pure values; hoisting an effect above the binding would make the line
+read misleadingly. Use <code>x &lt;- e</code> inside a <code>do</code>-block. A <code>!</code> sealed by an
+inner boundary (a lambda body, a nested <code>do</code>, a guard branch under the let)
+is unaffected.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -4777,7 +4835,7 @@ type is <code>&lt;that-union&gt; T</code>, where <code>T</code> is the type of i
 </div>
 <div class="paragraph">
 <p>There is one more guarantee the user sees but does not write down: an
-exported <code>&lt;E&gt; T</code> is forced automatically at the boundary. The compiled
+exported <code>&lt;E&gt; T</code> is run automatically at the boundary. The compiled
 program&#8217;s user receives a <code>T</code>. Effects do not escape the binary.</p>
 </div>
 </div>
@@ -4798,8 +4856,8 @@ to the final value:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Effect variables and constants may be mixed, but there may be no more than one
-effect variable can exist in a given effect row. So this <code>&lt;A,B,e&gt;</code> is OK, but <code>&lt;A,e,f&gt;</code> is not.</p>
+<p>Effect variables and constants may be mixed, but at most one effect variable
+can appear in a given effect row. So <code>&lt;A,B,e&gt;</code> is OK, but <code>&lt;A,e,f&gt;</code> is not.</p>
 </div>
 <div class="paragraph">
 <p>In the following code, the signature states the requirement that function <code>f</code>
@@ -4860,6 +4918,23 @@ functions may be sourced to handle the effect.</p>
 <span class="tok-n">gDoBind</span><span class="tok-w">  </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">handleError</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-p">})</span></code></pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
+</td>
+<td class="content">
+<code>!</code> is not a fit for handler application. The prefix hoists the
+effect <strong>above</strong> the enclosing scope, so <code>handleError !(foo x)</code> would fire
+<code>Error</code> before <code>handleError</code> sees it&#8201;&#8212;&#8201;leaving <code>handleError</code> nothing to
+discharge, and giving <code>gBang</code> an <code>&lt;Error&gt;</code>-tagged result instead of the
+pure one you wanted. Keep the effect inside the argument via one of the
+four forms above.
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -4894,7 +4969,7 @@ lists (<code>?[Int]</code>) and records (<code>?Person</code>).</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; Get the first element from a list or empty on failure</span>
 <span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int</span>
-<span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
+<span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4937,10 +5012,10 @@ languages like any other function. Here is a complete example in Python:</p>
 <span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int</span>
 <span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-n">xs</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">length</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kc">Null</span>
-<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">at</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">xs</span>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-p">[</span><span class="tok-mi">0</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-n">xs</span>
 
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;main.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;require&quot;</span><span class="tok-p">)</span>
-<span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;main.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;default&quot;</span><span class="tok-p">)</span>
+<span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
 
 <span class="tok-n">testSafeHead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int</span>
 <span class="tok-n">testSafeHead</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">10</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">30</span><span class="tok-p">]</span>
@@ -4949,7 +5024,7 @@ languages like any other function. Here is a complete example in Python:</p>
 <span class="tok-n">testSafeHeadEmpty</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">safeHead</span><span class="tok-w"> </span><span class="tok-p">[]</span>
 
 <span class="tok-n">testFromNull</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">testFromNull</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-kc">Null</span></code></pre>
+<span class="tok-n">testFromNull</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-kc">Null</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -4957,7 +5032,7 @@ languages like any other function. Here is a complete example in Python:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">require</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">,</span> <span class="tok-n">x</span><span class="tok-p">):</span>
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">default</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">,</span> <span class="tok-n">x</span><span class="tok-p">):</span>
     <span class="tok-k">if</span> <span class="tok-n">x</span> <span class="tok-ow">is</span> <span class="tok-kc">None</span><span class="tok-p">:</span>
         <span class="tok-k">return</span> <span class="tok-n">default_val</span>
     <span class="tok-k">return</span> <span class="tok-n">x</span></code></pre>
@@ -5005,7 +5080,7 @@ In C&#43;&#43;:</p>
 <pre class="pygments highlight"><code data-lang="c++"><span></span><span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;optional&gt;</span>
 
 <span class="tok-k">template</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-k">class</span><span class="tok-w"> </span><span class="tok-nc">T</span><span class="tok-o">&gt;</span>
-<span class="tok-n">T</span><span class="tok-w"> </span><span class="tok-n">require</span><span class="tok-p">(</span><span class="tok-n">T</span><span class="tok-w"> </span><span class="tok-n">default_val</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">optional</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-n">T</span><span class="tok-w"> </span><span class="tok-k">default</span><span class="tok-p">(</span><span class="tok-n">T</span><span class="tok-w"> </span><span class="tok-n">default_val</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">optional</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;&amp;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
 <span class="tok-w">  </span><span class="tok-k">if</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">.</span><span class="tok-n">has_value</span><span class="tok-p">()){</span>
 <span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">.</span><span class="tok-n">value</span><span class="tok-p">();</span>
 <span class="tok-w">  </span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-k">else</span><span class="tok-w"> </span><span class="tok-p">{</span>
@@ -5019,7 +5094,7 @@ In C&#43;&#43;:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">){</span>
+<pre class="pygments highlight"><code data-lang="r"><span></span><span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-kr">function</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">){</span>
 <span class="tok-w">  </span><span class="tok-kr">if</span><span class="tok-p">(</span><span class="tok-nf">is.null</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)){</span>
 <span class="tok-w">    </span><span class="tok-kr">return</span><span class="tok-p">(</span><span class="tok-n">default_val</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-p">}</span><span class="tok-w"> </span><span class="tok-kr">else</span><span class="tok-w"> </span><span class="tok-p">{</span>
@@ -5105,12 +5180,12 @@ without wrapping it:</p>
 <span class="tok-n">testCoerceAddOpt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-nc">Int</span>
 <span class="tok-n">testCoerceAddOpt</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">addOpt</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-mi">4</span>
 
-<span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;require&quot;</span><span class="tok-p">)</span>
+<span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">?</span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foo.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;default&quot;</span><span class="tok-p">)</span>
 
 <span class="tok-c1">-- The second argument (42) is Int, coerced to ?Int</span>
 <span class="tok-n">testCoerceArg</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">testCoerceArg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">require</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-mi">42</span></code></pre>
+<span class="tok-n">testCoerceArg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">default</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-mi">42</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -5337,6 +5412,11 @@ and provide access to the Morloc runtime.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The morloc abstract type name for the given type, e.g. <code>"Int"</code>, <code>"[Str]"</code>, <code>"?Real"</code>, <code>"(Int, Str)"</code></p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@throw</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO&gt; a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Raise a <code>MorlocException</code> with the given message. Emits a native <code>raise</code>/<code>throw</code>/<code>stop</code> in the target language and never returns; the return type is polymorphic so <code>@throw</code> can inhabit any branch of a conditional.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
@@ -5344,7 +5424,9 @@ and provide access to the Morloc runtime.</p>
 <code>@write</code>, <code>@hash</code>, <code>@schema</code>, and <code>@typeof</code> accept a value of any type. <code>@load</code>
 and <code>@next</code> return a value of any type, inferred from context. <code>@stdin</code>,
 <code>@stdout</code>, <code>@stderr</code>, and <code>@open</code> are polymorphic in their handle&#8217;s element
-type, which is resolved by inline ascription at the open site. The
+type, which is resolved by inline ascription at the open site. <code>@throw</code> is
+polymorphic in its return type because it never returns&#8201;&#8212;&#8201;the return slot
+unifies with whatever the surrounding context expects. The
 <code>@savem</code>/<code>@savej</code>/<code>@write</code> functions return <code>&lt;IO&gt; ()</code> because they perform I/O
 as a side effect. The remaining intrinsics (<code>@version</code>, <code>@compiled</code>, <code>@lang</code>,
 <code>@datafile</code>) operate on or return plain strings and are resolved at compile
@@ -5641,15 +5723,15 @@ and stable for a given compiler version. The alphabet:</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>i1</code> / <code>i2</code> / <code>i4</code> / <code>i8</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int8</code> / <code>Int16</code> / <code>Int32</code> / <code>Int64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>I8</code> / <code>I16</code> / <code>I32</code> / <code>I64</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>u1</code> / <code>u2</code> / <code>u4</code> / <code>u8</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>UInt8</code> / <code>UInt16</code> / <code>UInt32</code> / <code>UInt64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>U8</code> / <code>U16</code> / <code>U32</code> / <code>U64</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>f4</code> / <code>f8</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Float32</code> / <code>Float64</code> (and <code>Real</code>, which maps to <code>f8</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>F32</code> / <code>F64</code> (and <code>Real</code>, which maps to <code>f8</code>)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>b</code></p></td>
@@ -5697,6 +5779,62 @@ and stable for a given compiler version. The alphabet:</p>
 <p>So <code>[Int]</code> serializes as <code>aj</code>, <code>?Int</code> as <code>?j</code>, and <code>(Int, Str)</code> as <code>t2 j s</code>.
 <code>@schema</code> is primarily useful for debugging and for cross-language tools that
 inspect morloc wire formats.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_raising_errors_with_throw"><a class="anchor" href="#_raising_errors_with_throw"></a>4.15.8. Raising errors with <code>@throw</code></h4>
+<div class="paragraph">
+<p>The <code>@throw</code> intrinsic raises an exception from morloc code. It generates a
+native <code>raise</code>/<code>throw</code>/<code>stop</code> statement in the language of the pool where the
+expression is evaluated, halting execution and unwinding the call stack. The
+raised exception is caught at the pool boundary, which appends a traceback
+frame (function name, mid, source location) to the message and propagates the
+error back to the nexus.</p>
+</div>
+<div class="paragraph">
+<p>The signature is <code>Str &#8594; &lt;IO&gt; a</code>. The message is any <code>Str</code> expression, so
+string interpolation with <code>#{expr}</code> works naturally. The return type is
+polymorphic: since <code>@throw</code> never returns a value, its return type can unify
+with whatever the surrounding context expects, letting <code>@throw</code> inhabit any
+branch of a conditional.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">tryRead</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;reader.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;openReader&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;readerOk&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-n">openReader</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">readerOk</span><span class="tok-w">   </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span>
+
+<span class="tok-n">tryRead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">tryRead</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">handle</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">openReader</span><span class="tok-w"> </span><span class="tok-n">path</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">readerOk</span><span class="tok-w"> </span><span class="tok-n">handle</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">handle</span>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-nb">@throw</span><span class="tok-w"> </span><span class="tok-s">&quot;failed to open reader for </span><span class="tok-si">#{</span><span class="tok-n">path</span><span class="tok-si">}</span><span class="tok-s">&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here <code>@throw</code> occupies one arm of the <code>?/:</code> conditional and the other arm
+returns an <code>Int</code>. The polymorphic return type of <code>@throw</code> unifies with <code>Int</code>,
+so the whole expression is well-typed.</p>
+</div>
+<div class="paragraph">
+<p>The generated code depends on the target language: in Python <code>@throw msg</code>
+becomes <code>raise MorlocException(msg)</code>, in C&#43;&#43; it becomes <code>throw
+MorlocException(msg)</code>, in R it becomes <code>stop(structure(class=c("MorlocException",
+"error", "condition"), list(message=msg, call=NULL)))</code>. Each pool defines
+<code>MorlocException</code> as a subclass of the language&#8217;s native runtime error type,
+so existing <code>try</code>/<code>catch</code>/<code>tryCatch</code> scaffolding at the pool boundary catches
+it without any user-side setup.</p>
+</div>
+<div class="paragraph">
+<p>When <code>@throw</code> is invoked from the nexus itself (not inside a pool-bound
+function), it raises a nexus-side <code>MorlocError</code> with the same message and
+exits the program non-zero.</p>
 </div>
 </div>
 </div>
@@ -6096,9 +6234,9 @@ encoded in language-specific type functions. For examples:</p>
 <span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;bool&quot;</span>
 <span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;bool&quot;</span>
 
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int32</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;integer&quot;</span>
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int32</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;int&quot;</span>
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int32</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;int32_t&quot;</span></code></pre>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">I32</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;integer&quot;</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">I32</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;int&quot;</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">I32</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;int32_t&quot;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6110,7 +6248,7 @@ illegal in the Morloc language.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">addInt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int32</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int32</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int32</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">addInt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">I32</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">I32</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">I32</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6118,7 +6256,7 @@ illegal in the Morloc language.</p>
 <code>int32_t addInt(int32_t x, int32_t y)</code>. Morloc also provides an <code>Int</code> type
 that maps to whatever the default integer type is in a given language (e.g.,
 <code>int</code> in C&#43;&#43;, <code>int</code> in Python). When a specific width is needed, use the
-explicit types such as <code>Int32</code> or <code>Int64</code>.</p>
+explicit types such as <code>I32</code> or <code>I64</code>.</p>
 </div>
 <div class="paragraph">
 <p>Containers can be similarly mapped to native types:</p>
@@ -6131,7 +6269,7 @@ explicit types such as <code>Int32</code> or <code>Int64</code>.</p>
 </div>
 <div class="paragraph">
 <p>The <code>$1</code> symbol is used to represent the interpolation of the first parameter
-into the native type. So the Morloc type <code>List Int32</code> would translate to
+into the native type. So the Morloc type <code>List I32</code> would translate to
 <code>std::vector&lt;int32_t&gt;</code> in C&#43;&#43;.</p>
 </div>
 <div class="sect3">
@@ -7820,7 +7958,7 @@ block enumerating the run-mode options (<code>-p</code>/<code>--print</code>,
 The <code>type:</code> lines in <code>--help</code> output show the <strong>wire type</strong>&#8201;&#8212;&#8201;the
 concrete general type the argument resolves to after alias expansion&#8201;&#8212;&#8201;not
 the source-level alias. So an argument declared as <code>UserID</code> (where
-<code>type UserID = UInt32</code>) will appear as <code>type: UInt32</code> in usage. This is a
+<code>type UserID = U32</code>) will appear as <code>type: U32</code> in usage. This is a
 deliberate choice: telling the caller exactly what shape of data to provide
 is more useful at the command line than echoing the domain name. The alias
 name is best surfaced through a docstring description, a <code>metavar</code> tag, or
@@ -7942,7 +8080,7 @@ and is both readable and writable. Mutually exclusive with <code>source: file</c
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. Arrays of fixed-width scalars (<code>[UInt8]</code>, <code>[Int32]</code>, <code>[Float64]</code>, <code>[Bool]</code>, etc.)</caption>
+<caption class="title">Table 4. Arrays of fixed-width scalars (<code>[U8]</code>, <code>[I32]</code>, <code>[F64]</code>, <code>[Bool]</code>, etc.)</caption>
 <colgroup>
 <col style="width: 40%;">
 <col style="width: 60%;">
@@ -7974,7 +8112,7 @@ as packed raw bytes.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>source: inline</code> + <code>form: bytes</code> or <code>bytes-only</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Only on <code>[UInt8]</code>. argv is the literal byte sequence (each character is
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only on <code>[U8]</code>. argv is the literal byte sequence (each character is
 one byte; <code>\xNN</code>, <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\0</code>, <code>\\</code> escapes recognized).
 Useful for ASCII encoded sequences that are treated as byte arrays.</p></td>
 </tr>
@@ -9426,9 +9564,11 @@ that helps generate new characters.</p>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Total damage</span>
 <span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-n">atkDice</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">atkRoll</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">atkDice</span>
+<span class="tok-w">  </span><span class="tok-n">atkD</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">atkDice</span>
+<span class="tok-w">  </span><span class="tok-n">dmgD</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">atkRoll</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">atkD</span>
 <span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">atkRoll</span>
-<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-n">dmgDice</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">sum</span><span class="tok-w"> </span><span class="tok-n">dmgD</span>
 <span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">atkRoll</span><span class="tok-w"> </span><span class="tok-o">==</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w">  </span><span class="tok-c1">-- critical</span>
 <span class="tok-w">    </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">atk</span><span class="tok-w"> </span><span class="tok-o">&gt;=</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dmg</span><span class="tok-w">        </span><span class="tok-c1">-- hit</span>
 <span class="tok-w">    </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w">                      </span><span class="tok-c1">-- miss</span>
@@ -12705,7 +12845,7 @@ sub-packet-offset index, then dispatches the walker as normal.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>--schema STRING</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Morloc schema string (compact
                                     format, e.g. <code>"as"</code> for <code>[Str]</code>,
-                                    <code>"ad8"</code> for <code>[Float64]</code>).
+                                    <code>"ad8"</code> for <code>[F64]</code>).
                                     Overrides the input&#8217;s embedded
                                     schema.</p></td>
 </tr>
@@ -14845,61 +14985,61 @@ memory. These basic types are listed below:</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">UInt8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">U8</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">\([0,2^{8})\)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">u1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">UInt16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">U16</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">\([0,2^{16})\)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">u2</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">UInt32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">U32</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">\([0,2^{32})\)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">u4</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">UInt64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">U64</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">\([0,2^{64})\)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">u8</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Int8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I8</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">\([-2^{7},2^{7})\)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">i1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Int16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I16</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">\([-2^{15},2^{15})\)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">i2</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Int32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I32</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">\([-2^{31},2^{31})\)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">i4</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Int64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">I64</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">\([-2^{63},2^{63})\)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">i8</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Float32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">F32</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IEEE float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">f4</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Float64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">F64</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IEEE double</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">f8</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
@@ -14933,14 +15073,14 @@ memory. These basic types are listed below:</p>
 <div class="paragraph">
 <p>All basic types may be written to a schema that is used internally to direct
 conversions between Morloc binary and native basic types. The schema values
-are shown in the table above. For example, the type <code>[(Bool, [Int8])]</code> would
+are shown in the table above. For example, the type <code>[(Bool, [I8])]</code> would
 have the schema <code>at2bai1</code>. You will not usually have to worry about these
 schemas, since they are mostly used internally. They are worth knowing, though,
 since they appear in low-level tests, generated source code, and binary data
 packets.</p>
 </div>
 <div class="paragraph">
-<p>Here is an example of how the type <code>([UInt8], Bool)</code>, with the value
+<p>Here is an example of how the type <code>([U8], Bool)</code>, with the value
 <code>([3,4,5],True)</code>,  might be laid out in memory:</p>
 </div>
 <div class="listingblock">
@@ -14962,7 +15102,7 @@ functions may have special handling for tables.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">UInt8</span><span class="tok-w"> </span><span class="tok-p">}</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">U8</span><span class="tok-w"> </span><span class="tok-p">}</span>
 <span class="tok-kr">table</span><span class="tok-w"> </span><span class="tok-nc">People</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">People</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-p">}</span>
 
 <span class="tok-n">alice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;Alice&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">27</span><span class="tok-w"> </span><span class="tok-p">}</span>
