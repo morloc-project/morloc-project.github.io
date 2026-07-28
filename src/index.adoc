@@ -186,9 +186,12 @@ include::{includedir}/types-kinds.asc[]
 include::{includedir}/features-tensors.asc[]
 include::{includedir}/features-tables.asc[]
 
-== Human and Machine Interfaces
+== Buildings CLIs
 
 include::{includedir}/interface-cli.asc[]
+
+== Buildings APIs
+
 include::{includedir}/interface-install.asc[]
 include::{includedir}/interface-expose.asc[]
 include::{includedir}/interface-data-transfer.asc[]
@@ -207,11 +210,12 @@ include::{includedir}/runs-streaming.asc[]
 
 include::{includedir}/utilities-nexus-file.asc[]
 include::{includedir}/utilities-nexus-view.asc[]
+include::{includedir}/utilities-morloc-manager.asc[]
+include::{includedir}/utilities-morloc-eval.asc[]
 
 == Modules and Libraries
 
 include::{includedir}/features-modules.asc[]
-
 include::{includedir}/ecosystem.asc[]
 
 == Installation, Versions, and Deployment
@@ -221,14 +225,8 @@ include::{includedir}/installation.asc[]
 == Build Architecture
 
 include::{includedir}/internals-overview.asc[]
-
 include::{includedir}/internals-foreign-calls.asc[]
-
-// AI slop - megacrap
-// include::{includedir}/internals-data-flow.asc[]
-
 include::{includedir}/internals-protocols.asc[]
-
 include::{includedir}/internals-runtime.asc[]
 
 // == Language Interoperability
