@@ -188,7 +188,14 @@ include::{includedir}/features-tables.asc[]
 
 == Buildings CLIs
 
-include::{includedir}/interface-cli.asc[]
+include::{includedir}/cli-intro.asc[]
+include::{includedir}/cli-docstrings.asc[]
+include::{includedir}/cli-composition.asc[]
+include::{includedir}/cli-arguments.asc[]
+include::{includedir}/cli-shape.asc[]
+include::{includedir}/cli-parameterization.asc[]
+include::{includedir}/cli-output.asc[]
+include::{includedir}/cli-streaming.asc[]
 
 == Buildings APIs
 

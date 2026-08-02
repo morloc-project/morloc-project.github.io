@@ -653,6 +653,10 @@ document.addEventListener("DOMContentLoaded", function() {
 <li><a href="#_docstrings">6.1. Docstrings</a></li>
 <li><a href="#_composing_cli_tools">6.2. Composing CLI Tools</a></li>
 <li><a href="#_user_arguments_and_outputs">6.3. User arguments and outputs</a></li>
+<li><a href="#_input_shape">6.4. Input shape</a></li>
+<li><a href="#_record_parameterization">6.5. Record parameterization</a></li>
+<li><a href="#_output_handling">6.6. Output handling</a></li>
+<li><a href="#_streaming_data">6.7. Streaming data</a></li>
 </ul>
 </li>
 <li><a href="#_buildings_apis">7. Buildings APIs</a>
@@ -5554,12 +5558,12 @@ and provide access to the Morloc runtime.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@close</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; &lt;IO&gt; ()</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Given a stream file handle, close it&#8201;&#8212;&#8201;for an <code>OStream</code> this writes the final footer&#8201;&#8212;&#8201;and release the handle&#8217;s slot. Given a <code>Str</code> path (as produced by the whole-list <code>with:</code>/<code>render:</code> gather via <code>@tmpfile</code>), unlink that temporary file instead. Only files registered by the gather are removed; passing any other path is rejected rather than deleting it.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Given a stream file handle, close it&#8201;&#8212;&#8201;for an <code>OStream</code> this writes the final footer&#8201;&#8212;&#8201;and release the handle&#8217;s slot. Given a <code>Str</code> path (as produced by the whole-list <code>@with</code>/<code>@render</code> gather via <code>@tmpfile</code>), unlink that temporary file instead. Only files registered by the gather are removed; passing any other path is rejected rather than deleting it.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@tmpfile</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO, Err&gt; Str</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Create a fresh empty temporary file and return its path. Used by the whole-list <code>with:</code>/<code>render:</code> gather to stage a stream on disk before applying a handler to the complete data; the file is removed afterward with <code>@close</code>. I/O failure raises <code>Err</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Create a fresh empty temporary file and return its path. Used by the whole-list <code>@with</code>/<code>@render</code> gather to stage a stream on disk before applying a handler to the complete data; the file is removed afterward with <code>@close</code>. I/O failure raises <code>Err</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@fschema</code></p></td>
@@ -5619,7 +5623,7 @@ and provide access to the Morloc runtime.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@collect</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; &lt;IO, e&gt; ( &#8594; &lt;IO, e&gt; ()) &#8594; &lt;IO, e&gt; ()</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Drive a streaming-output command. Takes a producer that is handed a <em>sink</em> (<code>[a] &#8594; &lt;IO, e&gt; ()</code>); <code>@collect</code> supplies the default sink&#8201;&#8212;&#8201;write each batch to the nexus-formatted <code>@stdout</code>&#8201;&#8212;&#8201;and manages the stream lifecycle. Formatter docstrings (<code>with:</code>, <code>with.buffer:</code>, <code>render:</code>, <code>render.buffer:</code>) rewrite the sink to transform or gather the stream per CLI flag.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Drive a streaming-output command. Takes a producer that is handed a <em>sink</em> (<code>[a] &#8594; &lt;IO, e&gt; ()</code>); <code>@collect</code> supplies the default sink&#8201;&#8212;&#8201;write each batch to the nexus-formatted <code>@stdout</code>&#8201;&#8212;&#8201;and manages the stream lifecycle. Formatter directives (<code>@with</code> / <code>@render</code>, with the <code>@stream</code> modifier for per-batch application) rewrite the sink to transform or gather the stream per CLI flag.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@tell</code></p></td>
@@ -6730,7 +6734,7 @@ a <code>Filename</code> rather than a <code>Str</code>.</p>
 </li>
 <li>
 <p><strong>Per-argument documentation.</strong> The CLI generator uses the alias to
-attach <code>metavar:</code>, <code>literal:</code>, and similar docstring directives to
+attach <code>@metavar</code> and similar docstring directives to
 individual arguments. See the <a href="#Command-line interface">[Command-line interface]</a> chapter for
 the full set of CLI docstring directives.</p>
 </li>
@@ -6946,11 +6950,11 @@ work:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; A secret key</span>
-<span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">KEY</span>
+<span class="tok-cs">--&#39; @metavar KEY</span>
 <span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Key</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 
 <span class="tok-cs">--&#39; An encrypted message</span>
-<span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">CIPHERTEXT</span>
+<span class="tok-cs">--&#39; @metavar CIPHERTEXT</span>
 <span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">CipherText</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span></code></pre>
 </div>
 </div>
@@ -8326,10 +8330,12 @@ follow-on modules and are not part of <code>table</code> itself.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>A Morloc module can be directly compiled into a CLI tool where exported
-functions are transformed into typed subcommands.</p>
+functions are transformed into typed subcommands. Hints from special comments
+and type-level information direct the generation of the CLI program and its
+usage statements.</p>
 </div>
 <div class="paragraph">
-<p>Here is a minimal example of propagated function descriptions:</p>
+<p>Here is a minimal example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -8356,7 +8362,7 @@ the backend.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The generated help lists given documentation and the available commands and options.</p>
+<p>The generated help lists the provided documentation along with the available commands and options.</p>
 </div>
 <div class="paragraph">
 <p>Each exported function becomes a command:</p>
@@ -8398,7 +8404,7 @@ both zones and they will not conflict.</p>
 <div class="paragraph">
 <p>The nexus zone has no positionals, so ALL nexus arguments are formed as
 <code>-x/--option</code> arguments that may take a fixed number of values. The nexus and
-pool zones are separated by either the <code>@</code> token or a subcommand name. The <code>@</code>
+command zones are separated by either the <code>@</code> token or a subcommand name. The <code>@</code>
 token is required only in single export programs where the subcommand name is
 optional.</p>
 </div>
@@ -8450,13 +8456,10 @@ features. We will cover these in the following sections.</p>
 <div class="sect2">
 <h3 id="_docstrings"><a class="anchor" href="#_docstrings"></a>6.1. Docstrings</h3>
 <div class="paragraph">
-<p>A Morloc module describes a set of functions, their types, and their
-descriptions. We&#8217;ve already covered terms and types, now we will cover the
-descriptions we add to modules, functions, arguments and fields. The extra data
-is stored in specialized comments (docstrings) that describe the terms and add
-modifications like defaults. Here we will focus on how these docstrings modify
-CLI generation, but they also inform the generation of rich APIs as well (see
-the HTTP/TCP/socket section).</p>
+<p>Docstrings are specialized comments that provide extra information about the
+program for use during code generation. Here we will focus on how these
+docstrings modify CLI generation, but they also inform the generation of rich
+APIs (see the HTTP/TCP/socket section).</p>
 </div>
 <div class="paragraph">
 <p>Docstrings can be attached to type definitions, not just function signatures.
@@ -8467,20 +8470,20 @@ need to annotate every use of a type:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">decode</span><span class="tok-w"> </span><span class="tok-o">::</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; The secret key to use for decoding</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">KEY</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @metavar KEY</span>
 <span class="tok-w">  </span><span class="tok-nc">Key</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; The ciphertext to decode</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">CIPHERTEXT</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @metavar CIPHERTEXT</span>
 <span class="tok-w">  </span><span class="tok-nc">CipherText</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; The decoded plaintext</span>
 <span class="tok-w">  </span><span class="tok-nc">PlainText</span>
 
 <span class="tok-n">encode</span><span class="tok-w"> </span><span class="tok-o">::</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; The secret key to use for encoding</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">KEY</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @metavar KEY</span>
 <span class="tok-w">  </span><span class="tok-nc">Key</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; The plaintext to encode</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">PLAINTEXT</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @metavar PLAINTEXT</span>
 <span class="tok-w">  </span><span class="tok-nc">PlainText</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; The encoded ciphertext</span>
 <span class="tok-w">  </span><span class="tok-nc">CipherText</span></code></pre>
@@ -8494,15 +8497,15 @@ the type definitions:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; A secret key</span>
-<span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">KEY</span>
+<span class="tok-cs">--&#39; @metavar KEY</span>
 <span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Key</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 
 <span class="tok-cs">--&#39; An encrypted message</span>
-<span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">CIPHERTEXT</span>
+<span class="tok-cs">--&#39; @metavar CIPHERTEXT</span>
 <span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">CipherText</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 
 <span class="tok-cs">--&#39; A decrypted message</span>
-<span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">PLAINTEXT</span>
+<span class="tok-cs">--&#39; @metavar PLAINTEXT</span>
 <span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">PlainText</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 
 <span class="tok-cs">--&#39; Decode a ciphertext with a key</span>
@@ -8517,1035 +8520,84 @@ the type definitions:</p>
 from the type definitions automatically. This keeps function signatures clean and
 ensures consistent documentation across every function that uses these types.</p>
 </div>
+<div class="sect3">
+<h4 id="_directive_syntax"><a class="anchor" href="#_directive_syntax"></a>6.1.1. Directive syntax</h4>
 <div class="paragraph">
-<p>Docstrings may also contain tags that specify how the arguments of the exported
-functions map to CLI positional or optional arguments. Here is a list of the
-currently supported tags:</p>
+<p>A docstring line is either <strong>prose</strong> (a plain description) or a <strong>directive</strong>. A
+directive begins with <code>@</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>@keyword [arguments...]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Every compiler-recognized keyword is written with a leading <code>@</code>, and every
+argument that refers to a function parameter by position is written with a
+leading <code>$</code> (<code>$1</code> is the first argument, <code>$2</code> the second, and so on). Any line
+that does not start with <code>@</code> is prose, so a description may freely contain a
+colon (<code>Example: &#8230;&#8203;</code>) without being mistaken for a directive. To begin a prose
+line with a literal <code>@</code>, escape it as <code>\@</code>.</p>
+</div>
+<div class="paragraph">
+<p>Docstring directives specify how the arguments of the exported functions map to
+CLI positional or optional arguments. Here is a list of the currently supported
+directives:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>name</code> - give the CLI subcommand a dedicated name rather than defaulting to
+<p><code>@name</code> - give the CLI subcommand a dedicated name rather than defaulting to
 the Morloc function name</p>
 </li>
 <li>
-<p><code>unroll</code> - if <code>true</code>, then the record argument is "unrolled" into a group of optional arguments</p>
+<p><code>@unroll</code> - unroll the record argument into a group of optional arguments</p>
 </li>
 <li>
-<p><code>default</code> - the default value for an argument, in JSON format. <code>default:</code>
-is only meaningful for optional arguments (those declared with <code>arg:</code> so
+<p><code>@default</code> - the default value for an argument, in JSON format. <code>@default</code>
+is only meaningful for optional arguments (those declared with <code>@arg</code> so
 they can be omitted on the command line).</p>
 </li>
 <li>
-<p><code>metavar</code> - the variable name used for the argument in the usage text</p>
+<p><code>@metavar</code> - the variable name used for the argument in the usage text</p>
 </li>
 <li>
-<p><code>arg</code> - short and long labels for this argument (e.g., "-v/--verbose")</p>
+<p><code>@arg</code> - short and long labels for this argument (e.g., <code>-v/--verbose</code>)</p>
 </li>
 <li>
-<p><code>true</code> - the flag labels that toggle a boolean argument on</p>
+<p><code>@true</code> - the flag labels that toggle a boolean argument on</p>
 </li>
 <li>
-<p><code>false</code> - the flag labels that toggle a boolean argument off</p>
+<p><code>@false</code> - the flag labels that toggle a boolean argument off</p>
 </li>
 <li>
-<p><code>many</code> - for a list-typed positional, accept multiple argv tokens (one per element)</p>
+<p><code>@many</code> - for a list-typed positional, accept multiple argv tokens (one per element)</p>
 </li>
 <li>
-<p><code>stdin</code> - mark a <code>Str</code>/path positional as optional and read it from standard
+<p><code>@stdin</code> - mark a <code>Str</code>/path positional as optional and read it from standard
 input when omitted (or given <code>-</code>), so the command can act as a Unix filter.
 See "Reading a stream from standard input" below.</p>
 </li>
 <li>
-<p><code>return</code> - a description of the returned data (this tag is the same as adding a description docstring to final type in a signature)</p>
+<p><code>@return</code> - a description of the returned data (this directive is the same as adding a description docstring to the final type in a signature)</p>
 </li>
 <li>
-<p><code>source</code> / <code>form</code> / <code>check.&lt;kind&gt;</code> and the per-element <code>list.source</code> /
-<code>list.form</code> / <code>list.check.&lt;kind&gt;</code> - control how the CLI accepts data for
+<p><code>@source</code> / <code>@form</code> / <code>@check.&lt;kind&gt;</code> and the per-element <code>@list.source</code> /
+<code>@list.form</code> / <code>@list.check.&lt;kind&gt;</code> - control how the CLI accepts data for
 an argument (a path to a file? raw bytes? a packet? newline-separated
 elements?). See the next section.</p>
 </li>
 <li>
-<p><code>with</code> - attach a compile-time "terminal action" to the export as a
-command-scoped flag; invoking the flag routes the return value through
-a named function before it hits the wire. Used for stdout formatters,
-file sinks, and reformatters that swap the return type. See "Output
-actions" below.</p>
-</li>
-</ul>
-</div>
-<div class="sect3">
-<h4 id="_input_shape_source_form_check"><a class="anchor" href="#_input_shape_source_form_check"></a>6.1.1. Input shape: <code>source</code>, <code>form</code>, <code>check.*</code></h4>
-<div class="paragraph">
-<p>By default, the CLI accepts inline JSON or a file path and figures the rest
-out. The <code>source</code> / <code>form</code> / <code>check.*</code> tags override that default when an
-argument needs a specific shape.</p>
-</div>
-<div class="paragraph">
-<p>The available combinations depend on the argument&#8217;s type:</p>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 2. Non-<code>Str</code> primitives (numeric values and booleans)</caption>
-<colgroup>
-<col style="width: 40%;">
-<col style="width: 60%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Modifier</th>
-<th class="tableblock halign-left valign-top">Effect</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(none — only valid case)</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is the literal value (e.g. <code>42</code>, <code>true</code>, <code>3.14</code>); no modifiers are allowed.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 3. <code>Str</code></caption>
-<colgroup>
-<col style="width: 40%;">
-<col style="width: 60%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Modifier</th>
-<th class="tableblock halign-left valign-top">Effect</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(default)</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is the literal string value, verbatim.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>check.path: r</code> / <code>w</code> / <code>x</code> / <code>rw</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv must be a filesystem path satisfying the requested mode. <code>r</code> = exists
-and is readable; <code>w</code> = writable (existing writable file, or a non-existent
-file in a writable directory); <code>x</code> = does not yet
-exist and the parent directory is writable (exclusive create); <code>rw</code> = exists
-and is both readable and writable. Mutually exclusive with <code>source: file</code>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source: file</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file&#8217;s contents become the string. The file must be readable.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>stdin: true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Marks this positional <strong>optional</strong>; when omitted (or given <code>-</code>) the argument
-becomes standard input. Implies <code>check.path: r</code>. At most one per command, it
-must be the last positional, and it cannot combine with <code>arg:</code>, <code>default:</code>, or
-<code>many:</code>. The command opens the argument with <code>@open</code> and reads a morloc packet
-stream from stdin (see "Reading a stream from standard input" below).</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. Arrays of fixed-width scalars (<code>[U8]</code>, <code>[I32]</code>, <code>[F64]</code>, <code>[Bool]</code>, etc.)</caption>
-<colgroup>
-<col style="width: 40%;">
-<col style="width: 60%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Modifier</th>
-<th class="tableblock halign-left valign-top">Effect</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(default)</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a JSON array (<code>[1,2,3]</code>), or a path to a JSON / MessagePack /
-packet file.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: bytes</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file is sniffed for a morloc packet, otherwise read
-as packed raw bytes.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: bytes-only</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file is packed raw bytes (no packet sniff).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: packet</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file must be a morloc packet (strict).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source: inline</code> + <code>form: bytes</code> or <code>bytes-only</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Only on <code>[U8]</code>. argv is the literal byte sequence (each character is
-one byte; <code>\xNN</code>, <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\0</code>, <code>\\</code> escapes recognized).
-Useful for ASCII encoded sequences that are treated as byte arrays.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 5. Any list type (<code>[T]</code>, including <code>[Str]</code>, <code>[(Int, Str)]</code>, etc.)</caption>
-<colgroup>
-<col style="width: 40%;">
-<col style="width: 60%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Modifier</th>
-<th class="tableblock halign-left valign-top">Effect</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: list</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a file (or <code>-</code> for stdin) with one element per line, OR
-an inline JSON array (e.g. <code>'[["a",5],["b",25]]'</code>). Any argv token
-whose first byte is <code>[</code> is parsed as inline JSON; anything else is
-treated as a path. Tuple elements accept JSON-array-per-line, TSV,
-or CSV.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: list</code> + <code>list.source: file</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Each line in the outer file is a path to a per-element file (the
-per-element file is auto-classified: JSON / MessagePack / packet).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: list</code> + <code>list.source: file</code> + <code>list.form: packet</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Each line is a path; each per-element file must be a morloc packet
-(strict).</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: list</code> + <code>list.source: file</code> + <code>list.form: bytes</code> (or <code>bytes-only</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Each line is a path; each file is read as packed raw bytes. Inner
-element must be a fixed-width-scalar array.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>form: list</code> + <code>list.check.path: r</code> (or <code>w</code> / <code>x</code> / <code>rw</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Each line of the outer file must be a filesystem path satisfying the
-requested mode (same semantics as the top-level <code>check.path</code>). Element type
-must be <code>Str</code>.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 6. Tuples, records, and other non-list compound types</caption>
-<colgroup>
-<col style="width: 40%;">
-<col style="width: 60%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Modifier</th>
-<th class="tableblock halign-left valign-top">Effect</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(default, only valid case)</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">argv is JSON (or a file path containing JSON / MessagePack / packet);
-no outer modifiers are allowed.</p></td>
-</tr>
-</tbody>
-</table>
-<div class="paragraph">
-<p>The shape classification runs on each argument&#8217;s <strong>wire form</strong>, not on
-its source-level type name. A type declared with <code>Packable [(a, b)] T</code>
-serializes across the language boundary as a list of pairs, so the
-CLI treats it as <code>[T]</code>&#8201;&#8212;&#8201;every <code>form: list</code> and <code>list.*</code> modifier
-above is available. The stdlib <code>Map a b</code> type is the primary case:
-its Packable wire form is <code>[(a, b)]</code>, so a <code>Map Str Int</code> argument can
-be read from a two-column TSV or CSV file the same way <code>[(Str, Int)]</code>
-would:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; Count entries in a two-column table read as a Map.</span>
-<span class="tok-cs">--&#39; The file has one `key&lt;TAB&gt;value` pair per line.</span>
-<span class="tok-n">tally</span><span class="tok-w"> </span><span class="tok-o">::</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">form</span><span class="tok-p">: </span><span class="tok-s">list</span>
-<span class="tok-w">  </span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">tally</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">m</span></code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>cat<span class="tok-w"> </span>counts.tsv
-<span class="tok-go">apple	3</span>
-<span class="tok-go">banana	7</span>
-<span class="tok-go">cherry	1</span>
-
-<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>tally<span class="tok-w"> </span>counts.tsv
-<span class="tok-go">3</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The same file works with <code>list.check.path: r</code>, per-line file
-dispatch (<code>list.source: file</code>), and every other list modifier;
-JSON-array-per-line (<code>["apple",3]</code>) is also accepted as the default
-fallback. This applies to any user-defined type whose Packable
-instance targets a list of tuples&#8201;&#8212;&#8201;no special-casing for <code>Map</code>.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
-</td>
-<td class="content">
-<div class="paragraph">
-<p><strong><code>form: list</code> is headerless.</strong> Delimited files (TSV, CSV) read via
-<code>form: list</code> are parsed as raw tuples row-by-row&#8201;&#8212;&#8201;there is no
-header row, and no <code>--csv-header</code> toggle exists to enable one.
-Tuples and list-shaped compound types have no column names, so a
-header row would just be interpreted as a data row and fail schema
-check on the first field.</p>
-</div>
-<div class="paragraph">
-<p>If you need a full-featured table with column names&#8201;&#8212;&#8201;headers,
-column-name-to-field alignment, mixed types verified against the
-declared columns&#8201;&#8212;&#8201;declare the argument as <code>Table</code> instead. The
-<code>Table</code> loader path honors headers; <code>form: list</code> intentionally
-doesn&#8217;t. This split keeps the two paths simple: <code>Table</code> is for
-tables, <code>form: list</code> is for streams of rows.</p>
-</div>
-<div class="paragraph">
-<p>When a delimited parse under <code>form: list</code> fails and the first row
-looks like plain column names against a numeric row schema, the
-loader appends the hint <code>the first row (&#8230;&#8203;) looks like a
-column-name header. form: list is headerless&#8201;&#8212;&#8201;remove the header
-row, or declare the argument as Table if you need column names</code>.
-No auto-skip: the file must be edited (or the arg&#8217;s type changed
-to <code>Table</code>).</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Compile-time validation rejects every nonsensical combination (e.g.
-<code>source: file</code> on a non-<code>Str</code> primitive, <code>form: bytes</code> on <code>[Int]</code> because
-<code>Int</code> has no fixed width, <code>list.form: list</code> because nested list files are
-forbidden). The error points at the offending docstring line.</p>
-</div>
-<div class="paragraph">
-<p>Here is a longer example that show-cases these tags:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foobar</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bar</span><span class="tok-p">)</span>
-
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
-
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foobar.py&quot;</span>
-<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-s">&quot;foo&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;bar&quot;</span><span class="tok-p">)</span>
-
-<span class="tok-cs">--&#39; config record</span>
-<span class="tok-cs">--&#39; </span><span class="tok-nl">unroll</span><span class="tok-p">: </span><span class="tok-s">true</span>
-<span class="tok-cs">--&#39; </span><span class="tok-nl">arg</span><span class="tok-p">: </span><span class="tok-s">--config</span>
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Config</span><span class="tok-w"> </span><span class="tok-kr">where</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; temporary directory</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">arg</span><span class="tok-p">: </span><span class="tok-s">--tmp</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">default</span><span class="tok-p">: </span><span class="tok-s">&quot;/tmp&quot;</span>
-<span class="tok-w">  </span><span class="tok-n">tmpdir</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-
-<span class="tok-w">  </span><span class="tok-cs">--&#39; cache the results</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">true</span><span class="tok-p">: </span><span class="tok-s">--cache</span>
-<span class="tok-w">  </span><span class="tok-n">cache</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Bool</span>
-
-<span class="tok-w">  </span><span class="tok-cs">--&#39; number of threads to use</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">arg</span><span class="tok-p">: </span><span class="tok-s">-t/--num-threads</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">default</span><span class="tok-p">: </span><span class="tok-s">1</span>
-<span class="tok-w">  </span><span class="tok-n">nthreads</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-
-<span class="tok-cs">--&#39; do foo stuff</span>
-<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">::</span>
-<span class="tok-w">  </span><span class="tok-nc">Config</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; list of integers</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">metavar</span><span class="tok-p">: </span><span class="tok-s">INT_LIST</span>
-<span class="tok-w">  </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; sum of INT_LIST</span>
-<span class="tok-w">  </span><span class="tok-nc">Int</span>
-
-<span class="tok-cs">--&#39; do bar stuff</span>
-<span class="tok-cs">--&#39; </span><span class="tok-nl">return</span><span class="tok-p">: </span><span class="tok-s">summed values</span>
-<span class="tok-n">bar</span><span class="tok-w"> </span><span class="tok-o">::</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; </span><span class="tok-nl">unroll</span><span class="tok-p">: </span><span class="tok-s">false</span>
-<span class="tok-w">  </span><span class="tok-nc">Config</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>./foobar -h</code> lists the two exported commands; <code>./foobar foo -h</code>
-shows the per-command help with `Config&#8217;s fields unrolled (see
-below).</p>
-</div>
-<div class="paragraph">
-<p>The dedicated usage information for <code>foo</code> can be accessed as well. Here we see
-that the record <code>Config</code> has been unrolled into a group of optional arguments:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>-h
-<span class="tok-go">do foo stuff</span>
-
-<span class="tok-go">Usage: foobar &lt;nexus_options&gt; foo &lt;command_options&gt;</span>
-
-<span class="tok-go">General Options:</span>
-<span class="tok-go">  -h, --help  Print help (see more with &#39;--help&#39;)</span>
-
-<span class="tok-go">Optional arguments:</span>
-<span class="tok-go">      --config &lt;Config_JSON&gt;  config record</span>
-<span class="tok-go">                              type: Config</span>
-<span class="tok-go">      --tmp &lt;Str&gt;             temporary directory</span>
-<span class="tok-go">                              type: Str    (literal string) [default: &quot;/tmp&quot;]</span>
-<span class="tok-go">      --cache                 cache the results</span>
-<span class="tok-go">                              type: Bool</span>
-<span class="tok-go">                              default: false</span>
-<span class="tok-go">  -t, --num-threads &lt;Int&gt;     number of threads to use</span>
-<span class="tok-go">                              type: Int [default: 1]</span>
-
-<span class="tok-go">Positional arguments:</span>
-<span class="tok-go">  1:  list of integers</span>
-<span class="tok-go">      type: [Int]</span>
-
-<span class="tok-go">Return: Int</span>
-<span class="tok-go">  sum of INT_LIST</span>
-
-<span class="tok-go">Record Schemas:</span>
-<span class="tok-go">  Config</span>
-<span class="tok-go">    tmpdir   :: Str</span>
-<span class="tok-go">    cache    :: Bool</span>
-<span class="tok-go">    nthreads :: Int</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Since each subcommand is a function, the return type is always the same. Unlike
-in a conventional CLI program, the arguments cannot alter the return type.</p>
-</div>
-<div class="paragraph">
-<p>The <code>bar</code> subcommand explicitly does not unroll the <code>Config</code> record:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>bar<span class="tok-w"> </span>-h
-<span class="tok-go">do bar stuff</span>
-
-<span class="tok-go">Usage: foobar &lt;nexus_options&gt; bar &lt;command_options&gt;</span>
-
-<span class="tok-go">General Options:</span>
-<span class="tok-go">  -h, --help  Print help (see more with &#39;--help&#39;)</span>
-
-<span class="tok-go">Positional arguments:</span>
-<span class="tok-go">  1:  config record</span>
-<span class="tok-go">      type: Config</span>
-<span class="tok-go">  2:  type: [Int]</span>
-
-<span class="tok-go">Return: Int</span>
-<span class="tok-go">  summed values</span>
-
-<span class="tok-go">Record Schemas:</span>
-<span class="tok-go">  Config</span>
-<span class="tok-go">    tmpdir   :: Str</span>
-<span class="tok-go">    cache    :: Bool</span>
-<span class="tok-go">    nthreads :: Int</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Record types are shown by name in the argument list; their field layout is
-listed once in the <code>Record Schemas:</code> block at the bottom.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_reading_a_stream_from_standard_input"><a class="anchor" href="#_reading_a_stream_from_standard_input"></a>6.1.2. Reading a stream from standard input</h4>
-<div class="paragraph">
-<p>A command can act as a Unix filter. Mark a <code>Str</code>/path positional with
-<code>--' stdin: true</code> and it becomes optional; when the argument is omitted (or
-given <code>-</code>), the command reads a <strong>morloc packet stream</strong> from standard input
-instead of a file. Two morloc programs then pipe structured data with no
-ad-hoc text format in between.</p>
-</div>
-<div class="paragraph">
-<p>The command opens the argument with <code>@open</code>, and the handle type chosen at the
-open site decides how the input is read. Standard input is a pipe, so it
-supports only sequential reads:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>@open arg :: IStream a</code>&#8201;&#8212;&#8201;a forward, one-pass reader. Works on a real file
-<strong>and</strong> on stdin (the pipe is drained sub-packet by sub-packet via <code>@next</code>, at
-constant memory). This is the filter reader.</p>
-</li>
-<li>
-<p><code>@open arg :: IFile a</code>&#8201;&#8212;&#8201;a random-access reader (<code>@flen</code>, indexing,
-slicing). It needs a <strong>seekable</strong> source, so it succeeds on a file but raises a
-catchable <code>Err</code> on stdin (a pipe cannot be rewound). The rejection reads no
-bytes, so a command can try the fast random-access path first and fall back
-to streaming for stdin with <code>@catch</code>:</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; A readable filename</span>
-<span class="tok-cs">--&#39; check.path: r</span>
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">RFile</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-
-<span class="tok-cs">--&#39; select the nth record from a stream</span>
-<span class="tok-cs">--&#39; </span><span class="tok-nl">name</span><span class="tok-p">: </span><span class="tok-s">cut</span>
-<span class="tok-n">cut</span><span class="tok-w"> </span><span class="tok-o">::</span>
-<span class="tok-w">  </span><span class="tok-nc">Slice</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; the input file, or stdin when omitted / `-`</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; stdin: true</span>
-<span class="tok-w">  </span><span class="tok-nc">RFile</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
-<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
-<span class="tok-n">cut</span><span class="tok-w"> </span><span class="tok-n">idx</span><span class="tok-w"> </span><span class="tok-n">input</span><span class="tok-w"> </span><span class="tok-o">=</span>
-<span class="tok-w">  </span><span class="tok-nb">@catch</span>
-<span class="tok-w">    </span><span class="tok-c1">-- fast path: a real file is random-access (O(1), no full scan)</span>
-<span class="tok-w">    </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">fi</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">input</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">IFile</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Record</span><span class="tok-p">])</span>
-<span class="tok-w">         </span><span class="tok-n">handleFile</span><span class="tok-w"> </span><span class="tok-n">idx</span><span class="tok-w"> </span><span class="tok-n">fi</span><span class="tok-w"> </span><span class="tok-p">)</span>
-<span class="tok-w">    </span><span class="tok-c1">-- fallback: stdin (or any non-seekable source) is read sequentially</span>
-<span class="tok-w">    </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">fi</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@open</span><span class="tok-w"> </span><span class="tok-n">input</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">IStream</span><span class="tok-w"> </span><span class="tok-nc">Record</span><span class="tok-p">)</span>
-<span class="tok-w">         </span><span class="tok-n">handleStream</span><span class="tok-w"> </span><span class="tok-n">idx</span><span class="tok-w"> </span><span class="tok-n">fi</span><span class="tok-w"> </span><span class="tok-p">)</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>(The <code>check.path: r</code> and <code>stdin: true</code> docstrings can live on the argument, as
-above, or on a reused type alias like <code>RFile</code>&#8201;&#8212;&#8201;alias docstrings propagate to
-every use site.) All three invocations now work, the last being a pipeline:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./cut<span class="tok-w"> </span><span class="tok-m">9</span><span class="tok-w"> </span>data.dat<span class="tok-w">         </span><span class="tok-c1"># reads the file (random access)</span>
-<span class="tok-gp">$ </span>./cut<span class="tok-w"> </span><span class="tok-m">9</span><span class="tok-w"> </span>-<span class="tok-w"> </span>&lt;<span class="tok-w"> </span>data.dat<span class="tok-w">     </span><span class="tok-c1"># explicit stdin</span>
-<span class="tok-gp">$ </span>./producer<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>./cut<span class="tok-w"> </span><span class="tok-m">9</span><span class="tok-w">     </span><span class="tok-c1"># argument omitted -&gt; stdin</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The piped input must be a morloc data or stream packet (the binary output of
-any morloc command, e.g. under <code>-f packet</code>); compressed (<code>-z</code>) streams are
-decompressed on the fly. A non-morloc byte stream (JSON, plain text) is
-rejected with a clear error rather than mis-decoded. If the argument is
-omitted and standard input is an interactive terminal, the command prints a
-usage error instead of blocking forever.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_supplying_values_for_unrolled_records"><a class="anchor" href="#_supplying_values_for_unrolled_records"></a>6.1.3. Supplying values for unrolled records</h4>
-<div class="paragraph">
-<p>A record argument exposed with <code>unroll: true</code> can be filled in any
-combination of the following ways:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>The whole record at once.</strong> The group flag (<code>--config</code>) accepts a
-JSON object, file, or stdin (<code>-</code>) describing the record:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span>algconf.json<span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
-<span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;{&quot;tmpdir&quot;:&quot;/var&quot;,&quot;cache&quot;:true,&quot;nthreads&quot;:4}&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
-<span class="tok-gp">$ </span>cat<span class="tok-w"> </span>algconf.json<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span>-<span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span></code></pre>
-</div>
-</div>
-</li>
-<li>
-<p><strong>Field-by-field.</strong> Each unrolled field has its own flag
-(<code>--tmp</code>, <code>--cache</code>, <code>-t/--num-threads</code>).</p>
-</li>
-<li>
-<p><strong>A mix.</strong> The two combine: a partial JSON object fills some
-fields, individual flags fill others or override the bundle.</p>
+<p><code>@with</code> / <code>@render</code> - attach a compile-time output <strong>formatter</strong> to the export
+as a command-scoped flag; invoking the flag routes the output through a named
+function before it hits the wire. Used for stdout formatters, file sinks, and
+reformatters that swap the return type. See "Output actions" below.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>When the JSON form is an <strong>object</strong>, missing keys are allowed&#8201;&#8212;&#8201;they
-fall back to manifest defaults (or to the field-level CLI flag, when
-provided):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;{&quot;nthreads&quot;:8}&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
-<span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;{}&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span><span class="tok-w">          </span><span class="tok-c1"># use all defaults</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>When the JSON form is an <strong>array</strong>, the length must match the schema
-exactly&#8201;&#8212;&#8201;positional encoding has no notion of "missing field":</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;/tmp&quot;,true,8]&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
-<span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;/tmp&quot;,true]&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
-<span class="tok-go">record array form must have exactly 3 fields ...</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Unknown keys in object form are rejected so typos surface clearly:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;{&quot;threads&quot;:8}&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
-<span class="tok-go">unknown field &#39;threads&#39; in record bundle</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The merge precedence for each field is, highest to lowest:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>The per-field CLI flag (<code>-t 8</code> always wins).</p>
-</li>
-<li>
-<p>The value from the group JSON bundle if the key was present.</p>
-</li>
-<li>
-<p>The field&#8217;s manifest default.</p>
-</li>
-<li>
-<p><code>null</code> for <code>Optional</code> fields with no default and no bundle entry.</p>
-</li>
-<li>
-<p>Otherwise, a required-field error naming the offending field.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>An explicit <code>null</code> for an <code>Optional</code> field in the bundle counts as
-"present"&#8201;&#8212;&#8201;it overrides the manifest default. Failures during a
-per-field load are tagged with the field name:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>-t<span class="tok-w"> </span>notanumber<span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
-<span class="tok-go">field &#39;nthreads&#39;: ...</span></code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_output_actions_with"><a class="anchor" href="#_output_actions_with"></a>6.1.4. Output actions: <code>with</code></h4>
-<div class="paragraph">
-<p>An export can carry one or more <code>with:</code> docstring fields that attach <strong>terminal
-actions</strong> to the command as short/long flags. Each field names a morloc term;
-invoking the flag dispatches to a compiler-synthesized entry point that composes
-the named term with the export&#8217;s return value before it hits the wire. This lets
-a single typed function project multiple presentation shapes without adding
-sibling exports. Output actions allow the behavior of the CLI or APIs to be
-modified without cluttering the module exports.</p>
-</div>
-<div class="paragraph">
-<p>The two most common uses are <strong>sinks</strong> and <strong>reformatters</strong>. Sinks write the
-return value to stdout, a file, or another resource. <strong>reformatters</strong> transform
-the value to a different type before serialization.</p>
-</div>
-<div class="paragraph">
-<p>The examples below first cover actions on a command&#8217;s <strong>return value</strong>. When a
-command instead <strong>streams</strong> its output with <code>@collect</code> (returning <code>()</code>), the
-same docstrings become streaming formatters with a richer grid
-(<code>with</code> / <code>with.buffer</code> / <code>render</code> / <code>render.buffer</code>)&#8201;&#8212;&#8201;see
-<a href="#_streaming_output_with_collect">Streaming output with <code>@collect</code></a>.</p>
-</div>
-<div class="paragraph">
-<p>Consider a recursive <code>grep</code>-like search that returns every matching
-line paired with the file it came from:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
-
-<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;helpers.py&quot;</span>
-<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;grep_recursive&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">grepR</span>
-<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;print_hits_tty&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">printHitsTTY</span>
-<span class="tok-w">  </span><span class="tok-p">)</span>
-
-<span class="tok-cs">--&#39; Print each hit as `&lt;path&gt;:&lt;line&gt;`, one per line;</span>
-<span class="tok-cs">--&#39; silent when there are no matches.</span>
-<span class="tok-n">printHitsTTY</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-nc">Path</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-p">)]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
-
-<span class="tok-cs">--&#39; Recursively search under a directory for lines matching a</span>
-<span class="tok-cs">--&#39; pattern, returning every hit paired with its file.</span>
-<span class="tok-cs">--&#39; with: -y/--tty=printHitsTTY</span>
-<span class="tok-cs">--&#39; with: -c/--count=size</span>
-<span class="tok-n">grepR</span><span class="tok-w"> </span><span class="tok-o">::</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; The pattern to search for</span>
-<span class="tok-w">  </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
-<span class="tok-w">  </span><span class="tok-cs">--&#39; The root directory to walk</span>
-<span class="tok-w">  </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
-<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-nc">Path</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-p">)]</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The default wire output is the raw list of tuples&#8201;&#8212;&#8201;structurally correct but
-inconvenient to a human reader (<code>/</code> is escaped as <code>\/</code>, as JSON allows):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src
-<span class="tok-go">[[&quot;.\/src\/a.py&quot;,&quot;def foo():&quot;],[&quot;.\/src\/lib\/b.py&quot;,&quot;    x = foo(1)&quot;],[&quot;.\/src\/lib\/b.py&quot;,&quot;foo = 42&quot;]]</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>-y</code> (or <code>--tty</code>) routes the result through the TTY sink&#8201;&#8212;&#8201;one line per hit,
-nothing when the search is empty:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--tty<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src
-<span class="tok-go">./src/a.py:def foo():</span>
-<span class="tok-go">./src/lib/b.py:    x = foo(1)</span>
-<span class="tok-go">./src/lib/b.py:foo = 42</span>
-
-<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>-y<span class="tok-w"> </span><span class="tok-s2">&quot;nowheretobefound&quot;</span><span class="tok-w"> </span>./src
-<span class="tok-gp">$</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>-c</code> (or <code>--count</code>) uses <code>size</code> from the standard library as a
-reformatter&#8201;&#8212;&#8201;the composed entry has type <code>Str &#8594; Path &#8594; &lt;IO&gt; Int</code>,
-so the wire result is just the hit count:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--count<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src
-<span class="tok-go">3</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The referenced term&#8217;s own docstring becomes the flag&#8217;s help text, and
-each terminal action appears under "General Options" in
-<code>&lt;cmd&gt; --help</code>. The base export&#8217;s declared return type is unchanged,
-so downstream morloc code composing <code>grepR</code> still sees
-<code>&lt;IO&gt; [(Path, Str)]</code>.</p>
-</div>
-<div class="paragraph">
-<p>Because each flag selects a different formatter, the return type is no
-longer a single value. When a command carries output actions, the
-<code>Return:</code> block in <code>&lt;cmd&gt; --help</code> becomes a table: <code>default:</code> names the
-bare command&#8217;s return type, and each flag lists the type its formatter
-produces on the wire (<code>Unit</code> for a sink, the reformatter&#8217;s own type
-otherwise):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--help
-<span class="tok-go">...</span>
-<span class="tok-go">Return:</span>
-<span class="tok-go">  default:    [(Path, Str)]</span>
-<span class="tok-go">  -y/--tty:   Unit</span>
-<span class="tok-go">  -c/--count: Int</span></code></pre>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_flag_spec_grammar"><a class="anchor" href="#_flag_spec_grammar"></a>Flag-spec grammar</h5>
-<div class="paragraph">
-<p>The value on the left of <code>=</code> is the CLI flag; the value on the right
-is the morloc identifier of the terminal action.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>-x/--long</code>&#8201;&#8212;&#8201;both short and long</p>
-</li>
-<li>
-<p><code>--long</code>&#8201;&#8212;&#8201;long-only (short is optional; long is required so
-<code>--help</code> has a stable descriptor)</p>
-</li>
-<li>
-<p>Short must be a single ASCII letter (<code>a-z</code> / <code>A-Z</code>); digits are
-rejected because they collide with negative-number argv values</p>
-</li>
-<li>
-<p>Long must be lowercase-kebab (<code>[a-z][a-z0-9-]*</code>)</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_type_discipline"><a class="anchor" href="#_type_discipline"></a>Type discipline</h5>
-<div class="paragraph">
-<p>The terminal action is any typechecked function <code>A &#8594; B</code> where <code>A</code>
-unifies with the export&#8217;s return-position payload (after stripping
-<code>&lt;IO&gt;</code> etc.):</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>B = ()</code>&#8201;&#8212;&#8201;a <strong>sink</strong>; the composed entry emits nothing on the wire
-beyond what the terminal itself wrote.</p>
-</li>
-<li>
-<p><code>B != ()</code>&#8201;&#8212;&#8201;a <strong>reformatter</strong>; the composed entry returns <code>B</code>,
-which flows through the nexus&#8217;s normal wire serialization.</p>
-</li>
-<li>
-<p>Effect on the terminal is unconstrained. Pure <code>A &#8594; B</code> composes
-cleanly; the composed entry inherits <code>&lt;IO&gt;</code> from the parent iff the
-parent had it.</p>
-</li>
-<li>
-<p>Typeclass methods are legal terminals; the right instance resolves
-per composed binding, so one class method can drive terminals on
-multiple exports with different return shapes.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_composing_with_f"><a class="anchor" href="#_composing_with_f"></a>Composing with <code>-f</code></h5>
-<div class="paragraph">
-<p>The nexus-level <code>-f</code> output-form flag and terminal actions are
-complementary, not exclusive. Continuing the <code>grepR</code> example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>json<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--count<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src<span class="tok-w">    </span><span class="tok-c1"># -f re-encodes the Int</span>
-<span class="tok-go">3</span>
-
-<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--count<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src<span class="tok-w">   </span><span class="tok-c1"># same Int via jsonl</span>
-<span class="tok-go">3</span>
-
-<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>json<span class="tok-w"> </span>grepR<span class="tok-w"> </span>-y<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src<span class="tok-w">         </span><span class="tok-c1"># sink writes stdout; -f harmless</span>
-<span class="tok-go">./src/a.py:def foo():</span>
-<span class="tok-go">./src/lib/b.py:    x = foo(1)</span>
-<span class="tok-go">./src/lib/b.py:foo = 42</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The terminal decides <strong>what</strong> the return is; <code>-f</code> decides <strong>how</strong> it is
-encoded on the wire. Reformatters are the "switch return type via an
-option" pattern: one function, several presentation shapes, each
-still round-trippable through the standard serialization layer.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_streaming_output_with_collect"><a class="anchor" href="#_streaming_output_with_collect"></a>Streaming output with <code>@collect</code></h5>
-<div class="paragraph">
-<p>The actions above compose with a command&#8217;s <strong>return value</strong>. A command can
-instead <strong>stream</strong> its output: it produces a sequence of <code>[a]</code> batches and
-returns <code>()</code>, leaving the data through a <strong>sink</strong> rather than the return
-slot. The <code>@collect</code> intrinsic drives this.</p>
-</div>
-<div class="paragraph">
-<p><code>@collect</code> takes a <strong>producer</strong>&#8201;&#8212;&#8201;a function that is handed a sink and
-calls it once per batch:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-nb">@collect</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(([</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>@collect</code> supplies the default sink (write each batch to the
-nexus-formatted <code>@stdout</code>, honoring <code>-f</code> / <code>-z</code>) and manages the stream
-lifecycle. Because the element type <code>a</code> is carried on the sink, the
-compiler knows the stream&#8217;s type without any extra annotation.</p>
-</div>
-<div class="paragraph">
-<p>On a <code>@collect</code> command, the terminal-action docstrings gain two
-independent axes:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>framing</strong>&#8201;&#8212;&#8201;<code>with</code> keeps the handler&#8217;s result <strong>typed</strong>, so it flows
-through <code>-f</code> / <code>-z</code> like any return value; <code>render</code> treats the
-handler&#8217;s result as <strong>final bytes</strong> and emits them verbatim (it forces
-<code>-f raw</code>). A <code>render</code> handler returns <code>Str</code> or <code>Vector U8</code>.</p>
-</li>
-<li>
-<p><strong>buffering</strong>&#8201;&#8212;&#8201;the no-suffix form gathers the <strong>complete</strong> stream and
-applies the handler once; the <code>.buffer</code> form applies the handler to
-<strong>each batch</strong> as it arrives, at constant memory.</p>
-</li>
-</ul>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 20%;">
-<col style="width: 40%;">
-<col style="width: 40%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Docstring</th>
-<th class="tableblock halign-left valign-top">Handler type</th>
-<th class="tableblock halign-left valign-top">Behavior</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>with:</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; b</code> (or <code>IFile [a] &#8594; b</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Gather the whole stream, apply once; the result <code>b</code> is serialized by <code>-f</code>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>with.buffer:</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; [b]</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Apply to each batch as it streams (constant memory); the <code>[b]</code> elements are serialized by <code>-f</code>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>render:</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; Str</code> / <code>[a] &#8594; Vector U8</code> (or <code>IFile [a] &#8594; &#8230;&#8203;</code>)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Gather the whole stream, apply once, emit the result bytes verbatim.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>render.buffer:</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; Str</code> / <code>[a] &#8594; Vector U8</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Apply to each batch, emit each result&#8217;s bytes verbatim.</p></td>
-</tr>
-</tbody>
-</table>
-<div class="paragraph">
-<p>The following command streams two batches of integers and offers one
-action from each cell of the grid:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">vector</span><span class="tok-o">-</span><span class="tok-n">cpp</span>
-
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;batches.hpp&quot;</span>
-<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;make_batch&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">makeBatch</span>
-<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;sort_desc&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">sortDesc</span>
-<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;bump&quot;</span><span class="tok-w">       </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">bump</span>
-<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;at_offset&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">atOffset</span>
-<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;join_csv&quot;</span><span class="tok-w">   </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">joinCsv</span>
-<span class="tok-w">  </span><span class="tok-p">)</span>
-
-<span class="tok-n">makeBatch</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w">            </span><span class="tok-c1">-- makeBatch i = [2*i, 2*i+1]</span>
-<span class="tok-n">sortDesc</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w">          </span><span class="tok-c1">-- whole-list reformatter (sort descending)</span>
-<span class="tok-n">bump</span><span class="tok-w">      </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w">          </span><span class="tok-c1">-- per-batch reformatter (map (+100))</span>
-<span class="tok-n">atOffset</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">U64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w">   </span><span class="tok-c1">-- per-batch; adds the running offset to each element</span>
-<span class="tok-n">joinCsv</span><span class="tok-w">   </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w">            </span><span class="tok-c1">-- whole-list render (comma-joined text)</span>
-
-<span class="tok-c1">-- a whole-list handler that reads the gathered stream as a file</span>
-<span class="tok-n">countAll</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">IFile</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">countAll</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@flen</span><span class="tok-w"> </span><span class="tok-n">f</span>
-
-<span class="tok-n">produce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">([</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
-<span class="tok-n">produce</span><span class="tok-w"> </span><span class="tok-n">sink</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">sink</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">makeBatch</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">)</span><span class="tok-w">   </span><span class="tok-c1">-- [0, 1]</span>
-<span class="tok-w">  </span><span class="tok-n">sink</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">makeBatch</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span><span class="tok-w">        </span><span class="tok-c1">-- [2, 3]</span>
-
-<span class="tok-cs">--&#39; Stream integer batches to standard output.</span>
-<span class="tok-cs">--&#39; with:         -s/--sorted=sortDesc</span>
-<span class="tok-cs">--&#39; with:         -n/--count=countAll</span>
-<span class="tok-cs">--&#39; with.buffer:  -b/--bump=bump</span>
-<span class="tok-cs">--&#39; with.buffer:  -a/--at=atOffset</span>
-<span class="tok-cs">--&#39; render:       -j/--joined=joinCsv</span>
-<span class="tok-n">stream</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
-<span class="tok-n">stream</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@collect</span><span class="tok-w"> </span><span class="tok-n">produce</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>With no action flag, the default sink streams every batch to stdout in
-whatever the nexus <code>-f</code> form selects:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>stream<span class="tok-w">        </span><span class="tok-c1"># each element on its own line, per batch</span>
-<span class="tok-go">0</span>
-<span class="tok-go">1</span>
-<span class="tok-go">2</span>
-<span class="tok-go">3</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>--sorted</code> gathers the whole stream, sorts it once, and lets <code>-f</code> encode
-the <code>[Int]</code> result; <code>--bump</code> transforms each batch in flight:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>stream<span class="tok-w"> </span>--sorted<span class="tok-w">    </span><span class="tok-c1"># whole-list `with`</span>
-<span class="tok-go">3</span>
-<span class="tok-go">2</span>
-<span class="tok-go">1</span>
-<span class="tok-go">0</span>
-
-<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>stream<span class="tok-w"> </span>--bump<span class="tok-w">      </span><span class="tok-c1"># per-batch `with.buffer`</span>
-<span class="tok-go">100</span>
-<span class="tok-go">101</span>
-<span class="tok-go">102</span>
-<span class="tok-go">103</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><code>--joined</code> renders the gathered stream to text and emits it verbatim&#8201;&#8212;&#8201;<code>-f</code> is ignored for a <code>render</code> action:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>stream<span class="tok-w"> </span>--joined<span class="tok-w">             </span><span class="tok-c1"># whole-list `render`</span>
-<span class="tok-go">0,1,2,3</span></code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_offset_handlers"><a class="anchor" href="#_offset_handlers"></a>Offset handlers</h5>
-<div class="paragraph">
-<p>A <code>.buffer</code> handler may take a leading <code>U64</code> parameter&#8201;&#8212;&#8201;the number of
-elements already written to the stream, supplied by <code>@tell</code>. The compiler
-detects the <code>U64 &#8594; [a] &#8594; &#8230;&#8203;</code> shape and threads the offset in
-automatically. <code>atOffset</code> above adds the running offset to each element,
-so batch 1&#8201;&#8212;&#8201;which starts after batch 0&#8217;s two elements&#8201;&#8212;&#8201;is shifted by 2:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>stream<span class="tok-w"> </span>--at<span class="tok-w">        </span><span class="tok-c1"># batch 0 at offset 0, batch 1 at offset 2</span>
-<span class="tok-go">0</span>
-<span class="tok-go">1</span>
-<span class="tok-go">4</span>
-<span class="tok-go">5</span></code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_random_access_handlers_ifile"><a class="anchor" href="#_random_access_handlers_ifile"></a>Random-access handlers (<code>IFile</code>)</h5>
-<div class="paragraph">
-<p>A whole-list <code>with:</code> / <code>render:</code> handler may take its receiver as
-<code>IFile [a]</code> instead of <code>[a]</code>. The gathered stream is staged to a
-temporary file (via <code>@tmpfile</code>) and the handler is given a random-access
-file handle rather than a materialized list&#8201;&#8212;&#8201;useful when the stream is
-too large to hold in memory, or when the handler only needs the footer
-(e.g. <code>@flen</code>). The temporary file is removed with <code>@close</code> once the
-handler returns. <code>--count</code> uses this to report the element total without
-loading the data:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>stream<span class="tok-w"> </span>--count
-<span class="tok-go">4</span></code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_rules_and_rejections"><a class="anchor" href="#_rules_and_rejections"></a>Rules and rejections</h5>
-<div class="ulist">
-<ul>
-<li>
-<p>At most one terminal flag per invocation. Siblings are mutually
-exclusive via clap&#8217;s <code>ArgGroup</code> and rejected at parse time.</p>
-</li>
-<li>
-<p><code>--' with:</code> must live in the signature preamble (the <code>--'</code> lines
-directly above <code>name ::</code>), not on argument-level docstrings, record
-fields, or type aliases.</p>
-</li>
-<li>
-<p>An explicit signature above the definition is required.</p>
-</li>
-<li>
-<p>Long and short names must not collide with the signature&#8217;s own
-argument-declared flags (<code>arg:</code> / <code>true:</code> / <code>false:</code>), with each
-other, or with the reserved command-scope flags <code>-h</code> / <code>--help</code>.</p>
-</li>
-<li>
-<p>Two <code>--' with:</code> atoms whose long flags collapse to the same
-internal name (e.g. <code>--bar-baz</code> and <code>--bar_baz</code>) are rejected, as
-are collisions between a synthesized entry name and an existing
-top-level identifier in the same module.</p>
-</li>
-</ul>
-</div>
+<p><code>@many</code>, <code>@unroll</code>, and <code>@stdin</code> are boolean flags: writing the bare directive
+(e.g. <code>@many</code>) turns the flag on. Their absence is the default (off).</p>
 </div>
 </div>
 </div>
@@ -9641,7 +8693,7 @@ magic bytes when the target schema is a <code>Table</code>.</p>
 the value from STDIN. Stdin may be claimed by at most one
 argument per command&#8201;&#8212;&#8201;a second <code>-</code> errors with a clear message
 rather than silently reading zero bytes. (On a path argument marked
-<code>check.path</code> or <code>stdin: true</code>, <code>-</code> instead makes the <strong>path</strong> standard
+<code>@check.path</code> or <code>@stdin</code>, <code>-</code> instead makes the <strong>path</strong> standard
 input, which the command opens as a stream via <code>@open</code> rather than
 reading a single value&#8201;&#8212;&#8201;see
 <a href="#_reading_a_stream_from_standard_input">Reading a stream from standard
@@ -9725,8 +8777,674 @@ string <code>-f</code>) as a positional:</p>
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>echoStr<span class="tok-w"> </span>--<span class="tok-w"> </span>-f<span class="tok-w">       </span><span class="tok-c1"># without --, &#39;-f&#39; would be parsed as a flag</span></code></pre>
 </div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_input_shape"><a class="anchor" href="#_input_shape"></a>6.4. Input shape</h3>
+<div class="paragraph">
+<p>By default, the CLI accepts inline JSON or a file path and figures the rest
+out. The <code>source</code> / <code>form</code> / <code>check.*</code> tags override that default when an
+argument needs a specific shape.</p>
+</div>
+<div class="paragraph">
+<p>The available combinations depend on the argument&#8217;s type:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Non-<code>Str</code> primitives (numeric values and booleans)</caption>
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Modifier</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(none — only valid case)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is the literal value (e.g. <code>42</code>, <code>true</code>, <code>3.14</code>); no modifiers are allowed.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 3. <code>Str</code></caption>
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Modifier</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(default)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is the literal string value, verbatim.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@check.path r</code> / <code>w</code> / <code>x</code> / <code>rw</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv must be a filesystem path satisfying the requested mode. <code>r</code> = exists
+and is readable; <code>w</code> = writable (existing writable file, or a non-existent
+file in a writable directory); <code>x</code> = does not yet
+exist and the parent directory is writable (exclusive create); <code>rw</code> = exists
+and is both readable and writable. Mutually exclusive with <code>@source file</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@source file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file&#8217;s contents become the string. The file must be readable.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stdin</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Marks this positional <strong>optional</strong>; when omitted (or given <code>-</code>) the argument
+becomes standard input. Implies <code>@check.path r</code>. At most one per command, it
+must be the last positional, and it cannot combine with <code>@arg</code>, <code>@default</code>, or
+<code>@many</code>. The command opens the argument with <code>@open</code> and reads a morloc packet
+stream from stdin (see "Reading a stream from standard input" below).</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. Arrays of fixed-width scalars (<code>[U8]</code>, <code>[I32]</code>, <code>[F64]</code>, <code>[Bool]</code>, etc.)</caption>
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Modifier</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(default)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a JSON array (<code>[1,2,3]</code>), or a path to a JSON / MessagePack /
+packet file.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@form bytes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file is sniffed for a morloc packet, otherwise read
+as packed raw bytes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@form bytes-only</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file is packed raw bytes (no packet sniff).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@form packet</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a path; the file must be a morloc packet (strict).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@source inline</code> + <code>@form bytes</code> or <code>bytes-only</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only on <code>[U8]</code>. argv is the literal byte sequence (each character is
+one byte; <code>\xNN</code>, <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\0</code>, <code>\\</code> escapes recognized).
+Useful for ASCII encoded sequences that are treated as byte arrays.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. Any list type (<code>[T]</code>, including <code>[Str]</code>, <code>[(Int, Str)]</code>, etc.)</caption>
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Modifier</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@form list</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is a file (or <code>-</code> for stdin) with one element per line, OR
+an inline JSON array (e.g. <code>'[["a",5],["b",25]]'</code>). Any argv token
+whose first byte is <code>[</code> is parsed as inline JSON; anything else is
+treated as a path. Tuple elements accept JSON-array-per-line, TSV,
+or CSV.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@form list</code> + <code>@list.source file</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Each line in the outer file is a path to a per-element file (the
+per-element file is auto-classified: JSON / MessagePack / packet).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@form list</code> + <code>@list.source file</code> + <code>@list.form packet</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Each line is a path; each per-element file must be a morloc packet
+(strict).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@form list</code> + <code>@list.source file</code> + <code>@list.form bytes</code> (or <code>bytes-only</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Each line is a path; each file is read as packed raw bytes. Inner
+element must be a fixed-width-scalar array.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@form list</code> + <code>@list.check.path r</code> (or <code>w</code> / <code>x</code> / <code>rw</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Each line of the outer file must be a filesystem path satisfying the
+requested mode (same semantics as the top-level <code>check.path</code>). Element type
+must be <code>Str</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 6. Tuples, records, and other non-list compound types</caption>
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Modifier</th>
+<th class="tableblock halign-left valign-top">Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(default, only valid case)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">argv is JSON (or a file path containing JSON / MessagePack / packet);
+no outer modifiers are allowed.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The shape classification runs on each argument&#8217;s <strong>wire form</strong>, not on
+its source-level type name. A type declared with <code>Packable [(a, b)] T</code>
+serializes across the language boundary as a list of pairs, so the
+CLI treats it as <code>[T]</code>&#8201;&#8212;&#8201;every <code>@form list</code> and <code>list.*</code> modifier
+above is available. The stdlib <code>Map a b</code> type is the primary case:
+its Packable wire form is <code>[(a, b)]</code>, so a <code>Map Str Int</code> argument can
+be read from a two-column TSV or CSV file the same way <code>[(Str, Int)]</code>
+would:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; Count entries in a two-column table read as a Map.</span>
+<span class="tok-cs">--&#39; The file has one `key&lt;TAB&gt;value` pair per line.</span>
+<span class="tok-n">tally</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @form list</span>
+<span class="tok-w">  </span><span class="tok-nc">Map</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">tally</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">size</span><span class="tok-w"> </span><span class="tok-n">m</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>cat<span class="tok-w"> </span>counts.tsv
+<span class="tok-go">apple	3</span>
+<span class="tok-go">banana	7</span>
+<span class="tok-go">cherry	1</span>
+
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>tally<span class="tok-w"> </span>counts.tsv
+<span class="tok-go">3</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The same file works with <code>@list.check.path r</code>, per-line file
+dispatch (<code>@list.source file</code>), and every other list modifier;
+JSON-array-per-line (<code>["apple",3]</code>) is also accepted as the default
+fallback. This applies to any user-defined type whose Packable
+instance targets a list of tuples&#8201;&#8212;&#8201;no special-casing for <code>Map</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
+</td>
+<td class="content">
+<div class="paragraph">
+<p><strong><code>@form list</code> is headerless.</strong> Delimited files (TSV, CSV) read via
+<code>@form list</code> are parsed as raw tuples row-by-row&#8201;&#8212;&#8201;there is no
+header row, and no <code>--csv-header</code> toggle exists to enable one.
+Tuples and list-shaped compound types have no column names, so a
+header row would just be interpreted as a data row and fail schema
+check on the first field.</p>
+</div>
+<div class="paragraph">
+<p>If you need a full-featured table with column names&#8201;&#8212;&#8201;headers,
+column-name-to-field alignment, mixed types verified against the
+declared columns&#8201;&#8212;&#8201;declare the argument as <code>Table</code> instead. The
+<code>Table</code> loader path honors headers; <code>@form list</code> intentionally
+doesn&#8217;t. This split keeps the two paths simple: <code>Table</code> is for
+tables, <code>@form list</code> is for streams of rows.</p>
+</div>
+<div class="paragraph">
+<p>When a delimited parse under <code>@form list</code> fails and the first row
+looks like plain column names against a numeric row schema, the
+loader appends the hint <code>the first row (&#8230;&#8203;) looks like a
+column-name header. form: list is headerless&#8201;&#8212;&#8201;remove the header
+row, or declare the argument as Table if you need column names</code>.
+No auto-skip: the file must be edited (or the arg&#8217;s type changed
+to <code>Table</code>).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Compile-time validation rejects every nonsensical combination (e.g.
+<code>@source file</code> on a non-<code>Str</code> primitive, <code>@form bytes</code> on <code>[Int]</code> because
+<code>Int</code> has no fixed width, <code>@list.form list</code> because nested list files are
+forbidden). The error points at the offending docstring line.</p>
+</div>
+<div class="paragraph">
+<p>Here is a longer example that show-cases these tags:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">foobar</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bar</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;foobar.py&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-s">&quot;foo&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;bar&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-cs">--&#39; config record</span>
+<span class="tok-cs">--&#39; @unroll</span>
+<span class="tok-cs">--&#39; @arg --config</span>
+<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Config</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; temporary directory</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @arg --tmp</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @default &quot;/tmp&quot;</span>
+<span class="tok-w">  </span><span class="tok-n">tmpdir</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+
+<span class="tok-w">  </span><span class="tok-cs">--&#39; cache the results</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @true --cache</span>
+<span class="tok-w">  </span><span class="tok-n">cache</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Bool</span>
+
+<span class="tok-w">  </span><span class="tok-cs">--&#39; number of threads to use</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @arg -t/--num-threads</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @default 1</span>
+<span class="tok-w">  </span><span class="tok-n">nthreads</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-cs">--&#39; do foo stuff</span>
+<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-nc">Config</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; list of integers</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @metavar INT_LIST</span>
+<span class="tok-w">  </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; sum of INT_LIST</span>
+<span class="tok-w">  </span><span class="tok-nc">Int</span>
+
+<span class="tok-cs">--&#39; do bar stuff</span>
+<span class="tok-cs">--&#39; @return summed values</span>
+<span class="tok-n">bar</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @unroll false</span>
+<span class="tok-w">  </span><span class="tok-nc">Config</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>./foobar -h</code> lists the two exported commands; <code>./foobar foo -h</code>
+shows the per-command help with `Config&#8217;s fields unrolled (see
+below).</p>
+</div>
+<div class="paragraph">
+<p>The dedicated usage information for <code>foo</code> can be accessed as well. Here we see
+that the record <code>Config</code> has been unrolled into a group of optional arguments:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>-h
+<span class="tok-go">do foo stuff</span>
+
+<span class="tok-go">Usage: foobar &lt;nexus_options&gt; foo &lt;command_options&gt;</span>
+
+<span class="tok-go">General Options:</span>
+<span class="tok-go">  -h, --help  Print help (see more with &#39;--help&#39;)</span>
+
+<span class="tok-go">Optional arguments:</span>
+<span class="tok-go">      --config &lt;Config_JSON&gt;  config record</span>
+<span class="tok-go">                              type: Config</span>
+<span class="tok-go">      --tmp &lt;Str&gt;             temporary directory</span>
+<span class="tok-go">                              type: Str    (literal string) [default: &quot;/tmp&quot;]</span>
+<span class="tok-go">      --cache                 cache the results</span>
+<span class="tok-go">                              type: Bool</span>
+<span class="tok-go">                              default: false</span>
+<span class="tok-go">  -t, --num-threads &lt;Int&gt;     number of threads to use</span>
+<span class="tok-go">                              type: Int [default: 1]</span>
+
+<span class="tok-go">Positional arguments:</span>
+<span class="tok-go">  1:  list of integers</span>
+<span class="tok-go">      type: [Int]</span>
+
+<span class="tok-go">Return: Int</span>
+<span class="tok-go">  sum of INT_LIST</span>
+
+<span class="tok-go">Record Schemas:</span>
+<span class="tok-go">  Config</span>
+<span class="tok-go">    tmpdir   :: Str</span>
+<span class="tok-go">    cache    :: Bool</span>
+<span class="tok-go">    nthreads :: Int</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Since each subcommand is a function, the return type is always the same. Unlike
+in a conventional CLI program, the arguments cannot alter the return type.</p>
+</div>
+<div class="paragraph">
+<p>The <code>bar</code> subcommand explicitly does not unroll the <code>Config</code> record:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>bar<span class="tok-w"> </span>-h
+<span class="tok-go">do bar stuff</span>
+
+<span class="tok-go">Usage: foobar &lt;nexus_options&gt; bar &lt;command_options&gt;</span>
+
+<span class="tok-go">General Options:</span>
+<span class="tok-go">  -h, --help  Print help (see more with &#39;--help&#39;)</span>
+
+<span class="tok-go">Positional arguments:</span>
+<span class="tok-go">  1:  config record</span>
+<span class="tok-go">      type: Config</span>
+<span class="tok-go">  2:  type: [Int]</span>
+
+<span class="tok-go">Return: Int</span>
+<span class="tok-go">  summed values</span>
+
+<span class="tok-go">Record Schemas:</span>
+<span class="tok-go">  Config</span>
+<span class="tok-go">    tmpdir   :: Str</span>
+<span class="tok-go">    cache    :: Bool</span>
+<span class="tok-go">    nthreads :: Int</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Record types are shown by name in the argument list; their field layout is
+listed once in the <code>Record Schemas:</code> block at the bottom.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_record_parameterization"><a class="anchor" href="#_record_parameterization"></a>6.5. Record parameterization</h3>
+<div class="paragraph">
+<p>A record argument exposed with <code>@unroll</code> can be filled in any
+combination of the following ways:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>The whole record at once.</strong> The group flag (<code>--config</code>) accepts a
+JSON object, file, or stdin (<code>-</code>) describing the record:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span>algconf.json<span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
+<span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;{&quot;tmpdir&quot;:&quot;/var&quot;,&quot;cache&quot;:true,&quot;nthreads&quot;:4}&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
+<span class="tok-gp">$ </span>cat<span class="tok-w"> </span>algconf.json<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span>-<span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span></code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Field-by-field.</strong> Each unrolled field has its own flag
+(<code>--tmp</code>, <code>--cache</code>, <code>-t/--num-threads</code>).</p>
+</li>
+<li>
+<p><strong>A mix.</strong> The two combine: a partial JSON object fills some
+fields, individual flags fill others or override the bundle.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When the JSON form is an <strong>object</strong>, missing keys are allowed&#8201;&#8212;&#8201;they
+fall back to manifest defaults (or to the field-level CLI flag, when
+provided):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;{&quot;nthreads&quot;:8}&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
+<span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;{}&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span><span class="tok-w">          </span><span class="tok-c1"># use all defaults</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When the JSON form is an <strong>array</strong>, the length must match the schema
+exactly&#8201;&#8212;&#8201;positional encoding has no notion of "missing field":</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;/tmp&quot;,true,8]&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
+<span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;[&quot;/tmp&quot;,true]&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
+<span class="tok-go">record array form must have exactly 3 fields ...</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Unknown keys in object form are rejected so typos surface clearly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>--config<span class="tok-w"> </span><span class="tok-s1">&#39;{&quot;threads&quot;:8}&#39;</span><span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
+<span class="tok-go">unknown field &#39;threads&#39; in record bundle</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The merge precedence for each field is, highest to lowest:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The per-field CLI flag (<code>-t 8</code> always wins).</p>
+</li>
+<li>
+<p>The value from the group JSON bundle if the key was present.</p>
+</li>
+<li>
+<p>The field&#8217;s manifest default.</p>
+</li>
+<li>
+<p><code>null</code> for <code>Optional</code> fields with no default and no bundle entry.</p>
+</li>
+<li>
+<p>Otherwise, a required-field error naming the offending field.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>An explicit <code>null</code> for an <code>Optional</code> field in the bundle counts as
+"present"&#8201;&#8212;&#8201;it overrides the manifest default. Failures during a
+per-field load are tagged with the field name:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./foobar<span class="tok-w"> </span>foo<span class="tok-w"> </span>-t<span class="tok-w"> </span>notanumber<span class="tok-w"> </span><span class="tok-o">[</span><span class="tok-m">1</span>,2,3<span class="tok-o">]</span>
+<span class="tok-go">field &#39;nthreads&#39;: ...</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_output_handling"><a class="anchor" href="#_output_handling"></a>6.6. Output handling</h3>
+<div class="paragraph">
+<p>An export can carry one or more <code>@with</code> / <code>@render</code> docstring directives that
+attach output <strong>formatters</strong> to the command as short/long flags. Each directive
+names a morloc term; invoking the flag dispatches to a compiler-synthesized
+entry point that composes the named term with the export&#8217;s output before it hits
+the wire. This lets a single typed function project multiple presentation shapes
+without adding sibling exports. Formatters allow the behavior of the CLI or APIs
+to be modified without cluttering the module exports.</p>
+</div>
+<div class="paragraph">
+<p>The two most common uses are <strong>sinks</strong> and <strong>reformatters</strong>. Sinks write the
+return value to stdout, a file, or another resource. <strong>Reformatters</strong> transform
+the value to a different type before serialization.</p>
+</div>
+<div class="paragraph">
+<p>The examples below first cover formatters on a command&#8217;s <strong>return value</strong>. When
+a command instead <strong>streams</strong> its output with <code>@collect</code> (returning <code>()</code>), the
+same directives become streaming formatters, with the <code>@stream</code> modifier
+selecting per-batch application&#8201;&#8212;&#8201;see
+<a href="#_streaming_output_with_collect">Streaming output with <code>@collect</code></a>.</p>
+</div>
+<div class="paragraph">
+<p>Consider a recursive <code>grep</code>-like search that returns every matching
+line paired with the file it came from:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;helpers.py&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;grep_recursive&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">grepR</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;print_hits_tty&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">printHitsTTY</span>
+<span class="tok-w">  </span><span class="tok-p">)</span>
+
+<span class="tok-cs">--&#39; Print each hit as `&lt;path&gt;:&lt;line&gt;`, one per line;</span>
+<span class="tok-cs">--&#39; silent when there are no matches.</span>
+<span class="tok-n">printHitsTTY</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-nc">Path</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-p">)]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+
+<span class="tok-cs">--&#39; Recursively search under a directory for lines matching a</span>
+<span class="tok-cs">--&#39; pattern, returning every hit paired with its file.</span>
+<span class="tok-cs">--&#39; @with -y/--tty=printHitsTTY</span>
+<span class="tok-cs">--&#39; @with -c/--count=size</span>
+<span class="tok-n">grepR</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; The pattern to search for</span>
+<span class="tok-w">  </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; The root directory to walk</span>
+<span class="tok-w">  </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-nc">Path</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-p">)]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The default wire output is the raw list of tuples&#8201;&#8212;&#8201;structurally correct but
+inconvenient to a human reader (<code>/</code> is escaped as <code>\/</code>, as JSON allows):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src
+<span class="tok-go">[[&quot;.\/src\/a.py&quot;,&quot;def foo():&quot;],[&quot;.\/src\/lib\/b.py&quot;,&quot;    x = foo(1)&quot;],[&quot;.\/src\/lib\/b.py&quot;,&quot;foo = 42&quot;]]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>-y</code> (or <code>--tty</code>) routes the result through the TTY sink&#8201;&#8212;&#8201;one line per hit,
+nothing when the search is empty:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--tty<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src
+<span class="tok-go">./src/a.py:def foo():</span>
+<span class="tok-go">./src/lib/b.py:    x = foo(1)</span>
+<span class="tok-go">./src/lib/b.py:foo = 42</span>
+
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>-y<span class="tok-w"> </span><span class="tok-s2">&quot;nowheretobefound&quot;</span><span class="tok-w"> </span>./src
+<span class="tok-gp">$</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>-c</code> (or <code>--count</code>) uses <code>size</code> from the standard library as a
+reformatter&#8201;&#8212;&#8201;the composed entry has type <code>Str &#8594; Path &#8594; &lt;IO&gt; Int</code>,
+so the wire result is just the hit count:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--count<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src
+<span class="tok-go">3</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The referenced term&#8217;s own docstring becomes the flag&#8217;s help text, and
+each formatter appears under "General Options" in
+<code>&lt;cmd&gt; --help</code>. The base export&#8217;s declared return type is unchanged,
+so downstream morloc code composing <code>grepR</code> still sees
+<code>&lt;IO&gt; [(Path, Str)]</code>.</p>
+</div>
+<div class="paragraph">
+<p>Because each flag selects a different formatter, the return type is no
+longer a single value. When a command carries formatters, the
+<code>Return:</code> block in <code>&lt;cmd&gt; --help</code> becomes a table: <code>default:</code> names the
+bare command&#8217;s return type, and each flag lists the type its formatter
+produces on the wire (<code>Unit</code> for a sink, the reformatter&#8217;s own type
+otherwise):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--help
+<span class="tok-go">...</span>
+<span class="tok-go">Return:</span>
+<span class="tok-go">  default:    [(Path, Str)]</span>
+<span class="tok-go">  -y/--tty:   Unit</span>
+<span class="tok-go">  -c/--count: Int</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The formatter is any typechecked function <code>A &#8594; B</code> where <code>A</code>
+unifies with the export&#8217;s return-position payload (after stripping
+<code>&lt;IO&gt;</code> etc.):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>B = ()</code>&#8201;&#8212;&#8201;a <strong>sink</strong>; the composed entry emits nothing on the wire
+beyond what the handler itself wrote.</p>
+</li>
+<li>
+<p><code>B != ()</code>&#8201;&#8212;&#8201;a <strong>reformatter</strong>; the composed entry returns <code>B</code>,
+which flows through the nexus&#8217;s normal wire serialization.</p>
+</li>
+<li>
+<p>Effect on the handler is unconstrained. Pure <code>A &#8594; B</code> composes
+cleanly; the composed entry inherits <code>&lt;IO&gt;</code> from the parent iff the
+parent had it.</p>
+</li>
+<li>
+<p>Typeclass methods are legal handlers; the right instance resolves
+per composed binding, so one class method can drive formatters on
+multiple exports with different return shapes.</p>
+</li>
+</ul>
+</div>
 <div class="sect3">
-<h4 id="_top_level_null_and_unit"><a class="anchor" href="#_top_level_null_and_unit"></a>6.3.1. Top-level null and Unit</h4>
+<h4 id="_passing_arguments_to_a_formatter"><a class="anchor" href="#_passing_arguments_to_a_formatter"></a>6.6.1. Passing arguments to a formatter</h4>
+<div class="paragraph">
+<p>A formatter may take arguments in addition to the value it formats. A positional
+reference <code>$N</code> refers to the parent command&#8217;s own Nth argument (1-based), and
+<code>@value</code> refers to the value being formatted. Write them as a call on the
+handler:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; Print the rows as a table, `width` columns wide.</span>
+<span class="tok-n">tabulate</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Row</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+
+<span class="tok-cs">--&#39; @render -t/--table=tabulate($2)</span>
+<span class="tok-n">report</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; the query to run</span>
+<span class="tok-w">  </span><span class="tok-nc">Query</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; output width</span>
+<span class="tok-w">  </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Row</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here <code>$2</code> passes <code>report&#8217;s second argument (the width) into `tabulate</code>. The
+value being formatted is appended last unless you place it explicitly with
+<code>@value</code>, so <code>tabulate($2)</code> applies <code>tabulate width rows</code>, while
+<code>tabulate(@value, $2)</code> would apply <code>tabulate rows width</code>. On a streaming
+(<code>@stream</code>) formatter, <code>@offset</code> is available as an argument too (the running
+element offset).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_default_formatter"><a class="anchor" href="#_default_formatter"></a>6.6.2. Default formatter</h4>
+<div class="paragraph">
+<p>Mark one formatter <code>@default</code> to make it fire when no formatter flag and no <code>-f</code>
+is given, so the command&#8217;s default output is human-readable rather than JSON:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-cs">--&#39; @with   -j/--json=asJson</span>
+<span class="tok-cs">--&#39; @render -t/--table=asTable @default</span>
+<span class="tok-n">report</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Query</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Row</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now <code>./nexus report q</code> renders the table; <code>./nexus report q -j</code> selects JSON; and
+an explicit <code>-f</code> (e.g. <code>-f json</code>) also recovers the command&#8217;s typed output,
+because an explicit <code>-f</code> suppresses the default. At most one formatter per
+command may be <code>@default</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_top_level_null_and_unit"><a class="anchor" href="#_top_level_null_and_unit"></a>6.6.3. Top-level null and Unit</h4>
 <div class="paragraph">
 <p>When a JSON-format command returns <code>()</code> (Unit) or <code>Null</code> at the top
 level, the nexus produces <strong>empty stdout</strong> by default. This matches the
@@ -9764,6 +9482,264 @@ needs:</p>
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>pair<span class="tok-w">      </span><span class="tok-c1"># returns (5, ())</span>
 <span class="tok-go">[5,null]</span></code></pre>
 </div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_composing_with_f"><a class="anchor" href="#_composing_with_f"></a>6.6.4. Composing with <code>-f</code></h4>
+<div class="paragraph">
+<p>The nexus-level <code>-f</code> output-form flag and formatter flags are
+complementary, not exclusive. Continuing the <code>grepR</code> example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>json<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--count<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src<span class="tok-w">    </span><span class="tok-c1"># -f re-encodes the Int</span>
+<span class="tok-go">3</span>
+
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>grepR<span class="tok-w"> </span>--count<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src<span class="tok-w">   </span><span class="tok-c1"># same Int via jsonl</span>
+<span class="tok-go">3</span>
+
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>json<span class="tok-w"> </span>grepR<span class="tok-w"> </span>-y<span class="tok-w"> </span><span class="tok-s2">&quot;foo&quot;</span><span class="tok-w"> </span>./src<span class="tok-w">         </span><span class="tok-c1"># sink writes stdout; -f harmless</span>
+<span class="tok-go">./src/a.py:def foo():</span>
+<span class="tok-go">./src/lib/b.py:    x = foo(1)</span>
+<span class="tok-go">./src/lib/b.py:foo = 42</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The formatter decides <strong>what</strong> the return is; <code>-f</code> decides <strong>how</strong> it is
+encoded on the wire. Reformatters are the "switch return type via an
+option" pattern: one function, several presentation shapes, each
+still round-trippable through the standard serialization layer.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_streaming_data"><a class="anchor" href="#_streaming_data"></a>6.7. Streaming data</h3>
+<div class="paragraph">
+<p>The actions above compose with a command&#8217;s <strong>return value</strong>. A command can
+instead <strong>stream</strong> its output: it produces a sequence of <code>[a]</code> batches and
+returns <code>()</code>, leaving the data through a <strong>sink</strong> rather than the return
+slot. The <code>@collect</code> intrinsic drives this.</p>
+</div>
+<div class="paragraph">
+<p><code>@collect</code> takes a <strong>producer</strong>&#8201;&#8212;&#8201;a function that is handed a sink and
+calls it once per batch:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-nb">@collect</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(([</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>@collect</code> supplies the default sink (write each batch to the
+nexus-formatted <code>@stdout</code>, honoring <code>-f</code> / <code>-z</code>) and manages the stream
+lifecycle. Because the element type <code>a</code> is carried on the sink, the
+compiler knows the stream&#8217;s type without any extra annotation.</p>
+</div>
+<div class="paragraph">
+<p>On a <code>@collect</code> command, the formatter directives have two independent
+axes: a <strong>framing</strong> keyword and a <strong>buffering</strong> modifier.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>framing</strong> (the keyword)&#8201;&#8212;&#8201;<code>@with</code> keeps the handler&#8217;s result <strong>typed</strong>,
+so it flows through <code>-f</code> / <code>-z</code> like any return value; <code>@render</code> treats
+the handler&#8217;s result as <strong>final bytes</strong> and emits them verbatim (it forces
+<code>-f raw</code>). A <code>@render</code> handler returns <code>Str</code> or <code>Vector U8</code>.</p>
+</li>
+<li>
+<p><strong>buffering</strong> (the <code>@stream</code> modifier)&#8201;&#8212;&#8201;without <code>@stream</code> the whole
+stream is gathered and the handler is applied once; with <code>@stream</code> the
+handler is applied to <strong>each batch</strong> as it arrives, at constant memory.</p>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Directive</th>
+<th class="tableblock halign-left valign-top">Handler type</th>
+<th class="tableblock halign-left valign-top">Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@with</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; b</code> (or <code>IFile [a] &#8594; b</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gather the whole stream, apply once; the result <code>b</code> is serialized by <code>-f</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@with &#8230;&#8203; @stream</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; [b]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Apply to each batch as it streams (constant memory); the <code>[b]</code> elements are serialized by <code>-f</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@render</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; Str</code> / <code>[a] &#8594; Vector U8</code> (or <code>IFile [a] &#8594; &#8230;&#8203;</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Gather the whole stream, apply once, emit the result bytes verbatim.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@render &#8230;&#8203; @stream</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; Str</code> / <code>[a] &#8594; Vector U8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Apply to each batch, emit each result&#8217;s bytes verbatim.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The following command streams two batches of integers and offers one
+action from each cell of the grid:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">vector</span><span class="tok-o">-</span><span class="tok-n">cpp</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;batches.hpp&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;make_batch&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">makeBatch</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;sort_desc&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">sortDesc</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;bump&quot;</span><span class="tok-w">       </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">bump</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;at_offset&quot;</span><span class="tok-w">  </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">atOffset</span>
+<span class="tok-w">  </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;join_csv&quot;</span><span class="tok-w">   </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">joinCsv</span>
+<span class="tok-w">  </span><span class="tok-p">)</span>
+
+<span class="tok-n">makeBatch</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w">            </span><span class="tok-c1">-- makeBatch i = [2*i, 2*i+1]</span>
+<span class="tok-n">sortDesc</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w">          </span><span class="tok-c1">-- whole-list reformatter (sort descending)</span>
+<span class="tok-n">bump</span><span class="tok-w">      </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w">          </span><span class="tok-c1">-- per-batch reformatter (map (+100))</span>
+<span class="tok-n">atOffset</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">U64</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w">   </span><span class="tok-c1">-- per-batch; adds the running offset to each element</span>
+<span class="tok-n">joinCsv</span><span class="tok-w">   </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w">            </span><span class="tok-c1">-- whole-list render (comma-joined text)</span>
+
+<span class="tok-c1">-- a whole-list handler that reads the gathered stream as a file</span>
+<span class="tok-n">countAll</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">IFile</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">countAll</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@flen</span><span class="tok-w"> </span><span class="tok-n">f</span>
+
+<span class="tok-n">produce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">([</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+<span class="tok-n">produce</span><span class="tok-w"> </span><span class="tok-n">sink</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">sink</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">makeBatch</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">)</span><span class="tok-w">   </span><span class="tok-c1">-- [0, 1]</span>
+<span class="tok-w">  </span><span class="tok-n">sink</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">makeBatch</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span><span class="tok-w">        </span><span class="tok-c1">-- [2, 3]</span>
+
+<span class="tok-cs">--&#39; Stream integer batches to standard output.</span>
+<span class="tok-cs">--&#39; @with   -s/--sorted=sortDesc</span>
+<span class="tok-cs">--&#39; @with   -n/--count=countAll</span>
+<span class="tok-cs">--&#39; @with   -b/--bump=bump @stream</span>
+<span class="tok-cs">--&#39; @with   -a/--at=atOffset(@offset) @stream</span>
+<span class="tok-cs">--&#39; @render -j/--joined=joinCsv</span>
+<span class="tok-n">stream</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Err</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+<span class="tok-n">stream</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@collect</span><span class="tok-w"> </span><span class="tok-n">produce</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With no action flag, the default sink streams every batch to stdout in
+whatever the nexus <code>-f</code> form selects:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>stream<span class="tok-w">        </span><span class="tok-c1"># each element on its own line, per batch</span>
+<span class="tok-go">0</span>
+<span class="tok-go">1</span>
+<span class="tok-go">2</span>
+<span class="tok-go">3</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>--sorted</code> gathers the whole stream, sorts it once, and lets <code>-f</code> encode
+the <code>[Int]</code> result; <code>--bump</code> transforms each batch in flight:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>stream<span class="tok-w"> </span>--sorted<span class="tok-w">    </span><span class="tok-c1"># whole-list `with`</span>
+<span class="tok-go">3</span>
+<span class="tok-go">2</span>
+<span class="tok-go">1</span>
+<span class="tok-go">0</span>
+
+<span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>stream<span class="tok-w"> </span>--bump<span class="tok-w">      </span><span class="tok-c1"># per-batch `@with ... @stream`</span>
+<span class="tok-go">100</span>
+<span class="tok-go">101</span>
+<span class="tok-go">102</span>
+<span class="tok-go">103</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>--joined</code> renders the gathered stream to text and emits it verbatim&#8201;&#8212;&#8201;<code>-f</code> is ignored for a <code>render</code> action:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>stream<span class="tok-w"> </span>--joined<span class="tok-w">             </span><span class="tok-c1"># whole-list `render`</span>
+<span class="tok-go">0,1,2,3</span></code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_offset_handlers"><a class="anchor" href="#_offset_handlers"></a>6.7.1. Offset handlers</h4>
+<div class="paragraph">
+<p>A streaming (<code>@stream</code>) handler can receive the running <strong>offset</strong>&#8201;&#8212;&#8201;the
+number of elements already written to the stream&#8201;&#8212;&#8201;by listing <code>@offset</code>
+among its arguments: <code>atOffset(@offset)</code> passes the offset as the handler&#8217;s
+first argument, so <code>atOffset :: U64 &#8594; [Int] &#8594; [Int]</code>. (<code>@offset</code> is only
+meaningful under <code>@stream</code>; using it elsewhere is an error.) <code>atOffset</code>
+above adds the running offset to each element, so batch 1&#8201;&#8212;&#8201;which starts
+after batch 0&#8217;s two elements&#8201;&#8212;&#8201;is shifted by 2:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>-f<span class="tok-w"> </span>jsonl<span class="tok-w"> </span>stream<span class="tok-w"> </span>--at<span class="tok-w">        </span><span class="tok-c1"># batch 0 at offset 0, batch 1 at offset 2</span>
+<span class="tok-go">0</span>
+<span class="tok-go">1</span>
+<span class="tok-go">4</span>
+<span class="tok-go">5</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_random_access_handlers_ifile"><a class="anchor" href="#_random_access_handlers_ifile"></a>6.7.2. Random-access handlers (<code>IFile</code>)</h4>
+<div class="paragraph">
+<p>A whole-list <code>@with</code> / <code>@render</code> handler may take its receiver as
+<code>IFile [a]</code> instead of <code>[a]</code>. The gathered stream is staged to a
+temporary file (via <code>@tmpfile</code>) and the handler is given a random-access
+file handle rather than a materialized list&#8201;&#8212;&#8201;useful when the stream is
+too large to hold in memory, or when the handler only needs the footer
+(e.g. <code>@flen</code>). The temporary file is removed with <code>@close</code> once the
+handler returns. <code>--count</code> uses this to report the element total without
+loading the data:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./nexus<span class="tok-w"> </span>stream<span class="tok-w"> </span>--count
+<span class="tok-go">4</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_rules_and_rejections"><a class="anchor" href="#_rules_and_rejections"></a>6.7.3. Rules and rejections</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>At most one terminal flag per invocation. Siblings are mutually
+exclusive via clap&#8217;s <code>ArgGroup</code> and rejected at parse time.</p>
+</li>
+<li>
+<p><code>@with</code> / <code>@render</code> must live in the signature preamble (the <code>--'</code> lines
+directly above <code>name ::</code>), not on argument-level docstrings, record
+fields, or type aliases.</p>
+</li>
+<li>
+<p>An explicit signature above the definition is required.</p>
+</li>
+<li>
+<p>Long and short names must not collide with the signature&#8217;s own
+argument-declared flags (<code>@arg</code> / <code>@true</code> / <code>@false</code>), with each
+other, or with the reserved command-scope flags <code>-h</code> / <code>--help</code>.</p>
+</li>
+<li>
+<p>Two formatter directives whose long flags collapse to the same
+internal name (e.g. <code>--bar-baz</code> and <code>--bar_baz</code>) are rejected, as
+are collisions between a synthesized entry name and an existing
+top-level identifier in the same module.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -12586,7 +12562,7 @@ error.</p>
 </div>
 <div class="paragraph">
 <p><code>@open</code> also reads standard input, not just files. Opening the path
-<code>/dev/stdin</code>&#8201;&#8212;&#8201;the value a <code>--' stdin: true</code> CLI argument takes when it is
+<code>/dev/stdin</code>&#8201;&#8212;&#8201;the value a <code>--' @stdin</code> CLI argument takes when it is
 omitted, and the target of a <code>-</code> argument&#8201;&#8212;&#8201;routes an <code>IStream</code> to the
 process&#8217;s stdin, exactly like <code>@stdin</code>. Because a pipe is not seekable,
 <code>@open "/dev/stdin" :: IFile a</code> instead raises a <strong>catchable</strong> <code>Err</code> without
