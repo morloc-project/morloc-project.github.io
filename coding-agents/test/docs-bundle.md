@@ -105,12 +105,12 @@ and other conveniences:
 
 [%nowrap, console]
 ----
-$ morloc-manager run --shell
+$ morloc-manager shell
 ----
 
 Throughout the rest of this manual, whenever an example uses the `morloc`
 command directly, you can assume it is being run from within a container shell
-started with `morloc-manager run --shell`.
+started with `morloc-manager shell`.
 
 === Setting up IDEs
 

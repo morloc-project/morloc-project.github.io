@@ -2,7 +2,7 @@
 
 Reviewer: skeptical-tester
 Chapter: `getting-started.asc` (chapter 1 of 48)
-morloc-manager version tested: 0.25.0
+mim version tested: 0.25.0
 morloc compiler version in container: 0.93.0
 Container image: `ghcr.io/morloc-project/morloc/morloc-full:edge`
 
@@ -13,17 +13,17 @@ tree that did not exist on the host or on the VM. I cloned
 `morloc-project/morloc-project.github.io` and `morloc-project/morloc`
 into `/tmp/morloc-docs` and `/tmp/morloc-compiler` respectively, and
 symlinked them into the expected paths so I could actually read the
-chapter and grep the compiler. The `morloc-manager` binary the
-Vagrantfile pre-installed at `/usr/local/bin/morloc-manager` was a
+chapter and grep the compiler. The `mim` binary the
+Vagrantfile pre-installed at `/usr/local/bin/mim` was a
 `404: Not Found` HTML string, not an ELF. I downloaded the real
-`morloc-manager-linux-x86_64` from the v0.93.0 release. These are
+`mim-linux-x86_64` from the v0.93.0 release. These are
 harness bugs, not doc bugs, and I mention them only so the human
 running this pass knows why the report is one chapter deep instead of
 never-having-started.
 
 ## Findings
 
-### 1. `morloc-manager new` (as documented) fails to initialize C++/Python/R extensions — blocker
+### 1. `mim new` (as documented) fails to initialize C++/Python/R extensions — blocker
 
 **Severity:** blocker
 **Location:** `getting-started.asc :: Creating environments` (lines 152–160)
@@ -31,32 +31,32 @@ never-having-started.
 The documented invocation:
 
 ```
-$ morloc-manager new --non-interactive base
+$ mim new --non-interactive base
 Pulling ghcr.io/morloc-project/morloc/morloc-full:latest...
 Created environment: base
 Initializing morloc (this may take several minutes)...
 Environment 'base' is ready.
-Activate it with: morloc-manager select base
+Activate it with: mim select base
 ```
 
 ...does not succeed on a stock docker install. What I actually see:
 
 ```
-$ morloc-manager -v new --non-interactive base
-[morloc-manager] ... docker run ... -v /home/vagrant/.local/share/morloc/environments/base:/opt/morloc \
+$ mim -v new --non-interactive base
+[mim] ... docker run ... -v /home/vagrant/.local/share/morloc/environments/base:/opt/morloc \
   -e MORLOC_BIN_LINK_DIR=/home/vagrant/.local/share/morloc/bin ...
 [INFO] Force rebuild: cleaning init-owned artifacts
 ...
-[INFO] Installing pre-built morloc-manager
-cp /opt/morloc-rust-bin/morloc-manager /opt/morloc/bin/morloc-manager
-chmod +x /opt/morloc/bin/morloc-manager
+[INFO] Installing pre-built mim
+cp /opt/morloc-rust-bin/mim /opt/morloc/bin/mim
+chmod +x /opt/morloc/bin/mim
 [ERROR] Configuration failed: permission denied
 ```
 
 Then any C++ build fails:
 
 ```
-$ morloc-manager run -- morloc make units.loc
+$ mim run -- morloc make units.loc
 ...
 <command-line>: fatal error: morloc_pch.hpp: No such file or directory
 compilation terminated.
@@ -66,7 +66,7 @@ Root cause is in the compiler: `library/Morloc/CodeGenerator/SystemConfig.hs`
 lines ~239–255 reads `MORLOC_BIN_LINK_DIR` and calls
 `createDirectoryIfMissing True dir` on the container path
 `/home/vagrant/.local/share/morloc/bin`. During `morloc init`,
-morloc-manager only bind-mounts `.../environments/base:/opt/morloc` — it
+mim only bind-mounts `.../environments/base:/opt/morloc` — it
 does **not** bind-mount the host `/home/vagrant`. So `createFileLink`
 fails, an exception is raised, and the C++/Python/R init loop (which
 compiles `morloc_pch.hpp.gch`, `libcppmorloc.a`, `pymorloc.so`, etc.)
@@ -77,7 +77,7 @@ I worked around this by re-running `morloc init -f` directly against the
 container with `MORLOC_BIN_LINK_DIR=""` set. Only after that do all the
 docs' code examples build.
 
-A first-time reader would run `morloc-manager new --non-interactive base`,
+A first-time reader would run `mim new --non-interactive base`,
 see `[ERROR] Configuration failed: permission denied`, and be stuck.
 Either the manager/compiler needs to be fixed, or the docs need to
 explain the workaround. Since the docs are the surface being tested here,
@@ -122,7 +122,7 @@ Docs say:
 > `Pulling ghcr.io/morloc-project/morloc/morloc-full:latest...`
 > By default, the `new` subcommand pulls the latest Morloc release.
 
-`morloc-manager new --help` says the opposite:
+`mim new --help` says the opposite:
 
 ```
 Default (when --version, --tag, and --image are all omitted): pulls the
@@ -196,21 +196,21 @@ Nexus options (`--print`, `--output-file`, `--output-form`, `--keep-null`,
 soften the claim, show the shorter `-h` output, or point readers at
 `--help`.
 
-### 6. `morloc-manager run morloc <args>` (as used in the task prompt) is rejected; docs are correct — minor, but worth noting
+### 6. `mim run morloc <args>` (as used in the task prompt) is rejected; docs are correct — minor, but worth noting
 
 **Severity:** minor
 **Location:** `getting-started.asc :: The Morloc shell and first runs` (line 229)
 
-The docs correctly use `morloc-manager run -- morloc --version`. My
+The docs correctly use `mim run -- morloc --version`. My
 copy of the task prompt showed the un-dashed form. Confirming here that
 the manager actively rejects the un-dashed form:
 
 ```
-$ morloc-manager run morloc --version
+$ mim run morloc --version
 Error: unrecognized arguments for 'run'.
 
-Use -- to separate morloc-manager flags from the container command:
-  morloc-manager run -- morloc --version
+Use -- to separate mim flags from the container command:
+  mim run -- morloc --version
 ```
 
 Not a doc bug. Recording so the harness prompt (`test/chapter-context.md`
@@ -252,7 +252,7 @@ involved; nothing at all for a pure-morloc module".
 - Line 254: `That beind the case, let's install the Morloc standard
   library:` — `beind` → `being`.
 
-### 9. Docs example `morloc-manager info base` mixes `/home/z/` and `/home/username/` — minor
+### 9. Docs example `mim info base` mixes `/home/z/` and `/home/username/` — minor
 
 **Severity:** minor
 **Location:** `getting-started.asc :: Creating environments` (lines 189–221)

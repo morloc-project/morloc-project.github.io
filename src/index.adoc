@@ -203,6 +203,7 @@ include::{includedir}/interface-install.asc[]
 include::{includedir}/interface-expose.asc[]
 include::{includedir}/interface-data-transfer.asc[]
 include::{includedir}/interface-daemons.asc[]
+include::{includedir}/interface-mcp.asc[]
 
 == Managing Runs
 
@@ -217,13 +218,22 @@ include::{includedir}/runs-streaming.asc[]
 
 include::{includedir}/utilities-nexus-file.asc[]
 include::{includedir}/utilities-nexus-view.asc[]
-include::{includedir}/utilities-morloc-manager.asc[]
+include::{includedir}/utilities-mim.asc[]
 include::{includedir}/utilities-morloc-eval.asc[]
 
 == Modules and Libraries
 
 include::{includedir}/features-modules.asc[]
 include::{includedir}/ecosystem.asc[]
+
+== Language Support
+
+include::{includedir}/lang-parameters.asc[]
+include::{includedir}/lang-cpp.asc[]
+include::{includedir}/lang-py.asc[]
+include::{includedir}/lang-r.asc[]
+include::{includedir}/lang-rust.asc[]
+include::{includedir}/lang-futhark.asc[]
 
 == Installation, Versions, and Deployment
 
@@ -252,6 +262,10 @@ include::{includedir}/future-directions.asc[]
 == Q&A
 
 include::{includedir}/questions-and-answers.asc[]
+
+== Environmental Variable List
+
+include::{includedir}/environmental-variables.asc[]
 
 == Contact
 
