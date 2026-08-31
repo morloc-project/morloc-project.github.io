@@ -5550,42 +5550,42 @@ and provide access to the Morloc runtime.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@save</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int &#8594; a &#8594; Str &#8594; &lt;IO, Err&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int -&gt; a -&gt; Str -&gt; &lt;IO, Err&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Save a value as a morloc voidstar packet with a zstd compression level in <code>0..=9</code> (<code>0</code> = uncompressed). Arguments are <code>level</code>, <code>value</code>, <code>path</code>. Round-trips through <code>@load</code>. I/O failure raises <code>Err</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@savem</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; a &#8594; &lt;IO, Err&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; a -&gt; &lt;IO, Err&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file in MessagePack format (portable, compact). Path-first for partial application (<code>@savem path</code> is a reusable sink). I/O failure raises <code>Err</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@savej</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; a &#8594; &lt;IO, Err&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; a -&gt; &lt;IO, Err&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file as plain JSON text (human-readable). Path-first for partial application. I/O failure raises <code>Err</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@load</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO, Err&gt; a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;IO, Err&gt; a</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Load a value from file, auto-detecting the format (MessagePack, JSON, or morloc packet). Missing file, decode failure, and schema mismatch all raise <code>Err</code>; wrap in <code>@catch</code> to recover.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@show</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a -&gt; Str</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Serialize any value to a JSON string. Pure&#8201;&#8212;&#8201;no effect row.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@read</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;Err&gt; a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;Err&gt; a</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Parse a JSON string into a value of the expected type. Parse failure raises <code>Err</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@open</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO, Err&gt; a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;IO, Err&gt; a</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Open a stream file; <code>a</code> is resolved by inline ascription to <code>IFile a</code>, <code>IStream a</code>, or <code>OStream a</code>. See <a href="#_random_access_and_streaming">Random access and streaming</a>. Missing, unreadable, or non-packet files raise <code>Err</code>. Opening <code>/dev/stdin</code> reads process stdin: as <code>IStream a</code> it routes to the stdin channel (like <code>@stdin</code>); as <code>IFile a</code> it raises a catchable <code>Err</code>, since a pipe is not seekable.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@close</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; &lt;IO&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a -&gt; &lt;IO&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Given a stream file handle, close it&#8201;&#8212;&#8201;for an <code>OStream</code> this writes the final footer&#8201;&#8212;&#8201;and release the handle&#8217;s slot. Given a <code>Str</code> path (as produced by the whole-list <code>@with</code>/<code>@render</code> gather via <code>@tmpfile</code>), unlink that temporary file instead. Only files registered by the gather are removed; passing any other path is rejected rather than deleting it.</p></td>
 </tr>
 <tr>
@@ -5595,42 +5595,42 @@ and provide access to the Morloc runtime.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@fschema</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO, Err&gt; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;IO, Err&gt; Str</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Read a stream file&#8217;s element schema without binding a typed handle. Useful for runtime schema discovery. Missing or malformed files raise <code>Err</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@flen</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a &#8594; &lt;IO, Err&gt; Int</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a -&gt; &lt;IO, Err&gt; Int</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Total element count of an <code>IFile</code>, read from the file&#8217;s footer.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@write</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int &#8594; OStream a &#8594; [a] &#8594; &lt;IO, Err&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int -&gt; OStream a -&gt; [a] -&gt; &lt;IO, Err&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Append a list of elements to an <code>OStream</code>. The first argument is a zstd compression preset in <code>0..=9</code> (<code>0</code> = no compression); see <a href="#_compression">Compression</a> for the level table. I/O failure (disk full, broken pipe) raises <code>Err</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@flush</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OStream a &#8594; &lt;IO, Err&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OStream a -&gt; &lt;IO, Err&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Force buffered elements to disk as a sub-packet boundary.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@append</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO, Err&gt; (OStream a)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;IO, Err&gt; (OStream a)</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Reopen an existing stream file for further writes. Schema mismatch raises <code>Err</code> at open time before any bytes are written.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@concat</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[Str] &#8594; Str &#8594; &lt;IO, Err&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[Str] -&gt; Str -&gt; &lt;IO, Err&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Byte-level concatenate compatible stream files into a destination via <code>sendfile</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@next</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IStream a &#8594; &lt;IO, Err&gt; [a]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IStream a -&gt; &lt;IO, Err&gt; [a]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Pull the next sub-packet&#8217;s elements from an <code>IStream</code>. Returns <code>[]</code> at EOF. Mid-stream decode failures raise <code>Err</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stream</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a &#8594; &lt;IO&gt; IStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a -&gt; &lt;IO&gt; IStream a</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Derive a forward-walking <code>IStream</code> from an open <code>IFile</code>. The two share the underlying file but have independent cursors.</p></td>
 </tr>
 <tr>
@@ -5650,7 +5650,7 @@ and provide access to the Morloc runtime.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@collect</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; &lt;IO, e&gt; ( &#8594; &lt;IO, e&gt; ()) &#8594; &lt;IO, e&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>(([a] -&gt; &lt;IO, e&gt; ()) -&gt; &lt;IO, e&gt; ()) -&gt; &lt;IO, e&gt; ()</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Drive a streaming-output command. Takes a producer that is handed a <em>sink</em> (<code>[a] &#8594; &lt;IO, e&gt; ()</code>); <code>@collect</code> supplies the default sink&#8201;&#8212;&#8201;write each batch to the nexus-formatted <code>@stdout</code>&#8201;&#8212;&#8201;and manages the stream lifecycle. Formatter directives (<code>@with</code> / <code>@render</code>, with the <code>@stream</code> modifier for per-batch application) rewrite the sink to transform or gather the stream per CLI flag.</p></td>
 </tr>
 <tr>
@@ -5660,7 +5660,7 @@ and provide access to the Morloc runtime.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@hash</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a -&gt; Str</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Hash a value via MessagePack serialization (xxhash), returns a 16-character hex string</p></td>
 </tr>
 <tr>
@@ -5680,27 +5680,27 @@ and provide access to the Morloc runtime.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@datafile</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; Str</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Resolve a relative path to the installed data file location (resolved at compile time)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@schema</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a -&gt; Str</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The serialization schema string for the given type</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@typeof</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a &#8594; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a -&gt; Str</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The morloc abstract type name for the given type, e.g. <code>"Int"</code>, <code>"[Str]"</code>, <code>"?Real"</code>, <code>"(Int, Str)"</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@throw</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;Err&gt; a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;Err&gt; a</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Raise a <code>MorlocException</code> with the given message. Emits a native <code>raise</code>/<code>throw</code>/<code>stop</code> in the target language and never returns; the return type is polymorphic so <code>@throw</code> can inhabit any branch of a conditional.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@catch</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;Err, e&gt; a &#8594; &lt;e'&gt; a &#8594; &lt;(e \ Err) | e'&gt; a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;Err, e&gt; a -&gt; &lt;e'&gt; a -&gt; &lt;(e \ Err) | e'&gt; a</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Evaluate the fallible expression under a language-native try/catch; on any exception, evaluate the fallback and return its value. The result&#8217;s effect row is the union of the primary&#8217;s non-<code>Err</code> effects and the fallback&#8217;s declared row: a pure fallback strips <code>Err</code>, a fallible (<code>&lt;Err&gt;</code>-typed) fallback keeps it so failures can chain.</p></td>
 </tr>
 </tbody>
@@ -13854,28 +13854,56 @@ environment&#8217;s <strong>current</strong> morloc version; it never moves the 
 <div class="paragraph">
 <p><code>modify</code> changes an environment&#8217;s settings <strong>without</strong> moving its morloc version.
 Setting the default and copying dotfiles are instant; changing languages or
-system packages triggers a rebuild at the current version. <code>modify</code> validates
-the whole request before making any change, so an invalid combination never
-leaves an environment half-modified.</p>
+packages triggers a rebuild at the current version. <code>modify</code> validates the whole
+request before making any change, so an invalid combination never leaves an
+environment half-modified.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mim<span class="tok-w"> </span>modify<span class="tok-w"> </span>--env<span class="tok-w"> </span>myenv<span class="tok-w"> </span>--set-default<span class="tok-w">         </span><span class="tok-c1"># make it your default (no rebuild)</span>
 <span class="tok-gp">$ </span>mim<span class="tok-w"> </span>modify<span class="tok-w"> </span>--env<span class="tok-w"> </span>myenv<span class="tok-w"> </span>--dotfiles<span class="tok-w"> </span>~/dotfiles<span class="tok-w"> </span><span class="tok-c1"># copy dotfiles (no rebuild)</span>
 <span class="tok-gp">$ </span>mim<span class="tok-w"> </span>modify<span class="tok-w"> </span>--env<span class="tok-w"> </span>myenv<span class="tok-w"> </span>--lang<span class="tok-w"> </span>py@3.13<span class="tok-w">        </span><span class="tok-c1"># re-pin a language, then rebuild</span>
-<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>modify<span class="tok-w"> </span>--env<span class="tok-w"> </span>myenv<span class="tok-w"> </span>--system-packages<span class="tok-w"> </span>jq,vim<span class="tok-w"> </span><span class="tok-c1"># add OS packages, then rebuild</span>
-<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>modify<span class="tok-w"> </span>--env<span class="tok-w"> </span>myenv<span class="tok-w"> </span>--rm-system-packages<span class="tok-w"> </span>jq<span class="tok-w">  </span><span class="tok-c1"># remove one, then rebuild</span></code></pre>
+<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>modify<span class="tok-w"> </span>--env<span class="tok-w"> </span>myenv<span class="tok-w"> </span>--conda-packages-file<span class="tok-w"> </span>tools.conda<span class="tok-w"> </span><span class="tok-c1"># set conda packages</span>
+<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>modify<span class="tok-w"> </span>--env<span class="tok-w"> </span>myenv<span class="tok-w"> </span>--system-packages-file<span class="tok-w"> </span>tools.apt<span class="tok-w">  </span><span class="tok-c1"># set apt packages</span></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p><code>--system-packages</code>/<code>--rm-system-packages</code> apply only to container backends, take
-comma-separated lists (or repeat the flag), and the stored package list is updated
-only after the rebuild succeeds&#8201;&#8212;&#8201;a package that breaks the build leaves the list
-unchanged, so a typo never wedges the environment.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_language_toolchains"><a class="anchor" href="#_language_toolchains"></a>9.3.3. Language toolchains</h4>
+<h4 id="_packages"><a class="anchor" href="#_packages"></a>9.3.3. Packages</h4>
+<div class="paragraph">
+<p>Beyond language runtimes, an environment can carry extra packages from two
+sources, each supplied as a file&#8201;&#8212;&#8201;one package per line, with <code>#</code> comments and
+blank lines ignored:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>--conda-packages-file &lt;file&gt;</code> adds conda packages from conda-forge, such as
+command-line utilities like <code>jq</code>, <code>ripgrep</code>, or <code>hyperfine</code>. Each line is a
+conda match-spec: a bare name takes the latest compatible version, or pin one
+(<code>hyperfine&gt;=1.18</code>, <code>numpy=1.26</code>, <code>cmake&lt;4</code>). Conda packages work on <strong>every</strong>
+backend, native included.</p>
+</li>
+<li>
+<p><code>--system-packages-file &lt;file&gt;</code> adds OS packages installed with the base
+image&#8217;s package manager (apt), for things conda-forge does not carry&#8201;&#8212;&#8201;<code>locales</code>, <code>linux-tools-generic</code>, kernel-matched tooling. These are baked into
+the image, so they apply to <strong>container backends only</strong>; requesting them on a
+native environment is an error. Prefer <code>--conda-packages-file</code> for anything on
+conda-forge.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Both flags are accepted by <code>new</code> and <code>modify</code>. The file is the <strong>whole</strong> list for
+that source: passing it <strong>replaces</strong> the environment&#8217;s stored packages for that
+source, so to add or remove one package you edit the file and re-apply. Changing
+either list triggers a rebuild at the current morloc version, and the stored list
+is updated only after the rebuild succeeds&#8201;&#8212;&#8201;a package that breaks the build
+leaves the previous list intact, so a typo never wedges the environment.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_language_toolchains"><a class="anchor" href="#_language_toolchains"></a>9.3.4. Language toolchains</h4>
 <div class="paragraph">
 <p><code>--lang</code> provisions a language runtime into an environment, at <code>new</code> or <code>modify</code>
 time. Each value is a language name or a <code>lang@version</code> pin, and the flag is
@@ -13898,7 +13926,7 @@ error. <code>--lang futhark</code> installs a fixed, tested futhark release.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_development_environments"><a class="anchor" href="#_development_environments"></a>9.3.4. Development environments</h4>
+<h4 id="_development_environments"><a class="anchor" href="#_development_environments"></a>9.3.5. Development environments</h4>
 <div class="paragraph">
 <p>A <strong>development environment</strong> mounts a morloc source tree and provisions the
 <strong>tooling</strong> to build it, giving contributors (and coding agents) a uniform,
@@ -13915,31 +13943,48 @@ morloc source checkout:</p>
 via ghcup and provisions the language runtimes with pixi&#8201;&#8212;&#8201;but it does <strong>not</strong>
 build morloc. That is deliberate: an in-development source may not compile, and
 that must never block creating the environment. You build the compiler and
-runtime yourself, in the dev shell, where the toolchain and the mounted source
-(at <code>/opt/morloc-src</code>) are on <code>PATH</code>:</p>
+runtime yourself, in the dev shell, where the toolchain (<code>stack</code>, <code>ghc</code>, <code>cargo</code>)
+is on <code>PATH</code>. The dev shell does <strong>not</strong> mount the source at a fixed path: it opens
+in your host working directory (bind-mounted at <code>/work</code>), so <code>cd</code> into your morloc
+checkout on the host first, then open the shell and build from there:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mim<span class="tok-w"> </span>shell<span class="tok-w"> </span>--env<span class="tok-w"> </span>dev
-<span class="tok-gp"># </span>inside<span class="tok-w"> </span>the<span class="tok-w"> </span>container:
-<span class="tok-gp">$ </span><span class="tok-nb">cd</span><span class="tok-w"> </span>/opt/morloc-src<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">    </span><span class="tok-o">&amp;&amp;</span><span class="tok-w"> </span>stack<span class="tok-w"> </span>install<span class="tok-w"> </span>morloc:exe:morloc<span class="tok-w"> </span>morloc:exe:morloc-codegen-generic<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">         </span>--local-bin-path<span class="tok-w"> </span>/opt/morloc-runtime<span class="tok-w"> </span><span class="tok-se">\</span>
-<span class="tok-w">    </span><span class="tok-o">&amp;&amp;</span><span class="tok-w"> </span>morloc<span class="tok-w"> </span>init<span class="tok-w"> </span>-f</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span><span class="tok-nb">cd</span><span class="tok-w"> </span>/path/to/morloc<span class="tok-w">      </span><span class="tok-c1"># on the host: your source checkout</span>
+<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>shell<span class="tok-w"> </span>--env<span class="tok-w"> </span>dev
+<span class="tok-gp"># </span>inside<span class="tok-w"> </span>the<span class="tok-w"> </span>container,<span class="tok-w"> </span>now<span class="tok-w"> </span><span class="tok-k">in</span><span class="tok-w"> </span>/work<span class="tok-w"> </span><span class="tok-o">(</span>your<span class="tok-w"> </span>checkout<span class="tok-o">)</span>:
+<span class="tok-gp">$ </span>stack<span class="tok-w"> </span>install<span class="tok-w"> </span>morloc:exe:morloc<span class="tok-w"> </span>morloc:exe:morloc-codegen-generic<span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">    </span>--local-bin-path<span class="tok-w"> </span>/opt/morloc-runtime
+<span class="tok-gp">$ </span><span class="tok-nv">MORLOC_RUST_DIR</span><span class="tok-o">=</span><span class="tok-s2">&quot;</span><span class="tok-nv">$PWD</span><span class="tok-s2">/data/rust&quot;</span><span class="tok-w"> </span>morloc<span class="tok-w"> </span>init<span class="tok-w"> </span>-f</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The source, the compiler you build, and the build caches all live in host-mounted
-directories, so <code>stack</code>, <code>ghc</code>, and <code>cargo</code> sit alongside the language runtimes
-and edits persist across shells. A dev environment is local-scope and
-docker/podman only, and its default name is <code>dev</code>. <code>--dev</code> is compatible with
-<code>--morloc-version</code>, which sets the <strong>stdlib</strong> base the environment tracks; the
-compiler itself is whatever you build from the source. <code>freeze</code> is refused, since
-a mutable source mount is not reproducible, and <code>info</code> reports the source path.</p>
+<p>Because the source is reached through the working-directory mount rather than a
+dedicated one, point <code>morloc init</code>/<code>morloc make</code> at the Rust workspace with
+<code>MORLOC_RUST_DIR</code> (its <code>data/rust</code> subdirectory) when you rebuild the runtime. The
+compiler you build and the build caches live in host-mounted directories, so
+<code>stack</code>, <code>ghc</code>, and <code>cargo</code> sit alongside the language runtimes and edits persist
+across shells. A dev environment is local-scope and docker/podman only, and its
+default name is <code>dev</code>. <code>--dev</code> is compatible with <code>--morloc-version</code>, which sets
+the <strong>stdlib</strong> base the environment tracks; the compiler itself is whatever you
+build from the source. <code>freeze</code> is refused, since a dev environment is not
+reproducible, and <code>info</code> reports the source path.</p>
+</div>
+<div class="paragraph">
+<p>To round out a development environment with the tools you work with&#8201;&#8212;&#8201;linters,
+profilers, language servers&#8201;&#8212;&#8201;add them from conda-forge with
+<code>--conda-packages-file</code> (see <a href="#_packages">Packages</a>), which behaves the same here as on any
+other environment:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mim<span class="tok-w"> </span>new<span class="tok-w"> </span>--dev<span class="tok-w"> </span>/path/to/morloc<span class="tok-w"> </span>--engine<span class="tok-w"> </span>podman<span class="tok-w"> </span><span class="tok-se">\</span>
+<span class="tok-w">    </span>--conda-packages-file<span class="tok-w"> </span>dev-tools.conda<span class="tok-w">   </span><span class="tok-c1"># e.g. jq, ripgrep, hyperfine, nodejs</span></code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_inspecting_an_environment"><a class="anchor" href="#_inspecting_an_environment"></a>9.3.5. Inspecting an environment</h4>
+<h4 id="_inspecting_an_environment"><a class="anchor" href="#_inspecting_an_environment"></a>9.3.6. Inspecting an environment</h4>
 <div class="paragraph">
 <p><code>mim info &lt;name&gt;</code> describes an environment as four groups: its
 identity and materialization status, the <strong>folders</strong> it occupies on the host, the
@@ -13980,7 +14025,7 @@ as machine-readable JSON, and <code>--packages --json</code> prints just the pac
 </div>
 </div>
 <div class="sect3">
-<h4 id="_checking_environment_health"><a class="anchor" href="#_checking_environment_health"></a>9.3.6. Checking environment health</h4>
+<h4 id="_checking_environment_health"><a class="anchor" href="#_checking_environment_health"></a>9.3.7. Checking environment health</h4>
 <div class="paragraph">
 <p><code>mim doctor [&lt;name&gt;]</code> runs read-only health checks against an
 environment and exits non-zero if any check fails, so it fits a setup script or
@@ -14004,7 +14049,7 @@ machine-readable report, and <code>--strict</code> to treat warnings as failures
 </div>
 </div>
 <div class="sect3">
-<h4 id="_the_environment_home_and_dotfiles"><a class="anchor" href="#_the_environment_home_and_dotfiles"></a>9.3.7. The environment home and dotfiles</h4>
+<h4 id="_the_environment_home_and_dotfiles"><a class="anchor" href="#_the_environment_home_and_dotfiles"></a>9.3.8. The environment home and dotfiles</h4>
 <div class="paragraph">
 <p>Under the Docker and Podman backends a container runs as your host user but
 does <strong>not</strong> mount your host <code>$HOME</code>. Each such environment instead owns a
@@ -14074,7 +14119,7 @@ non-interactive <code>morloc make</code>, so build-time settings belong elsewher
 </div>
 </div>
 <div class="sect3">
-<h4 id="_serving_installed_programs"><a class="anchor" href="#_serving_installed_programs"></a>9.3.8. Serving installed programs</h4>
+<h4 id="_serving_installed_programs"><a class="anchor" href="#_serving_installed_programs"></a>9.3.9. Serving installed programs</h4>
 <div class="paragraph">
 <p>Beyond managing environments, <code>mim</code> runs the <strong>serving lifecycle</strong>
 that exposes compiled programs to AI assistants (over MCP) and to HTTP clients
@@ -14771,13 +14816,12 @@ with the <code>morloc install</code> command:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The positional arguments to <code>morloc install</code> are <strong>install strings</strong>.
-Each describes one module to install and optionally pins it to a
-specific commit, branch, or release tag. The same shape is used in
-the <code>morloc-dependencies</code> entries of a <code>package.yaml</code>. More than one
-install string may be passed in a single invocation, in which case
-each is installed in turn (any transitive dependencies are also
-installed automatically).</p>
+<p>The positional arguments to <code>morloc install</code> are <strong>install strings</strong>. Each
+describes one module to install and optionally pins it to a specific commit,
+branch, or release tag. The same shape is used in the <code>morloc-deps</code> entries of a
+<code>package.yaml</code>. More than one install string may be passed in a single
+invocation, in which case each is installed in turn (any transitive dependencies
+are also installed automatically).</p>
 </div>
 <div class="listingblock">
 <div class="content">
