@@ -179,25 +179,31 @@ include::{includedir}/features-intrinsics.asc[]
 include::{includedir}/types-term-polymorphism.asc[]
 include::{includedir}/types-typeclasses.asc[]
 include::{includedir}/features-infix.asc[]
-include::{includedir}/types-custom-types.asc[]
-include::{includedir}/types-source.asc[]
 include::{includedir}/types-newtype.asc[]
+include::{includedir}/types-custom-types.asc[]
 include::{includedir}/types-kinds.asc[]
 include::{includedir}/features-tensors.asc[]
 include::{includedir}/features-tables.asc[]
 
-== Buildings CLIs
+[[building-clis]]
+== Building CLIs
 
 include::{includedir}/cli-intro.asc[]
+include::{includedir}/cli-zones.asc[]
 include::{includedir}/cli-docstrings.asc[]
-include::{includedir}/cli-composition.asc[]
 include::{includedir}/cli-arguments.asc[]
-include::{includedir}/cli-shape.asc[]
 include::{includedir}/cli-parameterization.asc[]
+include::{includedir}/cli-shape.asc[]
+include::{includedir}/cli-stdin.asc[]
 include::{includedir}/cli-output.asc[]
+include::{includedir}/cli-actions.asc[]
 include::{includedir}/cli-streaming.asc[]
+include::{includedir}/cli-composition.asc[]
+include::{includedir}/cli-introspection.asc[]
+include::{includedir}/cli-reference.asc[]
 
-== Buildings APIs
+[[building-apis]]
+== Building APIs
 
 include::{includedir}/interface-install.asc[]
 include::{includedir}/interface-expose.asc[]
