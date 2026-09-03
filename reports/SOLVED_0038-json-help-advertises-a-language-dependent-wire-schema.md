@@ -1,6 +1,6 @@
 # 0038: `--json-help` advertises a wire schema that changes with the pool language
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-03, reanalysing reports/0026 and 0028
 - Component: compiler
 - morloc: 0.100.2     mim: 0.28.0
@@ -71,3 +71,26 @@ Unverified. `--json-help` appears to emit the concrete (pool-resolved) schema
 because that is what the manifest already carries for dispatch. The general
 schema is the one that belongs in an interface description; both may be worth
 carrying, under distinct names.
+
+## Resolution
+
+Fixed in `morloc` commit `7078c867`.
+
+`--json-help` now publishes a general wire schema -- concrete-type hints
+stripped -- so the advertised contract no longer moves when the implementation
+language does:
+
+```
+record Py => Point = "dict"    dispatched: a<dict>m21xj1yj    published: am21xj1yj
+(that line deleted)            dispatched: a<Point>m21xj1yj   published: am21xj1yj
+```
+
+The concrete schema is still emitted and is still what the runtime dispatches
+on; it is what the pool speaks. The manifest carries both, and the two differ
+in exactly one clause of the schema emitter, which is now that emitter's only
+parameter.
+
+This is `reports/0031` seen from the other side. That one remains open: a
+stdin reader still compares concrete schemas and rejects bytes a file reader
+accepts. Fixing it should be able to use the general form this change
+introduces.

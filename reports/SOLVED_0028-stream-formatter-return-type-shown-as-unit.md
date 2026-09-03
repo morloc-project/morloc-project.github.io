@@ -1,6 +1,6 @@
 # 0028: a `@stream` formatter is listed as returning `Unit` although it writes typed elements
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, during the "Building CLIs" documentation pass
 - Component: nexus
 - morloc: 0.100.2     mim: 0.28.0
@@ -108,3 +108,40 @@ level -- the elements leave through the sink, not the return slot -- so the
 help is reading the synthesized signature rather than the handler's element
 type. The whole-list case differs because there the handler result *is* the
 return value.
+
+## Resolution
+
+Fixed in `morloc` commit `7078c867`.
+
+The `Return:` block now documents standard output rather than the value the
+function returns, which are the same thing for every command except a
+streaming one. The report named the `@stream` rows; `default` was wrong in the
+same way, and `--json-help` was worse -- it published
+`{"morloc": "Unit", "wire": "z", "structure": {"type": "null"}}` for a command
+that writes a stream of records.
+
+For a streaming command with four actions:
+
+```
+Return:
+  default:       [Hit]                 (was Unit)
+  -p/--plain:    Str    (raw bytes)    (was Unit)
+  -c/--count:    U64
+  -n/--staged:   Int
+  -N/--numbered: [Str]                 (was Unit)
+```
+
+`(raw bytes)` marks a `@render` action, whose bytes go out verbatim and which
+`-f` therefore does not touch.
+
+The batch type comes from the producer's declared signature, not from
+inference: `@collect` takes a function of exactly one parameter -- the sink --
+so the sink is the last parameter of the producer's type however many
+arguments were already applied, and the sink's own parameter is what reaches
+stdout. A producer with no reachable signature records nothing and consumers
+fall back to the return type; absent means "not known", never "produces
+nothing".
+
+`--json-help` gained `return.streaming` and, per terminal, the `type` object it
+had never carried at all. `morloc list -v` reported the same lie
+(`stream :: Unit`) and now reports `stream :: [Hit]`.
