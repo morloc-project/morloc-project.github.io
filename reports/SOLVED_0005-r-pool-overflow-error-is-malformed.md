@@ -94,3 +94,13 @@ Unverified: the R pool wraps its message with `Error in R pool (<file>:<line> in
 <fn>):` and the nexus then prefixes `Error: `, while the {cpp} path passes the
 bare message through. Making the R path emit the bare message (and keeping the
 file/line only under a debug flag) would align the two.
+
+## Resolution
+
+Fixed in `morloc` commit `e18a2021`.
+
+The R binder no longer decorates user-attributable failures with the C source
+file, line, and function that raised them, and it no longer lets R prepend its
+own `Error in .Call(...)` frame to a message morloc already wrote. An overflow
+now reports the value, the target type, and the manifold that asked for the
+conversion, and nothing else.

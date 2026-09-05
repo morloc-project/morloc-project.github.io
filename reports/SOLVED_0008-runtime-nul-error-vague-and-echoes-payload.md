@@ -220,3 +220,18 @@ Options, none of them free:
 Option 2 looks right -- the compiler already knows every call's target
 language, so the check can be generated exactly where it can fire -- but it
 needs a decision before implementation.
+
+## Resolution
+
+Fixed in `morloc` commit `886aba83`.
+
+The cross-pool half of the guard is now reachable: the schema-walking scanner
+was written but had no caller and was not exported, so only JSON arguments at
+the nexus were ever checked. Codegen decides per deserialization -- it knows the
+receiving language and whether the type contains a string at all -- and passes a
+flag to the binder, so a value that cannot carry a NUL costs nothing and a
+NUL-tolerant pool is compiled exactly as before. The error names the access path
+to the offending slot and no longer echoes the payload.
+
+Not covered: interior NULs in Arrow-backed table columns, which the walk does
+not descend into.

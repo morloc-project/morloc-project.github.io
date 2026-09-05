@@ -9,14 +9,21 @@ echo "Building site..."
 # Create the 'site' directory if it doesn't exist
 mkdir -p "${script_dir}/docs/docs"
 
-# Copy files to the 'docs' directory
+# Site root: the landing page and the crawler file
 for path in \
   "index.html" \
-  "manifest.webmanifest" \
-  "robots.txt" \
-  "service-worker.js"
+  "robots.txt"
 do
   cp -r "${script_dir}/src/${path}" "${script_dir}/docs"
+done
+
+# The manual: the PWA is scoped to /docs/, so its manifest and service worker
+# sit beside the page that registers them, not at the site root.
+for path in \
+  "manifest.webmanifest" \
+  "service-worker.js"
+do
+  cp -r "${script_dir}/src/${path}" "${script_dir}/docs/docs"
 done
 
 # Copy static files

@@ -1,6 +1,6 @@
 # 0022: docstring warnings are computed but only printed when the build fails
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, during the "Building CLIs" documentation pass
 - Component: compiler
 - morloc: 0.100.2     mim: 0.28.0
@@ -79,3 +79,28 @@ misspelled key.
 An unparseable *value* was silently dropped the same way (`rsize: two` became
 no directive at all); that half is fixed -- the value is now validated where it
 is parsed. The unknown-*key* half is this report.
+
+## Resolution
+
+Fixed in `morloc` commit `73852ad2`.
+
+`writeMorlocReturn` now prints the accumulated message log on both branches, so
+every warning the compiler raises reaches stderr on a build that succeeds. The
+guess in this report was correct: the success branch was
+`writeMorlocReturn ((Right _, _), _) = return True`, which discarded `msgs`.
+The fix is not specific to docstrings -- all warnings share that one log -- but
+docstring warnings are the only thing emitting into it today.
+
+Both halves this report names are covered: the unknown argument directive
+(`@nosuchdirective`, `@metvar`) and the unknown `source` directive (`@rsizee`).
+The `\` escape stays silent.
+
+The warning text also stopped teaching the retired spelling. It used to end
+"(e.g. '\rsizee:')", which was harmless while the message was unreachable and
+wrong the moment it became the first thing a beginner reads. It now states the
+backslash rule without picking a spelling, since the warning fires for both the
+`@keyword` and the transitional `key:` forms.
+
+Covered by `test-suite/golden-tests/docstring-warnings`, which asserts on a
+build that SUCCEEDS -- the program builds and runs -- and greps `build.err` for
+each directive name.

@@ -97,3 +97,14 @@ Unverified: the subsumption/application loop probably keeps trying to peel
 another argument off a result type that is not a function, instantiating a
 fresh existential each time and never reaching a fixed point. The arity-0 case
 takes a different path (there is no argument to peel) and reports correctly.
+
+## Resolution
+
+Fixed in `morloc` commit `b28b7f84`.
+
+A definition with more parameters than its signature has arrows now re-nests the
+surplus parameters against the result type instead of driving eta-expansion with
+a non-positive count, which looped. The re-nesting takes no position on whether
+the extra parameters are legal -- it preserves the declared shape and lets the
+ordinary check decide -- so a genuine arity error is reported as one and a
+curried result type still works.

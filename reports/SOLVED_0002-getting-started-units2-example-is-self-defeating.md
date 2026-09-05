@@ -1,6 +1,6 @@
 # 0002: the getting-started "language-agnostic units" example imports the wrong file
 
-- Status: not-a-bug (documentation defect)
+- Status: fixed (documentation defect)
 - Found: 2026-09-02, while testing the getting-started examples verbatim
 - Component: docs
 - morloc: 0.100.2     mim: 0.28.0
@@ -49,6 +49,17 @@ concrete. It was not. Anyone who later removes `units.loc` and expects
 
 ## Resolution
 
-Give the agnostic module a distinct name and file (e.g. `units-abstract.loc`
-declaring `module unitsAbstract`) and import that explicitly, so the demonstration
-actually depends on `root-cpp`.
+Fixed in `morloc-project.github.io`, `src/content/getting-started.asc`.
+
+The agnostic module now has a distinct name and file -- `units-abstract.loc`
+declaring `module unitsAbstract` -- and the consumer is `convert.loc` doing
+`import .units-abstract` plus `import root-cpp`. Verified on morloc 0.100.2 that
+`morloc typecheck units-abstract.loc` reports both signatures, `morloc make
+units-abstract.loc` fails with "No implementation found for '+'", and
+`morloc make convert.loc && ./convert cels2fahr 100` prints `212` with a compile
+line that includes `root-cpp` rather than the project directory. Swapping
+`root-cpp` for `root-py` builds a `py` pool from the same abstract module.
+
+The same pass corrected a second error in the section: the console block after
+the Python swap listed `convert-py-build/pools/`. The build directory is keyed
+on the source basename, so it is `convert-build/` in both cases.

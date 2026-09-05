@@ -1,6 +1,6 @@
 # 0012: a `newtype` at a foreign-function boundary needs a `Packable` instance even when its native form matches its wire parent's
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, writing the "Advanced Types" newtype section
 - Component: compiler
 - morloc: 0.100.2     mim: 0.28.0
@@ -110,3 +110,31 @@ Unverified: the serialization tree builder looks for a `Packable` entry keyed
 on the newtype and never falls back to "the native forms are identical, emit
 an identity conversion", even though `root-py`'s `Packable (List a) (Deque a)`
 comment says such a short-circuit exists.
+
+## Resolution
+
+Fixed in `morloc` commit `7accdbfe`, completed by `2fdbb3de`.
+
+The two alias-shape classifiers in `Serial.hs` are meant to mirror each other,
+one for a bare type and one for an applied one. The applied classifier routes a
+leaf wire parent through the parent's serializer:
+
+```haskell
+Just expanded@(VarU _) -> AliasIsOther expanded
+```
+
+The bare one had no such arm, so a leaf body fell to `AliasIsNone` and on to the
+Packable lookup, which found nothing. That is why `newtype Stack a = List a`
+worked while `newtype Name = Str` did not: a list-shaped body matched an arm and
+a leaf-shaped one had nowhere to go. The file's own comment recorded the gap.
+
+The arm is now present. It was first landed guarded, so that it fired only for
+a type declaring no per-language form of its own -- expanding through the
+parent discards a declared native form, which is report 0045. `2fdbb3de`
+replaced that guard with `setSerialHead`, which re-attaches the newtype's name
+to the head of the serializer built from the parent, so a declared form
+reaches the pool as a schema hint instead of being discarded. Both reports are
+closed by the same mechanism.
+
+Covered by `test-suite/golden-tests/newtype-wire-parent`, which exercises seven
+newtype shapes across a language boundary.

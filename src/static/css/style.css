@@ -268,22 +268,30 @@ body::-webkit-scrollbar-thumb,
 
 /* ======================================================= DARK MODE =========================================================== */
 
-body.dark,
-body.dark .btn,
-body.dark table,
-body.dark th {
+html {
+	color-scheme: light;
+}
+
+html.dark {
+	color-scheme: dark;
+}
+
+html.dark body,
+html.dark .btn,
+html.dark table,
+html.dark th {
 	background-color: black;
 	color: #e0e0e0;
 }
 
 
-body.dark .copy-button .copy-icon {
+html.dark .copy-button .copy-icon {
   display: block;
   stroke: orange;
   transition: stroke 0.2s;
 }
 
-body.dark pre.pygments code[data-lang]::after {
+html.dark pre.pygments code[data-lang]::after {
   content: attr(data-lang);
   position: absolute;
   left: 0em;
@@ -296,95 +304,95 @@ body.dark pre.pygments code[data-lang]::after {
   pointer-events: none;
 }
 
-body.dark .btn {
+html.dark .btn {
 	box-shadow: 0 0 5px #616161;
 	border: 1px solid black;
 }
 
-body.dark .btn:focus {
+html.dark .btn:focus {
 	box-shadow: 0 0 5px #9e9e9e;
 }
 
-body.dark .theme-switcher {
+html.dark .theme-switcher {
 	background: url("../img/sun.svg") no-repeat center;
 }
 
-body.dark h1,
-body.dark h2,
-body.dark h3,
-body.dark h4,
-body.dark h5,
-body.dark h6,
-body.dark #toctitle,
-body.dark .sidebarblock .title,
-body.dark .imageblock .title {
-	color: #ff8a80 !important;
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6,
+html.dark #toctitle,
+html.dark .sidebarblock .title,
+html.dark .imageblock .title {
+	color: #ff8800 !important;
 }
 
-body.dark code,
-body.dark pre {
+html.dark code,
+html.dark pre {
 	background-color: #424242 !important;
 	color: #e0e0e0;
 }
 
-body.dark .sectlevel1 li a {
-	color: #ff8a80 !important;
+html.dark .sectlevel1 li a {
+	color: #ff8800 !important;
 }
 
-body.dark a,
-body.dark a code,
-body.dark .sectlevel2 li a {
+html.dark a,
+html.dark a code,
+html.dark .sectlevel2 li a {
 	color: #90caf9 !important;
 }
 
-body.dark a:hover,
-body.dark a:hover code,
-body.dark a code:hover,
-body.dark .sectlevel2 li a:hover {
+html.dark a:hover,
+html.dark a:hover code,
+html.dark a code:hover,
+html.dark .sectlevel2 li a:hover {
 	color: #42a5f5 !important;
 }
 
-body.dark #toc,
-body.dark .pwa-install-div {
+html.dark #toc,
+html.dark .pwa-install-div {
 	background-color: black !important;
 }
 
-body.dark #toc {
+html.dark #toc {
 	border-left-color: #212121;
 	border-right-color: #212121;
 }
 
-body.dark .pwa-install-div {
+html.dark .pwa-install-div {
 	box-shadow: 0 0 5px #424242;
 }
 
-body.dark #pwa-install-btn {
+html.dark #pwa-install-btn {
 	box-shadow: 0 0 5px #424242;
 	background-color: #e0e0e0;
 	border: 1px solid #e0e0e0;
 	color: black;
 }
 
-body.dark li,
-body.dark p,
-body.dark .details,
-body.dark td,
-body.dark blockquote,
-body.dark .attribution cite {
+html.dark li,
+html.dark p,
+html.dark .details,
+html.dark td,
+html.dark blockquote,
+html.dark .attribution cite {
 	color: #e0e0e0 !important;
 }
 
-body.dark .sidebarblock {
+html.dark .sidebarblock {
 	background-color: #212121 !important;
 }
 
-body.dark::-webkit-scrollbar-track,
-body.dark #toc::-webkit-scrollbar-track {
+html.dark body::-webkit-scrollbar-track,
+html.dark #toc::-webkit-scrollbar-track {
 	background-color: #212121;
 }
 
-body.dark::-webkit-scrollbar-thumb,
-body.dark #toc::-webkit-scrollbar-thumb {
+html.dark body::-webkit-scrollbar-thumb,
+html.dark #toc::-webkit-scrollbar-thumb {
 	background-color: #616161;
 }
 

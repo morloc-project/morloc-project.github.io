@@ -1,6 +1,6 @@
 # 0024: `@false` silently discards the short option, and the reverse flag is hidden from help
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, during the "Building CLIs" documentation pass
 - Component: compiler, nexus
 - morloc: 0.100.2     mim: 0.28.0
@@ -92,3 +92,36 @@ the manifest slot `long_rev` cannot carry a short option at all.
 
 Hidden: `data/rust/morloc-nexus/src/phase2.rs:524` builds the reverse arg with
 `.hide(true)`.
+
+## Resolution
+
+Fixed in `morloc` commit `84ef912f`.
+
+Both causes this report identifies were correct.
+
+The manifest had one slot for the reverse spelling and it held a long name, so
+`flagRevJson` mapped `CliOptBoth` to just the long name and `CliOptShort` to
+null. A reverse spelling now occupies two slots, `long_rev` and `short_rev`,
+the same split the forward spelling already had. That also repairs a case this
+report did not reach: `@false -q`, with no long name, previously produced no
+reverse flag at all.
+
+The nexus built the reverse argument with `.hide(true)`. It no longer does; the
+reverse spelling is a flag the author declared, and it carries a help line
+naming the flag it turns off:
+
+```
+Optional arguments:
+  -v, --verbose  verbose on/off
+                 type: Bool
+                 default: false
+  -q, --quiet    Turn --verbose off
+```
+
+`-q`, `--quiet`, and the short-only and long-only declarations all dispatch,
+and `overrides_with` still makes the last spelling on the command line win.
+`--json-help` gains a `short_reverse` field alongside `long_reverse`, and shell
+completions offer the short reverse name.
+
+Covered by `test-suite/golden-tests/flag-reverse-spelling`, which exercises all
+three declaration shapes through help, dispatch and `--json-help`.

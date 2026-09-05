@@ -1,6 +1,6 @@
 # 0010: the `interface-install.asc` examples use an effect `Rand` that does not exist
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, while writing the mim tutorials (morloc-manager)
 - Component: docs
 - morloc: 0.100.2     mim: 0.28.0
@@ -55,3 +55,24 @@ snippets are illustrative fragments in a section that explicitly teaches
 Unverified: `Rand` looks like the effect's older name. Worth grepping the
 compiler history for the rename to `Random` and checking whether anything else
 in the corpus still says `Rand`.
+
+## Resolution
+
+Fixed in `morloc-project.github.io`, `src/content/interface-install.asc`.
+
+All ten signatures now annotate `<Random>`, the effect the stdlib's `random`
+module declares, and `fate.loc` imports `random`. Verified on morloc 0.100.2 by
+building all three modules: `fate` installs with `morloc install ./fate` and
+`fate roll 3 8` rolls; `tavern` builds against the installed module and
+`randomClass` / `randomRace` return values; `combat` builds across Python and R
+and `rollAdv`, `fighterDamage 15` and `intro "goblin"` all run.
+
+One detail differs from this report's guess about the size of the fix: only
+`fate.loc` needs `import random`. An effect name reaches `tavern` and `combat`
+transitively through `import fate (...)`, so those two modules needed the
+rename alone.
+
+Unrelated and left alone: `morloc make` warns "skipping generic export
+'choose'" because `choose :: [a] -> <Random> a` is polymorphic and so has no
+CLI form. The module still installs and `tavern` imports `choose` normally,
+which is all this section asks of it.

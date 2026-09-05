@@ -1,9 +1,10 @@
-const cacheName = "v0.1.5";
+const cacheName = "v0.1.6";
 const cacheAssets = [
 	"./",
 	"./index.html",
-	"./robots.txt",
 	"./static/css/style.css",
+	"./static/css/pygments-light.css",
+	"./static/css/pygments-dark.css",
 	"./static/js/script.js",
 	"./static/img/admonition_icons/tip.png",
 	"./static/img/admonition_icons/warning.png",

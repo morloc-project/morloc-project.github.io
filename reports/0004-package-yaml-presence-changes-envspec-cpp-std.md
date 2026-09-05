@@ -51,14 +51,39 @@ the moment the solver starts honoring `std` to choose a compiler, at which
 point "did this project happen to have a package.yaml" would silently decide
 the C++ standard.
 
-## Guess
+## Cause
 
-Unverified, but it looks like a straight divergence between two defaults for
-the same field:
+Confirmed: a straight divergence between two defaults for the same field.
 
-- `Defaultable PackageMeta` (used when no `package.yaml` is found) sets
-  `packageCppVersion = 20` -- `library/Morloc/Namespace/State.hs:935`
-- `FromJSON PackageMeta` uses `o .:? "cpp-version" .!= 0` -- same file, ~line 1000
+- `Defaultable PackageMeta` (used when no `package.yaml` is found) set
+  `packageCppVersion = 20` -- `library/Morloc/Namespace/State.hs`
+- `FromJSON PackageMeta` used `o .:? "cpp-version" .!= 0` -- same file
 
-and `EnvSpec.hs` then emits `std` only when `cppVer > 0`. The two defaults
-should agree; 20 is presumably the intended one.
+and `EnvSpec.hs` emits `std` only when `cppVer > 0`, so the parsed-but-unset
+case fell through the guard.
+
+## Fix (written 2026-09-02, NOT yet built or committed)
+
+`library/Morloc/Namespace/State.hs`: both defaults now read one exported
+constant, so they cannot diverge again.
+
+```haskell
+defaultCppVersion :: Int
+defaultCppVersion = 20
+```
+
+`Defaultable` uses `packageCppVersion = defaultCppVersion`; `FromJSON` uses
+`o .:? "cpp-version" .!= defaultCppVersion`. No other site reads `cpp-version`.
+Downstream behaviour is unchanged where it was already correct:
+`gccVersionFlag` maps anything at or below 20 to `-std=c++20`, and
+`cppVer = maximum (0 : ...)` still takes the highest standard requested across
+the DAG.
+
+`test-suite/EnvSpecTests.hs` gains a group, "FromJSON PackageMeta agrees with
+the no-package.yaml defaults", asserting that a decoded meta with no
+`cpp-version` matches `defaultValue`, that an explicit `cpp-version` still
+wins, and that a decoded meta emits `LangReq "cpp" Nothing (Just "c++20")`.
+
+Neither the fix nor the test has been compiled -- `stack build` was not run in
+the session that wrote them. Build and run `EnvSpecTests` before closing this
+report.

@@ -506,6 +506,24 @@ pre.pygments .tok-vi { color: #19177C } /* Name.Variable.Instance */
 pre.pygments .tok-vm { color: #19177C } /* Name.Variable.Magic */
 pre.pygments .tok-il { color: #666 } /* Literal.Number.Integer.Long */
 </style>
+<script>
+/* Runs before the body is parsed so the page never paints in the wrong theme. */
+(function () {
+	var stored = null;
+
+	try {
+		stored = localStorage.getItem("theme");
+	} catch (e) {}
+
+	var dark =
+		stored === "dark" ||
+		(stored !== "light" &&
+			window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+	if (dark) document.documentElement.classList.add("dark");
+})();
+</script>
+
 <meta
 	name="keywords"
 	content="asciidoctor, template, pitch black, jet black, black, adoc, dark mode"
@@ -892,7 +910,8 @@ and follow the Linux instructions inside it.</p>
 </div>
 <div class="paragraph">
 <p>This downloads the prebuilt <code>mim</code> binary for your platform, checks it against
-the published SHA-256 when that checksum is reachable, and installs it. Two
+the published SHA-256 when that checksum is reachable, and installs it into
+<code>~/.local/bin</code> (or <code>$XDG_BIN_HOME</code>, if you set it). No <code>sudo</code> is needed. Two
 environment variables adjust it:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -909,7 +928,7 @@ environment variables adjust it:</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>MIM_DEST</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Directory to install into. Default: the current directory.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directory to install into. Default: <code>$XDG_BIN_HOME</code>, else <code>~/.local/bin</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>MIM_VERSION</code></p></td>
@@ -918,22 +937,28 @@ environment variables adjust it:</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p>The default destination is the current directory, so put <code>mim</code> somewhere on your
-<code>PATH</code> before going further:</p>
+<p>The installer never edits your shell startup files. If the destination is
+already on your <code>PATH</code>&#8201;&#8212;&#8201;as <code>~/.local/bin</code> is on most Linux distributions&#8201;&#8212;&#8201;you are done:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span><span class="tok-nv">MIM_DEST</span><span class="tok-o">=</span>~/.local/bin<span class="tok-w"> </span>curl<span class="tok-w"> </span>-fsSL<span class="tok-w"> </span>https://raw.githubusercontent.com/morloc-project/morloc-manager/main/scripts/install.sh<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>sh
-<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>--version</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mim<span class="tok-w"> </span>--version</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If <code>mim --version</code> is not found, add the directory to your <code>PATH</code>:</p>
+<p>Otherwise the installer prints the exact command to add it, which on macOS it
+usually will: macOS builds its default <code>PATH</code> from <code>/etc/paths</code>, which does not
+include <code>~/.local/bin</code>. For zsh, the macOS default shell, that command is:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span><span class="tok-nb">export</span><span class="tok-w"> </span><span class="tok-nv">PATH</span><span class="tok-o">=</span><span class="tok-s2">&quot;</span><span class="tok-nv">$HOME</span><span class="tok-s2">/.local/bin:</span><span class="tok-nv">$PATH</span><span class="tok-s2">&quot;</span><span class="tok-w">    </span><span class="tok-c1"># add this to your shell rc file</span></code></pre>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span><span class="tok-nb">echo</span><span class="tok-w"> </span><span class="tok-s1">&#39;export PATH=&quot;$HOME/.local/bin:$PATH&quot;&#39;</span><span class="tok-w"> </span>&gt;&gt;<span class="tok-w"> </span>~/.zshrc</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Open a new shell afterwards, or run the same <code>export</code> in the current one.
+<code>mim</code> is the only executable you need on your <code>PATH</code>; everything else lives
+inside the environments <code>mim</code> manages.</p>
 </div>
 <div class="paragraph">
 <p><code>mim</code> is also published as a plain binary on the
@@ -1092,7 +1117,7 @@ or with anything else on your machine.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mim<span class="tok-w"> </span>new<span class="tok-w"> </span>--non-interactive<span class="tok-w"> </span>base
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mim<span class="tok-w"> </span>new<span class="tok-w"> </span>base
 <span class="tok-go">Provisioning morloc runtime from release v0.100.2...</span>
 <span class="tok-go">Provisioning pixi 0.76.2...</span>
 <span class="tok-go">Solving native toolchain with pixi (this may take a few minutes)...</span>
@@ -1102,8 +1127,8 @@ or with anything else on your machine.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Drop <code>--non-interactive</code> and <code>mim</code> will prompt for each setting instead;
-<code>mim new -h</code> lists them all.</p>
+<p>Every setting has a default, so that is the whole command. Pass <code>--wizard</code> to
+be prompted for each one instead; <code>mim new -h</code> lists them all.</p>
 </div>
 <div class="paragraph">
 <p>The first run is the slow one. <code>mim</code> downloads the Morloc compiler for your
@@ -1225,7 +1250,8 @@ the generated command line interface.</p>
 <dt class="hdlist1"><code>hello</code></dt>
 <dd>
 <p>a launcher script, named after the <strong>source file</strong>. Override the name
-with <code>-o</code>.</p>
+with <code>-o</code>. (Installing a program is different&#8201;&#8212;&#8201;it takes the module&#8217;s name
+instead. See <a href="#_search_and_install">Search and install</a>.)</p>
 </dd>
 <dt class="hdlist1"><code>hello-build/</code></dt>
 <dd>
@@ -1470,7 +1496,7 @@ abstract module compiles to Python instead.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>ls<span class="tok-w"> </span>convert-py-build/pools/
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>ls<span class="tok-w"> </span>convert-build/pools/
 <span class="tok-go">py</span></code></pre>
 </div>
 </div>
@@ -8726,12 +8752,133 @@ string&#8201;&#8212;&#8201;but inside each pool the value is a real <code>pathli
 </div>
 </div>
 <div class="sect3">
-<h4 id="_a_newtype_needs_a_packable_instance"><a class="anchor" href="#_a_newtype_needs_a_packable_instance"></a>5.4.6. A <code>newtype</code> needs a <code>Packable</code> instance</h4>
+<h4 id="_when_a_newtype_needs_a_packable_instance"><a class="anchor" href="#_when_a_newtype_needs_a_packable_instance"></a>5.4.6. When a <code>newtype</code> needs a <code>Packable</code> instance</h4>
 <div class="paragraph">
-<p>The compiler bridges between the wire form and the native form through the
-<code>Packable</code> typeclass, which is covered in full in the next section. Every
-<code>newtype</code> that reaches a foreign function needs one, <strong>even when its native
-form is the same as its wire parent&#8217;s</strong>.</p>
+<p>A <code>newtype</code> crosses a language boundary as its wire parent. Whether anything
+has to convert that wire value into the newtype&#8217;s native form&#8201;&#8212;&#8201;and so
+whether you need a <code>Packable</code> instance&#8201;&#8212;&#8201;depends on one question: is the
+native form something the pool already has?</p>
+</div>
+<div class="paragraph">
+<p><strong>Declare no per-language form and the answer is yes.</strong> The newtype inherits its
+parent&#8217;s native form, so the value that arrives already is the right thing. No
+instance is needed, whatever the parent&#8217;s shape&#8201;&#8212;&#8201;a primitive, a list, a
+tuple, or another newtype. This is how the standard library&#8217;s <code>Vector</code> works
+in C&#43;&#43;: <code>vector-cpp</code> declares no <code>Packable</code> instance for it at all, because
+<code>newtype Vector (n :: Nat) a = List a</code> and a <code>List</code> is already a
+<code>std::vector</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong>Declare a form and it travels with the value as a schema hint.</strong> If the
+language binding knows how to build that form, you still need no instance.
+Python&#8217;s binding recognises <code>bytes</code>, <code>bytearray</code>, <code>list</code>, and
+<code>numpy.ndarray</code> (<code>data/lang/py/pymorloc.c</code>); <code>numpy.ndarray</code> is what puts
+tensor data on the zero-copy path.</p>
+</div>
+<div class="paragraph">
+<p><strong>Anything else needs a <code>Packable</code>.</strong> The instance is the general answer: it
+says how to build the native form from the wire form and back.</p>
+</div>
+<div class="paragraph">
+<p>Three newtypes over <code>Str</code>, one of each kind:</p>
+</div>
+<div class="listingblock">
+<div class="title">forms.loc</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">nameKind</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">blobKind</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">pathKind</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-n">newtype</span><span class="tok-w"> </span><span class="tok-nc">Name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+
+<span class="tok-n">newtype</span><span class="tok-w"> </span><span class="tok-nc">Blob</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Blob</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;bytes&quot;</span>
+
+<span class="tok-n">newtype</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">&quot;pathlib.Path&quot;</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;native.py&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-s">&quot;kind&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">nameKind</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;kind&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">blobKind</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;kind&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">pathKind</span><span class="tok-p">)</span>
+
+<span class="tok-n">nameKind</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Name</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">blobKind</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Blob</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">pathKind</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">native.py</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">pathlib</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">kind</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">):</span>
+    <span class="tok-k">return</span> <span class="tok-nb">type</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-o">.</span><span class="tok-vm">__name__</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">str_to_path</span><span class="tok-p">(</span><span class="tok-n">s</span><span class="tok-p">):</span>
+    <span class="tok-k">return</span> <span class="tok-n">pathlib</span><span class="tok-o">.</span><span class="tok-n">Path</span><span class="tok-p">(</span><span class="tok-n">s</span><span class="tok-p">)</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">path_to_str</span><span class="tok-p">(</span><span class="tok-n">p</span><span class="tok-p">):</span>
+    <span class="tok-k">return</span> <span class="tok-nb">str</span><span class="tok-p">(</span><span class="tok-n">p</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>kind</code> reports what the pool actually received:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>forms<span class="tok-w"> </span>forms.loc
+<span class="tok-gp">$ </span>./forms<span class="tok-w"> </span>nameKind<span class="tok-w"> </span>notes/report.txt
+<span class="tok-go">&quot;str&quot;</span>
+<span class="tok-gp">$ </span>./forms<span class="tok-w"> </span>blobKind<span class="tok-w"> </span>notes/report.txt
+<span class="tok-go">&quot;bytes&quot;</span>
+<span class="tok-gp">$ </span>./forms<span class="tok-w"> </span>pathKind<span class="tok-w"> </span>notes/report.txt
+<span class="tok-go">&quot;str&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>Name</code> inherits <code>Str&#8217;s form and gets a `str</code>, as declared. <code>Blob</code> asked for
+<code>bytes</code> and got one, with no instance, because the Python binding builds that
+hint. <code>Path</code> asked for <code>pathlib.Path</code> and got a <code>str</code>&#8201;&#8212;&#8201;the binding does not
+know that hint, and nothing said so.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/warning.png" alt="Warning">
+</td>
+<td class="content">
+<div class="title">An unsupported form is dropped silently</div>
+<div class="paragraph">
+<p>That third line is a trap. The module declares <code>pathlib.Path</code>, the pool
+receives a <code>str</code>, and there is no error and nothing on stderr. Your foreign
+function fails later, against a contract the compiler accepted.</p>
+</div>
+<div class="paragraph">
+<p>Add the <code>Packable</code> instance and it is right:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">instance</span><span class="tok-w"> </span><span class="tok-nc">Packable</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-nc">Path</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;native.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;str_to_path&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">pack</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;path_to_str&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">unpack</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./forms2<span class="tok-w"> </span>pathKind<span class="tok-w"> </span>notes/report.txt
+<span class="tok-go">&quot;PosixPath&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Until this is caught at compile time, write the instance whenever you declare
+a per-language form outside the four the binding recognises.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>A worked example with the instance in place, and a typeclass scoped to the
+new type:</p>
 </div>
 <div class="listingblock">
 <div class="title">path.loc</div>
@@ -8805,37 +8952,6 @@ form is the same as its wire parent&#8217;s</strong>.</p>
 <p><code>Filelike</code> methods are available on <code>Path</code> and not on bare <code>Str</code>, which is
 exactly the constraint that makes the <code>newtype</code> worth declaring: a function
 over filesystem paths cannot be handed an arbitrary string.</p>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="static/img/admonition_icons/warning.png" alt="Warning">
-</td>
-<td class="content">
-<div class="title">The missing-<code>Packable</code> error is unhelpful</div>
-<div class="paragraph">
-<p>Leave the <code>Packable</code> instance out and the module still typechecks. It fails at
-code generation with an internal message, located at the module&#8217;s export list
-rather than the offending signature:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>nopack<span class="tok-w"> </span>nopack.loc
-<span class="tok-go">nopack.loc:1:14: error:</span>
-<span class="tok-go">Cannot find constructor in VarF &quot;pathlib.Path&quot;  finalType=Path</span>
-<span class="tok-go">  |</span>
-<span class="tok-go">1 | module main (ext, joined, absolute)</span>
-<span class="tok-go">  |              ^</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>If you see <code>Cannot find constructor in VarF</code>, you are missing a <code>Packable</code>
-instance for a <code>newtype</code>.</p>
-</div>
-</td>
-</tr>
-</table>
 </div>
 </div>
 <div class="sect3">
@@ -8939,9 +9055,9 @@ every site that mentions <code>A</code>, <code>B</code>, or <code>Str</code>.</p
 "&#8230;&#8203;"</code> is rejected. Use <code>newtype</code>.</p>
 </li>
 <li>
-<p><strong>A <code>newtype</code> is nominal.</strong> It owns its instances and its per-language forms,
-and it needs a <code>Packable</code> instance wherever it crosses into a foreign
-function.</p>
+<p><strong>A <code>newtype</code> is nominal.</strong> It owns its instances and its per-language forms.
+It needs a <code>Packable</code> instance only when it declares a native form that the
+language binding cannot build from the wire form on its own.</p>
 </li>
 <li>
 <p><strong><code>newtype</code> wire-parent chains may not cycle.</strong> <code>newtype A = B</code> with
@@ -10351,10 +10467,18 @@ and TensorProto make. The <code>pack</code> and <code>unpack</code> functions ha
 transfers where a backend needs them.</p>
 </div>
 <div class="paragraph">
-<p><code>Vector</code> has a <code>Packable</code> instance too&#8201;&#8212;&#8201;<code>Packable (List a) (Vector n a)</code>&#8201;&#8212;&#8201;which is what lets a list literal become a <code>Vector</code>. Routing tensor data
-through <code>Vector</code> rather than the generic <code>[a]</code> is what keeps numpy buffers on
-the zero-copy path and lets a <code>std::vector</code> round-trip without an intermediate
+<p><code>Vector</code> needs no instance to reach a pool. Its wire parent is <code>List</code>, so a
+list literal becomes a <code>Vector</code> on shape alone, and each backend&#8217;s declared
+form does the rest: <code>vector-py</code> maps it to <code>numpy.ndarray</code>, which the Python
+binding builds directly, and <code>vector-cpp</code> declares no form at all because a
+<code>List</code> is already a <code>std::vector</code>. That is what keeps numpy buffers on the
+zero-copy path and lets a <code>std::vector</code> round-trip without an intermediate
 Python list.</p>
+</div>
+<div class="paragraph">
+<p><code>Vector</code> does declare <code>Packable (List a) (Vector n a)</code>, and <code>vector-py</code>
+implements it, but the serializer never routes through it. It is there so you
+can call <code>pack</code> and <code>unpack</code> on a <code>Vector</code> yourself.</p>
 </div>
 <div class="paragraph">
 <p>Normally the compiler calls <code>pack</code> for you. When you write a tensor literal in
@@ -11598,7 +11722,8 @@ would go:</p>
 <span class="tok-go">  -h, --help  Print help (see more with &#39;--help&#39;)</span>
 
 <span class="tok-go">Positional arguments:</span>
-<span class="tok-go">  1:  type: Str    (literal string)</span>
+<span class="tok-go">  1:  type: Str</span>
+<span class="tok-go">      format: literal string</span>
 
 <span class="tok-go">Return: Str</span></code></pre>
 </div>
@@ -11758,8 +11883,8 @@ to get out of step:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Both commands inherit the descriptions, in the right positions, with nothing
-repeated:</p>
+<p>Both commands inherit the descriptions and the metavars, in the right
+positions, with nothing repeated:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -11772,12 +11897,14 @@ repeated:</p>
 <span class="tok-go">  -h, --help  Print help (see more with &#39;--help&#39;)</span>
 
 <span class="tok-go">Positional arguments:</span>
-<span class="tok-go">  1:  A secret key</span>
-<span class="tok-go">      type: Str    (literal string)</span>
-<span class="tok-go">  2:  A decrypted message</span>
-<span class="tok-go">      type: Str    (literal string)</span>
+<span class="tok-go">  1: KEY        A secret key</span>
+<span class="tok-go">                type: Str</span>
+<span class="tok-go">                format: literal string</span>
+<span class="tok-go">  2: PLAINTEXT  A decrypted message</span>
+<span class="tok-go">                type: Str</span>
+<span class="tok-go">                format: literal string</span>
 
-<span class="tok-go">Return: CipherText</span>
+<span class="tok-go">Return: Str</span>
 <span class="tok-go">  An encrypted message</span></code></pre>
 </div>
 </div>
@@ -12156,10 +12283,31 @@ help text, replacing the type name:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>On a positional it names the argument everywhere the interface is consumed by a
-program: it is the property name in the JSON Schema and in the MCP tool
-definition (<code>key</code> and <code>ciphertext</code> below, from the <code>@metavar KEY</code> and
-<code>@metavar CIPHERTEXT</code> on the <code>cipher</code> type definitions of <a href="#_docstrings">Docstrings</a>):</p>
+<p>On a positional it labels the slot, beside the index:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./sift<span class="tok-w"> </span>scan<span class="tok-w"> </span>-h
+<span class="tok-go">...</span>
+<span class="tok-go">Positional arguments:</span>
+<span class="tok-go">  1: PATTERN  The text to search for</span>
+<span class="tok-go">              type: Str</span>
+<span class="tok-go">              format: literal string</span>
+<span class="tok-go">  2:          The directory to search</span>
+<span class="tok-go">              type: Str</span>
+<span class="tok-go">              format: path to a readable file</span>
+<span class="tok-go">...</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>scan</code> names only its first positional, so the second keeps a bare index and
+the two labels pad to a common width.</p>
+</div>
+<div class="paragraph">
+<p>The same name is what the interface is keyed on wherever it is consumed by a
+program&#8201;&#8212;&#8201;the property name in the JSON Schema and in the MCP tool definition
+(<code>key</code> and <code>ciphertext</code> below, from the <code>@metavar KEY</code> and <code>@metavar
+CIPHERTEXT</code> on the <code>cipher</code> type definitions of <a href="#_docstrings">Docstrings</a>):</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -12173,22 +12321,9 @@ definition (<code>key</code> and <code>ciphertext</code> below, from the <code>@
 <span class="tok-go">decode [(&#39;key&#39;, &#39;KEY&#39;), (&#39;ciphertext&#39;, &#39;CIPHERTEXT&#39;)]</span></code></pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
-</td>
-<td class="content">
 <div class="paragraph">
-<p>A positional&#8217;s metavar does not currently reach <code>--help</code>, which still numbers
-positionals <code>1:</code>, <code>2:</code> (<code>reports/0018</code>). Write the metavar anyway&#8201;&#8212;&#8201;it is
-doing real work in the machine-readable views&#8201;&#8212;&#8201;but describe the argument in
-prose too, since that is what a person reading <code>-h</code> will see.</p>
-</div>
-</td>
-</tr>
-</table>
+<p>An unnamed positional is identified by index alone in both places, which is
+worth avoiding on anything a model or a script will call.</p>
 </div>
 </div>
 <div class="sect3">
@@ -12266,26 +12401,40 @@ on every command that takes an <code>Options</code>:</p>
 <span class="tok-go">                                type: Int [default: 0]</span>
 
 <span class="tok-go">Positional arguments:</span>
-<span class="tok-go">  1:  The text to search for</span>
-<span class="tok-go">      type: Str    (literal string)</span>
-<span class="tok-go">  2:  The directory to search</span>
-<span class="tok-go">      type: Str    (a filename)</span>
-<span class="tok-go">      format: path to a readable file</span>
+<span class="tok-go">  1: PATTERN  The text to search for</span>
+<span class="tok-go">              type: Str</span>
+<span class="tok-go">              format: literal string</span>
+<span class="tok-go">  2:          The directory to search</span>
+<span class="tok-go">              type: Str</span>
+<span class="tok-go">              format: path to a readable file</span>
 
 <span class="tok-go">Return:</span>
 <span class="tok-go">  default:    [Hit]</span>
 <span class="tok-go">  -c/--count: U64</span>
-<span class="tok-go">  -p/--plain: Str</span>
+<span class="tok-go">  -p/--plain: Str    (raw bytes)</span>
 
 <span class="tok-go">Record Schemas:</span>
 <span class="tok-go">  Options</span>
 <span class="tok-go">    ignoreCase :: Bool</span>
-<span class="tok-go">    maxCount   :: Int</span></code></pre>
+<span class="tok-go">    maxCount   :: Int</span>
+
+<span class="tok-go">  Hit</span>
+<span class="tok-go">    path :: Str</span>
+<span class="tok-go">    line :: Int</span>
+<span class="tok-go">    text :: Str</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Records appear in the argument list by name and are laid out once, at the
-bottom, under <code>Record Schemas:</code>. An unrolled record never becomes a positional.</p>
+<p>An unrolled record never becomes a positional. It appears in the argument list
+by name only because <code>@arg --options</code> also gives it a flag of its own; without
+that directive the fields are the only trace of it.</p>
+</div>
+<div class="paragraph">
+<p>Every named type the help prints is defined once at the bottom, under
+<code>Record Schemas:</code>. That is why <code>Hit</code> is laid out here too, though it is the
+return type rather than an argument&#8201;&#8212;&#8201;the help names it, so the help defines
+it. A name the help never prints is never defined, which is why a record that
+is unrolled without <code>@arg</code> does not appear.</p>
 </div>
 <div class="paragraph">
 <p>(The <code>-c</code> and <code>-p</code> flags and the <code>Return:</code> table in that help belong to
@@ -12320,7 +12469,7 @@ unrolled:</p>
 <span class="tok-go">      type: [Str]</span>
 <span class="tok-go">      format: path to text file with one string per line</span>
 <span class="tok-go">  2:  The directory to search</span>
-<span class="tok-go">      type: Str    (a filename)</span>
+<span class="tok-go">      type: Str</span>
 <span class="tok-go">      format: path to a readable file</span>
 <span class="tok-go">  3:  How to search</span>
 <span class="tok-go">      type: Options</span>
@@ -12646,8 +12795,10 @@ pattern per line, and the search root must be a directory that exists:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Each shaped argument gets a <code>format:</code> line in the help saying what it will
-accept:</p>
+<p>A shaped argument gets a <code>format:</code> line in the help saying what it will accept.
+So does every <code>Str</code> argument, shaped or not: <code>Str</code> is the one type where argv
+is genuinely ambiguous, and stating the default reading is cheaper than making
+a reader infer it from the absence of a line.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -12658,7 +12809,7 @@ accept:</p>
 <span class="tok-go">      type: [Str]</span>
 <span class="tok-go">      format: path to text file with one string per line</span>
 <span class="tok-go">  2:  The directory to search</span>
-<span class="tok-go">      type: Str    (a filename)</span>
+<span class="tok-go">      type: Str</span>
 <span class="tok-go">      format: path to a readable file</span>
 <span class="tok-go">...</span></code></pre>
 </div>
@@ -13247,7 +13398,8 @@ table instead of a single line:</p>
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-go">Return:</span>
 <span class="tok-go">  default:    [Hit]</span>
 <span class="tok-go">  -c/--count: U64</span>
-<span class="tok-go">  -p/--plain: Str</span></code></pre>
+<span class="tok-go">  -p/--plain: Str</span>
+<span class="tok-go">...</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -13302,6 +13454,11 @@ bytes for a human or a file.</p>
 <strong>sink</strong>. It has already done the writing itself&#8201;&#8212;&#8201;printed, saved a file, sent a
 request&#8201;&#8212;&#8201;and nothing goes on the wire. <code>Unit</code> in the <code>Return:</code> table marks
 one.</p>
+</div>
+<div class="paragraph">
+<p>The table marks the framing too: <code>(raw bytes)</code> after a type means the row is a
+<code>@render</code> action, so those bytes go out as they are and <code>-f</code> does not apply to
+them.</p>
 </div>
 </div>
 <div class="sect3">
@@ -13492,7 +13649,7 @@ The label replaces the type name wherever the type surfaces:</p>
 <span class="tok-go">...</span>
 <span class="tok-go">Return:</span>
 <span class="tok-go">  default:    image/png</span>
-<span class="tok-go">  -w/--write: image/png</span>
+<span class="tok-go">  -w/--write: image/png    (raw bytes)</span>
 <span class="tok-go">  A PNG image</span></code></pre>
 </div>
 </div>
@@ -13795,34 +13952,41 @@ beyond what the handler itself emits.</p>
 </li>
 </ul>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
-</td>
-<td class="content">
+</div>
+<div class="sect3">
+<h4 id="_what_the_help_says_a_stream_produces"><a class="anchor" href="#_what_the_help_says_a_stream_produces"></a>6.10.5. What the help says a stream produces</h4>
 <div class="paragraph">
-<p>The <code>Return:</code> table reports every <code>@stream</code> action as <code>Unit</code>, including the
-reformatters that do put typed elements on the wire (<code>reports/0028</code>):</p>
+<p>A streaming command&#8217;s <code>Return:</code> block describes <strong>standard output</strong>, not the
+<code>()</code> the function returns. The two coincide for every other command and come
+apart here, so the block is worth reading closely:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-go">Return:</span>
-<span class="tok-go">  default:       Unit</span>
-<span class="tok-go">  -p/--plain:    Unit</span>
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./sift<span class="tok-w"> </span>stream<span class="tok-w"> </span>-h
+<span class="tok-go">...</span>
+<span class="tok-go">Return:</span>
+<span class="tok-go">  default:       [Hit]</span>
+<span class="tok-go">  -p/--plain:    Str    (raw bytes)</span>
 <span class="tok-go">  -c/--count:    U64</span>
 <span class="tok-go">  -n/--staged:   Int</span>
-<span class="tok-go">  -N/--numbered: Unit</span></code></pre>
+<span class="tok-go">  -N/--numbered: [Str]</span>
+<span class="tok-go">...</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>-N/--numbered</code> is a <code>[Hit] &#8594; [Str]</code>, and the transcript above shows it
-emitting strings. Read <code>Unit</code> on a <code>@stream</code> row as "the help cannot say yet".</p>
+<p>Five rows, five different things on stdout. <code>default</code> is the batch element the
+sink writes; <code>-c</code> and <code>-n</code> gather and return a single value; <code>-N</code> transforms
+each batch and streams the result; and <code>(raw bytes)</code> marks the one row where
+<code>-f</code> no longer applies, because a <code>@render</code> action writes its handler&#8217;s bytes
+verbatim.</p>
 </div>
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>The compiler works the element type out from the producer&#8217;s signature: a
+<code>@collect</code> argument takes exactly one parameter, the sink, so the sink is the
+last parameter of the producer&#8217;s declared type and the sink&#8217;s own parameter is
+what reaches standard output. A producer with no reachable signature&#8201;&#8212;&#8201;an
+inline lambda&#8201;&#8212;&#8201;leaves the row falling back to the return type; the help never
+claims <code>()</code> for a command that streams.</p>
 </div>
 </div>
 </div>
@@ -14020,15 +14184,28 @@ leaving it in the current directory:</p>
 <span class="tok-go">  root 0.7.0  Define type signatures for common functions</span>
 <span class="tok-go">...</span>
 <span class="tok-go">Programs:</span>
-<span class="tok-go">  sift  13 commands</span>
+<span class="tok-go">  sift  5 commands</span>
 <span class="tok-go">...</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
+<p>Add <code>-v</code> to list each program&#8217;s commands with their return types.</p>
+</div>
+<div class="paragraph">
 <p>Installing also regenerates shell completion for every installed program, into
 <code>$MORLOC_HOME/completions/</code>. The completions are derived from the same
-manifest the help is: command names, group names, and each command&#8217;s flags.
-Source the one for your shell from your shell&#8217;s startup file:</p>
+manifest the help is&#8201;&#8212;&#8201;command names, group names, and each command&#8217;s flags&#8201;&#8212;&#8201;so they cover the groups of the previous section without any extra
+declaration:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>sed<span class="tok-w"> </span>-n<span class="tok-w"> </span><span class="tok-s1">&#39;/Installed program: sift/,+9p&#39;</span><span class="tok-w"> </span><span class="tok-nv">$MORLOC_HOME</span>/completions/morloc-completions.bash<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>tail<span class="tok-w"> </span>-2
+<span class="tok-go">    COMPREPLY=($(compgen -W &quot;scan scanAll summarize total stream&quot; -- &quot;$cur&quot;))</span>
+<span class="tok-go">    return</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Source the one for your shell from your shell&#8217;s startup file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -14036,23 +14213,10 @@ Source the one for your shell from your shell&#8217;s startup file:</p>
 <span class="tok-gp">$ </span><span class="tok-nb">source</span><span class="tok-w"> </span><span class="tok-nv">$MORLOC_HOME</span>/completions/_morloc_completions<span class="tok-w">       </span><span class="tok-c1"># zsh</span></code></pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
-</td>
-<td class="content">
 <div class="paragraph">
-<p>The command count and the completion candidates both include the hidden
-entry points that <code>@with</code> and <code>@render</code> synthesize, so <code>sift</code> above is
-reported as thirteen commands rather than five, and tab completion offers
-names like <code>mlcp_scan_count</code> that the program will not accept
-(<code>reports/0032</code>).</p>
-</div>
-</td>
-</tr>
-</table>
+<p>The entry points the compiler synthesizes for each output action are marked
+internal in the manifest, so they are absent from the count and from the
+completions&#8201;&#8212;&#8201;the surface you see is the surface the program accepts.</p>
 </div>
 </div>
 </div>
@@ -14114,7 +14278,7 @@ lists its command groups:</p>
 <span class="tok-w">      </span><span class="tok-p">],</span>
 <span class="tok-w">      </span><span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
 <span class="tok-w">        </span><span class="tok-nt">&quot;morloc&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;[Hit]&quot;</span><span class="tok-p">,</span>
-<span class="tok-w">        </span><span class="tok-nt">&quot;wire&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;a&lt;dict&gt;m34paths4linej4texts&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">        </span><span class="tok-nt">&quot;wire&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;am34paths4linej4texts&quot;</span><span class="tok-p">,</span>
 <span class="tok-w">        </span><span class="tok-nt">&quot;structure&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
 <span class="tok-w">          </span><span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;array&quot;</span><span class="tok-p">,</span>
 <span class="tok-w">          </span><span class="tok-nt">&quot;items&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
@@ -14143,6 +14307,7 @@ lists its command groups:</p>
 <span class="tok-w">  </span><span class="tok-p">],</span>
 <span class="tok-w">  </span><span class="tok-nt">&quot;return&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
 <span class="tok-w">    </span><span class="tok-nt">&quot;description&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">[],</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;streaming&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-kc">false</span><span class="tok-p">,</span>
 <span class="tok-w">    </span><span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
 <span class="tok-w">      </span><span class="tok-nt">&quot;morloc&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;[(Str, Int)]&quot;</span><span class="tok-p">,</span>
 <span class="tok-w">      </span><span class="tok-nt">&quot;wire&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;at2sj&quot;</span><span class="tok-p">,</span>
@@ -14168,12 +14333,21 @@ lists its command groups:</p>
 <p>Every type appears three ways, because three different readers want it:
 <code>morloc</code> is the type as written, <code>wire</code> is the serialization schema, and
 <code>structure</code> is JSON Schema, which a validator or a form generator can consume
-directly. The <code>input</code> block carries the shape directives of <a href="#_input_shape">Input shape</a>,
+directly. The <code>wire</code> schema is the <strong>general</strong> one: the concrete schema the
+runtime dispatches on names the container the pool&#8217;s language builds, which
+would make the published contract move whenever the implementation language
+did. The <code>input</code> block carries the shape directives of <a href="#_input_shape">Input shape</a>,
 so a caller can tell that an argument wants a path rather than a value without
 parsing prose.</p>
 </div>
 <div class="paragraph">
-<p><code>terminals</code> lists a command&#8217;s output actions. <code>scan</code> has two:</p>
+<p><code>return.streaming</code> says whether the command writes a stream to standard output
+rather than returning a value; when it does, <code>return.type</code> describes the batch
+that reaches stdout rather than the <code>()</code> the function returns.</p>
+</div>
+<div class="paragraph">
+<p><code>terminals</code> lists a command&#8217;s output actions, each with the type its flag puts
+on the wire. <code>scan</code> has two:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -14183,14 +14357,28 @@ parsing prose.</p>
 <span class="tok-w">    </span><span class="tok-nt">&quot;long&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;count&quot;</span><span class="tok-p">,</span>
 <span class="tok-w">    </span><span class="tok-nt">&quot;description&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Report the number of matches instead of the matches&quot;</span><span class="tok-p">,</span>
 <span class="tok-w">    </span><span class="tok-nt">&quot;render&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-kc">false</span><span class="tok-p">,</span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;default&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-kc">false</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;default&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-kc">false</span><span class="tok-p">,</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">      </span><span class="tok-nt">&quot;morloc&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;U64&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">      </span><span class="tok-nt">&quot;wire&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;u8&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">      </span><span class="tok-nt">&quot;structure&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;integer&quot;</span>
+<span class="tok-w">      </span><span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-w">  </span><span class="tok-p">},</span>
 <span class="tok-w">  </span><span class="tok-p">{</span>
 <span class="tok-w">    </span><span class="tok-nt">&quot;short&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;p&quot;</span><span class="tok-p">,</span>
 <span class="tok-w">    </span><span class="tok-nt">&quot;long&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;plain&quot;</span><span class="tok-p">,</span>
 <span class="tok-w">    </span><span class="tok-nt">&quot;description&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Print one `path:line:text` record per line&quot;</span><span class="tok-p">,</span>
 <span class="tok-w">    </span><span class="tok-nt">&quot;render&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-kc">true</span><span class="tok-p">,</span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;default&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-kc">false</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;default&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-kc">false</span><span class="tok-p">,</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">      </span><span class="tok-nt">&quot;morloc&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Str&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">      </span><span class="tok-nt">&quot;wire&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;s&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">      </span><span class="tok-nt">&quot;structure&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;string&quot;</span>
+<span class="tok-w">      </span><span class="tok-p">}</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
 <span class="tok-w">  </span><span class="tok-p">}</span>
 <span class="tok-p">]</span></code></pre>
 </div>
@@ -14466,6 +14654,7 @@ of DnD operations. The first module defines general random operations:</p>
 <pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">choose</span><span class="tok-p">)</span>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">random</span>
 
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;fate.py&quot;</span>
 <span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-w"> </span><span class="tok-s">&quot;roll&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">roll</span>
@@ -14480,13 +14669,13 @@ of DnD operations. The first module defines general random operations:</p>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Number of pips per die</span>
 <span class="tok-w">  </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Roll values</span>
-<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span>
 
 <span class="tok-cs">--&#39; Randomly return True or False</span>
-<span class="tok-n">coinToss</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span>
+<span class="tok-n">coinToss</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span>
 
 <span class="tok-cs">--&#39; Randomly choose one element from a non-empty list</span>
-<span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
+<span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">a</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -14527,6 +14716,18 @@ program and installs the resulting executable.
 </table>
 </div>
 <div class="paragraph">
+<p>Either way, an installed program is named after its <strong>module</strong>&#8201;&#8212;&#8201;the
+<code>module &lt;name&gt;</code> declaration&#8201;&#8212;&#8201;and not after the file it was compiled from.
+That is why the executable below is <code>fate</code>. Plain <code>morloc make</code> does the
+opposite and names its launcher after the source file
+(<a href="#_your_first_program">Your first program</a>), and the difference is deliberate: <code>make</code> leaves a
+<strong>local</strong> artifact in your working directory, where the source name is the
+natural handle, the same way a C&#43;&#43; compiler hands you <code>a.out</code>. <code>--install</code>
+writes into a <strong>global</strong> namespace, where a program&#8217;s identity is the name other
+code imports it by. The entry file is conventionally <code>main.loc</code> and carries no
+identity at all.</p>
+</div>
+<div class="paragraph">
 <p>We can test this, for example by rolling 3d8:</p>
 </div>
 <div class="listingblock">
@@ -14548,11 +14749,11 @@ that helps generate new characters.</p>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">choose</span><span class="tok-p">)</span>
 
 <span class="tok-cs">--&#39; Select a random class</span>
-<span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 <span class="tok-n">randomClass</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-s">&quot;Fighter&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Wizard&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Rogue&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Cleric&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Ranger&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Bard&quot;</span><span class="tok-p">]</span>
 
 <span class="tok-cs">--&#39; Select a random race</span>
-<span class="tok-n">randomRace</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">randomRace</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
 <span class="tok-n">randomRace</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">choose</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-s">&quot;Human&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Elf&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Dwarf&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;Halfling&quot;</span><span class="tok-p">]</span></code></pre>
 </div>
 </div>
@@ -14569,7 +14770,7 @@ that helps generate new characters.</p>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">fate</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">coinToss</span><span class="tok-p">)</span>
 
 <span class="tok-cs">--&#39; Roll a pair of d20 dice and keep the larger result</span>
-<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">rollAdv</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-n">max</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-o">!</span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)</span>
 
 <span class="tok-cs">--&#39; Damage done on hit, modifier + sum of dice rolls</span>
@@ -14579,13 +14780,13 @@ that helps generate new characters.</p>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Attack modifier</span>
 <span class="tok-w">  </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Attack dice</span>
-<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Damage modifier</span>
 <span class="tok-w">  </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Damage dice</span>
-<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Total damage</span>
-<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-n">atkMod</span><span class="tok-w"> </span><span class="tok-n">atkDice</span><span class="tok-w"> </span><span class="tok-n">dmgMod</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-n">atkD</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">atkDice</span>
 <span class="tok-w">  </span><span class="tok-n">dmgD</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">dmgDice</span>
@@ -14601,7 +14802,7 @@ that helps generate new characters.</p>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Enemy Armor Class</span>
 <span class="tok-w">  </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-cs">--&#39; Fighter&#39;s damage</span>
-<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Rand</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">Random</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 <span class="tok-n">fighterDamage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">damage</span><span class="tok-w"> </span><span class="tok-n">ac</span><span class="tok-w"> </span><span class="tok-mi">4</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-mi">20</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roll</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-w"> </span><span class="tok-mi">8</span><span class="tok-p">)</span>
 
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;combat.R&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;intro&quot;</span><span class="tok-p">)</span>
@@ -16633,6 +16834,29 @@ is a terminal:</p>
 </div>
 <div class="sect2">
 <h3 id="_run_directory"><a class="anchor" href="#_run_directory"></a>8.2. Run directory</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/warning.png" alt="Warning">
+</td>
+<td class="content">
+<div class="title">Experimental Feature</div>
+<div class="paragraph">
+<p>The run directory&#8217;s contents are not settled. What a run writes today is
+narrower than what this section describes: a run matching the layout below
+produces the per-label directories and <code>summary.json</code>, but the top-level <code>log</code>
+appears only when a prologue writes to it. The compiler&#8217;s own test asserts a
+<code>start.json</code> that nothing produces.</p>
+</div>
+<div class="paragraph">
+<p>Treat the directory as a place to find logs, not as a stable on-disk format to
+parse. The file names and the layout may change.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>Every persistent-logging invocation of a morloc-built executable is
 one <strong>run</strong>. The run gets a unique id and a directory on disk holding

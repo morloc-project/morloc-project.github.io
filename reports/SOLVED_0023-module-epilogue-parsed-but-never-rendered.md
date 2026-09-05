@@ -1,6 +1,6 @@
 # 0023: `@epilogue` reaches the manifest and is never rendered; module description is truncated to one line
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, during the "Building CLIs" documentation pass
 - Component: nexus
 - morloc: 0.100.2     mim: 0.28.0
@@ -75,3 +75,33 @@ Unverified. `data/rust/morloc-nexus/src/phase2.rs:249` sets the root command's
 `about` from `manifest.desc.first()` and never sets `long_about`; `epilogues`
 appears nowhere in `data/rust/` outside the schema definition in
 `morloc-manifest/src/lib.rs:91`. `clap`'s `after_help` is the natural slot.
+
+## Resolution
+
+Fixed in `morloc` commit `ab019ed5`.
+
+Both guesses in this report were right. The root command set `about` from
+`manifest.desc.first()` and never `long_about`, and `epilogues` had no reader in
+`data/rust/` outside the schema definition.
+
+The root command now makes the same `about` / `long_about` split every
+subcommand already made: the first line is the synopsis `-h` shows, and the full
+block reaches `--help`. Command groups do the same with their own `desc`.
+Epilogue blocks render through clap's `after_help`, so they appear under both
+`-h` and `--help`; blocks are separated by a blank line and trailing whitespace
+is trimmed. In the single-command layout the root also carries the command's
+positional and return blocks, so the epilogue appends to those rather than
+replacing them.
+
+This is a read-side change only -- the manifest already carried both fields --
+so an existing build gains the blocks without recompiling.
+
+Covered by `test-suite/golden-tests/module-help-blocks`.
+
+## Still open, split out
+
+In the single-command layout the root's description comes from the command, not
+the module, so a module docstring is dropped there entirely. That is a question
+about what the single-command layout should show when a program has two
+descriptions available, not about whether the epilogue renders, and it is filed
+separately as report 0059.

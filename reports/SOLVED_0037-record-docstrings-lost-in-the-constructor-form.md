@@ -1,6 +1,6 @@
 # 0037: a docstring on `record X = X {...}` is dropped; the same docstring on `record X where` is inherited
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, during the "Building CLIs" documentation pass
 - Component: compiler
 - morloc: 0.100.2     mim: 0.28.0
@@ -93,3 +93,31 @@ JSON Schema, or MCP tool definition.
 Unverified. The two record syntaxes appear to take different paths through the
 parser, and only the `where` path attaches the preceding docstring block to the
 type definition.
+
+## Resolution
+
+Fixed in `morloc` commit `fdb80c88`.
+
+The guess in this report was right that the two spellings take different paths,
+and the reason the constructor path could not simply be pointed at the same
+lookup is that its grammar rule discarded the source position of every field.
+Its desugar built documentation from defaults, so both the declaration-level
+docstring and any field-level ones were dropped.
+
+Both spellings now parse fields with positions attached and share one routine
+for collecting the declaration-level and field-level docstrings. `record X = X
+{...}` and `record X where` produce identical documentation.
+
+Carrying positions also fixes a second, unreported defect in the constructor
+spelling: a duplicate field name put its caret on the `record` keyword, because
+the offending field's position had been thrown away. It now points at the field.
+
+Covered by `test-suite/golden-tests/record-docstring-forms`, which builds the
+same record both ways and compares the generated interface field by field.
+
+## Note
+
+Field-level docstrings are now collected for both spellings, but they are
+rendered nowhere in either -- not in `--help`, `--json-help`, or the MCP tool
+definition. That gap predates this report and is unchanged by it; only the
+divergence between the two spellings was in scope here.

@@ -1,6 +1,6 @@
 # 0046: a type alias nested inside a compound type is not resolved for the CLI
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-03, while demoing the fix for reports/0026
 - Component: compiler
 - morloc: 0.100.2     mim: 0.28.0
@@ -70,3 +70,26 @@ an alias chain only at the head of the type -- it matches `VarT v` and `NamT`
 and passes everything else through unchanged, so an alias under an `AppT` is
 never visited. Docstring inheritance deliberately stops at a nominal boundary,
 but type *resolution* has no reason to; the two may want separating.
+
+## Resolution
+
+Fixed in `morloc` commit `7accdbfe`, which reworked Packable resolution and
+introduced the type glossary the CLI names. Resolution is no longer done by
+walking an alias chain at the head of the type; a recursive pass rewrites
+aliases wherever they appear, so nesting depth is irrelevant.
+
+Verified on that build, from the report's own file and from a wider one:
+
+```
+f :: [(Path, Path)] -> [(Path, Path)]   ->  1: type: [(Str, Str)]   Return: [(Str, Str)]
+a :: [[(Path, Count)]] -> [[(Path, Count)]] -> 1: type: [[(Str, Int)]]  Return: [[(Str, Int)]]
+b :: [Pair] -> [Pair]                   ->  1: type: [(Str, Str)]   Return: [(Str, Str)]
+```
+
+where `type Pair = (Path, Path)` is an alias of aliases, so a chain nested
+inside a compound resolves too. `--json-help` agrees: `type.morloc` reads
+`[[(Str, Int)]]` and `[(Str, Str)]` for the same commands, so the leak into the
+machine-readable surface is closed as well.
+
+No separate change was needed and no test was added here; the fix arrived with
+that commit's own coverage.

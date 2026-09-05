@@ -1,6 +1,6 @@
 # 0025: `-` is rejected on a `@source file` argument, though `/dev/stdin` works
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, during the "Building CLIs" documentation pass
 - Component: nexus
 - morloc: 0.100.2     mim: 0.28.0
@@ -75,3 +75,30 @@ Unverified. `substitute_stdio_dash`
 (`data/rust/morloc-nexus/src/dispatch.rs:549`) only rewrites `-` when the
 argument carries a `check.path` check; `@source file` sets `source` and adds no
 check, so the token reaches the loader verbatim.
+
+## Resolution
+
+Fixed in `morloc` commit `64e79c4b`.
+
+The guess in this report was right. `substitute_stdio_dash` rewrote `-` only
+for an argument carrying a `check.path` directive; `@source file` sets the
+source and adds no check, so the token reached the loader verbatim and was
+opened as a filename.
+
+The substitution now also fires on a declared file source. The two directives
+are mutually exclusive -- `@check.path` cannot be combined with
+`@source file` -- so they do not compete. A path check maps the dash by its
+mode, since such an argument may be an output; a declared file source is always
+read, so it maps to `/dev/stdin` unconditionally. `-` and `/dev/stdin` are now
+interchangeable on both shapes, matching what `cli-arguments.asc:23` states.
+
+Covered by `test-suite/golden-tests/stdin-dash-source-file`, which feeds one
+program by dash, by `/dev/stdin` and by real path under both directives, plus
+three unit tests on the mapping itself.
+
+## Still open, split out
+
+A variadic positional assembles its tokens on a path that never reaches this
+substitution, so `-` among many file arguments is still literal. Which of
+several files should be stdin is a question the shape does not answer, so this
+was left alone rather than guessed at. Not filed separately; recorded here.

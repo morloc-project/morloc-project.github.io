@@ -84,3 +84,13 @@ Unverified: `Generic.hs:1193` calls `error` directly instead of going through
 the `MorlocMonad` error machinery that carries source positions. The literal
 position should be available there, since the translator walks typed, sourced
 expressions.
+
+## Resolution
+
+Fixed in `morloc` commit `87268b8e`.
+
+The NUL check moved out of the pure pool printer, where the only way to refuse a
+string was to abort, and into the point where a literal is lowered for a
+specific language. A NUL in a string bound for a language that cannot hold one
+is now a located morloc error naming the language and the offending byte; the
+printer's own check is stated as the internal invariant it is.

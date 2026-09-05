@@ -1,6 +1,6 @@
 # 0001: `morloc make` names the launcher after the source file, not the module
 
-- Status: not-a-bug (documentation defect)
+- Status: not-a-bug (documentation defect; manual fixed)
 - Found: 2026-09-02, while verifying that the container can run the manual's examples
 - Component: docs
 - morloc: 0.100.2     mim: 0.28.0
@@ -86,7 +86,14 @@ third case: eval's module is a synthetic `main`, so eval keys on the build key
 
 ## Resolution
 
-Fix the manual, which is the only thing outstanding here: `morloc make` names
-the launcher and build directory after the source basename (overridable with
-`--name`), while `morloc make --install` and `mim install` install under the
-module name. Say both, and say why -- local artifact versus global namespace.
+Morloc was right; the manual was wrong. Fixed in `morloc-project.github.io`
+(uncommitted at time of writing -- this session does not commit).
+
+`getting-started.asc` already said the launcher is named after the source file;
+its bullet now also points forward to the install rule so a reader does not
+generalize from one case. `interface-install.asc` gained a paragraph after the
+`morloc install` / `morloc make --install` NOTE stating that an installed
+program takes its *module* name, and why the two differ: `make` leaves a local
+artifact in the working directory (source name, like `a.out`), while
+`--install` writes into a global namespace where a program's identity is the
+name other code imports it by.

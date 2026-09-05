@@ -5,12 +5,10 @@ const backToTopBtn = document.querySelector(".back-to-top-btn");
 const header = document.querySelector("#header");
 const body = document.querySelector("body");
 
-const dbName = "asciidoctor-jet";
-const dbVersion = 1;
-const objStoreName = "theme";
+const storageKey = "theme";
+const root = document.documentElement;
 
 let pwaInstallEvent;
-let theme;
 let themeBtn;
 let systemDarkTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -39,12 +37,11 @@ if (navigator.serviceWorker) {
 	);
 }
 
-// Window load listener
+// DOM ready listener
 
-window.addEventListener("load", async () => {
-	await loadDatabase(); // Initially sets 'theme' variable.
+document.addEventListener("DOMContentLoaded", () => {
 	createThemeSwitcher();
-	applyTheme();
+	applyTheme(currentTheme()); // The head script already set the class.
 	mobileEdgeCaseStyling();
 });
 
@@ -54,11 +51,8 @@ if (!systemDarkTheme.addEventListener)
 	systemDarkTheme.addEventListener = (event, listener) =>
 		systemDarkTheme.addListener(listener);
 
-systemDarkTheme.addEventListener("change", async (e) => {
-	if (e.matches) theme = "dark";
-	else theme = "light";
-
-	applyTheme();
+systemDarkTheme.addEventListener("change", (e) => {
+	if (!storedTheme()) applyTheme(e.matches ? "dark" : "light");
 });
 
 // Back to top button
@@ -95,84 +89,37 @@ function createThemeSwitcher() {
 	body.appendChild(themeBtn);
 }
 
-async function switchTheme() {
-	if (theme === "light") {
-		themeBtn.setAttribute("aria-label", "Light mode");
-		body.classList.add("dark");
-		theme = "dark";
-		await saveDatabase();
-	} else {
-		themeBtn.setAttribute("aria-label", "Dark mode");
-		body.classList.remove("dark");
-		theme = "light";
-		await saveDatabase();
+function currentTheme() {
+	return root.classList.contains("dark") ? "dark" : "light";
+}
+
+function storedTheme() {
+	try {
+		return localStorage.getItem(storageKey);
+	} catch (e) {
+		return null;
 	}
 }
 
-async function applyTheme() {
-	if (theme === "light") {
-		themeBtn.setAttribute("aria-label", "Dark mode");
-		body.classList.remove("dark");
-		await saveDatabase();
-	} else {
-		themeBtn.setAttribute("aria-label", "Light mode");
-		body.classList.add("dark");
-		await saveDatabase();
-	}
+function switchTheme() {
+	const theme = currentTheme() === "dark" ? "light" : "dark";
+
+	applyTheme(theme);
+
+	try {
+		localStorage.setItem(storageKey, theme);
+	} catch (e) {}
 }
 
-async function loadDatabase() {
-	return new Promise((resolve, reject) => {
-		let request = indexedDB.open(dbName, dbVersion);
+function applyTheme(theme) {
+	root.classList.toggle("dark", theme === "dark");
 
-		request.addEventListener("error", reject);
+	if (!themeBtn) return;
 
-		request.addEventListener("upgradeneeded", (e) => {
-			let db = e.target.result;
-
-			if (!db.objectStoreNames.contains(objStoreName))
-				db.createObjectStore(objStoreName);
-		});
-
-		request.addEventListener("success", (e) => {
-			let db = e.target.result;
-
-			let transaction = db.transaction(objStoreName, "readonly");
-			let store = transaction.objectStore(objStoreName);
-
-			let getTheme = store.get("theme");
-			getTheme.addEventListener("error", reject);
-			getTheme.addEventListener("success", (e) => {
-				let idbTheme = e.target.result;
-
-				if (idbTheme) theme = idbTheme;
-				else {
-					if (systemDarkTheme.matches) theme = "dark";
-					else theme = "light";
-				}
-
-				resolve();
-			});
-		});
-	});
-}
-
-async function saveDatabase() {
-	return new Promise((resolve, reject) => {
-		let request = indexedDB.open(dbName, dbVersion);
-
-		request.addEventListener("error", reject);
-
-		request.addEventListener("success", (e) => {
-			let db = e.target.result;
-
-			let transaction = db.transaction(objStoreName, "readwrite");
-			let store = transaction.objectStore(objStoreName);
-
-			store.put(theme, "theme");
-			resolve();
-		});
-	});
+	themeBtn.setAttribute(
+		"aria-label",
+		theme === "dark" ? "Light mode" : "Dark mode"
+	);
 }
 
 function mobileEdgeCaseStyling() {

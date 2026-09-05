@@ -111,3 +111,13 @@ unified against the try-branch's type, rather than being checked *against* the
 expected type. If the fallback were checked in the same bidirectional
 "checking" mode used for the guard fallthrough (which works), the literal would
 pick up the expected type the same way.
+
+## Resolution
+
+Fixed in `morloc` commit `40bd837e`.
+
+A numeric literal in `@catch`'s fallback position is checked against the type of
+the fallible expression rather than synthesised on its own, so `@catch (readF32
+s) 0` gives the literal the real slot's width instead of defaulting it and
+failing later. Pool codegen also promotes an integer literal that lands in a
+real slot, which the typechecker fix newly made reachable.

@@ -1,6 +1,6 @@
 # 0021: the "packer not generic enough" error prints raw Haskell constructors
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, writing the "Advanced Types" `Packable` section
 - Component: compiler
 - morloc: 0.100.2     mim: 0.28.0
@@ -103,3 +103,30 @@ crash rather than a type error.
 
 Unverified: that line uses `show`/`viaShow` on a `TypeF` instead of the
 pretty-printer the neighbouring lines use.
+
+## Resolution
+
+Fixed in `morloc` commit `7accdbfe`.
+
+Two independent causes, both gone.
+
+The raw constructors came from the `Pretty` instance for `TypeF`, which was
+defined as `pretty = viaShow` in its entirety -- so every `TypeF` in every error
+message printed as a Haskell value. It now renders morloc syntax.
+
+The message quoted above no longer exists at all. It was raised by `resolveP`
+when an instance failed to cover a use site, which treated a non-match as fatal
+even when another instance matched (report 0049). `resolveP` is now a total
+match test that returns the reason instead, and the caller reports only when
+nothing matched -- naming every instance it tried and why each was rejected:
+
+```
+$ morloc make -o ronly ronly.loc
+ronly.loc:1:24: error:
+No Packable instance covers 'Map Int Str' (concrete: list integer character).
+Instances declared for Map, and why each was rejected:
+  forall b . Map Str b
+    its concrete form forall b . list character b does not cover list integer character: Cannot compare types character and integer
+```
+
+Verified against this report's own reproduction.
