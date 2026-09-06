@@ -1,10 +1,14 @@
-const cacheName = "v0.1.6";
+const cacheName = "v0.1.8";
 const cacheAssets = [
 	"./",
 	"./index.html",
 	"./static/css/style.css",
 	"./static/css/pygments-light.css",
 	"./static/css/pygments-dark.css",
+	"./static/css/katex.min.css",
+	"./static/css/fonts.css",
+	"./static/fonts/montserrat-400-latin.woff2",
+	"./static/fonts/pt-mono-400-latin.woff2",
 	"./static/js/script.js",
 	"./static/img/admonition_icons/tip.png",
 	"./static/img/admonition_icons/warning.png",

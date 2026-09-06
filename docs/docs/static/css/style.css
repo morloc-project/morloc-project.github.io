@@ -1,4 +1,12 @@
+/* The button is baked into the listing block's content wrapper at build time. */
+.listingblock > .content {
+  position: relative;
+}
+
 .copy-button {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
   background: none;
   border: none;
   padding: 0em;
@@ -326,7 +334,7 @@ html.dark h6,
 html.dark #toctitle,
 html.dark .sidebarblock .title,
 html.dark .imageblock .title {
-	color: #ff8800 !important;
+	color: #ff8a80 !important;
 }
 
 html.dark code,
@@ -336,7 +344,7 @@ html.dark pre {
 }
 
 html.dark .sectlevel1 li a {
-	color: #ff8800 !important;
+	color: #ff8a80 !important;
 }
 
 html.dark a,
