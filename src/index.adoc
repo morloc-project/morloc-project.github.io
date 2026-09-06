@@ -424,11 +424,10 @@ around it.
 
 A program declares what it needs -- its languages, and its packages from conda,
 PyPI, crates, and the system -- and `mim`, the Morloc installation manager,
-resolves the whole set together into one environment. That environment is built
-natively on Linux and Apple Silicon macOS, or in a container where native will
-not work, and the compiler provisions it as part of `morloc make`. Imported
-Morloc modules are fetched automatically at versions compatible with your
-compiler.
+resolves the whole set together into one environment. That environment may be
+built natively on Linux or MacOS Silicon, and the compiler provisions it on
+demand. Imported Morloc modules are fetched automatically at versions compatible
+with your compiler.
 
 Conventional workflow managers reach the opposite conclusion and give each task
 its own container. That does make the conflict go away, and the price is that
@@ -436,13 +435,12 @@ every value between every pair of steps must be serialized, written, and parsed
 again, with a process launch on top. There is no other way for two containers to
 exchange anything.
 
-Morloc pays a boundary cost only where a value actually crosses between pools.
-Within a pool there is none: the functions are compiled into one unit and call
-each other natively, with no serialization, no socket, and no IPC. Across pools
-the floor is a Unix domain socket round trip -- a few microseconds, and
-dependent on the machine -- plus whatever marshalling the two representations
-need. Some of that marshalling can be avoided today and most of it cannot yet,
-but the floor is a socket rather than a process.
+Morloc pays a boundary cost only where a value actually crosses between
+pools. Within a pool there is none: the functions are compiled into one unit and
+call each other natively, with no serialization, no socket, and no IPC. Across
+pools the floor is a Unix domain socket round trip -- a few microseconds -- plus
+whatever marshalling the two representations need (zero in cases where shared
+memory can be used).
 
 What that buys is granularity. When every boundary costs a container, functions
 have to be big enough to amortize it, and a tool becomes a monolith: one program
@@ -479,60 +477,43 @@ possible today:
   not get more expensive as the library grows.
 
 * *Communities organized by values instead of by language.* Morloc calls these
-  *planes*: namespaces that differ not by subject area but by what their members
-  demand of code -- review, verification, performance, or nothing at all. See
-  <<_planes_of_libraries>>.
+  *planes*: namespaces that differ not by subject area or language but by what
+  their members demand of code -- review, verification, performance, or nothing
+  at all. See <<_planes_of_libraries>>.
 
 None of that infrastructure exists yet. There is no registry, no type-directed
 search, and no plane but the default one.
 
 === Where the project stands
 
-Morloc has been in development for about ten years and the first paper is
-published in PeerJ Computer Science. It is in beta. I use it for my own work
-and it is not yet used widely by anyone else.
+Morloc has been in development for about ten years. I use it for my own work,
+but it is not yet used widely by anyone else.
 
-What is solid: the compiler and its type system; Python, {cpp}, and R as fully
-supported languages; the generated CLI, HTTP, socket, and MCP interfaces;
-environment and dependency management through `mim`; and a standard library
-covering the usual data structures, text, math, tables, and tensors.
+Solid: the compiler and its type system, {cpp}/Python/Rust/R as fully supported
+languages, the generated CLI, HTTP, socket and MCP interfaces, environment and
+dependency management through `mim`, and a standard library covering the common
+data structures, text, math, tables, and tensors.
 
-What is thin or unfinished: Rust has a working backend but only part of the
-standard library. Futhark support is experimental. Remote execution -- the SLURM
-dispatch that makes Morloc usable as a cluster workflow language -- is in
-development. Editor support is current for vim and Pygments and out of date for
-Tree-sitter, VS Code, and Zed. The type system cannot yet express bounded
-values, which I consider its most-missed feature. The registry and planes are
-unbuilt.
-
-You will hit sharp edges. When you do, <<troubleshooting>> is the first stop,
-and the https://github.com/morloc-project/morloc/issues[issue tracker] is the
-second.
+Thin or unfinished: library coverage far from complete, remote execution (the
+SLURM dispatch that makes Morloc usable as a cluster workflow language) is in
+development, editor support is current for vim and Pygments and stale for VS
+Code/Zed, some aspects of the type system are still experimental, and the module
+registry is unbuilt.
 
 === What I need
 
-The hard part is finished. The library is nearly empty.
+I'm looking for people who can:
 
-Everything above is machinery for publishing functions. The standard library
-uses it, and almost nothing else does -- outside `morloclib` there is barely an
-ecosystem at all. A compiler cannot generate one, and that is where I need
-people:
-
-* *Write a module.* Take something you already maintain, give it types, and
-  publish it. <<_modules_and_libraries>> covers how.
+* *Write a module.* Take your program, give it types, and publish it.
 * *Report what breaks.* A bug report is worth more to me than a patch right
   now. Unexpected behavior, a bad error message, a gap in this manual, and
   anything that was harder than it should have been all count.
-* *Bring a language.* Adding a backend is a bounded, well-defined piece of work,
-  and each one makes every existing module reachable from a new community.
-* *Fix the editor tooling.* The Tree-sitter grammar has fallen behind the
-  compiler, and the Zed and VS Code extensions depend on it. Pull requests
-  welcome.
-
-There is a Morloc meetup twice a week, Tuesdays at 5pm ET and Saturdays at 1pm
-ET, on https://discord.gg/dyhKd9sJfF[Discord]. I demo what is new, walk through
-code, and answer questions. Come and be helpfully critical.
-
+- **Fix the editor tooling.** Add support for your favorite editor.
+- **Bring a language.** Every new language brings fun design questions, I would
+  be happy to work with you in bringing your language into the Morloc ecosystem.
+- **Tell me the right way to build a type system.** There is a lot of
+  interesting theory to hash through. There's a paper or two buried somewhere in
+  all of this.
 
 == Getting Started
 
