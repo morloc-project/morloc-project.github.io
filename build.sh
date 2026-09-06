@@ -3,6 +3,16 @@
 set -eu
 
 script_dir=$(cd "$(dirname "$0")" && pwd)
+katex_dir=${KATEX_DIR:-/opt/node_modules/katex}
+
+# The prerender step needs node and katex, which live in the build image. A
+# stale image is the usual reason they are missing.
+if ! command -v node >/dev/null 2>&1 || [ ! -f "${katex_dir}/dist/katex.min.css" ]; then
+  echo "build.sh: node or katex is missing from this environment." >&2
+  echo "  If you are running in the container, rebuild the image: make build" >&2
+  echo "  If you are running on the host, point KATEX_DIR at a katex install." >&2
+  exit 1
+fi
 
 echo "Building site..."
 
@@ -34,7 +44,19 @@ asciidoctor -r asciidoctor-kroki -r asciidoctor-bibtex --doctype=book "${script_
 mkdir -p docs/docs/static/css
 cp syntax/css/*.css docs/docs/static/css
 
+# KaTeX stylesheet and fonts, so typeset math needs nothing from a CDN.
+# Only woff2 is shipped; every browser that reaches the other formats predates
+# the CSS this site already relies on.
+cp "${katex_dir}/dist/katex.min.css" "${script_dir}/docs/docs/static/css"
+mkdir -p "${script_dir}/docs/docs/static/css/fonts"
+cp "${katex_dir}"/dist/fonts/*.woff2 "${script_dir}/docs/docs/static/css/fonts"
+
 # Lazy load images
 sed -i -e 's/<img/<img loading="lazy"/g' "${script_dir}/docs/docs/index.html"
+
+# Typeset the math and build the copy buttons now rather than in the browser
+node "${script_dir}/bin/prerender.mjs" \
+  "${script_dir}/docs/docs/index.html" \
+  "${script_dir}/src/math-macros.tex"
 
 echo "Morloc Manual site build complete!"

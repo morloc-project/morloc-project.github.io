@@ -1,0 +1,13 @@
+% LaTeX macros available to every latexmath: expression in the manual.
+% Read by bin/prerender.mjs and applied at build time; nothing here is
+% rendered into the page.
+\def\ea{\widehat{\alpha}}
+\def\eb{\widehat{\beta}}
+\def\eg{\widehat{\gamma}}
+\def\sep{ \quad\quad}
+\newcommand{\mark}[1]{\blacktriangleright_{#1}}
+\newcommand{\expr}[3]{#1\ \ \vdash\ #2\ \dashv\ \ #3}
+\newcommand{\packto}[2]{#1\ \approx >\ #2}
+\newcommand{\apply}[3]{#1 \bullet #2\ \Rightarrow {\kern -1em} \Rightarrow\ #3}
+\newcommand{\subtype}[2]{#1\ :\leqq\ #2}
+\newcommand{\braced}[1]{\lbrace #1 \rbrace}

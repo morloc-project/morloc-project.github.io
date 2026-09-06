@@ -55,6 +55,34 @@ systemDarkTheme.addEventListener("change", (e) => {
 	if (!storedTheme()) applyTheme(e.matches ? "dark" : "light");
 });
 
+// Code block copy buttons
+//
+// The buttons themselves are baked into the HTML at build time; one delegated
+// listener serves all of them.
+
+document.addEventListener("click", (e) => {
+	const button = e.target.closest(".copy-button");
+
+	if (!button) return;
+
+	const block = button.parentNode.querySelector("pre > code");
+
+	if (!block) return;
+
+	let text = block.innerText;
+
+	if (button.dataset.stripPrompt)
+		text = text
+			.split("\n")
+			.map((line) => line.replace(/^\$\s/, ""))
+			.join("\n");
+
+	navigator.clipboard.writeText(text).then(() => {
+		button.classList.add("copied");
+		setTimeout(() => button.classList.remove("copied"), 300);
+	});
+});
+
 // Back to top button
 
 const observer = new IntersectionObserver(scrollToTop);
