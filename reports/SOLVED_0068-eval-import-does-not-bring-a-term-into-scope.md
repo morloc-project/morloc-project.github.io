@@ -1,6 +1,6 @@
 # 0068: a served eval's `import` does not bring the imported term into scope
 
-- Status: open
+- Status: withdrawn
 - Found: 2026-09-06, while testing the eval auth gate
 - Component: nexus (or compiler eval)
 - morloc: 0.101.0     mim: 0.29.0
@@ -54,3 +54,28 @@ the capability appears to work until you try to use a function.
 Unverified: the import line and the expression may be assembled into a module
 whose export or scope wiring does not include the imported names, rather than
 the import being ignored -- the allow-list check clearly parses it.
+
+## Resolution
+
+Withdrawn. Not a defect; the report is wrong.
+
+`root-py` exports `+`, and has not exported `add` for about a year. The
+expression under test changed two things at once against the failing case --
+it added the import AND replaced `+` with `add` -- so the term really was
+undefined, and the error was correct.
+
+The expression the report should have used works:
+
+```
+$ curl -s -X POST localhost:8089/eval -H 'Content-Type: application/json' \
+    -d '{"expr":"import root-py; 1 + 2"}'
+{"status":"ok","result":"3"}
+```
+
+Without the import the same expression reports `Undefined term: +`, so the
+import is what brings the term into scope: exactly the behaviour the report
+claimed was missing.
+
+The `<expr>:3:1` position was also read wrongly. The import line is expanded
+into a preamble and the expression follows it, so line 3 is where a one-line
+expression lands. That is the design, not evidence against it.
