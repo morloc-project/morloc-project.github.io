@@ -1,6 +1,6 @@
 # 0004: adding a `package.yaml` silently drops `std` from the emitted envspec
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, while writing the mim development tutorial (morloc-manager)
 - Component: compiler
 - morloc: 0.100.2     mim: 0.28.0
@@ -87,3 +87,27 @@ wins, and that a decoded meta emits `LangReq "cpp" Nothing (Just "c++20")`.
 Neither the fix nor the test has been compiled -- `stack build` was not run in
 the session that wrote them. Build and run `EnvSpecTests` before closing this
 report.
+
+## Resolution
+
+Fixed in `morloc` commit `6caa4692`.
+
+The cause recorded in this report was right: the `Defaultable` record and the
+`FromJSON` decoder carried different defaults for the same field. Both now read
+one constant, which is the only arrangement in which they cannot drift apart
+again.
+
+Verified on that build. The emitted spec no longer depends on whether the file
+exists:
+
+```
+no package.yaml          -> [{'lang': 'cpp', 'std': 'c++20'}]
+package.yaml, no version -> [{'lang': 'cpp', 'std': 'c++20'}]
+cpp-version: 17          -> [{'lang': 'cpp', 'std': 'c++20'}]
+cpp-version: 20          -> [{'lang': 'cpp', 'std': 'c++20'}]
+cpp-version: 23          -> [{'lang': 'cpp', 'std': 'c++23'}]
+```
+
+The floor at C++20 for a request below it is deliberate and unrelated: the
+runtime needs C++20, so that is what the program requires whatever the project
+asks for. A request above the floor is carried through.

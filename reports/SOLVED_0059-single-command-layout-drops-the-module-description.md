@@ -1,6 +1,6 @@
 # 0059: in a single-command program the module docstring is dropped entirely
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-05, while fixing reports/0023 (module epilogue never rendered)
 - Component: nexus
 - morloc: 0.100.2     mim: 0.28.0
@@ -69,3 +69,31 @@ long form. Report 0023 deliberately did not decide this.
 
 Note the epilogue is not affected: `@epilogue` renders correctly in this layout
 as of `morloc` commit `ab019ed5`.
+
+## Resolution
+
+Fixed in `morloc` commit `6b024bd7`.
+
+This report left the fix open as a judgment call, since the layout has one
+description slot and two docstrings available. The resolution is to use both:
+the module's first, because it answers what a reader of the program's help is
+asking, then the export's, which would otherwise have nowhere to appear. Where
+only one exists it is used alone, so a program described only at the export --
+the arrangement that already worked -- reads exactly as before.
+
+The blank-description case this report highlights is the one that made the
+decision easy. A program with a module docstring and no export docstring
+printed nothing at all, which is not a defensible reading of either
+docstring's intent.
+
+`test-suite/golden-tests/module-help-blocks` now covers all three
+arrangements: both docstrings, module only, and export only.
+
+## Verification pending
+
+The expected output was derived from the code rather than observed: another
+session held the shared morloc installation when this landed, so building and
+running would have collided with it. The derivation rests on behaviour already
+recorded in the same golden -- clap shows one description line under `-h` and
+the whole block under `--help` -- and on the observed rendering of an empty
+description, which emits nothing. One suite run confirms it.

@@ -107,7 +107,7 @@ by plain module name.
 
 ## Resolution
 
-Fixed 2026-09-05, in the working tree (not yet committed). Three changes, for
+Fixed in `morloc` commit `c193eb98`. Three changes, for
 what turned out to be three separate mechanisms behind one symptom.
 
 **1. The binding name is reserved.** `makeNamespace` in
