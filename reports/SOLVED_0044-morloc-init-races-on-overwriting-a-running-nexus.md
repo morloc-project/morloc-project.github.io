@@ -1,6 +1,6 @@
 # 0044: `morloc init -f` can fail with ETXTBSY overwriting the nexus it just built
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-03, while rebuilding the runtime after a nexus change
 - Component: runtime (init)
 - morloc: 0.100.2     mim: 0.28.0
@@ -58,3 +58,18 @@ temporary name in the destination directory and `rename(2)` over the target.
 `rename` is atomic and is not refused for a busy image, so it also removes the
 half-updated-runtime window. Worth applying to every artifact `init` installs,
 not just the nexus.
+
+## Resolution
+
+Fixed in `morloc` commit `9ef36bca`.
+
+`morloc init` now produces each runtime artifact under a temporary name in the
+destination's own directory, strips it there, and `rename(2)`s it onto the
+target. `rename` is atomic within a directory and is not refused for a busy
+image, so the `ETXTBSY` window is gone and there is no interval in which a
+reader sees a half-written or half-stripped binary. Both artifacts the report
+names go through it, so the runtime is never left half updated.
+
+Stripping in place was what made the original sequence unsafe: the gap between
+the copy and the strip was long enough for a second builder to strip a file the
+first was still writing.

@@ -1,6 +1,6 @@
 # 0031: a packet stream whose schema carries a name round-trips through a file but not through stdin
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-02, during the "Building CLIs" documentation pass
 - Component: runtime
 - morloc: 0.100.2     mim: 0.28.0
@@ -103,3 +103,41 @@ schema the author never wrote.
 Unverified. The stdin reader appears to compare the opener's resolved concrete
 schema (constructor name included) against the packet's general schema, while
 the file path either skips the comparison or normalizes the name away first.
+
+## Resolution
+
+Fixed 2026-09-07, together with the `@append` instance of the same defect
+(`plans/todo-implementations/FINDINGS.md` bug 1). Analysis in
+`plans/schema-comparison-analysis.md`.
+
+The diagnosis in this report was right about the symptom and understated the
+cause. It is not that "only the stdin path compares them" -- it is that the
+comparison was a byte equality against a string the caller was trusted to have
+normalized, and the callers disagreed. The nexus's own evaluator normalized
+before calling into the runtime; the pools passed the compiler's dispatch-table
+string, hints and all. Every packet writer stores the hint-free form
+(`schema_to_string` drops hints by design), so the pool's string could never
+equal the wire's.
+
+Three changes:
+
+* `morloc-runtime-types/src/schema.rs` gains `canonicalize_schema_str` --
+  parse, then re-render. It names the normal form so an entry point can ask
+  for it rather than trust its caller.
+* `open_stdio` canonicalizes before publishing the declared schema to the
+  nexus, so the string the nexus holds is already normal.
+* `check_incoming_schema` (`morloc-nexus/src/stdio_server.rs`) compares
+  structurally via `schema_strings_compatible` rather than by bytes, so a
+  caller that skips normalization is still served.
+
+The same treatment was applied to `shared_append_to_path`, which had the other
+raw `!=`, and `open_dispatch_istream` now uses the ascribed schema it had been
+discarding: a stream file is self-describing so the *reader* needs no schema,
+but the pool then walks the resulting voidstar with its compile-time schema,
+and a mismatch there was silently producing garbage rather than an error.
+
+Covered by `test-suite/golden-tests/stream-schema-hint-boundary`, whose
+`readEv via stdin` case is this report: a record-element stream piped between
+two morloc commands. Note the report's observation that a plain `type Name =
+Str` alias triggers it too -- the golden pins that as `appendAlias`, because
+hints are not a record-only concern.

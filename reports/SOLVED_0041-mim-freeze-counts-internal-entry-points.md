@@ -1,6 +1,6 @@
 # 0041: `mim freeze` counts and records the compiler's internal entry points
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-03, tracing which consumers read `manifest.json` before a schema change
 - Component: mim
 - morloc: 0.100.2     mim: 0.28.0
@@ -108,3 +108,18 @@ Verified by reading, not by patch: adding `#[serde(default)] internal: bool` to
 `ManifestStubCmd` and filtering on it in `parse_manifest_commands` matches what
 `morloc list` and `Morloc/Completion.hs` now do. Left unfixed here because mim
 builds belong to the user.
+
+## Resolution
+
+Fixed in `morloc-manager` commit `13c0ac9`.
+
+The stub now deserializes the `internal` flag and drops the commands carrying
+it, so `mim freeze` reports the same command surface the nexus, `morloc list`
+and the shell completions report. The field is read as optional, so a manifest
+built before it existed still describes all of its commands as callable.
+
+Two corrections to the report while closing it. The count was the only thing
+wrong -- the set of *programs* was always right, and the OCI label the report
+mentions carries program names rather than command names, so it was unaffected.
+And `mim start` never built this inventory: `freeze` is the sole caller, which
+is why the fix is one function.
