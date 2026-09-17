@@ -1,6 +1,6 @@
 # 0081: the `build:` section of `env.flags.yaml` is accepted and never applied
 
-- Status: open
+- Status: fixed
 - Found: 2026-09-14, checking the deployment chapter against mim
 - Component: mim
 - morloc: 0.105.2     mim: 0.31.1
@@ -49,3 +49,13 @@ nothing. The manual now documents only `run` and `start`.
 
 Unverified: either thread `build` through the env-image and freeze builds, or
 drop the field so the strict schema rejects it.
+
+## Resolution
+
+Fixed in `morloc-manager` commit `74c2753` (released in mim 0.32.0).
+
+The `build` section now applies to every image build an environment performs
+(the requirement-derived image, the dev image, and a freeze) and is part of the
+image cache key, so editing it makes the next `update` rebuild. The same commit
+added `--flagfile` to `new`, `modify`, `run`, `shell`, `install`, and `start`;
+the manual's "Extra container flags" section documents all three phases.

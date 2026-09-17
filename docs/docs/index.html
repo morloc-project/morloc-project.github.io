@@ -22993,8 +22993,8 @@ Every entry must state its <code>source</code>&#8201;&#8212;&#8201;the package d
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">py-deps</span><span class="tok-p">:</span>
-<span class="tok-w">  </span><span class="tok-nt">matplotlib</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;&gt;=3.5&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> source</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nv">conda</span><span class="tok-p tok-p-Indicator">}</span>
-<span class="tok-w">  </span><span class="tok-nt">requests</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;*&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> source</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nv">pypi</span><span class="tok-p tok-p-Indicator">}</span></code></pre>
+<span class="tok-w">  </span><span class="tok-nt">matplotlib</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;&gt;=3.5&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> source</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;conda&quot;</span><span class="tok-p tok-p-Indicator">}</span>
+<span class="tok-w">  </span><span class="tok-nt">requests</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;*&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> source</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;pypi&quot;</span><span class="tok-p tok-p-Indicator">}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
@@ -23009,7 +23009,7 @@ pure-Python packages that are not mirrored on conda-forge.</p>
 <p>Unlike the other languages, <code>source</code> is <strong>mandatory</strong> for Python: a bare
 <code>matplotlib: "&gt;=3.5"</code> is a build error, because the correct database cannot be
 guessed safely. Names are used exactly as written (there is no PyPI-to-conda
-renaming table), so under <code>source: conda</code> use the conda-forge package name where
+renaming table), so under <code>source: "conda"</code> use the conda-forge package name where
 it differs from the PyPI name.</p>
 </div>
 <div class="paragraph">
@@ -23027,8 +23027,8 @@ conda-forge:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">py-deps</span><span class="tok-p">:</span>
-<span class="tok-w">  </span><span class="tok-nt">pysam</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;*&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> channel</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nv">bioconda</span><span class="tok-p tok-p-Indicator">}</span>
-<span class="tok-w">  </span><span class="tok-nt">numpy</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;&gt;=2&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> source</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nv">conda</span><span class="tok-p tok-p-Indicator">}</span></code></pre>
+<span class="tok-w">  </span><span class="tok-nt">pysam</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;*&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> channel</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;bioconda&quot;</span><span class="tok-p tok-p-Indicator">}</span>
+<span class="tok-w">  </span><span class="tok-nt">numpy</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;&gt;=2&quot;</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> source</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">&quot;conda&quot;</span><span class="tok-p tok-p-Indicator">}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
@@ -23472,42 +23472,96 @@ changing the base rebuilds the environment.</p>
 <div class="sect2">
 <h3 id="_extra_container_flags"><a class="anchor" href="#_extra_container_flags"></a>12.6. Extra container flags</h3>
 <div class="paragraph">
-<p>Each environment&#8217;s container flags live in
-<code>~/.config/morloc/environments/&lt;name&gt;/env.flags.yaml</code>. The file is a YAML
-document partitioned by phase (<code>run</code>, <code>start</code>) and by engine
-(<code>docker</code>, <code>podman</code>, <code>apptainer</code>, plus a shared <code>all</code> slot):</p>
+<p>Anything a container engine needs beyond what <code>mim</code> passes on its own&#8201;&#8212;&#8201;a GPU
+device, a proxy, a bind mount, a hostname&#8201;&#8212;&#8201;goes in an <strong>engine flag file</strong>: a
+YAML document partitioned by phase and by engine. A phase is one of the three
+engine verbs an environment performs: <code>build</code> (the image build, at <code>new</code>,
+<code>update</code>, and <code>freeze</code>), <code>run</code> (<code>run</code>, <code>shell</code>, <code>install</code>), and <code>start</code> (the
+serving container). Under each phase, an engine section (<code>docker</code>, <code>podman</code>,
+<code>apptainer</code>) lists the flags that engine gets, and an <code>all</code> section lists the
+flags every engine gets. Each entry is one argument as the engine would see it
+on its command line:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">run</span><span class="tok-p">:</span>
+<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-c1"># flags.yaml</span>
+<span class="tok-nt">build</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">all</span><span class="tok-p">:</span>
+<span class="tok-w">    </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">--build-arg=HTTP_PROXY=http://proxy.example.com:3128</span>
+<span class="tok-w">  </span><span class="tok-nt">podman</span><span class="tok-p">:</span>
+<span class="tok-w">    </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">--no-cache</span>
+
+<span class="tok-nt">run</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">all</span><span class="tok-p">:</span>
+<span class="tok-w">    </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">--volume=/data/reference:/ref:ro</span><span class="tok-w">     </span><span class="tok-c1"># a host directory every program can read</span>
 <span class="tok-w">  </span><span class="tok-nt">apptainer</span><span class="tok-p">:</span>
-<span class="tok-w">    </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">--nv</span><span class="tok-w">               </span><span class="tok-c1"># NVIDIA GPU passthrough</span>
+<span class="tok-w">    </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">--nv</span><span class="tok-w">                                 </span><span class="tok-c1"># NVIDIA GPU passthrough</span>
+<span class="tok-w">  </span><span class="tok-nt">podman</span><span class="tok-p">:</span>
+<span class="tok-w">    </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">--device=/dev/dri</span>
 
 <span class="tok-nt">start</span><span class="tok-p">:</span>
-<span class="tok-w">  </span><span class="tok-nt">apptainer</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">all</span><span class="tok-p">:</span>
 <span class="tok-w">    </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">--hostname=morloc-serve</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
-<p>For each invocation the materialized flag list is
-<code>&lt;phase&gt;.all ++ &lt;phase&gt;.&lt;engine&gt;</code>, with the matching CLI override
-appended. The schema is strict: unknown section or engine names are a
-parse error.</p>
+<p>Every section is optional, and an absent one is empty. The schema is strict:
+a section or engine name outside this set is a parse error, so a misspelt
+<code>podmann:</code> is refused rather than ignored. Entries pass through the shell before
+they reach the engine, so <code>$HOME</code>, <code>~</code>, and globs expand, and a value that
+needs a space must be quoted as it would be in a shell.</p>
 </div>
 <div class="paragraph">
-<p>CLI overrides (one-shot, never persist):</p>
+<p>Install the file when the environment is created, or on an existing one with
+<code>modify</code>, which also takes <code>--no-flagfile</code> to remove it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mim<span class="tok-w"> </span>new<span class="tok-w"> </span>gpu<span class="tok-w"> </span>--engine<span class="tok-w"> </span>podman<span class="tok-w"> </span>--flagfile<span class="tok-w"> </span>flags.yaml
+<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>modify<span class="tok-w"> </span>--env<span class="tok-w"> </span>gpu<span class="tok-w"> </span>--flagfile<span class="tok-w"> </span>flags.yaml<span class="tok-w">      </span><span class="tok-c1"># replace it; build flags apply at the next `update`</span>
+<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>modify<span class="tok-w"> </span>--env<span class="tok-w"> </span>gpu<span class="tok-w"> </span>--no-flagfile<span class="tok-w">              </span><span class="tok-c1"># drop it</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The file is validated and then copied whole&#8201;&#8212;&#8201;comments included&#8201;&#8212;&#8201;to
+<code>~/.config/morloc/environments/&lt;name&gt;/env.flags.yaml</code>, replacing whatever was
+there; it is never merged into an existing one. <code>mim info &lt;name&gt;</code> names the
+file and prints what each phase materializes to for the environment&#8217;s engine.
+The <code>build</code> section is part of the image&#8217;s cache key, so changing it is enough
+to make the next <code>update</code> rebuild.</p>
+</div>
+<div class="paragraph">
+<p>For each invocation the flag list is <code>&lt;phase&gt;.all ++ &lt;phase&gt;.&lt;engine&gt;</code>, with
+any one-shot CLI override appended after it. Two overrides exist, and neither
+touches the persisted file:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>mim run -x &lt;flag&gt;</code>&#8201;&#8212;&#8201;appends to the run-phase flag list
-for this invocation. Sibling of <code>--env-var</code>. <code>mim shell</code> and <code>mim install</code>
-take the same flag.</p>
+<p><code>-x &lt;flag&gt;</code> (<code>--engine-arg</code>) appends one flag for this invocation, and is
+repeatable. On <code>run</code>, <code>shell</code>, and <code>install</code> it joins the <code>run</code> phase; on
+<code>start</code>, the <code>start</code> phase; on <code>new</code> and <code>update</code>, the <code>build</code> phase.</p>
 </li>
 <li>
-<p><code>mim start -x &lt;flag&gt;</code>&#8201;&#8212;&#8201;same, for the start phase.</p>
+<p><code>--flagfile &lt;file&gt;</code> on <code>run</code>, <code>shell</code>, <code>install</code>, and <code>start</code> uses that file
+<strong>instead of</strong> the environment&#8217;s for this invocation, which is how a second
+instance of a serving environment comes up under different flags.</p>
 </li>
 </ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mim<span class="tok-w"> </span>run<span class="tok-w"> </span>-x<span class="tok-w"> </span>--device<span class="tok-o">=</span>/dev/dri<span class="tok-w"> </span>--<span class="tok-w"> </span>./prog<span class="tok-w"> </span>render<span class="tok-w">     </span><span class="tok-c1"># one extra flag, this run only</span>
+<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>run<span class="tok-w"> </span>--flagfile<span class="tok-w"> </span>gpu.yaml<span class="tok-w"> </span>--<span class="tok-w"> </span>./prog<span class="tok-w"> </span>render<span class="tok-w">      </span><span class="tok-c1"># a different file, this run only</span>
+<span class="tok-gp">$ </span>mim<span class="tok-w"> </span>start<span class="tok-w"> </span>--flagfile<span class="tok-w"> </span>alt.yaml<span class="tok-w"> </span>-p<span class="tok-w"> </span><span class="tok-m">9090</span>:8080<span class="tok-w">        </span><span class="tok-c1"># a second serve under other flags</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>One flag is owned by <code>mim</code> and refused in the file and on the command line
+alike: <code>--platform</code>, because the environment&#8217;s <code>--arch</code> chooses it and a raw
+platform flag would run the image on an architecture its toolchain was not
+solved for. The whole facility is for container backends; the native backend
+has no engine to pass flags to, and <code>--flagfile</code> is an error there.</p>
 </div>
 </div>
 <div class="sect2">
