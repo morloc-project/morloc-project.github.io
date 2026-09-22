@@ -1,0 +1,190 @@
+# 5.2. Overload terms with typeclasses
+
+Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/typeclasses.html | prev: https://morloc-project.github.io/docs/types/term-polymorphism.md | next: https://morloc-project.github.io/docs/types/infix-operators.md
+
+A typeclass lets one name have a different implementation for each type it is applied to. Where term polymorphism gives the compiler a free choice between interchangeable definitions, a typeclass instance is *selected* by the type at the call site. The idea is the same as typeclasses in Haskell, traits in Rust, interfaces in Java, and concepts in C++.
+
+A class declares method signatures. An instance supplies the implementations for one type:
+
+**pretty.loc**
+
+```morloc
+module main (describeInts, describeReals)
+
+import root-py
+
+class Pretty a where
+    pretty :: a -> Str
+
+instance Pretty Int
+       , Pretty Real where
+    source Py from "ops.py" ("to_str" as pretty)
+
+title :: Pretty a => a -> Str
+title x = "value: " <> pretty x
+
+describeInts :: [Int] -> [Str]
+describeInts = map title
+
+describeReals :: [Real] -> [Str]
+describeReals = map title
+```
+
+**ops.py**
+
+```python
+def to_str(x):
+    return str(x)
+```
+
+```console
+$ morloc make -o pretty pretty.loc
+$ ./pretty describeInts '[1,2]'
+["value: 1","value: 2"]
+$ ./pretty describeReals '[1.5]'
+["value: 1.5"]
+```
+
+Three things in that module are worth naming.
+
+**One instance may cover several types.** `instance Pretty Int , Pretty Real where` declares two instances that share a body. Python’s `str` handles both, so writing the `source` line twice would be noise. The standard library uses this form heavily — `root-py` declares a dozen `RealLike` instances in one block.
+
+****A signature may carry a class constraint.** \`title**
+
+Pretty a ⇒ a → Str\` says `title` works for any type that has a `Pretty` instance. Everything to the left of `⇒` is a constraint; multiple constraints are comma-separated and
+
+**parenthesized, as in \`root’s \`sum**
+
+(Foldable f, Integral a) ⇒ f a → a\`.
+
+**A class body holds signatures only.** Morloc has no default method implementations. Writing a body inside a `class` block is a parse error:
+
+```console
+$ morloc typecheck dm.loc
+dm.loc:6:16: unexpected identifier 'xs'
+    |
+  6 |     prettyList xs = "list"
+    |                ^
+  expected '::'
+```
+
+Put the shared logic in an ordinary constrained function instead, the way `title` does above.
+
+> **Important: A generic function cannot be an entry point**
+> An exported term whose type still has a class constraint is dropped from the generated program, because the compiler cannot pick an instance without a concrete type. Export `title` directly and it does not become a command:
+> 
+> ```console
+> $ morloc make -o generic generic.loc
+> Warning: skipping generic export 'title'
+> $ ./generic title 1
+> error: unexpected argument 'title' found
+> ...
+> ```
+> 
+> Export a monomorphic wrapper instead — `describeInts` and `describeReals` above — and keep the generic function internal.
+
+## 5.2.1. One class, many languages
+
+An instance may source implementations from several languages at once. The compiler then has a choice of instance bodies for the same method, and the usual collapse applies: it takes whichever one keeps the program in one language.
+
+```morloc
+class Addable a where
+    zero :: a
+    (+) :: a -> a -> a
+
+instance Addable Int where
+    source Py from "arithmetic.py" ("add" as (+))
+    source Cpp from "arithmetic.hpp" ("add" as (+))
+    zero = 0
+
+instance Addable Real where
+    source Py from "arithmetic.py" ("add" as (+))
+    source Cpp from "arithmetic.hpp" ("add" as (+))
+    zero = 0.0
+```
+
+The native functions may be polymorphic in their own language, in which case the same implementation is named by several instances. The Python `add` above is one function:
+
+**arithmetic.py**
+
+```python
+def add(x, y):
+    return x + y
+```
+
+And so is the C++ one:
+
+**arithmetic.hpp**
+
+```cpp
+template <class A>
+A add(A x, A y){
+    return x + y;
+}
+```
+
+A method does not have to come from a foreign language. `zero = 0` is an ordinary Morloc definition, and it is polymorphic in the same way any other term is: `zero` in the `Int` instance is the integer literal, `zero` in the `Real` instance is the floating-point one.
+
+> **Warning: This example collides with root**
+> `Addable` redeclares `zero` and `(+)`, which `root` already supplies through its `Integral` class. Two classes cannot define the same term, so this module compiles only in isolation — with `import internal` for the primitive types, not `import root-py`:
+> 
+> ```console
+> $ morloc typecheck main.loc
+> In module 'main': The typeclasses 'Integral' and 'Addable' have conflicting definitions of the term 'zero'
+> ```
+
+## 5.2.2. Superclasses
+
+A class may require another class. Write the requirement to the left of `⇒` in the class head:
+
+```morloc
+class Pretty a => Boxed a where
+    box :: a -> Str
+```
+
+Any type with a `Boxed` instance must also have a `Pretty` instance, and a function constrained on `Boxed a` may use `pretty` as well as `box`. This is how `root` layers its numeric hierarchy: `class Integral a ⇒ Numeric a` means every `Numeric` type is also `Integral`.
+
+## 5.2.3. Importing a class from another module
+
+A class is exported and imported by its name. Its methods are not separately importable and may not appear in an export list:
+
+**numops/main.loc**
+
+```morloc
+module numops (Pretty, exclaim)
+
+import root
+
+class Pretty a where
+    pretty :: a -> Str
+
+exclaim :: Pretty a => a -> Str
+exclaim x = pretty x <> "!"
+```
+
+Listing `pretty` in that export list gives `Module '.numops' does not export the following terms or types: [pretty]`, which is confusing but means what it says: a method has no standalone identity to export.
+
+Importing the class name is enough to declare instances for it elsewhere:
+
+**main.loc**
+
+```morloc
+module main (shout)
+
+import root-py
+import .numops (Pretty, exclaim)
+
+instance Pretty Int where
+    source Py from "ops.py" ("to_str" as pretty)
+
+shout :: Int -> Str
+shout = exclaim
+```
+
+```console
+$ morloc make -o prog main.loc
+$ ./prog shout 7
+"7!"
+```
+
+This is the shape every language-specific standard library module takes. `root` declares `Eq`, `Ord`, `Functor`, `Foldable` and the rest; `root-py`, `root-cpp` and `root-r` import those names and fill in instances. Nothing in `root` knows which languages exist.

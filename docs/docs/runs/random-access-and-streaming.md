@@ -1,0 +1,152 @@
+# 8.7. Random access and streaming
+
+Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/random-access-and-streaming.html | prev: https://morloc-project.github.io/docs/runs/debugging.md | next: https://morloc-project.github.io/docs/utilities/index.md
+
+Three abstract types describe a value that lives in a file rather than in memory:
+
+| Type | Role |
+| --- | --- |
+| `IFile a` | Random-access reader. The file is open for indexed and pattern access; elements are decoded on demand. `a` is the type of the data in the file. |
+| `OStream a` | Sequential writer. Elements are buffered, compressed, and flushed to disk as sub-packets. The output type is always of type `[a]`. |
+| `IStream a` | Sequential reader. The file is walked forward one sub-packet at a time; element order is preserved. Input is always of type `[a]`. |
+
+All three are opened with the same `@open` intrinsic, which returns an integer handle that lives in a shared SHM registry, so the handle can be passed transparently across pool boundaries.
+
+## 8.7.1. Random access with IFile
+
+`@open path` opens an existing morloc stream file for random access. The file’s element schema is read out of the header and must match the `IFile` parameter type; a mismatch errors at open time.
+
+Once open, an `IFile a` is indexable and sliceable using the bracket patterns documented in [Patterns](https://morloc-project.github.io/docs/features/patterns.md):
+
+```morloc
+module main (lookup, slice)
+
+lookup :: Str -> Int -> <IO> Person
+lookup path i = do
+  Ok f <- @open path :: <IO> (Try Str (IFile [Person]))
+  let p = .[i] f
+  @close f
+  p
+
+slice :: Str -> <IO> [Person]
+slice path = do
+  Ok f <- @open path :: <IO> (Try Str (IFile [Person]))
+  let xs = .[100:200] f
+  @close f
+  xs
+```
+
+A slice that spans multiple sub-packets decompresses each sub-packet once, in parallel, and copies just the selected elements into the result. The decompressed sub-packets are cached per handle so a second access to a nearby element is a pointer add rather than another zstd pass. `@flen f` returns the total element count without scanning the file.
+
+## 8.7.2. Sequential writing with OStream
+
+The line
+
+```morloc
+@open path :: <IO> (Try Str (OStream a))
+```
+
+creates a new stream file. The OStream serializes elements into a write buffer; once the buffer reaches its cap, the contents flush to disk as one zstd-compressed sub-packet. Element atomicity is preserved: an element larger than the buffer flushes as its own oversize sub-packet rather than splitting across boundaries.
+
+```morloc
+module main (writeMany)
+
+source Py from "compute.py" ("produceBatch")
+produceBatch :: Int -> [Person]
+
+writeMany :: Str -> Int -> <IO> ()
+writeMany path n = do
+  Ok o <- @open path :: <IO> (Try Str (OStream Person))
+  @write 3 o (produceBatch n)
+  @write 3 o (produceBatch n)
+  @flush o
+  @write 3 o (produceBatch n)
+  @close o
+```
+
+`@write level o xs` appends `xs` to `o` using `level` as the zstd preset for the resulting sub-packet (`0` disables compression; the preset table is the same as for [Compression](https://morloc-project.github.io/docs/runs/compression.md)). `@flush o` forces the buffer to disk as a sub-packet boundary; without it, a partially-filled buffer is held until the next write that overflows it, or until `@close`. `@close` writes the final footer (full sub-packet index, element count, end-of-file marker) and releases the slot; the file is now readable by `IFile` or `IStream`.
+
+`@append path` opens a stream file for further writes, creating it if it is not there yet, so an append-only log needs nothing else to start one. The element schema is checked against the file’s recorded schema and a mismatch errors before any byte is written.
+
+`@concat paths dest` byte-level concatenates a list of compatible stream files into `dest` using `sendfile`, with no userspace copy. It builds beside `dest` and renames onto it, so `dest` may appear in `paths` — adding a batch to a log is the ordinary use — and a merge that fails leaves the old `dest` as it was. Refusing an aliased destination was the alternative; it would have forbidden that use and still left a failed merge free to delete a file it never created.
+
+## 8.7.3. Sequential reading with IStream
+
+`@open path` opens a stream file for forward reads. `@next s` returns the next sub-packet’s elements as a list; when the file is exhausted, `@next` returns `[]`. The cursor advances under the slot’s futex, so two pools holding the same IStream handle can take turns calling `@next` and each gets a distinct sub-packet.
+
+```morloc
+module main (drain)
+
+drain :: Str -> <IO> U64
+drain path = do
+  Ok s <- @open path :: <IO> (Try Str (IStream Int))
+  Ok a <- @next s
+  Ok b <- @next s
+  Ok c <- @next s
+  @close s
+  size a + size b + size c
+```
+
+`@stream f` derives a fresh IStream from an open `IFile a`. The derived stream has its own slot, fd, and cursor, so walking it does not perturb the IFile’s random-access state. The underlying file is the same — closing the IFile invalidates the derived IStream’s next read, which returns a generation-mismatch error.
+
+`@open` also reads standard input, not just files. Opening the path `/dev/stdin` — the value a `--' @stdin` CLI argument takes when it is omitted, and the target of a `-` argument — routes an `IStream` to the process’s stdin, exactly like `@stdin`. Because a pipe is not seekable, `@open "/dev/stdin" :: IFile a` instead returns an `Err` arm without reading any bytes, so a reader can attempt fast random access first and fall back to a sequential `IStream` for stdin (see [Reading a stream from standard input](https://morloc-project.github.io/docs/clis/reading-stdin.md) for the CLI side). Compressed sub-packets are decompressed on demand at `@next`; a non-morloc input on stdin is rejected rather than mis-decoded.
+
+## 8.7.4. Typed standard streams
+
+`@stdin`, `@stdout`, and `@stderr` are nullary intrinsics that expose the process’s standard streams as typed morloc streams. Their element types are fixed by inline ascription at the open site, exactly like `@open`:
+
+| Intrinsic | Type |
+| --- | --- |
+| `@stdin` | `<IO> (Try Str (IStream a))` |
+| `@stdout` | `<IO> (OStream a)` |
+| `@stderr` | `<IO> (OStream a)` |
+
+Once opened, they support the same `@next` / `@write` / `@flush` / `@close` API as their file-backed cousins. The point is type-safe stream IO between morloc programs: the compiler checks the connection at the source level, and the runtime validates each sub-packet’s wire schema on arrival. Piped morloc programs can carry structured data without falling back to ad-hoc text formats.
+
+The canonical Unix-filter shape:
+
+```morloc
+module main (producer, doubler)
+
+import root-py
+
+producer :: <IO> ()
+producer = do
+  o <- @stdout :: <IO> (OStream Int)
+  @write 0 o [1, 2, 3]
+  @write 0 o [4, 5, 6]
+  @close o
+
+doubler :: <IO> ()
+doubler = do
+  Ok s <- @stdin  :: <IO> (Try Str (IStream Int))
+  o     <- @stdout :: <IO> (OStream Int)
+  Ok xs <- @next s
+  @write 0 o (map (\x -> x * 2) xs)
+  Ok ys <- @next s
+  @write 0 o (map (\x -> x * 2) ys)
+  @close o
+  @close s
+```
+
+Connecting them is a shell pipeline, and every stage but the last is asked for morloc’s own framing:
+
+```console
+$ ./main -f packet producer | ./main doubler
+[2,4,6,8,10,12]
+```
+
+The compiler enforces that both sides agree on element type `Int`. `-f packet` is required rather than inferred: a nexus cannot see where its standard output goes, and the choice between morloc framing and a readable rendering belongs to whoever built the pipeline. The same flag appears in [Reading a stream from standard input](https://morloc-project.github.io/docs/clis/reading-stdin.md).
+
+> **Warning**
+> `@stdin` / `@stdout` / `@stderr` carry morloc’s binary sub-packet format — the same wire format used on disk for `IFile` / `IStream` / `OStream`. It is **not** human-readable text. If a sourced foreign function writes to the same standard stream while morloc holds it open (`print` in Python, `std::cout <<` in C++, `cat` / `message` in R), those raw bytes interleave with the morloc packet stream and the reader’s next `@next` fails with a schema-decode error. Either use file-based `IFile` / `OStream` for structured output, or ensure no foreign code writes to a standard stream that morloc has opened.
+
+## 8.7.5. Environment variables
+
+| Variable | Effect |
+| --- | --- |
+| `MORLOC_REGISTRY_SLOT_COUNT` | Number of concurrent stream handles per nexus invocation. Default `4096`. Each slot occupies 512 bytes of SHM; the table is allocated once at nexus startup. |
+| `MORLOC_WRITE_BUFFER_BYTES` | Per-OStream write buffer cap. Default 16 MiB. Smaller values produce more sub-packets (finer reader granularity, more per-flush overhead); larger values amortise zstd overhead over more elements (coarser granularity, longer end-of-run flush). An element larger than the buffer is always written as its own oversize sub-packet regardless of this setting. |
+| `MORLOC_IFILE_CACHE_BYTES` | Per-handle SHM cache for decompressed IFile sub-packets. Default 256 MiB. The cache uses an approximate clock-hand LRU and is released on `@close`. Set to `0` to disable, in which case every IFile access decompresses anew. |
+
+The `MORLOC_FRAME_WORKERS` knob from [Compression](https://morloc-project.github.io/docs/runs/compression.md) also applies: an IFile cache miss on a sub-packet with multiple zstd frames decompresses the frames in parallel using the same worker pool.

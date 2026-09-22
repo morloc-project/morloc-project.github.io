@@ -1,0 +1,238 @@
+# 4.16. Optional types
+
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/optionals.html | prev: https://morloc-project.github.io/docs/features/effects.md | next: https://morloc-project.github.io/docs/features/intrinsics.md
+
+Every language needs a way to say "no value here". Query a database for a row that does not exist, or read a parameter that was never set, and something has to come back. Python has `None`, R has `NULL`, JSON has `null`, and C++ solves it in the library with `std::optional<T>`.
+
+Morloc’s principle is that sourced functions stay idiomatic, so it needs a mechanism that lowers to each language’s own answer while staying consistent across the boundary. That is what the optional type is for.
+
+## 4.16.1. Syntax
+
+The `?` prefix marks a type as optional, and `Null` is the absent value. `?Int` is an integer that might be absent, `?Str` a string that might be. The prefix applies to any type, including lists (`?[Int]`) and records (`?Person`).
+
+```morloc
+--' Get the first element of a list, or nothing
+safeHead :: [Int] -> ?Int
+
+testNull :: ?Int
+testNull = Null
+```
+
+> **Note**
+> Morloc writes `Null` capitalized in source, following the convention that constructors start with an uppercase letter — the same as `True` and `False`. In JSON output it serializes as lowercase `null`, per the JSON standard.
+
+## 4.16.2. Working with optional values
+
+Functions that produce or consume optionals are sourced like any others:
+
+**main.loc**
+
+```morloc
+module main (testSafeHead, testSafeHeadEmpty, testFromNull)
+
+import root-py
+
+safeHead :: [Int] -> ?Int
+safeHead xs
+  ? length xs == 0 = Null
+  : .[0] xs
+
+source Py from "main.py" ("default")
+default :: a -> ?a -> a
+
+testSafeHead :: ?Int
+testSafeHead = safeHead [10, 20, 30]
+
+testSafeHeadEmpty :: ?Int
+testSafeHeadEmpty = safeHead []
+
+testFromNull :: Int
+testFromNull = default 0 Null
+```
+
+The Python side handles `None` the way Python always does:
+
+**main.py**
+
+```python
+def default(default_val, x):
+    if x is None:
+        return default_val
+    return x
+```
+
+```console
+$ ./main testSafeHead
+10
+$ ./main testSafeHeadEmpty
+
+$ ./main --keep-null testSafeHeadEmpty
+null
+$ ./main testFromNull
+0
+```
+
+> **Note**
+> When an exported function’s top-level result is `Null` (or `()`), the nexus prints an empty line rather than the literal `null`. Printing `null` would be noisy in a CLI tool, and a downstream consumer that ingested a stray `null` line could choke on it or, worse, treat it as a valid record. Pass `--keep-null` when you want the literal emitted, as above.
+
+The same shape works in the other languages. In C++, using `std::optional`:
+
+```cpp
+#include <optional>
+
+template <class T>
+T orDefault(T default_val, const std::optional<T>& x) {
+  if(x.has_value()){
+    return x.value();
+  } else {
+    return default_val;
+  }
+}
+```
+
+> **Note**
+> The helper is `orDefault`, not `default`. `default` is a C++ keyword, and a function so named will not compile.
+
+And in R, using `NULL`:
+
+```r
+orDefault <- function(default_val, x){
+  if(is.null(x)){
+    return(default_val)
+  } else {
+    return(x)
+  }
+}
+```
+
+## 4.16.3. Optional record fields
+
+Record fields may be optional, which is what you want for data with missing or unknown values. The `where` form below is an alternative syntax for record declarations, equivalent to the brace syntax in [Records](https://morloc-project.github.io/docs/features/records.md):
+
+```morloc
+record Person where
+  name :: Str
+  age :: ?Int
+
+record Py => Person = "dict"
+
+source Py from "foo.py" ("makePerson")
+makePerson :: Str -> ?Int -> Person
+
+alice :: Person
+alice = makePerson "Alice" 30
+
+bob :: Person
+bob = makePerson "Bob" Null
+```
+
+```console
+$ ./person alice
+{"name":"Alice","age":30}
+$ ./person bob
+{"name":"Bob","age":null}
+```
+
+## 4.16.4. Optionals across languages
+
+An optional produced in one language can be consumed in another with no interop code from you:
+
+```morloc
+-- C++ produces an optional value
+source Cpp from "foo.hpp" ("cSafeDiv")
+cSafeDiv :: Int -> Int -> ?Int
+
+-- Python consumes it
+source Py from "foo.py" ("pFromNull")
+pFromNull :: Int -> ?Int -> Int
+
+testCppToPy :: Int
+testCppToPy = pFromNull (-1) (cSafeDiv 10 3)
+
+testCppToPyNull :: Int
+testCppToPyNull = pFromNull (-1) (cSafeDiv 10 0)
+```
+
+```console
+$ ./optional testCppToPy
+3
+$ ./optional testCppToPyNull
+-1
+```
+
+The compiler generates the serialization at each boundary. A `std::nullopt` in C++ becomes JSON `null`, which Python reads as `None`.
+
+## 4.16.5. Implicit coercion
+
+Morloc coerces a plain value to an optional wherever the context wants one, so you never write a wrapper at the call site:
+
+```morloc
+source Py from "foo.py" ("addOpt")
+addOpt :: ?Int -> ?Int -> ?Int
+
+-- both arguments are plain Int, coerced to ?Int
+testCoerceAddOpt :: ?Int
+testCoerceAddOpt = addOpt 3 4
+
+-- the second argument (42) is Int, coerced to ?Int
+testCoerceArg :: Int
+testCoerceArg = pFromNull 0 42
+```
+
+```console
+$ ./optional testCoerceAddOpt
+7
+$ ./optional testCoerceArg
+42
+```
+
+Coercion crosses language boundaries too. A C++ function returning a plain `Int` can feed a Python parameter typed `?Int`:
+
+```morloc
+source Cpp from "foo.hpp" ("cAddOne")
+cAddOne :: Int -> Int
+
+testCppIntToPyOpt :: Int
+testCppIntToPyOpt = pFromNull 0 (cAddOne 41)
+```
+
+```console
+$ ./optional testCppIntToPyOpt
+42
+```
+
+## 4.16.6. Nested optionals are idempotent
+
+`?(?T)` parses and typechecks, but at run time it collapses to a single `?T`. There is one `Null`, and no way to tell an "outer Null" from an "inner Null". This is deliberate.
+
+The reason goes back to why `?` is a language primitive rather than a library type like C++'s `std::optional`. `?` must lower to each target language’s own missing value: `None` in Python, `NULL` in R, `std::optional<T>` in C++. In Python and R — and in most dynamic languages — that value is structureless. There is no mechanism for telling an outer `None` from an inner one; both are the same singleton. If Morloc allowed two distinguishable null levels, the semantics would diverge across backends, since C++ could fake it with nested `std::optional` and Python could not. That would break the portability `?` exists to provide.
+
+So `?T`, `?(?T)`, and `?(?(?T))` all serialize to the same wire format and the same runtime representation in every backend:
+
+```morloc
+collapsed1 :: ?(?Int)
+collapsed1 = Null
+
+collapsed2 :: ?(?Int)
+collapsed2 = 7   -- treated identically to (7 :: ?Int)
+```
+
+```console
+$ ./optional collapsed1
+
+$ ./optional collapsed2
+7
+```
+
+If you genuinely need layered nullability — telling "the lookup failed" apart from "the lookup succeeded but the field was unset" — encode the distinction in a type of your own:
+
+```morloc
+record LookupResult = LookupResult
+  { tableMissing :: Bool   -- step 1 failure
+  , fieldMissing :: Bool   -- step 2 failure
+  , value :: ?Int          -- present when both succeeded
+  }
+```
+
+> **Note**
+> Sum types — tagged unions such as `data Result = Found Int | Missing` — are planned but not yet supported. Their cross-language design is the open problem, since not every backend has a first-class sum representation.

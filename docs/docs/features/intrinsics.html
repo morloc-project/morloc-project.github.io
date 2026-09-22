@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<meta name="author" content="Zebulun Arendsee">
+<link rel="icon" type="image/x-icon" href="../static/img/favicon.ico">
+
+<link rel="stylesheet" href="../static/css/asciidoctor.css">
+<link rel="stylesheet" href="../static/css/pygments-default.css">
+<script>
+/* Runs before the body is parsed so the page never paints in the wrong theme. */
+(function () {
+	var stored = null;
+
+	try {
+		stored = localStorage.getItem("theme");
+	} catch (e) {}
+
+	var dark =
+		stored === "dark" ||
+		(stored !== "light" &&
+			window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+	if (dark) document.documentElement.classList.add("dark");
+})();
+</script>
+
+<meta name="keywords" content="morloc, polyglot, workflow language, type system, function composition, C++, Python, R, Rust, CLI, MCP">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="description" content="The Morloc Manual website.">
+<meta name="theme-color" content="#000000">
+<meta property="og:site_name" content="Morloc Manual">
+
+<meta property="og:type" content="website">
+<meta property="og:description" content="The Morloc Manual website.">
+
+<meta property="og:image" content="https://morloc-project.github.io/docs/static/img/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="twitter:image" content="https://morloc-project.github.io/docs/static/img/icon-512.png">
+
+<script defer="" src="../pagefind/pagefind-ui.js"></script>
+<script defer="" src="../static/js/script.js"></script>
+<script defer="" src="../static/js/redirect.js"></script>
+
+<link rel="stylesheet" href="../static/css/katex.min.css">
+<link rel="stylesheet" href="../pagefind/pagefind-ui.css">
+
+<link rel="preload" href="../static/fonts/montserrat-400-latin.woff2" as="font" type="font/woff2" crossorigin="">
+<link rel="preload" href="../static/fonts/pt-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin="">
+<link rel="stylesheet" href="../static/css/fonts.css">
+
+<link rel="stylesheet" href="../static/css/style.css">
+<link rel="stylesheet" href="../static/css/pygments-light.css">
+<link rel="stylesheet" href="../static/css/pygments-dark.css">
+
+<link rel="apple-touch-icon" href="../static/img/icon-192.png">
+
+<link rel="manifest" href="../manifest.webmanifest">
+<title>Intrinsics - Morloc Manual</title>
+<meta property="og:title" content="Intrinsics - Morloc Manual">
+<meta property="og:url" content="https://morloc-project.github.io/docs/features/intrinsics.html">
+<link rel="canonical" href="https://morloc-project.github.io/docs/features/intrinsics.html">
+<link rel="prev" href="optionals.html">
+<link rel="next" href="../types/index.html">
+<link rel="alternate" type="text/markdown" href="intrinsics.md">
+</head>
+<body class="book toc2 toc-left">
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="copy-glyph" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path></symbol></svg>
+<div id="header">
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div><div id="search" data-pagefind-ignore=""></div>
+<ul class="sectlevel1">
+<li><a href="../intro/index.html">1. Intro</a>
+<ul class="sectlevel2">
+<li><a href="../intro/index.html#one-program">1.1. Morloc in one program</a></li>
+<li><a href="../intro/index.html#what-morloc-is-not">1.2. What Morloc is not</a></li>
+</ul>
+</li>
+<li><a href="../why/index.html">2. Why Morloc?</a>
+<ul class="sectlevel2">
+<li><a href="../why/index.html#derived-interface">2.1. The interface is derived, not written</a></li>
+<li><a href="../why/index.html#values-cross-boundaries">2.2. Values cross boundaries, not file formats</a></li>
+<li><a href="../why/index.html#signature-vs-implementation">2.3. A signature and its implementations are separate things</a></li>
+<li><a href="../why/index.html#tests-follow-the-type">2.4. Tests and benchmarks follow the type, not the language</a></li>
+<li><a href="../why/index.html#toolboxes">2.5. Toolboxes add and subtract</a></li>
+<li><a href="../why/index.html#annotations">2.6. Caching, logging, and placement are annotations</a></li>
+<li><a href="../why/index.html#one-environment">2.7. One environment, solved once</a></li>
+<li><a href="../why/index.html#what-this-makes-possible">2.8. What this makes possible</a></li>
+<li><a href="../why/index.html#project-status">2.9. Where the project stands</a></li>
+<li><a href="../why/index.html#what-i-need">2.10. What I need</a></li>
+</ul>
+</li>
+<li><a href="../getting-started/index.html">3. Getting Started</a>
+<ul class="sectlevel2">
+<li><a href="../getting-started/installing.html">3.1. Installing Morloc</a>
+<ul class="sectlevel3">
+<li><a href="../getting-started/installing.html#installing-mim">3.1.1. Installing <code>mim</code></a></li>
+<li><a href="../getting-started/installing.html#_choosing_a_backend">3.1.2. Choosing a backend</a></li>
+<li><a href="../getting-started/installing.html#_creating_an_environment">3.1.3. Creating an environment</a></li>
+<li><a href="../getting-started/installing.html#_working_inside_an_environment">3.1.4. Working inside an environment</a></li>
+</ul>
+</li>
+<li><a href="../getting-started/first-program.html">3.2. Your first program</a></li>
+<li><a href="../getting-started/sourcing.html">3.3. Sourcing a foreign function</a></li>
+<li><a href="../getting-started/abstract-modules.html">3.4. Writing code that is not tied to a language</a></li>
+<li><a href="../getting-started/mixing-languages.html">3.5. Mixing languages in one program</a></li>
+<li><a href="../getting-started/parallelism.html">3.6. Parallelism across languages</a></li>
+<li><a href="../getting-started/where-to-go-next.html">3.7. Where to go next</a></li>
+<li><a href="../getting-started/editor-support.html">3.8. Editor support</a></li>
+<li><a href="../getting-started/troubleshooting.html">3.9. Troubleshooting</a></li>
+</ul>
+</li>
+<li class="current"><a href="index.html">4. Syntax and Features</a>
+<ul class="sectlevel2">
+<li><a href="functions.html">4.1. Functions</a>
+<ul class="sectlevel3">
+<li><a href="functions.html#_definition_and_application">4.1.1. Definition and application</a></li>
+<li><a href="functions.html#_composition_and_application_operators">4.1.2. Composition and application operators</a></li>
+<li><a href="functions.html#_partial_application">4.1.3. Partial application</a></li>
+<li><a href="functions.html#_operator_sections">4.1.4. Operator sections</a></li>
+<li><a href="functions.html#_lambdas">4.1.5. Lambdas</a></li>
+</ul>
+</li>
+<li><a href="foreign-functions.html">4.2. Foreign functions</a>
+<ul class="sectlevel3">
+<li><a href="foreign-functions.html#_the_source_statement">4.2.1. The <code>source</code> statement</a></li>
+<li><a href="foreign-functions.html#_general_types">4.2.2. General types</a></li>
+<li><a href="foreign-functions.html#mapping-native-types">4.2.3. Native type mappings</a></li>
+<li><a href="foreign-functions.html#_sourcing_builtins_and_other_non_exports">4.2.4. Sourcing builtins and other non-exports</a></li>
+<li><a href="foreign-functions.html#_keyword_shaped_foreign_operators">4.2.5. Keyword-shaped foreign operators</a></li>
+</ul>
+</li>
+<li><a href="booleans.html">4.3. Booleans</a>
+<ul class="sectlevel3">
+<li><a href="booleans.html#_comparison_operators">4.3.1. Comparison operators</a></li>
+<li><a href="booleans.html#_logical_operators">4.3.2. Logical operators</a></li>
+<li><a href="booleans.html#_boolean_valued_list_functions">4.3.3. Boolean-valued list functions</a></li>
+<li><a href="booleans.html#_guards">4.3.4. Guards</a></li>
+</ul>
+</li>
+<li><a href="integers.html">4.4. Integer types</a>
+<ul class="sectlevel3">
+<li><a href="integers.html#_writing_integer_literals">4.4.1. Writing integer literals</a></li>
+<li><a href="integers.html#_integer_types_at_a_glance">4.4.2. Integer types at a glance</a></li>
+<li><a href="integers.html#_the_default_int_type">4.4.3. The default <code>Int</code> type</a></li>
+<li><a href="integers.html#_big_integers_from_python">4.4.4. Big integers from Python</a></li>
+<li><a href="integers.html#_overflow_at_a_language_boundary">4.4.5. Overflow at a language boundary</a></li>
+<li><a href="integers.html#_compile_time_literal_bounds">4.4.6. Compile-time literal bounds</a></li>
+<li><a href="integers.html#_fixed_width_integer_types">4.4.7. Fixed-width integer types</a></li>
+<li><a href="integers.html#_converting_between_integer_types">4.4.8. Converting between integer types</a></li>
+<li><a href="integers.html#_negation_and_unary_minus">4.4.9. Negation and unary minus</a></li>
+</ul>
+</li>
+<li><a href="floats.html">4.5. Floating-point types</a>
+<ul class="sectlevel3">
+<li><a href="floats.html#_literal_forms">4.5.1. Literal forms</a></li>
+<li><a href="floats.html#_ieee_754_and_non_finite_values">4.5.2. IEEE 754 and non-finite values</a></li>
+<li><a href="floats.html#_compile_time_literal_overflow">4.5.3. Compile-time literal overflow</a></li>
+<li><a href="floats.html#_wire_format_and_json_interop">4.5.4. Wire format and JSON interop</a></li>
+<li><a href="floats.html#_f32_precision_considerations">4.5.5. F32 precision considerations</a></li>
+<li><a href="floats.html#_converting_to_and_from_floating_point">4.5.6. Converting to and from floating point</a></li>
+<li><a href="floats.html#_negation_of_real_values">4.5.7. Negation of Real values</a></li>
+</ul>
+</li>
+<li><a href="strings.html">4.6. Strings</a>
+<ul class="sectlevel3">
+<li><a href="strings.html#_interpolation">4.6.1. Interpolation</a></li>
+<li><a href="strings.html#_escapes">4.6.2. Escapes</a></li>
+<li><a href="strings.html#_triple_quoted_strings">4.6.3. Triple-quoted strings</a></li>
+<li><a href="strings.html#nul-bytes">4.6.4. NUL bytes in strings</a></li>
+</ul>
+</li>
+<li><a href="tuples-and-lists.html">4.7. Tuples and Lists</a>
+<ul class="sectlevel3">
+<li><a href="tuples-and-lists.html#_tuples">4.7.1. Tuples</a></li>
+<li><a href="tuples-and-lists.html#_lists">4.7.2. Lists</a></li>
+</ul>
+</li>
+<li><a href="records.html">4.8. Records</a>
+<ul class="sectlevel3">
+<li><a href="records.html#_native_representations">4.8.1. Native representations</a></li>
+<li><a href="records.html#_record_literals_match_by_field_name">4.8.2. Record literals match by field name</a></li>
+<li><a href="records.html#_one_record_across_three_languages">4.8.3. One record across three languages</a></li>
+</ul>
+</li>
+<li><a href="patterns.html">4.9. Patterns</a>
+<ul class="sectlevel3">
+<li><a href="patterns.html#_getter_patterns">4.9.1. Getter patterns</a></li>
+<li><a href="patterns.html#_setter_patterns">4.9.2. Setter patterns</a></li>
+<li><a href="patterns.html#_bracket_patterns">4.9.3. Bracket patterns</a></li>
+<li><a href="patterns.html#_patterns_next_to_python">4.9.4. Patterns next to Python</a></li>
+<li><a href="patterns.html#_adding_bracket_support_to_your_own_types">4.9.5. Adding bracket support to your own types</a></li>
+</ul>
+</li>
+<li><a href="pattern-matching.html">4.10. Pattern Matching</a>
+<ul class="sectlevel3">
+<li><a href="pattern-matching.html#_irrefutable_patterns">4.10.1. Irrefutable patterns</a></li>
+<li><a href="pattern-matching.html#refutable-patterns">4.10.2. Refutable patterns</a></li>
+<li><a href="pattern-matching.html#match-expressions">4.10.3. <code>match</code> expressions</a></li>
+<li><a href="pattern-matching.html#_exhaustiveness">4.10.4. Exhaustiveness</a></li>
+<li><a href="pattern-matching.html#_guards_inside_a_clause">4.10.5. Guards inside a clause</a></li>
+<li><a href="pattern-matching.html#_not_yet_supported">4.10.6. Not yet supported</a></li>
+</ul>
+</li>
+<li><a href="where-and-let.html">4.11. <code>where</code> and <code>let</code> clauses</a>
+<ul class="sectlevel3">
+<li><a href="where-and-let.html#_where">4.11.1. <code>where</code></a></li>
+<li><a href="where-and-let.html#_let">4.11.2. <code>let</code></a></li>
+<li><a href="where-and-let.html#_the_scope_rule_that_separates_them">4.11.3. The scope rule that separates them</a></li>
+</ul>
+</li>
+<li><a href="conditionals.html">4.12. Conditionals</a>
+<ul class="sectlevel3">
+<li><a href="conditionals.html#_guards_with_where">4.12.1. Guards with <code>where</code></a></li>
+<li><a href="conditionals.html#_guards_in_other_positions">4.12.2. Guards in other positions</a></li>
+<li><a href="conditionals.html#_guards_inside_a_pattern_clause">4.12.3. Guards inside a pattern clause</a></li>
+</ul>
+</li>
+<li><a href="recursion.html">4.13. Recursion</a>
+<ul class="sectlevel3">
+<li><a href="recursion.html#_recursive_functions">4.13.1. Recursive functions</a></li>
+<li><a href="recursion.html#_recursive_types">4.13.2. Recursive types</a></li>
+</ul>
+</li>
+<li><a href="sum-types.html">4.14. Sum types</a>
+<ul class="sectlevel3">
+<li><a href="sum-types.html#_a_constructor_set_is_closed_and_the_compiler_counts">4.14.1. A constructor set is closed, and the compiler counts</a></li>
+<li><a href="sum-types.html#_the_constructor_names_reach_the_interface">4.14.2. The constructor names reach the interface</a></li>
+<li><a href="sum-types.html#_constructors_that_take_arguments">4.14.3. Constructors that take arguments</a></li>
+<li><a href="sum-types.html#_matching_a_value_that_is_not_an_argument">4.14.4. Matching a value that is not an argument</a></li>
+<li><a href="sum-types.html#_recursive_types_2">4.14.5. Recursive types</a></li>
+<li><a href="sum-types.html#_constructor_names_are_global">4.14.6. Constructor names are global</a></li>
+<li><a href="sum-types.html#_native_representations_2">4.14.7. Native representations</a></li>
+<li><a href="sum-types.html#_comparing_values">4.14.8. Comparing values</a></li>
+</ul>
+</li>
+<li><a href="effects.html">4.15. Effects and delayed evaluation</a>
+<ul class="sectlevel3">
+<li><a href="effects.html#_why_effects_need_a_name">4.15.1. Why effects need a name</a></li>
+<li><a href="effects.html#_the_mental_model">4.15.2. The mental model</a></li>
+<li><a href="effects.html#failure-is-not-an-effect">4.15.3. Failure is not an effect</a></li>
+<li><a href="effects.html#_syntax">4.15.4. Syntax</a></li>
+<li><a href="effects.html#_the_reading_a_suspension_is_a_value">4.15.5. The reading: a suspension is a value</a></li>
+<li><a href="effects.html#rules">4.15.6. The rules</a></li>
+<li><a href="effects.html#_effect_row_variables">4.15.7. Effect row variables</a></li>
+<li><a href="effects.html#escapable">4.15.8. Escapable and inescapable effects</a></li>
+</ul>
+</li>
+<li><a href="optionals.html">4.16. Optional types</a>
+<ul class="sectlevel3">
+<li><a href="optionals.html#_syntax_2">4.16.1. Syntax</a></li>
+<li><a href="optionals.html#_working_with_optional_values">4.16.2. Working with optional values</a></li>
+<li><a href="optionals.html#_optional_record_fields">4.16.3. Optional record fields</a></li>
+<li><a href="optionals.html#_optionals_across_languages">4.16.4. Optionals across languages</a></li>
+<li><a href="optionals.html#_implicit_coercion">4.16.5. Implicit coercion</a></li>
+<li><a href="optionals.html#_nested_optionals_are_idempotent">4.16.6. Nested optionals are idempotent</a></li>
+</ul>
+</li>
+<li class="current active"><a href="intrinsics.html">4.17. Intrinsics</a>
+<ul class="sectlevel3">
+<li><a href="intrinsics.html#_reference_table">4.17.1. Reference table</a></li>
+<li><a href="intrinsics.html#_hashing">4.17.2. Hashing</a></li>
+<li><a href="intrinsics.html#_compile_time_constants">4.17.3. Compile-time constants</a></li>
+<li><a href="intrinsics.html#_saving_and_loading_data">4.17.4. Saving and loading data</a></li>
+<li><a href="intrinsics.html#_caching_with_savem_and_load">4.17.5. Caching with <code>@savem</code> and <code>@load</code></a></li>
+<li><a href="intrinsics.html#_accessing_installed_data_files">4.17.6. Accessing installed data files</a></li>
+<li><a href="intrinsics.html#_type_introspection">4.17.7. Type introspection</a></li>
+<li><a href="intrinsics.html#failure-and-recovery">4.17.8. Failure and recovery</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../types/index.html">5. Advanced Types</a>
+<ul class="sectlevel2">
+<li><a href="../types/term-polymorphism.html">5.1. One term may have many definitions</a>
+<ul class="sectlevel3">
+<li><a href="../types/term-polymorphism.html#_how_the_choice_collapses_a_program">5.1.1. How the choice collapses a program</a></li>
+<li><a href="../types/term-polymorphism.html#_contradictory_definitions">5.1.2. Contradictory definitions</a></li>
+<li><a href="../types/term-polymorphism.html#_a_test_suite_that_runs_against_every_implementation">5.1.3. A test suite that runs against every implementation</a></li>
+</ul>
+</li>
+<li><a href="../types/typeclasses.html">5.2. Overload terms with typeclasses</a>
+<ul class="sectlevel3">
+<li><a href="../types/typeclasses.html#_one_class_many_languages">5.2.1. One class, many languages</a></li>
+<li><a href="../types/typeclasses.html#_superclasses">5.2.2. Superclasses</a></li>
+<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.3. Importing a class from another module</a></li>
+</ul>
+</li>
+<li><a href="../types/infix-operators.html">5.3. Infix operators</a>
+<ul class="sectlevel3">
+<li><a href="../types/infix-operators.html#_declaring_associativity_and_precedence">5.3.1. Declaring associativity and precedence</a></li>
+<li><a href="../types/infix-operators.html#_operators_from_foreign_languages_and_typeclasses">5.3.2. Operators from foreign languages and typeclasses</a></li>
+<li><a href="../types/infix-operators.html#_importing_operators">5.3.3. Importing operators</a></li>
+<li><a href="../types/infix-operators.html#_names_that_cannot_start_with">5.3.4. Names that cannot start with <code>--</code></a></li>
+</ul>
+</li>
+<li><a href="../types/newtype.html">5.4. Naming a type: <code>type</code> and <code>newtype</code></a>
+<ul class="sectlevel3">
+<li><a href="../types/newtype.html#_type_transparent_aliases">5.4.1. <code>type</code>: transparent aliases</a></li>
+<li><a href="../types/newtype.html#_alias_chains_resolve_on_their_own">5.4.2. Alias chains resolve on their own</a></li>
+<li><a href="../types/newtype.html#_docstring_inheritance">5.4.3. Docstring inheritance</a></li>
+<li><a href="../types/newtype.html#_what_an_alias_cannot_do">5.4.4. What an alias cannot do</a></li>
+<li><a href="../types/newtype.html#_newtype_nominal_types">5.4.5. <code>newtype</code>: nominal types</a></li>
+<li><a href="../types/newtype.html#_when_a_newtype_needs_a_packable_instance">5.4.6. When a <code>newtype</code> needs a <code>Packable</code> instance</a></li>
+<li><a href="../types/newtype.html#_sharing_a_wire_format_across_newtypes">5.4.7. Sharing a wire format across newtypes</a></li>
+<li><a href="../types/newtype.html#_declarations_with_no_body">5.4.8. Declarations with no body</a></li>
+<li><a href="../types/newtype.html#_the_rules">5.4.9. The rules</a></li>
+</ul>
+</li>
+<li><a href="../types/packable.html">5.5. Serializing custom types with <code>Packable</code></a>
+<ul class="sectlevel3">
+<li><a href="../types/packable.html#_a_worked_example_map">5.5.1. A worked example: <code>Map</code></a></li>
+<li><a href="../types/packable.html#_specialized_instances">5.5.2. Specialized instances</a></li>
+<li><a href="../types/packable.html#_pack_in_your_own_code">5.5.3. <code>pack</code> in your own code</a></li>
+</ul>
+</li>
+<li><a href="../types/kinds.html">5.6. The kind system</a>
+<ul class="sectlevel3">
+<li><a href="../types/kinds.html#_nat_numbers_in_the_type">5.6.1. Nat: numbers in the type</a></li>
+<li><a href="../types/kinds.html#_str_labels_in_the_type">5.6.2. Str: labels in the type</a></li>
+<li><a href="../types/kinds.html#_rec_schemas_in_the_type">5.6.3. Rec: schemas in the type</a></li>
+<li><a href="../types/kinds.html#_list_and_set_collections_of_labels">5.6.4. List and Set: collections of labels</a></li>
+<li><a href="../types/kinds.html#_gradual_arguments">5.6.5. Gradual arguments</a></li>
+<li><a href="../types/kinds.html#_reference_type_level_functions">5.6.6. Reference: type-level functions</a></li>
+<li><a href="../types/kinds.html#_reference_constraints">5.6.7. Reference: constraints</a></li>
+<li><a href="../types/kinds.html#_what_does_not_work_yet">5.6.8. What does not work yet</a></li>
+</ul>
+</li>
+<li><a href="../types/tensors.html">5.7. Tensors</a>
+<ul class="sectlevel3">
+<li><a href="../types/tensors.html#_shapes_that_have_to_agree">5.7.1. Shapes that have to agree</a></li>
+<li><a href="../types/tensors.html#_dimensions_computed_from_other_dimensions">5.7.2. Dimensions computed from other dimensions</a></li>
+<li><a href="../types/tensors.html#_dimensions_that_come_from_arguments">5.7.3. Dimensions that come from arguments</a></li>
+<li><a href="../types/tensors.html#_building_a_tensor_by_hand">5.7.4. Building a tensor by hand</a></li>
+<li><a href="../types/tensors.html#_omitting_dimensions">5.7.5. Omitting dimensions</a></li>
+<li><a href="../types/tensors.html#_what_is_checked_and_what_is_not">5.7.6. What is checked, and what is not</a></li>
+</ul>
+</li>
+<li><a href="../types/tables.html">5.8. Tables</a>
+<ul class="sectlevel3">
+<li><a href="../types/tables.html#_building_a_table">5.8.1. Building a table</a></li>
+<li><a href="../types/tables.html#_introspection">5.8.2. Introspection</a></li>
+<li><a href="../types/tables.html#_column_operations">5.8.3. Column operations</a></li>
+<li><a href="../types/tables.html#_row_operations">5.8.4. Row operations</a></li>
+<li><a href="../types/tables.html#_stacking_tables">5.8.5. Stacking tables</a></li>
+<li><a href="../types/tables.html#_crossing_a_language_boundary">5.8.6. Crossing a language boundary</a></li>
+<li><a href="../types/tables.html#_reading_and_writing_table_files">5.8.7. Reading and writing table files</a></li>
+<li><a href="../types/tables.html#_limits">5.8.8. Limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../clis/index.html">6. Building CLIs</a>
+<ul class="sectlevel2">
+<li><a href="../clis/example-program.html">6.1. The example program</a></li>
+<li><a href="../clis/argument-zones.html">6.2. The two argument zones</a>
+<ul class="sectlevel3">
+<li><a href="../clis/argument-zones.html#_programs_with_a_single_export">6.2.1. Programs with a single export</a></li>
+</ul>
+</li>
+<li><a href="../clis/docstrings.html">6.3. Docstrings</a>
+<ul class="sectlevel3">
+<li><a href="../clis/docstrings.html#_directives">6.3.1. Directives</a></li>
+</ul>
+</li>
+<li><a href="../clis/arguments.html">6.4. Arguments</a>
+<ul class="sectlevel3">
+<li><a href="../clis/arguments.html#_when_an_argument_is_wrong">6.4.1. When an argument is wrong</a></li>
+<li><a href="../clis/arguments.html#_options_flags_and_repeats">6.4.2. Options, flags, and repeats</a></li>
+<li><a href="../clis/arguments.html#_naming">6.4.3. Naming</a></li>
+<li><a href="../clis/arguments.html#_ending_option_parsing">6.4.4. Ending option parsing</a></li>
+</ul>
+</li>
+<li><a href="../clis/record-arguments.html">6.5. Record arguments</a>
+<ul class="sectlevel3">
+<li><a href="../clis/record-arguments.html#_three_ways_to_fill_it">6.5.1. Three ways to fill it</a></li>
+<li><a href="../clis/record-arguments.html#_what_is_rejected">6.5.2. What is rejected</a></li>
+</ul>
+</li>
+<li><a href="../clis/sum-type-arguments.html">6.6. Sum type arguments</a></li>
+<li><a href="../clis/input-shape.html">6.7. Input shape</a>
+<ul class="sectlevel3">
+<li><a href="../clis/input-shape.html#_a_worked_example">6.7.1. A worked example</a></li>
+<li><a href="../clis/input-shape.html#_shape_follows_the_wire_form">6.7.2. Shape follows the wire form</a></li>
+</ul>
+</li>
+<li><a href="../clis/reading-stdin.html">6.8. Reading a stream from standard input</a>
+<ul class="sectlevel3">
+<li><a href="../clis/reading-stdin.html#_what_standard_input_may_carry">6.8.1. What standard input may carry</a></li>
+<li><a href="../clis/reading-stdin.html#_rules_for_stdin">6.8.2. Rules for <code>@stdin</code></a></li>
+</ul>
+</li>
+<li><a href="../clis/output-formats.html">6.9. Output formats</a>
+<ul class="sectlevel3">
+<li><a href="../clis/output-formats.html#_nothing_to_report">6.9.1. Nothing to report</a></li>
+<li><a href="../clis/output-formats.html#_failure">6.9.2. Failure</a></li>
+</ul>
+</li>
+<li><a href="../clis/output-actions.html">6.10. Output actions</a>
+<ul class="sectlevel3">
+<li><a href="../clis/output-actions.html#_with_keeps_a_value_render_produces_bytes">6.10.1. <code>@with</code> keeps a value; <code>@render</code> produces bytes</a></li>
+<li><a href="../clis/output-actions.html#_giving_a_formatter_arguments">6.10.2. Giving a formatter arguments</a></li>
+<li><a href="../clis/output-actions.html#_choosing_a_default">6.10.3. Choosing a default</a></li>
+<li><a href="../clis/output-actions.html#_media_types">6.10.4. Media types</a></li>
+<li><a href="../clis/output-actions.html#action-rules">6.10.5. Rules and rejections</a></li>
+</ul>
+</li>
+<li><a href="../clis/streaming-output.html">6.11. Streaming output with <code>@collect</code></a>
+<ul class="sectlevel3">
+<li><a href="../clis/streaming-output.html#_actions_on_a_stream">6.11.1. Actions on a stream</a></li>
+<li><a href="../clis/streaming-output.html#_offset_where_a_batch_sits_in_the_stream">6.11.2. <code>@offset</code>: where a batch sits in the stream</a></li>
+<li><a href="../clis/streaming-output.html#_ifile_the_gathered_stream_as_a_file">6.11.3. <code>IFile</code>: the gathered stream as a file</a></li>
+<li><a href="../clis/streaming-output.html#_streaming_rules">6.11.4. Streaming rules</a></li>
+<li><a href="../clis/streaming-output.html#_what_the_help_says_a_stream_produces">6.11.5. What the help says a stream produces</a></li>
+</ul>
+</li>
+<li><a href="../clis/composing-tools.html">6.12. Composing tools</a>
+<ul class="sectlevel3">
+<li><a href="../clis/composing-tools.html#_grouping_commands">6.12.1. Grouping commands</a></li>
+<li><a href="../clis/composing-tools.html#_installing">6.12.2. Installing</a></li>
+</ul>
+</li>
+<li><a href="../clis/interface-as-data.html">6.13. The interface as data</a>
+<ul class="sectlevel3">
+<li><a href="../clis/interface-as-data.html#_other_views_of_the_same_commands">6.13.1. Other views of the same commands</a></li>
+</ul>
+</li>
+<li><a href="../clis/directive-reference.html">6.14. Directive reference</a></li>
+</ul>
+</li>
+<li><a href="../apis/index.html">7. Building APIs</a>
+<ul class="sectlevel2">
+<li><a href="../apis/search-and-install.html">7.1. Search and install</a></li>
+<li><a href="../apis/exposing-native-resources.html">7.2. Exposing native resources</a></li>
+<li><a href="../apis/data-transfer.html">7.3. Controlling data transfer</a>
+<ul class="sectlevel3">
+<li><a href="../apis/data-transfer.html#_combinations">7.3.1. Combinations</a></li>
+<li><a href="../apis/data-transfer.html#_examples">7.3.2. Examples</a></li>
+</ul>
+</li>
+<li><a href="../apis/api-interfaces.html">7.4. Building API interfaces</a>
+<ul class="sectlevel3">
+<li><a href="../apis/api-interfaces.html#_http_protocol">7.4.1. HTTP protocol</a></li>
+<li><a href="../apis/api-interfaces.html#_tcp_protocol">7.4.2. TCP protocol</a></li>
+<li><a href="../apis/api-interfaces.html#_unix_socket_protocol">7.4.3. Unix socket protocol</a></li>
+<li><a href="../apis/api-interfaces.html#_running_all_protocols_at_once">7.4.4. Running all protocols at once</a></li>
+<li><a href="../apis/api-interfaces.html#_from_single_daemons_to_a_router">7.4.5. From single daemons to a router</a></li>
+<li><a href="../apis/api-interfaces.html#_router_mode">7.4.6. Router mode</a></li>
+<li><a href="../apis/api-interfaces.html#_shutdown">7.4.7. Shutdown</a></li>
+<li><a href="../apis/api-interfaces.html#_summary">7.4.8. Summary</a></li>
+</ul>
+</li>
+<li><a href="../apis/mcp.html">7.5. Model Context Protocol (MCP)</a>
+<ul class="sectlevel3">
+<li><a href="../apis/mcp.html#_the_handshake">7.5.1. The handshake</a></li>
+<li><a href="../apis/mcp.html#_inspecting_the_tool_surface">7.5.2. Inspecting the tool surface</a></li>
+<li><a href="../apis/mcp.html#_how_arguments_map_to_properties">7.5.3. How arguments map to properties</a></li>
+<li><a href="../apis/mcp.html#_calling_a_tool">7.5.4. Calling a tool</a></li>
+<li><a href="../apis/mcp.html#_what_is_not_exposed">7.5.5. What is not exposed</a></li>
+<li><a href="../apis/mcp.html#_errors">7.5.6. Errors</a></li>
+<li><a href="../apis/mcp.html#_connecting_an_mcp_client">7.5.7. Connecting an MCP client</a></li>
+<li><a href="../apis/mcp.html#_inside_versus_outside_the_container">7.5.8. Inside versus outside the container</a></li>
+<li><a href="../apis/mcp.html#_summary_2">7.5.9. Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../runs/index.html">8. Managing Runs</a>
+<ul class="sectlevel2">
+<li><a href="../runs/logging.html">8.1. Logging</a>
+<ul class="sectlevel3">
+<li><a href="../runs/logging.html#_enabling_logging">8.1.1. Enabling logging</a></li>
+<li><a href="../runs/logging.html#_template_placeholders">8.1.2. Template placeholders</a></li>
+<li><a href="../runs/logging.html#_color_codes">8.1.3. Color codes</a></li>
+<li><a href="../runs/logging.html#_terminal_detection_and_no_color">8.1.4. Terminal detection and NO_COLOR</a></li>
+<li><a href="../runs/logging.html#_worked_example">8.1.5. Worked example</a></li>
+</ul>
+</li>
+<li><a href="../runs/benchmarking.html">8.2. Benchmarking</a>
+<ul class="sectlevel3">
+<li><a href="../runs/benchmarking.html#_the_summary_row">8.2.1. The summary row</a></li>
+<li><a href="../runs/benchmarking.html#_comparing_implementations">8.2.2. Comparing implementations</a></li>
+</ul>
+</li>
+<li><a href="../runs/run-directory.html">8.3. Run directory</a>
+<ul class="sectlevel3">
+<li><a href="../runs/run-directory.html#rundir-activation">8.3.1. Activation knobs</a></li>
+<li><a href="../runs/run-directory.html#_summary_json">8.3.2. summary.json</a></li>
+<li><a href="../runs/run-directory.html#rundir-location">8.3.3. Where the directory lives</a></li>
+<li><a href="../runs/run-directory.html#_cleanup">8.3.4. Cleanup</a></li>
+<li><a href="../runs/run-directory.html#_prologue_and_epilogue">8.3.5. Prologue and epilogue</a></li>
+<li><a href="../runs/run-directory.html#_nested_invocations">8.3.6. Nested invocations</a></li>
+</ul>
+</li>
+<li><a href="../runs/caching.html">8.4. Caching</a>
+<ul class="sectlevel3">
+<li><a href="../runs/caching.html#_declaring_a_cached_call">8.4.1. Declaring a cached call</a></li>
+<li><a href="../runs/caching.html#_what_goes_in_the_hash">8.4.2. What goes in the hash</a></li>
+<li><a href="../runs/caching.html#cache-layout">8.4.3. Storage layout</a></li>
+<li><a href="../runs/caching.html#_reading_and_writing">8.4.4. Reading and writing</a></li>
+</ul>
+</li>
+<li><a href="../runs/compression.html">8.5. Compression</a>
+<ul class="sectlevel3">
+<li><a href="../runs/compression.html#_compression_in_write">8.5.1. Compression in <code>@write</code></a></li>
+<li><a href="../runs/compression.html#_compression_in_morloc_nexus_run">8.5.2. Compression in <code>morloc-nexus run</code></a></li>
+<li><a href="../runs/compression.html#_compression_level_table">8.5.3. Compression-level table</a></li>
+<li><a href="../runs/compression.html#_algorithm_agnostic_surface">8.5.4. Algorithm-agnostic surface</a></li>
+<li><a href="../runs/compression.html#_caching_is_unaffected">8.5.5. Caching is unaffected</a></li>
+</ul>
+</li>
+<li><a href="../runs/debugging.html">8.6. Debugging</a>
+<ul class="sectlevel3">
+<li><a href="../runs/debugging.html#_enabling_at_compile_time">8.6.1. Enabling at compile time</a></li>
+<li><a href="../runs/debugging.html#_a_failing_run">8.6.2. A failing run</a></li>
+<li><a href="../runs/debugging.html#debug-knobs">8.6.3. Runtime knobs</a></li>
+<li><a href="../runs/debugging.html#dump-location">8.6.4. Where dumps land</a></li>
+<li><a href="../runs/debugging.html#_content_addressed_dedup">8.6.5. Content-addressed dedup</a></li>
+<li><a href="../runs/debugging.html#_frame_status_markers">8.6.6. Frame status markers</a></li>
+<li><a href="../runs/debugging.html#_recovering_an_input_via_load">8.6.7. Recovering an input via <code>@load</code></a></li>
+<li><a href="../runs/debugging.html#_interaction_with_the_cache">8.6.8. Interaction with the cache</a></li>
+</ul>
+</li>
+<li><a href="../runs/random-access-and-streaming.html">8.7. Random access and streaming</a>
+<ul class="sectlevel3">
+<li><a href="../runs/random-access-and-streaming.html#_random_access_with_ifile">8.7.1. Random access with IFile</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_sequential_writing_with_ostream">8.7.2. Sequential writing with OStream</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_sequential_reading_with_istream">8.7.3. Sequential reading with IStream</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_typed_standard_streams">8.7.4. Typed standard streams</a></li>
+<li><a href="../runs/random-access-and-streaming.html#stream-env-vars">8.7.5. Environment variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../utilities/index.html">9. Utilities</a>
+<ul class="sectlevel2">
+<li><a href="../utilities/nexus-file.html">9.1. morloc-nexus file</a>
+<ul class="sectlevel3">
+<li><a href="../utilities/nexus-file.html#stream-packets">9.1.1. Stream packets</a></li>
+<li><a href="../utilities/nexus-file.html#_options">9.1.2. Options</a></li>
+<li><a href="../utilities/nexus-file.html#_verbose_example">9.1.3. Verbose example</a></li>
+</ul>
+</li>
+<li><a href="../utilities/nexus-view.html">9.2. morloc-nexus view</a>
+<ul class="sectlevel3">
+<li><a href="../utilities/nexus-view.html#_reading_from_stdin">9.2.1. Reading from stdin</a></li>
+<li><a href="../utilities/nexus-view.html#_schema_resolution">9.2.2. Schema resolution</a></li>
+<li><a href="../utilities/nexus-view.html#_pattern_extract_a_subset">9.2.3. <code>--pattern</code>: extract a subset</a></li>
+<li><a href="../utilities/nexus-view.html#_packet_shape_output_s_d_p">9.2.4. Packet-shape output: <code>-s</code> / <code>-d</code> / <code>-p</code></a></li>
+<li><a href="../utilities/nexus-view.html#_f_jsonl_line_delimited_json">9.2.5. <code>-f jsonl</code>: line-delimited JSON</a></li>
+<li><a href="../utilities/nexus-view.html#view-size-guardrails">9.2.6. Size guardrails and <code>--force</code></a></li>
+<li><a href="../utilities/nexus-view.html#footer-less-streams">9.2.7. Footer-less streams</a></li>
+<li><a href="../utilities/nexus-view.html#_options_2">9.2.8. Options</a></li>
+</ul>
+</li>
+<li><a href="../utilities/mim.html">9.3. <code>mim</code> (Morloc Installation Manager)</a>
+<ul class="sectlevel3">
+<li><a href="../utilities/mim.html#_system_scope_environments">9.3.1. System-scope environments</a></li>
+<li><a href="../utilities/mim.html#_rebuilding_and_reconfiguring_environments">9.3.2. Rebuilding and reconfiguring environments</a></li>
+<li><a href="../utilities/mim.html#mim-packages">9.3.3. Packages</a></li>
+<li><a href="../utilities/mim.html#mim-language-toolchains">9.3.4. Language toolchains</a></li>
+<li><a href="../utilities/mim.html#_development_environments">9.3.5. Development environments</a></li>
+<li><a href="../utilities/mim.html#_inspecting_an_environment">9.3.6. Inspecting an environment</a></li>
+<li><a href="../utilities/mim.html#_checking_environment_health">9.3.7. Checking environment health</a></li>
+<li><a href="../utilities/mim.html#_the_environment_home_and_dotfiles">9.3.8. The environment home and dotfiles</a></li>
+<li><a href="../utilities/mim.html#mim-serve">9.3.9. Serving installed programs</a></li>
+</ul>
+</li>
+<li><a href="../utilities/morloc-eval.html">9.4. morloc eval</a>
+<ul class="sectlevel3">
+<li><a href="../utilities/morloc-eval.html#_imports_in_eval_strings">9.4.1. Imports in eval strings</a></li>
+<li><a href="../utilities/morloc-eval.html#_the_eval_sandbox">9.4.2. The eval sandbox</a></li>
+<li><a href="../utilities/morloc-eval.html#_single_line_layout_braces_and_semicolons">9.4.3. Single-line layout: braces and semicolons</a></li>
+<li><a href="../utilities/morloc-eval.html#_saving_an_eval_expression_as_a_command">9.4.4. Saving an eval expression as a command</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../modules/index.html">10. Modules and Libraries</a>
+<ul class="sectlevel2">
+<li><a href="../modules/importing-modules.html">10.1. Importing modules</a></li>
+<li><a href="../modules/installing-modules.html">10.2. Installing modules</a>
+<ul class="sectlevel3">
+<li><a href="../modules/installing-modules.html#configuring-cpp-build">10.2.1. Configuring the C++ build</a></li>
+</ul>
+</li>
+<li><a href="../modules/universal-library.html">10.3. The universal library</a></li>
+</ul>
+</li>
+<li><a href="../languages/index.html">11. Language Support</a>
+<ul class="sectlevel2">
+<li><a href="../languages/build-parameters.html">11.1. Build parameters</a>
+<ul class="sectlevel3">
+<li><a href="../languages/build-parameters.html#_per_machine_defaults_with_morloc_config">11.1.1. Per-machine defaults with <code>morloc config</code></a></li>
+<li><a href="../languages/build-parameters.html#_per_session_defaults_with_morloc_lang_params">11.1.2. Per-session defaults with <code>MORLOC_LANG_PARAMS</code></a></li>
+<li><a href="../languages/build-parameters.html#_precedence">11.1.3. Precedence</a></li>
+<li><a href="../languages/build-parameters.html#_recognized_keys">11.1.4. Recognized keys</a></li>
+<li><a href="../languages/build-parameters.html#_build_parameters_vs_package_yaml">11.1.5. Build parameters vs. <code>package.yaml</code></a></li>
+</ul>
+</li>
+<li><a href="../languages/cpp.html">11.2. C++</a>
+<ul class="sectlevel3">
+<li><a href="../languages/cpp.html#_library_dependencies_cpp_deps">11.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
+<li><a href="../languages/cpp.html#_link_flags_dependencies">11.2.2. Link flags (<code>dependencies</code>)</a></li>
+</ul>
+</li>
+<li><a href="../languages/python.html">11.3. Python</a>
+<ul class="sectlevel3">
+<li><a href="../languages/python.html#py-deps">11.3.1. Dependencies (<code>py-deps</code>)</a></li>
+<li><a href="../languages/python.html#local-deps">11.3.2. Local packages (<code>local-deps</code>)</a></li>
+</ul>
+</li>
+<li><a href="../languages/r.html">11.4. R</a>
+<ul class="sectlevel3">
+<li><a href="../languages/r.html#r-deps">11.4.1. Dependencies (<code>r-deps</code>)</a></li>
+</ul>
+</li>
+<li><a href="../languages/rust.html">11.5. Rust</a>
+<ul class="sectlevel3">
+<li><a href="../languages/rust.html#_cargo_pools">11.5.1. Cargo pools</a></li>
+<li><a href="../languages/rust.html#rust-deps">11.5.2. Dependencies (<code>rust-deps</code>)</a></li>
+<li><a href="../languages/rust.html#_local_crates_local_deps">11.5.3. Local crates (<code>local-deps</code>)</a></li>
+<li><a href="../languages/rust.html#_one_resolution_per_environment">11.5.4. One resolution per environment</a></li>
+</ul>
+</li>
+<li><a href="../languages/futhark.html">11.6. Futhark</a>
+<ul class="sectlevel3">
+<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">11.6.1. Futhark backends and GPU devices</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../install/index.html">12. Installation, Versions, and Deployment</a>
+<ul class="sectlevel2">
+<li><a href="../install/container-engine.html">12.1. Choosing a container engine</a></li>
+<li><a href="../install/creating-an-environment.html">12.2. Creating an environment</a></li>
+<li><a href="../install/running-commands.html">12.3. Running commands</a></li>
+<li><a href="../install/managing-environments.html">12.4. Managing environments</a></li>
+<li><a href="../install/customizing-environments.html">12.5. Customizing environments</a></li>
+<li><a href="../install/extra-container-flags.html">12.6. Extra container flags</a></li>
+<li><a href="../install/serve-and-freeze.html">12.7. Deployment: serve and freeze</a>
+<ul class="sectlevel3">
+<li><a href="../install/serve-and-freeze.html#_local_serving_with_start">12.7.1. Local serving with <code>start</code></a></li>
+<li><a href="../install/serve-and-freeze.html#_portable_images_with_freeze">12.7.2. Portable images with <code>freeze</code></a></li>
+</ul>
+</li>
+<li><a href="../install/composable-function-services.html">12.8. Beyond fixed APIs: composable function services</a></li>
+<li><a href="../install/execution-contexts.html">12.9. Execution contexts</a>
+<ul class="sectlevel3">
+<li><a href="../install/execution-contexts.html#_the_remote_context_dispatching_as_a_separate_job">12.9.1. The <code>remote:</code> context: dispatching as a separate job</a></li>
+<li><a href="../install/execution-contexts.html#_enabling_dispatch_codegen">12.9.2. Enabling dispatch codegen</a></li>
+<li><a href="../install/execution-contexts.html#dispatch-bridge">12.9.3. Running with the dispatch bridge</a></li>
+<li><a href="../install/execution-contexts.html#_what_lands_on_the_shared_filesystem">12.9.4. What lands on the shared filesystem</a></li>
+<li><a href="../install/execution-contexts.html#_preconditions_and_the_doctor_check">12.9.5. Preconditions and the <code>doctor</code> check</a></li>
+</ul>
+</li>
+<li><a href="../install/system-wide-podman.html">12.10. System-wide environments with Podman</a></li>
+</ul>
+</li>
+<li><a href="../internals/index.html">13. Build Architecture</a>
+<ul class="sectlevel2">
+<li><a href="../internals/architecture-overview.html">13.1. Architecture Overview</a></li>
+<li><a href="../internals/cross-language-calls.html">13.2. Cross-language function calls</a>
+<ul class="sectlevel3">
+<li><a href="../internals/cross-language-calls.html#_how_it_works">13.2.1. How it works</a></li>
+<li><a href="../internals/cross-language-calls.html#_what_the_generated_code_looks_like">13.2.2. What the generated code looks like</a></li>
+<li><a href="../internals/cross-language-calls.html#_performance_implications">13.2.3. Performance implications</a></li>
+</ul>
+</li>
+<li><a href="../internals/protocols.html">13.3. Protocols</a>
+<ul class="sectlevel3">
+<li><a href="../internals/protocols.html#_the_manifest">13.3.1. The manifest</a></li>
+<li><a href="../internals/protocols.html#_packet_protocol">13.3.2. Packet protocol</a></li>
+<li><a href="../internals/protocols.html#_shared_memory">13.3.3. Shared memory</a></li>
+<li><a href="../internals/protocols.html#schema-strings">13.3.4. Schema strings</a></li>
+<li><a href="../internals/protocols.html#_voidstar_binary_format">13.3.5. Voidstar binary format</a></li>
+</ul>
+</li>
+<li><a href="../internals/runtime-and-dev-builds.html">13.4. Runtime and Dev Builds</a>
+<ul class="sectlevel3">
+<li><a href="../internals/runtime-and-dev-builds.html#build-modes">13.4.1. Build modes</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#_what_the_runtime_provides">13.4.2. What the runtime provides</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#_build_dependencies">13.4.3. Build dependencies</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#_container_images">13.4.4. Container images</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../future/index.html">14. Future Directions</a>
+<ul class="sectlevel2">
+<li><a href="../future/index.html#planes-of-libraries">14.1. Planes of libraries</a></li>
+</ul>
+</li>
+<li><a href="../qa/index.html">15. Q&amp;A</a>
+<ul class="sectlevel2">
+<li><a href="../qa/one-language.html">15.1. I only use one language, is Morloc still useful?</a></li>
+<li><a href="../qa/bioinformatics-only.html">15.2. Is this just a bioinformatics workflow language?</a></li>
+<li><a href="../qa/per-function-environments.html">15.3. Does Morloc allow function-specific containerized environments?</a></li>
+<li><a href="../qa/object-oriented.html">15.4. What about object-oriented programming?</a></li>
+<li><a href="../qa/ai-relevance.html">15.5. Is Morloc still relevant when AI can program and translate?</a></li>
+<li><a href="../qa/not-a-human.html">15.6. I’m not a human, do I still need Morloc?</a></li>
+<li><a href="../qa/morlocks.html">15.7. Why is it named after Morlocks, weren’t they, like, bad?</a></li>
+<li><a href="../qa/more-questions.html">15.8. Wait! I have more questions!</a></li>
+</ul>
+</li>
+<li><a href="../env/index.html">16. Environmental Variable List</a>
+<ul class="sectlevel2">
+<li><a href="../env/index.html#env-installation">16.1. Installation and runtime setup</a></li>
+<li><a href="../env/index.html#env-module-installation">16.2. Module installation (setup-script environment)</a></li>
+<li><a href="../env/index.html#env-run-directory">16.3. Run directory, logging, and reporting</a></li>
+<li><a href="../env/index.html#env-debugging">16.4. Debugging</a></li>
+<li><a href="../env/index.html#env-caching">16.5. Caching</a></li>
+<li><a href="../env/index.html#env-data-transfer">16.6. Data transfer (packets and shared memory)</a></li>
+<li><a href="../env/index.html#env-streaming">16.7. Streaming and compression</a></li>
+<li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
+<li><a href="../env/index.html#env-inspection-tools">16.9. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
+<li><a href="../env/index.html#env-string-safety">16.10. String safety</a></li>
+</ul>
+</li>
+<li><a href="../contact/index.html">17. Contact</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<nav class="breadcrumb" data-pagefind-ignore><a href="../index.html">Morloc Manual</a> <span class="sep">&gt;</span> <a href="index.html">4. Syntax and Features</a></nav>
+<div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Intrinsics"><div class="sect2">
+<h3 id="intrinsics"><a class="anchor" href="#intrinsics"></a>4.17. Intrinsics</h3>
+<div class="paragraph">
+<p>Intrinsics are compiler-generated special functions. They are prefixed with <code>@</code>
+and provide access to the Morloc runtime.</p>
+</div>
+<div class="sect3">
+<h4 id="_reference_table"><a class="anchor" href="#_reference_table"></a>4.17.1. Reference table</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 33.3333%;">
+<col style="width: 50.0001%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Intrinsic</th>
+<th class="tableblock halign-left valign-top">Signature</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@save</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int -&gt; Str -&gt; a -&gt; &lt;IO&gt; (Try Str ())</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Save a value as a morloc voidstar packet with a zstd compression level in <code>0..=9</code> (<code>0</code> = uncompressed). Arguments are <code>level</code>, <code>path</code>, <code>value</code>. Round-trips through <code>@load</code>. I/O failure is an <code>Err</code> arm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@savem</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; a -&gt; &lt;IO&gt; (Try Str ())</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file in MessagePack format (portable, compact). Path-first for partial application (<code>@savem path</code> is a reusable sink). I/O failure is an <code>Err</code> arm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@savej</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; a -&gt; &lt;IO&gt; (Try Str ())</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Save a value to file as plain JSON text (human-readable). Path-first for partial application. I/O failure is an <code>Err</code> arm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@load</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;IO&gt; (Try Str a)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Load a value from file, auto-detecting the format (MessagePack, JSON, or morloc packet). Missing file, decode failure, and schema mismatch all come back as an <code>Err</code> arm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@show</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a -&gt; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Serialize any value to a JSON string. Pure — no effect row.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@read</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; Try Str a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Parse a JSON string into a value of the expected type. Pure — parsing touches nothing, so this composes under <code>map</code>. Parse failure is an <code>Err</code> arm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@open</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;IO&gt; (Try Str a)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open a stream file; <code>a</code> is resolved by inline ascription to <code>IFile a</code>, <code>IStream a</code>, or <code>OStream a</code>. See <a href="../runs/random-access-and-streaming.html">Random access and streaming</a>. Missing, unreadable, or non-packet files give an <code>Err</code> arm. Opening <code>/dev/stdin</code> reads process stdin: as <code>IStream a</code> it routes to the stdin channel (like <code>@stdin</code>); as <code>IFile a</code> it gives an <code>Err</code> arm, since a pipe is not seekable.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@close</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a -&gt; &lt;IO&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Given a stream file handle, close it — for an <code>OStream</code> this writes the final footer — and release the handle’s slot. Given a <code>Str</code> path (as produced by the whole-list <code>@with</code>/<code>@render</code> gather via <code>@tmpfile</code>), unlink that temporary file instead. Only files registered by the gather are removed; passing any other path is rejected rather than deleting it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@tmpfile</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; (Try Str Str)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Create a fresh empty temporary file and return its path. Used by the whole-list <code>@with</code>/<code>@render</code> gather to stage a stream on disk before applying a handler to the complete data; the file is removed afterward with <code>@close</code>. I/O failure is an <code>Err</code> arm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@fschema</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;IO&gt; (Try Str Str)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Read a stream file’s element schema without binding a typed handle. Useful for runtime schema discovery. Missing or malformed files give an <code>Err</code> arm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@flen</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a -&gt; &lt;IO&gt; (Try Str Int)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total element count of an <code>IFile</code>, read from the file’s footer.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@write</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int -&gt; OStream a -&gt; [a] -&gt; &lt;IO&gt; (Try Str ())</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Append a list of elements to an <code>OStream</code>. The first argument is a zstd compression preset in <code>0..=9</code> (<code>0</code> = no compression); see <a href="../runs/compression.html">Compression</a> for the level table. I/O failure (disk full, broken pipe) is an <code>Err</code> arm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@flush</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OStream a -&gt; &lt;IO&gt; (Try Str ())</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Force buffered elements to disk as a sub-packet boundary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@append</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; &lt;IO&gt; (Try Str (OStream a))</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open a stream file for further writes, creating it if it is not there yet. Schema mismatch is an <code>Err</code> arm at open time, before any bytes are written.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@concat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[Str] -&gt; Str -&gt; &lt;IO&gt; (Try Str ())</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Byte-level concatenate compatible stream files into a destination via <code>sendfile</code>. The destination is replaced atomically and may itself be one of the sources.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@next</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IStream a -&gt; &lt;IO&gt; (Try Str [a])</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pull the next sub-packet’s elements from an <code>IStream</code>. Yields <code>Ok []</code> at EOF. Mid-stream decode failures are an <code>Err</code> arm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stream</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a -&gt; &lt;IO&gt; (IStream a)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Derive a forward-walking <code>IStream</code> from an open <code>IFile</code>. The two share the underlying file but have independent cursors.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stdin</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; (Try Str (IStream a))</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open process stdin as a typed <code>IStream</code> of morloc binary packets. Element type set by inline ascription. See <a href="../runs/random-access-and-streaming.html">Random access and streaming</a>. A second <code>@stdin</code> in the same nexus gives an <code>Err</code> arm via the uniqueness guard; read-time failures surface at <code>@next</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stdout</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; (OStream a)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open process stdout as a typed <code>OStream</code> of morloc binary packets. Element type set by inline ascription.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stderr</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; (OStream a)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open process stderr as a typed <code>OStream</code> of morloc binary packets. Element type set by inline ascription. Useful for structured diagnostics that downstream tools can parse.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@collect</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>(([a] -&gt; &lt;IO, e&gt; ()) -&gt; &lt;IO, e&gt; ()) -&gt; &lt;IO, e&gt; ()</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Drive a streaming-output command. Takes a producer that is handed a <em>sink</em> (<code>[a] → &lt;IO, e&gt; ()</code>); <code>@collect</code> supplies the default sink — write each batch to the nexus-formatted <code>@stdout</code> — and manages the stream lifecycle. Formatter directives (<code>@with</code> / <code>@render</code>, with the <code>@stream</code> modifier for per-batch application) rewrite the sink to transform or gather the stream per CLI flag.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@tell</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;IO&gt; U64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of elements written so far to the current output stream. Lets an offset-form formatter handler (<code>U64 → [a] → …​</code>) annotate each batch with its running position in the stream.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@hash</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a -&gt; Str</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hash a value via MessagePack serialization (xxhash), returns a 16-character hex string</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The compiler version string (resolved at compile time)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@compiled</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The compilation timestamp (resolved at compile time)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@lang</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The canonical language identifier of the pool where the expression is evaluated — the <code>name</code> field from <code>lang.yaml</code> (<code>"py"</code>, <code>"cpp"</code>, <code>"r"</code>, …​; <code>"morloc"</code> at the nexus level)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@datafile</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Resolve a relative path to the installed data file location (resolved at compile time)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@schema</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a -&gt; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The serialization schema string for the given type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@typeof</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a -&gt; Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The morloc abstract type name for the given type, e.g. <code>"Int"</code>, <code>"[Str]"</code>, <code>"?Real"</code>, <code>"(Int, Str)"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@throw</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str -&gt; a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Raise a <code>MorlocException</code> with the given message. Emits a native <code>raise</code>/<code>throw</code>/<code>stop</code> in the target language and never returns; the return type is polymorphic so <code>@throw</code> can inhabit any branch of a conditional. It has no effect row, because a computation that does not return has nothing for one to describe.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@try</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;e&gt; a -&gt; &lt;e&gt; (Try Str a)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Evaluate the expression under a language-native try/catch. A completed evaluation is <code>Ok</code>, an escaping exception is <code>Err</code> carrying its message. The argument’s effect row passes through unchanged; the argument may be pure, in which case so is the result.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Several intrinsics are polymorphic in their data argument: <code>@save</code>, <code>@savem</code>,
+<code>@savej</code>, <code>@write</code>, <code>@hash</code>, <code>@show</code>, <code>@schema</code>, and <code>@typeof</code> accept a value
+of any type. <code>@load</code>, <code>@read</code>, and <code>@next</code> return a value of any type,
+inferred from context. <code>@stdin</code>, <code>@stdout</code>, <code>@stderr</code>, <code>@open</code>, and <code>@append</code>
+are polymorphic in their handle’s element type, which is resolved by inline
+ascription at the open site. <code>@collect</code> is polymorphic in the stream element
+type <code>a</code>, read off the sink its producer is handed. <code>@throw</code> is polymorphic in
+its return type because it never returns — the return slot unifies with
+whatever the surrounding context expects. <code>@try</code> passes its argument’s effect
+row through unchanged.</p>
+</div>
+<div class="paragraph">
+<p>Two patterns run through the table. Anything that touches the world carries
+<code>&lt;IO&gt;</code>, and anything that can fail returns a <code>Try</code> (see
+<a href="effects.html#failure-is-not-an-effect">Failure is not an effect</a>): a missing file, a full disk, a broken pipe or
+a decode mismatch arrives as an <code>Err</code> arm rather than as an effect label.
+Most entries have both. The exceptions on the failure side are <code>@close</code>,
+<code>@tell</code>, <code>@stream</code>, <code>@stdout</code> and <code>@stderr</code>, which do setup, teardown or
+bookkeeping with no failure mode addressable from morloc code; <code>@read</code> is the
+exception on the other side, fallible but pure, because parsing a string
+touches nothing. The remaining intrinsics (<code>@version</code>, <code>@compiled</code>, <code>@lang</code>,
+<code>@datafile</code>) are compile-time constants, and <code>@hash</code>, <code>@show</code>, <code>@schema</code> and
+<code>@typeof</code> are pure functions of their argument’s type or serialized bytes.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_hashing"><a class="anchor" href="#_hashing"></a>4.17.2. Hashing</h4>
+<div class="paragraph">
+<p><code>@hash</code> computes a fast, non-cryptographic hash (xxhash) of any value. The
+value is first serialized to MessagePack internally, then hashed. The result is
+a 16-character hexadecimal string.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">hashInt</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">hashStr</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
+
+<span class="tok-n">hashInt</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">hashInt</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@hash</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
+
+<span class="tok-n">hashStr</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">hashStr</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@hash</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./intrinsics<span class="tok-w"> </span>hashInt<span class="tok-w"> </span><span class="tok-m">1</span>
+<span class="tok-go">"6fffcb30bbcc5a72"</span>
+<span class="tok-gp">$ </span>./intrinsics<span class="tok-w"> </span>hashStr<span class="tok-w"> </span><span class="tok-m">1</span>
+<span class="tok-go">"06e0f1375b38be15"</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The two differ because the integer <code>1</code> and the string <code>"1"</code> have different
+MessagePack encodings, which is the point of the paragraph below.</p>
+</div>
+<div class="paragraph">
+<p>Hashing is deterministic: the same value always produces the same hash. Two
+values of different types may hash differently even if they look similar (e.g.,
+the integer <code>1</code> and the string <code>"1"</code>), because their MessagePack serializations
+differ.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_compile_time_constants"><a class="anchor" href="#_compile_time_constants"></a>4.17.3. Compile-time constants</h4>
+<div class="paragraph">
+<p>The <code>@version</code>, <code>@compiled</code>, and <code>@lang</code> intrinsics are resolved at compile
+time. They can be used anywhere a <code>Str</code> value is expected.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">info</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
+
+<span class="tok-n">info</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span>
+<span class="tok-n">info</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nb">@version</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nb">@compiled</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nb">@lang</span><span class="tok-p">]</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./intrinsics<span class="tok-w"> </span>info
+<span class="tok-go">["0.100.2","2026-09-02T12:58:04Z","morloc"]</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The <code>@lang</code> value depends on where the expression is evaluated. When the list
+literal above is assembled at the nexus level (not inside a sourced function),
+<code>@lang</code> resolves to <code>"morloc"</code>. To observe the language-pool identifier, pass
+<code>@lang</code> into a sourced function and let it be evaluated inside that pool: the
+value will be that pool’s canonical language identifier — the <code>name</code> field
+from its <code>lang.yaml</code> (<code>"py"</code>, <code>"cpp"</code>, <code>"r"</code>, …​).</p>
+</div>
+<div class="paragraph">
+<p><code>@lang</code> deliberately returns this short canonical identifier, not a
+human-facing display name like "Python3" or "C++". Intrinsics are low-level
+primitives where stability outweighs presentation: the <code>lang.yaml</code> <code>name</code> is
+the guaranteed-unique, stable identifier for a language backend, so it is the
+correct value for conditional logic and tooling. Map it to a prettier label
+yourself if you need one.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_saving_and_loading_data"><a class="anchor" href="#_saving_and_loading_data"></a>4.17.4. Saving and loading data</h4>
+<div class="paragraph">
+<p>The <code>@savem</code> and <code>@savej</code> intrinsics write a single value to a file path, and
+<code>@load</code> reads it back. Together they provide a type-safe file persistence mechanism for
+one-shot writes. For multi-element accumulation use an <code>OStream</code> and <code>@write</code>
+instead (see <a href="../runs/random-access-and-streaming.html">Random access and streaming</a>).</p>
+</div>
+<div class="paragraph">
+<p><code>@savem</code> uses MessagePack, which is compact and portable across different
+machines and architectures. <code>@savej</code> writes plain JSON, which is human-readable
+and can be edited by hand or consumed by other tools.</p>
+</div>
+<div class="paragraph">
+<p><code>@load</code> auto-detects the file format. Files written by <code>@savem</code> carry a small
+header that identifies them as MessagePack. If no header is present, <code>@load</code>
+tries to parse the file as JSON. <code>@load</code> also recognises morloc stream and
+voidstar packets, so any file produced by the morloc runtime round-trips through
+it.</p>
+</div>
+<div class="paragraph">
+<p><code>@load</code> returns <code>&lt;IO&gt; (Try Str a)</code>. A missing file, decode failure, or schema
+mismatch against the caller’s expected type all come back as an <code>Err</code> arm
+rather than an exception — see <a href="#failure-and-recovery">Failure and recovery</a>.</p>
+</div>
+<div class="paragraph">
+<p>Here is a basic round-trip example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">roundTrip</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
+
+<span class="tok-n">roundTrip</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">roundTrip</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">path</span>
+<span class="tok-w">  </span><span class="tok-n">v</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The bare <code>@savem</code> writes the integer to the given path; nothing reads its
+result, so a write failure stops the block there (see
+<a href="effects.html#bare-statement-checks">A bare statement checks its result</a>). <code>Ok v ← @load path</code> reads the value
+back and unwraps it, throwing if the load failed. The signature is plain
+<code>&lt;IO&gt; Int</code>, because neither failure survives as a value.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./sv<span class="tok-w"> </span>roundTrip<span class="tok-w"> </span><span class="tok-m">42</span><span class="tok-w"> </span>tmp.bin
+<span class="tok-go">42</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p><code>import root</code> is doing work here: <code>Try</code> and its two constructors are declared
+in the standard library, so a module that names <code>Ok</code> or <code>Err</code> needs it.</p>
+</div>
+<div class="paragraph">
+<p>You can also use <code>@savej</code> when you want the output to be readable:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">saveReadable</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
+
+<span class="tok-n">saveReadable</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+<span class="tok-n">saveReadable</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-nb">@savej</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-p">()</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The resulting file is plain JSON that can be inspected in any text editor. The
+trailing <code>()</code> is not decoration: a <code>do</code>-block’s last statement is its return
+value, so leaving <code>@savej</code> there would make the block return the <code>Try</code> rather
+than discharge it. <a href="effects.html#do-block-no-try">A <code>do</code>-block does not return a <code>Try</code></a> gives the three ways
+to write this and when each is right.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_caching_with_savem_and_load"><a class="anchor" href="#_caching_with_savem_and_load"></a>4.17.5. Caching with <code>@savem</code> and <code>@load</code></h4>
+<div class="paragraph">
+<p>A common pattern is to check whether a cached result exists before recomputing
+it. <code>@load</code> gives an <code>Err</code> arm when the file is missing (or on any decode
+failure), so match on the result and compute in the <code>Err</code> arm:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">cachedResult</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"compute.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"expensiveComputation"</span><span class="tok-p">)</span>
+<span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-n">cachedResult</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">cachedResult</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">cached</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
+<span class="tok-w">  </span><span class="tok-n">match</span><span class="tok-w"> </span><span class="tok-n">cached</span>
+<span class="tok-w">    </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">v</span>
+<span class="tok-w">    </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Err</span><span class="tok-w"> </span><span class="tok-bp">_</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">        </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">fresh</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">        </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">fresh</span><span class="tok-p">)</span>
+<span class="tok-w">        </span><span class="tok-n">fresh</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./sv<span class="tok-w"> </span>cachedResult<span class="tok-w"> </span><span class="tok-m">12</span><span class="tok-w"> </span>c1.bin
+<span class="tok-go">144</span>
+<span class="tok-gp">$ </span>./sv<span class="tok-w"> </span>cachedResult<span class="tok-w"> </span><span class="tok-m">12</span><span class="tok-w"> </span>c1.bin
+<span class="tok-go">144</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>On the first call the cache file does not exist, so the <code>Err</code> arm runs
+<code>expensiveComputation</code>, saves the result and returns it. On the second the
+<code>Ok</code> arm returns the stored value and the computation never runs. An arm may
+be a whole <code>do</code>-block, which is what makes the recomputation lazy: only the
+arm that is taken evaluates. Both arms of a <code>match</code> have one type, so once
+the <code>Err</code> arm is a <code>do</code>-block the <code>Ok</code> arm wraps its value in <code>do</code> too (see
+<a href="effects.html#rules">The rules</a>); a bare <code>v</code> there is a type error.</p>
+</div>
+<div class="paragraph">
+<p>The bare <code>@savem</code> inside the <code>Err</code> arm still checks itself, so a cache that
+cannot be written stops the program rather than silently returning an
+uncached value. If you would rather carry on, bind it: <code>_ ← @savem cachePath
+(id fresh)</code>.</p>
+</div>
+<div class="paragraph">
+<p>You can also use <code>@hash</code> to build content-addressed caches where the cache path
+depends on the input:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">hashedCache</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"compute.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"expensiveComputation"</span><span class="tok-p">)</span>
+<span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-n">hashedCache</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">hashedCache</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@hash</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"/tmp/cache_"</span><span class="tok-w"> </span><span class="tok-o">&lt;&gt;</span><span class="tok-w"> </span><span class="tok-n">key</span><span class="tok-w"> </span><span class="tok-o">&lt;&gt;</span><span class="tok-w"> </span><span class="tok-s">".bin"</span>
+<span class="tok-w">  </span><span class="tok-n">cached</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-n">cachePath</span>
+<span class="tok-w">  </span><span class="tok-n">match</span><span class="tok-w"> </span><span class="tok-n">cached</span>
+<span class="tok-w">    </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">v</span>
+<span class="tok-w">    </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Err</span><span class="tok-w"> </span><span class="tok-bp">_</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">        </span><span class="tok-kr">let</span><span class="tok-w"> </span><span class="tok-n">fresh</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">expensiveComputation</span><span class="tok-w"> </span><span class="tok-n">x</span>
+<span class="tok-w">        </span><span class="tok-nb">@savem</span><span class="tok-w"> </span><span class="tok-n">cachePath</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">fresh</span><span class="tok-p">)</span>
+<span class="tok-w">        </span><span class="tok-n">fresh</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Each distinct input gets its own cache file, keyed by the xxhash of its
+serialized form.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_accessing_installed_data_files"><a class="anchor" href="#_accessing_installed_data_files"></a>4.17.6. Accessing installed data files</h4>
+<div class="paragraph">
+<p>The <code>@datafile</code> intrinsic resolves a relative file path to its location in
+the installed program directory. When you compile with <code>morloc make --install</code>,
+source files and data files listed in <code>package.yaml</code> are copied into the
+install directory. At runtime, these files are no longer at their original
+paths. <code>@datafile</code> bridges this gap by resolving the path at compile time.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">readConfig</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"config.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"loadConfig"</span><span class="tok-p">)</span>
+<span class="tok-n">loadConfig</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+
+<span class="tok-n">readConfig</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">readConfig</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">loadConfig</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">@datafile</span><span class="tok-w"> </span><span class="tok-s">"defaults.json"</span><span class="tok-p">)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Here <code>@datafile "defaults.json"</code> evaluates to the absolute path where
+<code>defaults.json</code> is installed (for example,
+<code>~/.local/share/morloc/exe/main/defaults.json</code>).
+The Python function receives this path as a plain string and can open the file
+normally.</p>
+</div>
+<div class="paragraph">
+<p>When running without <code>--install</code> (plain <code>morloc make</code>), <code>@datafile</code> returns the
+relative path unchanged, so the program works from the project directory as
+expected.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tbody><tr>
+<td class="icon">
+<img loading="lazy" src="../static/img/admonition_icons/note.png" alt="Note">
+</td>
+<td class="content">
+Source functions that need data files should accept the path as a
+parameter rather than hardcoding relative paths. This keeps data dependencies
+explicit in the type signature and ensures files are found correctly whether
+the program is run from the project directory or installed.
+</td>
+</tr>
+</tbody></table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_type_introspection"><a class="anchor" href="#_type_introspection"></a>4.17.7. Type introspection</h4>
+<div class="paragraph">
+<p>The <code>@schema</code> and <code>@typeof</code> intrinsics return information about how the compiler
+represents a type. The value argument is not evaluated at runtime — only its
+type matters.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">showSchema</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">showType</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-p">)</span>
+
+<span class="tok-n">showSchema</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">showSchema</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@schema</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span>
+
+<span class="tok-n">showType</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">showType</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@typeof</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">id</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./intrinsics<span class="tok-w"> </span>typeofInt
+<span class="tok-go">"Int"</span>
+<span class="tok-gp">$ </span>./intrinsics<span class="tok-w"> </span>typeofList
+<span class="tok-go">"[Str]"</span>
+<span class="tok-gp">$ </span>./intrinsics<span class="tok-w"> </span>typeofOpt
+<span class="tok-go">"?Real"</span>
+<span class="tok-gp">$ </span>./intrinsics<span class="tok-w"> </span>typeofTup
+<span class="tok-go">"(Int, Str)"</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p><code>@typeof</code> returns the <strong>morloc abstract</strong> type name (the same way the type would
+be written in a signature): <code>"Int"</code>, <code>"Str"</code>, <code>"Real"</code>, <code>"Bool"</code>, <code>"[Int]"</code>,
+<code>"?Int"</code>, <code>"(Int, Str)"</code>, and so on. It does <strong>not</strong> return the language-native
+type name in the current pool.</p>
+</div>
+<div class="paragraph">
+<p><code>@schema</code> returns the internal serialization schema string used by the compiler
+for MessagePack and binary serialization. The encoding is short, byte-oriented,
+and stable for a given compiler version. The alphabet:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Schema fragment</th>
+<th class="tableblock halign-left valign-top">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>j</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int</code> (default variable-width integer)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>i1</code> / <code>i2</code> / <code>i4</code> / <code>i8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>I8</code> / <code>I16</code> / <code>I32</code> / <code>I64</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>u1</code> / <code>u2</code> / <code>u4</code> / <code>u8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>U8</code> / <code>U16</code> / <code>U32</code> / <code>U64</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>f4</code> / <code>f8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>F32</code> / <code>F64</code> (and <code>Real</code>, which maps to <code>f8</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Bool</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>s</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>z</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code> / <code>()</code> (Unit)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>?X</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Optional X</code> — <code>?</code> prefix followed by an inner schema</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>aX</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>List X</code> (and <code>Array</code>, <code>Deque</code>, <code>Vector</code>) — <code>a</code> prefix followed by an inner schema; fixed-dim arrays append <code>:N</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tN X1X2…​XN</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tuple of <code>N</code> elements — <code>t</code>, a length code, then one schema per element, run together with no separators</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mN &lt;len&gt;&lt;key&gt;X…​</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Named record of <code>N</code> fields — <code>m</code>, a field count, then <code>(key length, key text, schema)</code> per field, with no separators</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>T</code> / <code>T:N …​</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Arrow table primitive; bare <code>T</code> is row-polymorphic, <code>T:N</code> declares <code>N</code> required columns</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>*</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unknown (unresolved) type</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;typename&gt;…​</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional concrete-type hint prefix (e.g., <code>&lt;Money&gt;j</code> for <code>type Money = Int</code>)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>There are no separators anywhere in the encoding. Reading a few real ones is
+the quickest way to internalize it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./schemas<span class="tok-w"> </span>schemaOf
+<span class="tok-go">["t2js","&lt;dict&gt;m24names3agej","aaj","i4","u1","f4"]</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Those are, in order: <code>(Int, Str)</code>; a record `P {name </dt>
+<dd>
+<p>Str, age :: Int}` mapped
+to a Python <code>dict</code>; <code>[[Int]]</code>; <code>I32</code>; <code>U8</code>; and <code>F32</code>. Take the record apart — <code>&lt;dict&gt;</code> is the concrete-type hint, <code>m2</code> says two fields, <code>4name</code> is a
+four-character key followed by <code>s</code> for its <code>Str</code> value, and <code>3age</code> is followed
+by <code>j</code> for its <code>Int</code>.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p><code>@schema</code> is primarily useful for debugging and for cross-language tools that
+inspect morloc wire formats.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="failure-and-recovery"><a class="anchor" href="#failure-and-recovery"></a>4.17.8. Failure and recovery</h4>
+<div class="paragraph">
+<p>Failure in Morloc is a value, not an effect: a fallible operation returns
+<code>Try e a</code> and the caller matches on it. <a href="effects.html#failure-is-not-an-effect">Failure is not an effect</a> makes
+that case; this section covers the two intrinsics that sit at its edges.
+<code>@throw</code> produces a failure that is <strong>not</strong> a value — a native exception that
+unwinds — and <code>@try</code> turns one back into a value.</p>
+</div>
+<div class="sect4">
+<h5 id="_throw_abandon_the_computation"><a class="anchor" href="#_throw_abandon_the_computation"></a><code>@throw</code>: abandon the computation</h5>
+<div class="paragraph">
+<p><code>@throw</code> raises an exception from morloc code. It generates a native
+<code>raise</code>/<code>throw</code>/<code>stop</code> statement in the language of the pool where the
+expression is evaluated, halting execution and unwinding the call stack.</p>
+</div>
+<div class="paragraph">
+<p>The signature is <code>Str → a</code>. The message is any <code>Str</code> expression, so string
+interpolation with <code>#{expr}</code> works naturally. The return type is polymorphic:
+since <code>@throw</code> never returns a value, its return type can unify with whatever
+the surrounding context expects, letting <code>@throw</code> inhabit any branch of a
+conditional. There is no effect row, for the same reason — a computation
+that does not return has nothing for a row to describe.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">tryRead</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"reader.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"openReader"</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">"readerOk"</span><span class="tok-p">)</span>
+
+<span class="tok-n">openReader</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">readerOk</span><span class="tok-w">   </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span>
+
+<span class="tok-n">tryRead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">tryRead</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">handle</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">openReader</span><span class="tok-w"> </span><span class="tok-n">path</span>
+<span class="tok-w">  </span><span class="tok-o">?</span><span class="tok-w"> </span><span class="tok-n">readerOk</span><span class="tok-w"> </span><span class="tok-n">handle</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">handle</span>
+<span class="tok-w">  </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-nb">@throw</span><span class="tok-w"> </span><span class="tok-s">"failed to open reader for </span><span class="tok-si">#{</span><span class="tok-n">path</span><span class="tok-si">}</span><span class="tok-s">"</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./intr<span class="tok-w"> </span>tryRead<span class="tok-w"> </span>a.ok
+<span class="tok-go">1</span>
+<span class="tok-gp">$ </span>./intr<span class="tok-w"> </span>tryRead<span class="tok-w"> </span>a.bad
+<span class="tok-go">Error: run failed</span>
+<span class="tok-go">failed to open reader for a.bad</span>
+<span class="tok-go">  at tryRead [py] (mid=1, intr.loc:1:14)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Here <code>@throw</code> occupies one arm of the <code>?/:</code> conditional and the other arm
+returns an <code>Int</code>. The polymorphic return type unifies with <code>Int</code>, and
+<code>tryRead’s signature is plain `&lt;IO&gt; Int</code>: it opens a file, and the way it
+fails does not show up in its type.</p>
+</div>
+<div class="paragraph">
+<p>The generated code depends on the target language: in Python <code>@throw msg</code>
+becomes <code>raise MorlocException(msg)</code>, in C++ it becomes <code>throw
+MorlocException(msg)</code>, in R it becomes <code>stop(structure(class=c("MorlocException",
+"error", "condition"), list(message=msg, call=NULL)))</code>. Each pool defines
+<code>MorlocException</code> as a subclass of the language’s native runtime error type,
+so existing <code>try</code>/<code>catch</code>/<code>tryCatch</code> scaffolding at the pool boundary catches
+it without any user-side setup.</p>
+</div>
+<div class="paragraph">
+<p>When <code>@throw</code> is invoked from the nexus itself (not inside a pool-bound
+function), it raises a nexus-side <code>MorlocError</code> with the same message and
+exits the program non-zero.</p>
+</div>
+<div class="paragraph">
+<p>Use <code>@throw</code> when there is nothing sensible to return and the caller has no
+decision to make. When the caller <strong>does</strong> have a decision to make, return a
+<code>Try</code> instead.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_try_turn_a_raise_back_into_a_value"><a class="anchor" href="#_try_turn_a_raise_back_into_a_value"></a><code>@try</code>: turn a raise back into a value</h5>
+<div class="paragraph">
+<p><code>@try</code> evaluates its argument with the target language’s exception machinery
+armed. Its signature is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>@try :: &lt;e&gt; a -&gt; &lt;e&gt; (Try Str a)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A completed evaluation is <code>Ok</code>; an exception that escapes the argument is
+<code>Err</code>, carrying the exception’s message. The argument’s effect row passes
+through untouched, and the argument may be pure, in which case so is the
+result — <code>@try</code> is not itself an effect.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">safeRead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">safeRead</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">r</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@try</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">tryRead</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-n">match</span><span class="tok-w"> </span><span class="tok-n">r</span><span class="tok-w"> </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-w"> </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Err</span><span class="tok-w"> </span><span class="tok-bp">_</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">0</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./intr<span class="tok-w"> </span>safeRead<span class="tok-w"> </span>a.ok
+<span class="tok-go">1</span>
+<span class="tok-gp">$ </span>./intr<span class="tok-w"> </span>safeRead<span class="tok-w"> </span>a.bad
+<span class="tok-go">0</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The point of a value rather than a fallback expression is that the failure is
+now something you can read. <code>describeRead</code> reports it rather than swallowing
+it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">describeRead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-n">describeRead</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">r</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@try</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">tryRead</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-n">match</span><span class="tok-w"> </span><span class="tok-n">r</span>
+<span class="tok-w">    </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"opened, handle </span><span class="tok-si">#{</span><span class="tok-nb">@show</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-si">}</span><span class="tok-s">"</span>
+<span class="tok-w">    </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Err</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"could not open: </span><span class="tok-si">#{</span><span class="tok-n">e</span><span class="tok-si">}</span><span class="tok-s">"</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./intr<span class="tok-w"> </span>describeRead<span class="tok-w"> </span>a.bad
+<span class="tok-go">"could not open: failed to open reader for a.bad"</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Anything may be wrapped. Unlike the intrinsic it replaces, <code>@try</code> demands no
+marker on its argument saying that failure is possible, because no such
+marker exists any more: a sourced function raises in its own language whether
+or not its signature hints at it, and <code>@try</code> is how you find out. Wrapping an
+argument that cannot fail is harmless — the result is always <code>Ok</code> — and
+wasted words.</p>
+</div>
+<div class="paragraph">
+<p>At runtime, <code>@try</code> uses the language’s native try/catch machinery. In Python
+it becomes a <code>try/except Exception</code>, in C++ <code>try { } catch (const
+std::exception&amp;)</code>, in R <code>tryCatch(…​, error = …​)</code>. Any exception is
+caught: <code>MorlocException</code> raised by <code>@throw</code>, foreign-library errors (a
+Python <code>KeyError</code>, a C++ <code>std::out_of_range</code>), and cross-pool fail packets,
+which the calling pool re-throws as a native exception.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_chaining_attempts"><a class="anchor" href="#_chaining_attempts"></a>Chaining attempts</h5>
+<div class="paragraph">
+<p>Because an arm of a <code>match</code> may be a whole <code>do</code>-block, and only the arm that
+is taken evaluates, fallible attempts nest without any special construct:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">robustRead</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">robustRead</span><span class="tok-w"> </span><span class="tok-n">path</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-s">"cache/</span><span class="tok-si">#{</span><span class="tok-n">path</span><span class="tok-si">}</span><span class="tok-s">"</span>
+<span class="tok-w">  </span><span class="tok-n">match</span><span class="tok-w"> </span><span class="tok-n">a</span>
+<span class="tok-w">    </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">v</span>
+<span class="tok-w">    </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Err</span><span class="tok-w"> </span><span class="tok-bp">_</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">        </span><span class="tok-n">b</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-s">"disk/</span><span class="tok-si">#{</span><span class="tok-n">path</span><span class="tok-si">}</span><span class="tok-s">"</span>
+<span class="tok-w">        </span><span class="tok-n">match</span><span class="tok-w"> </span><span class="tok-n">b</span>
+<span class="tok-w">          </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span><span class="tok-w"> </span><span class="tok-n">v</span>
+<span class="tok-w">          </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Err</span><span class="tok-w"> </span><span class="tok-bp">_</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">              </span><span class="tok-n">c</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@load</span><span class="tok-w"> </span><span class="tok-s">"net/</span><span class="tok-si">#{</span><span class="tok-n">path</span><span class="tok-si">}</span><span class="tok-s">"</span>
+<span class="tok-w">              </span><span class="tok-n">unwrap</span><span class="tok-w"> </span><span class="tok-n">c</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Each load runs only if the one before it failed, and each <code>Ok</code> arm wraps
+its value in <code>do</code> for the reason given under the cache pattern above. With
+none of the three files present, every attempt fails and the last error is
+the one that escapes, because <code>unwrap</code> throws the <code>Err</code> message it is
+handed:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./chain<span class="tok-w"> </span>robustRead<span class="tok-w"> </span>x
+<span class="tok-go">Error: evaluation failed: @load: failed to load 'net/x'</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Put a plain value in the innermost arm instead of <code>unwrap c</code> and the chain
+cannot fail at all.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_caveats"><a class="anchor" href="#_caveats"></a>Caveats</h5>
+<div class="paragraph">
+<p><code>@try</code> intercepts exceptions raised within the calling process. A pool that
+is killed outright — an out-of-memory kill, an external <code>kill -9</code> — is not
+catchable, because the crash reaches the nexus as a socket error rather than
+a language-native exception.</p>
+</div>
+<div class="paragraph">
+<p><code>@throw</code> accepts only a <code>Str</code>. Throwing a structured value is not supported:
+the payload is rendered into the traceback at the throw site and does not
+survive as a value, so there would be nothing on the other side to match on.
+Render it yourself with <code>@show</code> if you need more than a message.</p>
+</div>
+</div>
+</div>
+</div></div>
+<nav class="page-nav" data-pagefind-ignore>
+<a class="prev" rel="prev" href="optionals.html">Previous: 4.16. Optional types</a>
+<a class="next" rel="next" href="../types/index.html">Next: 5. Advanced Types</a>
+</nav>
+</div>
+<div class="pwa-install-div hidden">
+	<div id="pwa-install-text">Ready for offline use!</div>
+	<button id="pwa-install-btn">Install</button>
+	<button id="pwa-install-dismiss" aria-label="Dismiss PWA install prompt">
+		<img loading="lazy" src="../static/img/clear_cross.svg" alt="X">
+	</button>
+</div>
+<button class="btn hidden back-to-top-btn" aria-label="Scroll to top"><img loading="lazy" src="../static/img/up-arrow.svg" alt="Top"></button>
+<div id="footer">
+<span class="credit">Created with <a href="https://github.com/HarshKapadia2/asciidoctor-jet" target="_blank" rel="noreferrer"><i>Asciidoctor Jet</i></a></span>
+
+<a href="../llms.txt">llms.txt</a>
+<a class="text-view" href="intrinsics.md">View as text</a></div>
+</body>
+</html>

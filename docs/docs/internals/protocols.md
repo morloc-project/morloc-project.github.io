@@ -1,0 +1,217 @@
+# 13.3. Protocols
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/protocols.html | prev: https://morloc-project.github.io/docs/internals/cross-language-calls.md | next: https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.md
+
+> **Note**
+> This section is primarily of interest to users extending the Morloc ecosystem (e.g., adding a new language backend) or debugging at the binary level.
+
+This section describes the binary formats used for communication between the nexus and pools: the manifest, the packet protocol, the shared memory layout, and the voidstar data format.
+
+## 13.3.1. The manifest
+
+The manifest is a standalone `manifest.json` file written into the program’s `<name>-build/` directory. The launcher script that `morloc make` produces is a thin wrapper carrying no embedded payload; it execs the shared `morloc-nexus` runtime against an absolute path to this file, so the launcher can be freely moved as long as its build directory stays put. The manifest describes the program’s structure. Key fields:
+
+| Field | Description |
+| --- | --- |
+| `version` | Manifest format version (currently `1`) |
+| `name` | Program name |
+| `build_dir` | Absolute path to the build directory |
+| `pools` | Array of pool descriptors (see below) |
+| `commands` | Array of exported commands (see below) |
+
+Each **pool** entry:
+
+-   `lang` — Language name (e.g., `"python3"`, `"cpp"`)
+-   `exec` — Command-line tokens to launch the pool, with the pool path relative to `build_dir` (e.g., `["python3", "pools/python3/pool.py"]`)
+-   `socket` — Unix domain socket basename (e.g., `"pipe-python3"`)
+
+Each **command** entry:
+
+-   `name` — CLI subcommand name
+-   `type` — `"remote"` (dispatched to a pool) or `"pure"` (evaluated in the nexus)
+-   `mid` — Manifold index identifying the function in the pool
+-   `pool` — Index into the `pools` array
+-   `needed_pools` — Indices of all pools that must be running
+-   `arg_schemas` / `return_schema` — Schema strings describing argument and return types (see [Schema strings](#schema-strings))
+-   `args` — CLI argument descriptors
+
+## 13.3.2. Packet protocol
+
+All communication uses a binary packet protocol over Unix domain sockets. Every packet starts with a 32-byte packed header:
+
+![Diagram](https://morloc-project.github.io/docs/static/img/diag-3a8a4214514fb5bdcf108374d4bfe4f885ff06efcf232eb8b10a5c35ca7a2853.svg)
+
+**Table 12. Packet header fields**
+
+| Field | Type | Width | Description |
+| --- | --- | --- | --- |
+| `magic` | uint32\_t | 4 | Constant `0x0707f86d` (little-endian) |
+| `plain` | uint16\_t | 2 | Plain membership (reserved, always 0) |
+| `version` | uint16\_t | 2 | Format version (currently 0) |
+| `flavor` | uint16\_t | 2 | Metadata convention (reserved) |
+| `mode` | uint16\_t | 2 | Evaluation mode (reserved) |
+| `command` | union | 8 | Type-specific command data (see below) |
+| `offset` | uint32\_t | 4 | Bytes of metadata between header and payload |
+| `length` | uint64\_t | 8 | Payload length in bytes |
+
+Total packet size is always `32 + offset + length`.
+
+### Packet types
+
+The `command` field’s first byte is a type tag:
+
+**Data packet** (`0x00`) — Carries data or error messages:
+
+| Field | Type | Width | Description |
+| --- | --- | --- | --- |
+| `type` | uint8\_t | 1 | `0x00` |
+| `source` | uint8\_t | 1 | `0x00`\=MESG (inline), `0x01`\=FILE (path), `0x02`\=RPTR (shared memory pointer) |
+| `format` | uint8\_t | 1 | `0x00`\=JSON, `0x01`\=MSGPACK, `0x02`\=TEXT, `0x03`\=DATA, `0x04`\=VOIDSTAR |
+| `compression` | uint8\_t | 1 | Reserved, always 0 |
+| `encryption` | uint8\_t | 1 | Reserved, always 0 |
+| `status` | uint8\_t | 1 | `0x00`\=PASS, `0x01`\=FAIL |
+| `padding` | uint8\_t | 2 | Zero |
+
+For small data (up to 64 KB serialized), the most common combination is `source=MESG, format=VOIDSTAR` — the voidstar binary is embedded directly in the packet payload, avoiding shared memory entirely. For large data, the combination is `source=RPTR, format=VOIDSTAR` — only an 8-byte relative pointer travels over the socket, and the data lives in shared memory.
+
+When `status=FAIL`, the packet carries a UTF-8 error message (`source=MESG, format=TEXT`).
+
+**Call packet** (`0x01`) — Instructs a pool to execute a function:
+
+| Field | Type | Width | Description |
+| --- | --- | --- | --- |
+| `type` | uint8\_t | 1 | `0x01` |
+| `entrypoint` | uint8\_t | 1 | `0x00`\=LOCAL, `0x01`\=REMOTE\_SFS |
+| `padding` | uint8\_t | 2 | Zero |
+| `midx` | uint32\_t | 4 | Manifold index (which function to call) |
+
+The payload is a contiguous sequence of data packets, one per argument.
+
+**Ping packet** (`0x02`) — Header-only, no payload. The nexus pings pools to check readiness; the pool echoes it back as a pong.
+
+### Metadata blocks
+
+Between the header and payload (in the `offset` region), packets can carry metadata blocks. Each has an 8-byte header:
+
+| Field | Type | Width | Description |
+| --- | --- | --- | --- |
+| `magic` | char\[3\] | 3 | Constant `"mmh"` |
+| `type` | uint8\_t | 1 | `0x01`\=SCHEMA\_STRING, `0x02`\=XXHASH |
+| `size` | uint32\_t | 4 | Payload size in bytes |
+
+## 13.3.3. Shared memory
+
+Pools share data through POSIX shared memory segments rather than copying over sockets. Only relative pointers (8 bytes) travel over the wire.
+
+### Volumes
+
+Shared memory is organized as multiple volumes (`/dev/shm/morloc-<hash>_0`, `morloc-<hash>_1`, etc.). The nexus creates the first volume (64 KB). New volumes are created automatically when space runs out (up to 32 volumes). If `/dev/shm` is too small (common in Docker), volumes fall back to files in the temporary directory. Under Apptainer/Singularity the host’s `/dev/shm` is shared into the container at host size, so this fallback is rarely triggered.
+
+### Pointer types
+
+| Type | Description |
+| --- | --- |
+| `absptr_t` (`void*`) | Virtual address in the current process. Different per process. |
+| `volptr_t` (`ssize_t`) | Offset within a single volume (0 = first byte after the header). |
+| `relptr_t` (`ssize_t`) | Global offset across all volumes. **This is the pointer type shared between processes** — it appears in data packets and in voidstar data structures. |
+
+```
+             volume 0 (size=20)        volume 1
+         ---xxxxxx........----xxxxxx............---->
+ relptr           0      7          8         19
+```
+
+### Volume header (`shm_t`)
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `magic` | unsigned int | Constant `0xFECA0DF0` |
+| `volume_name` | char\[256\] | Volume identifier |
+| `volume_index` | int | Index in the pool (0, 1, 2, …​) |
+| `volume_size` | size\_t | Usable data capacity (excludes header) |
+| `relative_offset` | size\_t | Sum of all prior volumes' sizes |
+| `rwlock` | pthread\_rwlock\_t | Process-shared read-write lock |
+| `cursor` | volptr\_t | Current free block (allocator hint) |
+
+### Block header (`block_header_t`, packed)
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `magic` | unsigned int | Constant `0x0CB10DF0` |
+| `reference_count` | atomic unsigned int | Active references (0 = free) |
+| `size` | size\_t | Payload size in bytes (excludes header) |
+
+Blocks use reference counting. `shmalloc` allocates with first-fit and lazy coalescing. `shfree` decrements the reference count; blocks are merged during the next allocation scan.
+
+## 13.3.4. Schema strings
+
+Schema strings are a compact encoding of a data type’s binary layout. They appear in the manifest and in packet metadata.
+
+Primitives:
+
+| Schema | Type |
+| --- | --- |
+| `z` | nil (1 byte) |
+| `b` | bool (1 byte) |
+| `i1`/`i2`/`i4`/`i8` | signed int (1/2/4/8 bytes) |
+| `u1`/`u2`/`u4`/`u8` | unsigned int (1/2/4/8 bytes) |
+| `f4`/`f8` | float (4/8 bytes) |
+| `s` | variable-length UTF-8 string |
+
+Compounds:
+
+| Pattern | Description |
+| --- | --- |
+| `a<elem>` | Array. `ai4` = array of int32. |
+| `t<N><elems>` | Tuple. `t2i4f8` = (int32, float64). |
+| `m<N><fields>` | Record with length-prefixed keys. `m2<3>agei4<4>names` = \\{age: int32, name: string}. |
+
+## 13.3.5. Voidstar binary format
+
+Every Morloc general type maps unambiguously to a binary form that consists of several fixed-width literal types, a list container, and a tuple container. The literal types include a unit type, a boolean, signed integers (8, 16, 32, and 64 bit), unsigned integers (8, 16, 32, and 64 bit), and IEEE floats (32 and 64 bit). The list container is represented by a 64-bit size integer and a pointer to an unboxed vector. The tuple is represented as a set of values in contiguous memory. These basic types are listed below:
+
+**Table 13. Morloc primitives**
+
+| Type | Domain | Schema | Width (bytes) |
+| --- | --- | --- | --- |
+| Unit | `()` | z | 1 |
+| Bool | `True` \| `False` | b | 1 |
+| U8 | $[0,2^{8})$ | u1 | 1 |
+| U16 | $[0,2^{16})$ | u2 | 2 |
+| U32 | $[0,2^{32})$ | u4 | 4 |
+| U64 | $[0,2^{64})$ | u8 | 8 |
+| I8 | $[-2^{7},2^{7})$ | i1 | 1 |
+| I16 | $[-2^{15},2^{15})$ | i2 | 2 |
+| I32 | $[-2^{31},2^{31})$ | i4 | 4 |
+| I64 | $[-2^{63},2^{63})$ | i8 | 8 |
+| F32 | IEEE float | f4 | 4 |
+| F64 | IEEE double | f8 | 8 |
+| List x | lists | a{x} | $16 + n \Vert a \Vert$ |
+| Tuple2 x1 x2 | 2-ples | t2{x1}{x2} | $\Vert a \Vert + \Vert b \Vert$ |
+| TupleX  $\ t_i\ ...\ t_k$ | k-ples | $tkt_1\ ...\ t_k$ | $\sum_i^k \Vert t_i \Vert$ |
+| $\{ f_1 :: t_1,\ ... \ , f_k :: t_k \}$ | records | $mk \Vert f_1 \Vert f_1 t_1\ ...\ \Vert f_k \Vert f_k t_k$ | $\sum_i^k \Vert t_i \Vert$ |
+
+All basic types may be written to a schema that is used internally to direct conversions between Morloc binary and native basic types. The schema values are shown in the table above. For example, the type `[(Bool, [I8])]` would have the schema `at2bai1`. You will not usually have to worry about these schemas, since they are mostly used internally. They are worth knowing, though, since they appear in low-level tests, generated source code, and binary data packets.
+
+Here is an example of how the type `([U8], Bool)`, with the value `([3,4,5],True)`, might be laid out in memory:
+
+```
+---
+03 00 00 00 00 00 00 00 -- first tuple element, specifies list length (little-endian)
+30 00 00 00 00 00 00 00 -- first tuple element, pointer to list
+01 00 00 00 00 00 00 00 -- second tuple element, with 0-padding
+03 04 05                -- 8-bit values of 3, 4, and 5
+---
+```
+
+Records and tables (described in detail earlier) are represented as tuples in voidstar format — field names are stored only in the type schemas. The `table` annotation is not just syntactic sugar for a record of lists; it is preserved through the compiler to the translator, where language-specific serialization functions may have special handling for tables.
+
+```morloc
+record Person = Person { name :: Str, age :: U8 }
+table People = People { name :: Str, age :: Int }
+
+alice = { name = "Alice", age = 27 }
+students = { name = ["Alice", "Bob"], age = [27, 25] }
+```
+
+The Morloc type signatures can be translated to schema strings that may be parsed by a foundational Morloc C library into a type structure. Every supported language in the Morloc ecosystem must provide a library that wraps this Morloc C library and translates to/from Morloc binary given the Morloc type schema.

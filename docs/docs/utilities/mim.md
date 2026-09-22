@@ -1,0 +1,324 @@
+# 9.3. `mim` (Morloc Installation Manager)
+
+Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/mim.html | prev: https://morloc-project.github.io/docs/utilities/nexus-view.md | next: https://morloc-project.github.io/docs/utilities/morloc-eval.md
+
+## 9.3.1. System-scope environments
+
+`mim`, the Morloc Installation Manager, keeps environments in two parallel scopes: a per-user **local** scope (no privileges required) and a machine-wide **system** scope (root required). The `--system` flag selects the system scope on the subcommands that mutate it:
+
+-   `mim new <name> --system` — build a new environment in the system scope so it is shared across users (its `--engine`, if given, also sets the system-scope default engine for later `--system` creates).
+-   `mim rm <name> --system` — remove an environment from the system scope.
+-   `mim nuke --system` — remove all system-scope environments (and, with `--images`, their backing container images).
+-   `mim modify --env <name> --set-default --system` — write the default-environment tag to the system config rather than the user’s local config.
+
+Read-only subcommands also accept `--system` for discovery rather than mutation:
+
+-   `mim ls --system` — list only system-scope environments (`--local` is the symmetric filter).
+-   `mim info [<name>] --system` — describe a system-scope environment, useful when a local environment of the same name shadows it.
+
+A regular (non-root) user can therefore find out whether a system-scope environment exists — and what it is configured with — without elevated privileges, by running `mim ls --system` or `mim info <name> --system`. Mutating subcommands will refuse to run without root and print a hint to re-invoke under `sudo`.
+
+## 9.3.2. Rebuilding and reconfiguring environments
+
+Two verbs cover the environment lifecycle after creation, split by what they touch:
+
+`update` rebuilds an environment. With no flags it re-solves and rebuilds at the environment’s **current** morloc version; it never moves the version implicitly.
+
+```console
+$ mim update --env myenv                       # rebuild, same version
+$ mim update --env myenv --latest              # move to the newest release
+$ mim update --env myenv --morloc-version 0.105.2 # move to a specific version
+$ mim update --env myenv --force               # force a fresh re-solve (repair)
+```
+
+`modify` changes an environment’s settings **without** moving its morloc version. Setting the default and copying dotfiles are instant; changing languages or packages triggers a rebuild at the current version. `modify` validates the whole request before making any change, so an invalid combination never leaves an environment half-modified.
+
+```console
+$ mim modify --env myenv --set-default         # make it your default (no rebuild)
+$ mim modify --env myenv --env-name newname    # rename it; a default follows (no rebuild)
+$ mim modify --env myenv --dotfiles ~/dotfiles # copy dotfiles (no rebuild)
+$ mim modify --env myenv --lang py@3.13        # re-pin a language, then rebuild
+$ mim modify --env myenv --conda-packages-file tools.conda # set conda packages
+$ mim modify --env myenv --system-packages-file tools.apt  # set apt packages
+```
+
+## 9.3.3. Packages
+
+Beyond language runtimes, an environment can carry extra packages from two sources, each supplied as a file — one package per line, with `#` comments and blank lines ignored:
+
+-   `--conda-packages-file <file>` adds conda packages from conda-forge, such as command-line utilities like `jq`, `ripgrep`, or `hyperfine`. Each line is a conda match-spec: a bare name takes the latest compatible version, or pin one (`hyperfine>=1.18`, `numpy=1.26`, `cmake<4`). Conda packages work on **every** backend, native included.
+-   `--system-packages-file <file>` adds OS packages installed with the base image’s package manager (apt), for things conda-forge does not carry — `locales`, `linux-tools-generic`, kernel-matched tooling. These are baked into the image, so they apply to **container backends only**; requesting them on a native environment is an error. Prefer `--conda-packages-file` for anything on conda-forge.
+
+Both flags are accepted by `new` and `modify`. The file is the **whole** list for that source: passing it **replaces** the environment’s stored packages for that source, so to add or remove one package you edit the file and re-apply. Changing either list triggers a rebuild at the current morloc version, and the stored list is updated only after the rebuild succeeds — a package that breaks the build leaves the previous list intact, so a typo never wedges the environment.
+
+## 9.3.4. Language toolchains
+
+`--lang` provisions a language runtime into an environment, at `new` or `modify` time. Each value is a language name or a `lang@version` pin, and the flag is repeatable or comma-separated — these are equivalent:
+
+```console
+$ mim new myenv --lang py,r,cpp
+$ mim new myenv --lang py --lang r --lang cpp
+$ mim new myenv --lang py@3.12,r@4.3   # with version pins
+```
+
+Most languages (python, R, C++, Rust) are provisioned from conda-forge and their versions are solved together with the rest of the environment. A language whose toolchain is not on conda-forge — currently **futhark** — is instead installed by a script when the container image is built, so it is supported only on the docker/podman backends; requesting it on the native or apptainer backends is an error. `--lang futhark` installs a fixed, tested futhark release.
+
+## 9.3.5. Development environments
+
+A **development environment** mounts a morloc source tree and provisions the **tooling** to build it, giving contributors (and coding agents) a uniform, reproducible place to build, edit, and test morloc itself. Point `--dev` at a morloc source checkout:
+
+```console
+$ mim new --dev /path/to/morloc --engine podman
+```
+
+This builds a container (docker or podman only) that bakes the Haskell toolchain via ghcup and provisions the language runtimes with pixi — but it does **not** build morloc. That is deliberate: an in-development source may not compile, and that must never block creating the environment. You build the compiler and runtime yourself, in the dev shell, where the toolchain (`stack`, `ghc`, `cargo`) is on `PATH`. The dev shell does **not** mount the source at a fixed path: it opens in your host working directory (bind-mounted at `/work`), so `cd` into your morloc checkout on the host first, then open the shell and build from there:
+
+```console
+$ cd /path/to/morloc      # on the host: your source checkout
+$ mim shell --env dev
+# inside the container, now in /work (your checkout):
+$ stack install morloc:exe:morloc morloc:exe:morloc-codegen-generic \
+    --local-bin-path /opt/morloc-runtime
+$ MORLOC_RUST_DIR="$PWD/data/rust" morloc init -f
+```
+
+Because the source is reached through the working-directory mount rather than a dedicated one, point `morloc init`/`morloc make` at the Rust workspace with `MORLOC_RUST_DIR` (its `data/rust` subdirectory) when you rebuild the runtime. The compiler you build and the build caches live in host-mounted directories, so `stack`, `ghc`, and `cargo` sit alongside the language runtimes and edits persist across shells. A dev environment is local-scope and docker/podman only, and its default name is `dev`. `--dev` is compatible with `--morloc-version`, which sets the **stdlib** base the environment tracks; the compiler itself is whatever you build from the source. `freeze` is refused, since a dev environment is not reproducible, and `info` reports the source path.
+
+To round out a development environment with the tools you work with — linters, profilers, language servers — add them from conda-forge with `--conda-packages-file` (see [Packages](#mim-packages)), which behaves the same here as on any other environment:
+
+```console
+$ mim new --dev /path/to/morloc --engine podman \
+    --conda-packages-file dev-tools.conda   # e.g. jq, ripgrep, hyperfine, nodejs
+```
+
+## 9.3.6. Inspecting an environment
+
+`mim info <name>` describes an environment as four groups: its identity and materialization status, the **folders** it occupies on the host, the **environment variables** a `run`/`serve` process sees, and its **dependencies** — the language runtimes and package count from the solved world (`pixi.lock`):
+
+```console
+$ mim info myenv
+Name:      myenv
+Scope:     local
+Default:   yes
+Backend:   native
+Morloc:    0.98.2
+Status:    materialized
+
+Folders (host):
+  Data dir:     .../environments/myenv
+  Runtime:      .../environments/myenv  (shared with state)
+  Pixi:         .../environments/myenv/pixi
+  Requirements: .../environments/myenv/requirements
+  Cache:        .../environments/myenv/cache
+  Config:       .../environments/myenv/env.yaml
+
+Environment (exported into run/serve):
+  MORLOC_HOME=.../environments/myenv
+  MORLOC_ENV=myenv
+  MORLOC_PIXI=.../bin/pixi
+
+Dependencies (locked):
+  Languages:  python 3.12.4, rust 1.83.0
+  203 packages in the solved world (`info myenv --packages` for the full list)
+```
+
+`mim info myenv --packages` lists every package in the solved world at its locked version; `--json` prints the whole description (packages included) as machine-readable JSON, and `--packages --json` prints just the package array.
+
+## 9.3.7. Checking environment health
+
+`mim doctor [<name>]` runs read-only health checks against an environment and exits non-zero if any check fails, so it fits a setup script or CI gate. On the native backend it verifies that the runtime is materialized and its conda toolchain is present, that the captured activation exports the compiler tools a build needs (`$CC`/`$CXX`/`$AR`/…​), that each provisioned language stack and `libmorloc` are in place and resolve their libraries, that the compiler/manager/agent versions are in step, and that the dependency world is solved and the data dir is writable:
+
+```console
+$ mim doctor --env myenv
+...
+9 passed, 0 warnings, 0 errors
+```
+
+Add `--deep` for slower checks (installed program launchers), `--json` for a machine-readable report, and `--strict` to treat warnings as failures.
+
+## 9.3.8. The environment home and dotfiles
+
+Under the Docker and Podman backends a container runs as your host user but does **not** mount your host `$HOME`. Each such environment instead owns a private home directory on the host, bind-mounted as `$HOME` inside the container. It is writable from both sides and survives runs, `update`, and `clean`. `mim info` prints its path under `Folders`:
+
+```console
+$ mim info myenv
+...
+Folders (host):
+  ...
+  Home:         .../environments/myenv/home  (shell $HOME; drop dotfiles here)
+```
+
+Anything you place there behaves like a normal home file. An interactive shell reads `.bashrc`, so a custom prompt and aliases go there (a `.vimrc`, `.gitconfig`, or nested `.config/…​` work the same way):
+
+```bash
+# .../environments/myenv/home/.bashrc
+export PS1='(myenv) \w $ '
+alias grep='grep --color=auto'
+alias ls='ls --color=auto'
+```
+
+```console
+$ mim shell              # the shell picks up the new .bashrc
+```
+
+`shell` spawns a fresh interactive shell (exit with `exit`) and tags its prompt with the environment name so it is clear which environment you are in. It does this without editing your dotfiles — for bash and zsh it sources your real init first, then prepends the `(myenv)` tag — so your own prompt still applies.
+
+To seed a whole set of dotfiles at once, `new` and `modify` accept `--dotfiles <dir>`, which recursively copies a directory into the environment home (overwriting like `cp -rf`; symlinked directories are skipped):
+
+```console
+$ mim new myenv --dotfiles ~/dotfiles
+$ mim modify --env myenv --dotfiles ~/dotfiles   # re-copy after edits
+```
+
+> **Note**
+> This is a Docker/Podman feature. An Apptainer environment mounts your real host `$HOME` (so it already sees your host dotfiles) and the native backend runs against your real home, so `--dotfiles` is rejected on both. A `.bashrc` affects interactive shells only — it is not read by a non-interactive `morloc make`, so build-time settings belong elsewhere.
+
+## 9.3.9. Serving installed programs
+
+Beyond managing environments, `mim` runs the **serving lifecycle** that presents compiled programs to AI assistants (over MCP) and to HTTP clients (over a JSON API). The first three steps are distinct on purpose — installing a program does not make it reachable, and declaring that it should be does not serve it until you ask. The fourth turns the environment you have been working in into something you can hand to someone else:
+
+| Step | Command |
+| --- | --- |
+| **install** — build a module into an environment (the default, or `--env`) | `mim install main.loc` |
+| **view** — declare which installed modules answer on which adapter | `mim view add <module> --as mcp,api` |
+| **serve** — launch one front-end over the declared views | `mim start` |
+| **freeze** — turn the environment into a self-contained image | `mim freeze --tag <image>` |
+
+An environment is **pliable** while you work in it: you install programs, add dependencies, rebuild, and try things. Freezing takes that environment as it stands and produces an image that runs the same programs with nothing mounted in from outside.
+
+### install
+
+`mim install <src>` is shorthand for `morloc make --install <src>` run inside the target environment (the default, or the one named with `--env`). The installed program is identified by its **module name** — the `module <name>` declaration in the source — never by the file name or any `-o`. By convention the source lives in `main.loc`, so a program declaring `module dna` installs as `dna` regardless of the file name.
+
+### view
+
+A **view** is what an adapter shows of an environment. The MCP view and the API view are independent sets, and `eval` is a separate capability. `view` edits a per-environment file recording that declared intent; nothing is served until `start` realizes it.
+
+```console
+$ mim view                        # show this environment's views
+$ mim view add dna --as mcp,api   # dna answers on both /mcp and /call
+$ mim view add util --as api      # util answers on the JSON API only
+$ mim view eval --allow dna       # enable sandboxed eval (allow: dna)
+$ mim view rm dna                 # remove dna from every view
+```
+
+Installing a module makes it importable; adding it to a view makes it callable over the network. The two are independent, so a program can be installed and unreachable, which is the default. A module must be installed before it can be added (`view add` checks for the launcher and errors otherwise). `--as` takes a comma-separated list of `mcp` and/or `api`. `view eval` turns on the sandboxed eval capability with an import allow-list; `--off` disables it.
+
+### start
+
+`start` launches a single serving front-end — one HTTP listener that answers `/mcp` (MCP), `/call/<module>/<command>` (JSON API), `/discover` (API discovery), and `/health` (liveness) — forwarding each call to that module’s own worker process.
+
+```console
+$ mim start                    # serve the environment's views
+$ mim start --mcp dna          # ad-hoc: serve just `dna` over MCP
+$ mim start -p 9090:9090       # pin the host:container port
+```
+
+With no `--mcp`, `start` serves the environment’s views; it errors if there are none rather than serving nothing. `--mcp <module>` is a quick one-off that ignores the declared views and serves that one module over MCP.
+
+By default the endpoint binds the **host’s** `127.0.0.1` (loopback, reachable only from the host), so no token is required. Making the endpoint reachable elsewhere is a deliberate opt-in:
+
+| Flag | Effect |
+| --- | --- |
+| `--auth-token <tok>` / `MORLOC_MCP_TOKEN` | Require `Authorization: Bearer <tok>` on every `/mcp` and `/call` request (`/health` stays open). The env var keeps the token off the command line. |
+| `--expose` | Publish on `0.0.0.0` (all interfaces) instead of loopback. Requires a token and `--allow-plaintext`. |
+| `--allow-plaintext` | Acknowledge that there is no TLS — the token and traffic travel in cleartext. |
+| `--allow-no-auth` | Permit an off-box endpoint with no token (an open server; strongly discouraged). |
+| `--unsafe` | On a VM-backed engine (Docker Desktop / podman machine), where a loopback bind cannot be confined to the host, serve unauthenticated anyway. Dangerous; trusted hosts only. |
+
+For AI assistants, `start` also prints an `mcpServers` client-config entry as pure JSON on stdout (so `mim start …​ > dna.mcp.json` is ready to drop into a client); human status goes to stderr.
+
+### status, stop, logs
+
+```console
+$ mim status         # list running serve containers (mode, modules, URL)
+$ mim logs [-f]      # stream the serve container's logs
+$ mim stop           # stop the running serve container
+```
+
+`status` reads a runtime record written by `start`, so it reports the mode, served modules, and URL even under host networking where the engine shows no published port.
+
+### eval
+
+`mim eval '<expr>'` evaluates a Morloc expression against a running serve container’s sandboxed eval endpoint (enabled with `view eval`):
+
+```console
+$ mim eval 'import dna (revcomp); revcomp [("s","ACGTA")]'
+$ mim eval -p 9090 'map (add 1) [1,2,3]'
+```
+
+`mim eval` reaches the serve on the port it recorded when it started, so you do not have to remember which one it picked; `--port` overrides that. If the serve requires a bearer token, pass it with `--auth-token` or set `MORLOC_MCP_TOKEN` — the token is never written to disk, so `mim` can tell you that one is needed but cannot supply it for you.
+
+### freeze
+
+Freezing turns the environment you have been working in into a container image that carries everything it needs.
+
+```console
+$ mim freeze --tag dna-service:v1
+```
+
+The image is the environment with its mounted halves baked in. The morloc runtime is copied: the nexus, the shared library, the language bindings, and a launcher for every installed program, all of which were built after the environment’s image was. The language toolchain is installed from the environment’s own `pixi.lock` — a solved toolchain is not a directory you can copy, so what travels is the lock that reproduces it. The programs and the module sources behind them are copied too. Anything required and missing is reported by name, so freezing an environment that was never provisioned fails instead of building an image with holes in it.
+
+Each program travels as the mirror of its project directory that `install` made, since the pools import sourced files from it. Whatever else the project held goes with it — which is fine for a data file the program reads and unfortunate for a build tree. So before anything expensive runs, `freeze` walks every installed program and prints what it will carry:
+
+```console
+$ mim freeze --tag dna-service:v1
+Installed programs to freeze:
+  dna                  0.4 MB
+  atlas                310.2 MB
+  large file: atlas/data/genome.fa (299.0 MB)
+  tool state: dna/target (not sized)
+```
+
+A tool-state directory — `.git`, a cargo `target/`, `node_modules`, `*pycache*`, `.venv`, an editor’s cache, and the like — is a refusal: nothing a program runs reads one, and the fix belongs in the project. Add it to the project’s `.morlocignore` (one pattern per line, `target/` for a directory), reinstall the program, and freeze again; `include:` in `package.yaml` is the allowlist form of the same control. A program over 100 MB, or a file over 50 MB, is a question rather than a refusal, because only you know whether that is data the program needs: on a terminal `freeze` shows the sizes and asks; from a script, where nobody can answer, it stops. An environment with no programs installed is asked about the same way, since freezing one is usually a mistake but sometimes the point — a base to run programs in later. `--force` answers all of these.
+
+Nothing appears in your working directory. The artifact is a tag in the engine’s image store, which is what makes it portable: you move it by pushing it to a registry, or as a file.
+
+```console
+$ docker push ghcr.io/you/dna-service:v1
+$ mim freeze --tag dna-service:v1 --save ./dna-service-v1.tar
+$ docker load -i ./dna-service-v1.tar   # on the far side
+```
+
+`--save` is the engine’s own `docker save`, so the tarball carries every layer including the base and needs nothing else to restore. There is no morloc-specific archive format.
+
+The image above is the environment whole — the compiler, the Rust and C toolchains, pixi — which is what lets it evaluate expressions and rebuild a pool, and is also most of its size. When the programs are the point and nothing in the image will ever compile, freeze it slim:
+
+```console
+$ mim freeze --slim --tag dna-service:v1-slim
+```
+
+A slim image keeps every interpreter and package the environment declared and removes what only built things: the compilers and their sysroot, rustc, make, git, the morloc compiler, pixi, and the runtime’s headers. The cut is computed from the environment’s own package records, so it also reaches the compiler chain that conda’s `r-base` drags in for `install.packages` — about half of a typical environment goes. What runs is exactly what the full image runs, at the same paths, and the image is checked after the build: every program’s launcher starts, and the nexus and every compiled pool resolve their shared libraries. The default tag ends in `-slim`, so the two flavours of one environment do not overwrite each other, and the `morloc.flavor` label says which one you hold.
+
+A slim image cannot eval, so an environment that exposes eval is refused; drop the view or freeze without `--slim`. The same holds for anything a program compiles at run time — Cython at import, numba, R packages installed from source — which needs the full image.
+
+An image that has left `mim` has nothing tracking it, so it carries its own provenance as labels — the morloc version, the environment it came from, the programs inside, and which of them answer on each adapter. `docker inspect` reads them back.
+
+The image serves the environment’s views, and nothing else. Declare no views and the image has no default command — it is still complete, and you run programs in it by name:
+
+```console
+$ docker run -e MORLOC_MCP_TOKEN=$TOKEN -p 8080:8080 dna-service:v1
+$ docker run dna-service:v1 dna revcomp ACGTA
+```
+
+The first form serves; the second runs a program through the command line the compiler generated for it. One image, both interfaces, from the same declarations.
+
+Inside the container the service binds every interface, because a container’s loopback belongs to the container and a published port never reaches `127.0.0.1` in there. That address says nothing about who can reach the service, so the image does not treat it as if it did: it serves without a token, and says so once at startup. What can reach it is your decision, made outside the container — publish to loopback with `-p 127.0.0.1:8080:8080`, keep it on an internal network, or put a gateway in front. Set `MORLOC_MCP_TOKEN` to require a bearer token as well.
+
+Eval is the exception. It runs expressions the caller writes rather than the functions you exported, and a single call can rebuild a pool, so it asks for a token even where the rest of the endpoint does not:
+
+```console
+$ docker run -e MORLOC_MCP_TOKEN=$TOK -p 8080:8080 dna-service:v1
+$ docker run -e MORLOC_EVAL_ALLOW_NO_AUTH=1 -p 8080:8080 dna-service:v1
+```
+
+The first serves eval to holders of the token; the second waives the requirement, for a deployment where something in front already gates it. Without either, eval is locked: it is not advertised in the tool list, `/discover` reports it as not callable, and a request to it is refused with the reason. Everything else serves normally.
+
+`mim start` waives the requirement by itself when the endpoint cannot leave the host, which is the case eval mostly exists for; `--eval-allow-no-auth` waives it when serving off-box.
+
+`mim` manages environments, not images. It builds a deployment image and has no further relationship with it: `status`, `logs` and `stop` act on serves started from environments, so an image you run yourself is not something `mim` tracks, and needs neither `mim` nor the environment it came from.
+
+> **Warning: Experimental Feature**
+> The image is built where the environment lives, because it is that environment’s image with the runtime and toolchain added. Freezing on one machine to build on another is not supported; move the built image instead.
+
+The wire protocols behind these endpoints — the MCP handshake, the JSON API call/discover shapes, sessions, and status codes — are documented in the [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/apis/mcp.md) and [Building APIs](https://morloc-project.github.io/docs/apis/index.md) chapters.

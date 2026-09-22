@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<meta name="author" content="Zebulun Arendsee">
+<link rel="icon" type="image/x-icon" href="../static/img/favicon.ico">
+
+<link rel="stylesheet" href="../static/css/asciidoctor.css">
+<link rel="stylesheet" href="../static/css/pygments-default.css">
+<script>
+/* Runs before the body is parsed so the page never paints in the wrong theme. */
+(function () {
+	var stored = null;
+
+	try {
+		stored = localStorage.getItem("theme");
+	} catch (e) {}
+
+	var dark =
+		stored === "dark" ||
+		(stored !== "light" &&
+			window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+	if (dark) document.documentElement.classList.add("dark");
+})();
+</script>
+
+<meta name="keywords" content="morloc, polyglot, workflow language, type system, function composition, C++, Python, R, Rust, CLI, MCP">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="description" content="The Morloc Manual website.">
+<meta name="theme-color" content="#000000">
+<meta property="og:site_name" content="Morloc Manual">
+
+<meta property="og:type" content="website">
+<meta property="og:description" content="The Morloc Manual website.">
+
+<meta property="og:image" content="https://morloc-project.github.io/docs/static/img/icon-512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="twitter:image" content="https://morloc-project.github.io/docs/static/img/icon-512.png">
+
+<script defer="" src="../pagefind/pagefind-ui.js"></script>
+<script defer="" src="../static/js/script.js"></script>
+<script defer="" src="../static/js/redirect.js"></script>
+
+<link rel="stylesheet" href="../static/css/katex.min.css">
+<link rel="stylesheet" href="../pagefind/pagefind-ui.css">
+
+<link rel="preload" href="../static/fonts/montserrat-400-latin.woff2" as="font" type="font/woff2" crossorigin="">
+<link rel="preload" href="../static/fonts/pt-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin="">
+<link rel="stylesheet" href="../static/css/fonts.css">
+
+<link rel="stylesheet" href="../static/css/style.css">
+<link rel="stylesheet" href="../static/css/pygments-light.css">
+<link rel="stylesheet" href="../static/css/pygments-dark.css">
+
+<link rel="apple-touch-icon" href="../static/img/icon-192.png">
+
+<link rel="manifest" href="../manifest.webmanifest">
+<title>Benchmarking - Morloc Manual</title>
+<meta property="og:title" content="Benchmarking - Morloc Manual">
+<meta property="og:url" content="https://morloc-project.github.io/docs/runs/benchmarking.html">
+<link rel="canonical" href="https://morloc-project.github.io/docs/runs/benchmarking.html">
+<link rel="prev" href="logging.html">
+<link rel="next" href="run-directory.html">
+<link rel="alternate" type="text/markdown" href="benchmarking.md">
+</head>
+<body class="book toc2 toc-left">
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="copy-glyph" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path></symbol></svg>
+<div id="header">
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div><div id="search" data-pagefind-ignore=""></div>
+<ul class="sectlevel1">
+<li><a href="../intro/index.html">1. Intro</a>
+<ul class="sectlevel2">
+<li><a href="../intro/index.html#one-program">1.1. Morloc in one program</a></li>
+<li><a href="../intro/index.html#what-morloc-is-not">1.2. What Morloc is not</a></li>
+</ul>
+</li>
+<li><a href="../why/index.html">2. Why Morloc?</a>
+<ul class="sectlevel2">
+<li><a href="../why/index.html#derived-interface">2.1. The interface is derived, not written</a></li>
+<li><a href="../why/index.html#values-cross-boundaries">2.2. Values cross boundaries, not file formats</a></li>
+<li><a href="../why/index.html#signature-vs-implementation">2.3. A signature and its implementations are separate things</a></li>
+<li><a href="../why/index.html#tests-follow-the-type">2.4. Tests and benchmarks follow the type, not the language</a></li>
+<li><a href="../why/index.html#toolboxes">2.5. Toolboxes add and subtract</a></li>
+<li><a href="../why/index.html#annotations">2.6. Caching, logging, and placement are annotations</a></li>
+<li><a href="../why/index.html#one-environment">2.7. One environment, solved once</a></li>
+<li><a href="../why/index.html#what-this-makes-possible">2.8. What this makes possible</a></li>
+<li><a href="../why/index.html#project-status">2.9. Where the project stands</a></li>
+<li><a href="../why/index.html#what-i-need">2.10. What I need</a></li>
+</ul>
+</li>
+<li><a href="../getting-started/index.html">3. Getting Started</a>
+<ul class="sectlevel2">
+<li><a href="../getting-started/installing.html">3.1. Installing Morloc</a>
+<ul class="sectlevel3">
+<li><a href="../getting-started/installing.html#installing-mim">3.1.1. Installing <code>mim</code></a></li>
+<li><a href="../getting-started/installing.html#_choosing_a_backend">3.1.2. Choosing a backend</a></li>
+<li><a href="../getting-started/installing.html#_creating_an_environment">3.1.3. Creating an environment</a></li>
+<li><a href="../getting-started/installing.html#_working_inside_an_environment">3.1.4. Working inside an environment</a></li>
+</ul>
+</li>
+<li><a href="../getting-started/first-program.html">3.2. Your first program</a></li>
+<li><a href="../getting-started/sourcing.html">3.3. Sourcing a foreign function</a></li>
+<li><a href="../getting-started/abstract-modules.html">3.4. Writing code that is not tied to a language</a></li>
+<li><a href="../getting-started/mixing-languages.html">3.5. Mixing languages in one program</a></li>
+<li><a href="../getting-started/parallelism.html">3.6. Parallelism across languages</a></li>
+<li><a href="../getting-started/where-to-go-next.html">3.7. Where to go next</a></li>
+<li><a href="../getting-started/editor-support.html">3.8. Editor support</a></li>
+<li><a href="../getting-started/troubleshooting.html">3.9. Troubleshooting</a></li>
+</ul>
+</li>
+<li><a href="../features/index.html">4. Syntax and Features</a>
+<ul class="sectlevel2">
+<li><a href="../features/functions.html">4.1. Functions</a>
+<ul class="sectlevel3">
+<li><a href="../features/functions.html#_definition_and_application">4.1.1. Definition and application</a></li>
+<li><a href="../features/functions.html#_composition_and_application_operators">4.1.2. Composition and application operators</a></li>
+<li><a href="../features/functions.html#_partial_application">4.1.3. Partial application</a></li>
+<li><a href="../features/functions.html#_operator_sections">4.1.4. Operator sections</a></li>
+<li><a href="../features/functions.html#_lambdas">4.1.5. Lambdas</a></li>
+</ul>
+</li>
+<li><a href="../features/foreign-functions.html">4.2. Foreign functions</a>
+<ul class="sectlevel3">
+<li><a href="../features/foreign-functions.html#_the_source_statement">4.2.1. The <code>source</code> statement</a></li>
+<li><a href="../features/foreign-functions.html#_general_types">4.2.2. General types</a></li>
+<li><a href="../features/foreign-functions.html#mapping-native-types">4.2.3. Native type mappings</a></li>
+<li><a href="../features/foreign-functions.html#_sourcing_builtins_and_other_non_exports">4.2.4. Sourcing builtins and other non-exports</a></li>
+<li><a href="../features/foreign-functions.html#_keyword_shaped_foreign_operators">4.2.5. Keyword-shaped foreign operators</a></li>
+</ul>
+</li>
+<li><a href="../features/booleans.html">4.3. Booleans</a>
+<ul class="sectlevel3">
+<li><a href="../features/booleans.html#_comparison_operators">4.3.1. Comparison operators</a></li>
+<li><a href="../features/booleans.html#_logical_operators">4.3.2. Logical operators</a></li>
+<li><a href="../features/booleans.html#_boolean_valued_list_functions">4.3.3. Boolean-valued list functions</a></li>
+<li><a href="../features/booleans.html#_guards">4.3.4. Guards</a></li>
+</ul>
+</li>
+<li><a href="../features/integers.html">4.4. Integer types</a>
+<ul class="sectlevel3">
+<li><a href="../features/integers.html#_writing_integer_literals">4.4.1. Writing integer literals</a></li>
+<li><a href="../features/integers.html#_integer_types_at_a_glance">4.4.2. Integer types at a glance</a></li>
+<li><a href="../features/integers.html#_the_default_int_type">4.4.3. The default <code>Int</code> type</a></li>
+<li><a href="../features/integers.html#_big_integers_from_python">4.4.4. Big integers from Python</a></li>
+<li><a href="../features/integers.html#_overflow_at_a_language_boundary">4.4.5. Overflow at a language boundary</a></li>
+<li><a href="../features/integers.html#_compile_time_literal_bounds">4.4.6. Compile-time literal bounds</a></li>
+<li><a href="../features/integers.html#_fixed_width_integer_types">4.4.7. Fixed-width integer types</a></li>
+<li><a href="../features/integers.html#_converting_between_integer_types">4.4.8. Converting between integer types</a></li>
+<li><a href="../features/integers.html#_negation_and_unary_minus">4.4.9. Negation and unary minus</a></li>
+</ul>
+</li>
+<li><a href="../features/floats.html">4.5. Floating-point types</a>
+<ul class="sectlevel3">
+<li><a href="../features/floats.html#_literal_forms">4.5.1. Literal forms</a></li>
+<li><a href="../features/floats.html#_ieee_754_and_non_finite_values">4.5.2. IEEE 754 and non-finite values</a></li>
+<li><a href="../features/floats.html#_compile_time_literal_overflow">4.5.3. Compile-time literal overflow</a></li>
+<li><a href="../features/floats.html#_wire_format_and_json_interop">4.5.4. Wire format and JSON interop</a></li>
+<li><a href="../features/floats.html#_f32_precision_considerations">4.5.5. F32 precision considerations</a></li>
+<li><a href="../features/floats.html#_converting_to_and_from_floating_point">4.5.6. Converting to and from floating point</a></li>
+<li><a href="../features/floats.html#_negation_of_real_values">4.5.7. Negation of Real values</a></li>
+</ul>
+</li>
+<li><a href="../features/strings.html">4.6. Strings</a>
+<ul class="sectlevel3">
+<li><a href="../features/strings.html#_interpolation">4.6.1. Interpolation</a></li>
+<li><a href="../features/strings.html#_escapes">4.6.2. Escapes</a></li>
+<li><a href="../features/strings.html#_triple_quoted_strings">4.6.3. Triple-quoted strings</a></li>
+<li><a href="../features/strings.html#nul-bytes">4.6.4. NUL bytes in strings</a></li>
+</ul>
+</li>
+<li><a href="../features/tuples-and-lists.html">4.7. Tuples and Lists</a>
+<ul class="sectlevel3">
+<li><a href="../features/tuples-and-lists.html#_tuples">4.7.1. Tuples</a></li>
+<li><a href="../features/tuples-and-lists.html#_lists">4.7.2. Lists</a></li>
+</ul>
+</li>
+<li><a href="../features/records.html">4.8. Records</a>
+<ul class="sectlevel3">
+<li><a href="../features/records.html#_native_representations">4.8.1. Native representations</a></li>
+<li><a href="../features/records.html#_record_literals_match_by_field_name">4.8.2. Record literals match by field name</a></li>
+<li><a href="../features/records.html#_one_record_across_three_languages">4.8.3. One record across three languages</a></li>
+</ul>
+</li>
+<li><a href="../features/patterns.html">4.9. Patterns</a>
+<ul class="sectlevel3">
+<li><a href="../features/patterns.html#_getter_patterns">4.9.1. Getter patterns</a></li>
+<li><a href="../features/patterns.html#_setter_patterns">4.9.2. Setter patterns</a></li>
+<li><a href="../features/patterns.html#_bracket_patterns">4.9.3. Bracket patterns</a></li>
+<li><a href="../features/patterns.html#_patterns_next_to_python">4.9.4. Patterns next to Python</a></li>
+<li><a href="../features/patterns.html#_adding_bracket_support_to_your_own_types">4.9.5. Adding bracket support to your own types</a></li>
+</ul>
+</li>
+<li><a href="../features/pattern-matching.html">4.10. Pattern Matching</a>
+<ul class="sectlevel3">
+<li><a href="../features/pattern-matching.html#_irrefutable_patterns">4.10.1. Irrefutable patterns</a></li>
+<li><a href="../features/pattern-matching.html#refutable-patterns">4.10.2. Refutable patterns</a></li>
+<li><a href="../features/pattern-matching.html#match-expressions">4.10.3. <code>match</code> expressions</a></li>
+<li><a href="../features/pattern-matching.html#_exhaustiveness">4.10.4. Exhaustiveness</a></li>
+<li><a href="../features/pattern-matching.html#_guards_inside_a_clause">4.10.5. Guards inside a clause</a></li>
+<li><a href="../features/pattern-matching.html#_not_yet_supported">4.10.6. Not yet supported</a></li>
+</ul>
+</li>
+<li><a href="../features/where-and-let.html">4.11. <code>where</code> and <code>let</code> clauses</a>
+<ul class="sectlevel3">
+<li><a href="../features/where-and-let.html#_where">4.11.1. <code>where</code></a></li>
+<li><a href="../features/where-and-let.html#_let">4.11.2. <code>let</code></a></li>
+<li><a href="../features/where-and-let.html#_the_scope_rule_that_separates_them">4.11.3. The scope rule that separates them</a></li>
+</ul>
+</li>
+<li><a href="../features/conditionals.html">4.12. Conditionals</a>
+<ul class="sectlevel3">
+<li><a href="../features/conditionals.html#_guards_with_where">4.12.1. Guards with <code>where</code></a></li>
+<li><a href="../features/conditionals.html#_guards_in_other_positions">4.12.2. Guards in other positions</a></li>
+<li><a href="../features/conditionals.html#_guards_inside_a_pattern_clause">4.12.3. Guards inside a pattern clause</a></li>
+</ul>
+</li>
+<li><a href="../features/recursion.html">4.13. Recursion</a>
+<ul class="sectlevel3">
+<li><a href="../features/recursion.html#_recursive_functions">4.13.1. Recursive functions</a></li>
+<li><a href="../features/recursion.html#_recursive_types">4.13.2. Recursive types</a></li>
+</ul>
+</li>
+<li><a href="../features/sum-types.html">4.14. Sum types</a>
+<ul class="sectlevel3">
+<li><a href="../features/sum-types.html#_a_constructor_set_is_closed_and_the_compiler_counts">4.14.1. A constructor set is closed, and the compiler counts</a></li>
+<li><a href="../features/sum-types.html#_the_constructor_names_reach_the_interface">4.14.2. The constructor names reach the interface</a></li>
+<li><a href="../features/sum-types.html#_constructors_that_take_arguments">4.14.3. Constructors that take arguments</a></li>
+<li><a href="../features/sum-types.html#_matching_a_value_that_is_not_an_argument">4.14.4. Matching a value that is not an argument</a></li>
+<li><a href="../features/sum-types.html#_recursive_types_2">4.14.5. Recursive types</a></li>
+<li><a href="../features/sum-types.html#_constructor_names_are_global">4.14.6. Constructor names are global</a></li>
+<li><a href="../features/sum-types.html#_native_representations_2">4.14.7. Native representations</a></li>
+<li><a href="../features/sum-types.html#_comparing_values">4.14.8. Comparing values</a></li>
+</ul>
+</li>
+<li><a href="../features/effects.html">4.15. Effects and delayed evaluation</a>
+<ul class="sectlevel3">
+<li><a href="../features/effects.html#_why_effects_need_a_name">4.15.1. Why effects need a name</a></li>
+<li><a href="../features/effects.html#_the_mental_model">4.15.2. The mental model</a></li>
+<li><a href="../features/effects.html#failure-is-not-an-effect">4.15.3. Failure is not an effect</a></li>
+<li><a href="../features/effects.html#_syntax">4.15.4. Syntax</a></li>
+<li><a href="../features/effects.html#_the_reading_a_suspension_is_a_value">4.15.5. The reading: a suspension is a value</a></li>
+<li><a href="../features/effects.html#rules">4.15.6. The rules</a></li>
+<li><a href="../features/effects.html#_effect_row_variables">4.15.7. Effect row variables</a></li>
+<li><a href="../features/effects.html#escapable">4.15.8. Escapable and inescapable effects</a></li>
+</ul>
+</li>
+<li><a href="../features/optionals.html">4.16. Optional types</a>
+<ul class="sectlevel3">
+<li><a href="../features/optionals.html#_syntax_2">4.16.1. Syntax</a></li>
+<li><a href="../features/optionals.html#_working_with_optional_values">4.16.2. Working with optional values</a></li>
+<li><a href="../features/optionals.html#_optional_record_fields">4.16.3. Optional record fields</a></li>
+<li><a href="../features/optionals.html#_optionals_across_languages">4.16.4. Optionals across languages</a></li>
+<li><a href="../features/optionals.html#_implicit_coercion">4.16.5. Implicit coercion</a></li>
+<li><a href="../features/optionals.html#_nested_optionals_are_idempotent">4.16.6. Nested optionals are idempotent</a></li>
+</ul>
+</li>
+<li><a href="../features/intrinsics.html">4.17. Intrinsics</a>
+<ul class="sectlevel3">
+<li><a href="../features/intrinsics.html#_reference_table">4.17.1. Reference table</a></li>
+<li><a href="../features/intrinsics.html#_hashing">4.17.2. Hashing</a></li>
+<li><a href="../features/intrinsics.html#_compile_time_constants">4.17.3. Compile-time constants</a></li>
+<li><a href="../features/intrinsics.html#_saving_and_loading_data">4.17.4. Saving and loading data</a></li>
+<li><a href="../features/intrinsics.html#_caching_with_savem_and_load">4.17.5. Caching with <code>@savem</code> and <code>@load</code></a></li>
+<li><a href="../features/intrinsics.html#_accessing_installed_data_files">4.17.6. Accessing installed data files</a></li>
+<li><a href="../features/intrinsics.html#_type_introspection">4.17.7. Type introspection</a></li>
+<li><a href="../features/intrinsics.html#failure-and-recovery">4.17.8. Failure and recovery</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../types/index.html">5. Advanced Types</a>
+<ul class="sectlevel2">
+<li><a href="../types/term-polymorphism.html">5.1. One term may have many definitions</a>
+<ul class="sectlevel3">
+<li><a href="../types/term-polymorphism.html#_how_the_choice_collapses_a_program">5.1.1. How the choice collapses a program</a></li>
+<li><a href="../types/term-polymorphism.html#_contradictory_definitions">5.1.2. Contradictory definitions</a></li>
+<li><a href="../types/term-polymorphism.html#_a_test_suite_that_runs_against_every_implementation">5.1.3. A test suite that runs against every implementation</a></li>
+</ul>
+</li>
+<li><a href="../types/typeclasses.html">5.2. Overload terms with typeclasses</a>
+<ul class="sectlevel3">
+<li><a href="../types/typeclasses.html#_one_class_many_languages">5.2.1. One class, many languages</a></li>
+<li><a href="../types/typeclasses.html#_superclasses">5.2.2. Superclasses</a></li>
+<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.3. Importing a class from another module</a></li>
+</ul>
+</li>
+<li><a href="../types/infix-operators.html">5.3. Infix operators</a>
+<ul class="sectlevel3">
+<li><a href="../types/infix-operators.html#_declaring_associativity_and_precedence">5.3.1. Declaring associativity and precedence</a></li>
+<li><a href="../types/infix-operators.html#_operators_from_foreign_languages_and_typeclasses">5.3.2. Operators from foreign languages and typeclasses</a></li>
+<li><a href="../types/infix-operators.html#_importing_operators">5.3.3. Importing operators</a></li>
+<li><a href="../types/infix-operators.html#_names_that_cannot_start_with">5.3.4. Names that cannot start with <code>--</code></a></li>
+</ul>
+</li>
+<li><a href="../types/newtype.html">5.4. Naming a type: <code>type</code> and <code>newtype</code></a>
+<ul class="sectlevel3">
+<li><a href="../types/newtype.html#_type_transparent_aliases">5.4.1. <code>type</code>: transparent aliases</a></li>
+<li><a href="../types/newtype.html#_alias_chains_resolve_on_their_own">5.4.2. Alias chains resolve on their own</a></li>
+<li><a href="../types/newtype.html#_docstring_inheritance">5.4.3. Docstring inheritance</a></li>
+<li><a href="../types/newtype.html#_what_an_alias_cannot_do">5.4.4. What an alias cannot do</a></li>
+<li><a href="../types/newtype.html#_newtype_nominal_types">5.4.5. <code>newtype</code>: nominal types</a></li>
+<li><a href="../types/newtype.html#_when_a_newtype_needs_a_packable_instance">5.4.6. When a <code>newtype</code> needs a <code>Packable</code> instance</a></li>
+<li><a href="../types/newtype.html#_sharing_a_wire_format_across_newtypes">5.4.7. Sharing a wire format across newtypes</a></li>
+<li><a href="../types/newtype.html#_declarations_with_no_body">5.4.8. Declarations with no body</a></li>
+<li><a href="../types/newtype.html#_the_rules">5.4.9. The rules</a></li>
+</ul>
+</li>
+<li><a href="../types/packable.html">5.5. Serializing custom types with <code>Packable</code></a>
+<ul class="sectlevel3">
+<li><a href="../types/packable.html#_a_worked_example_map">5.5.1. A worked example: <code>Map</code></a></li>
+<li><a href="../types/packable.html#_specialized_instances">5.5.2. Specialized instances</a></li>
+<li><a href="../types/packable.html#_pack_in_your_own_code">5.5.3. <code>pack</code> in your own code</a></li>
+</ul>
+</li>
+<li><a href="../types/kinds.html">5.6. The kind system</a>
+<ul class="sectlevel3">
+<li><a href="../types/kinds.html#_nat_numbers_in_the_type">5.6.1. Nat: numbers in the type</a></li>
+<li><a href="../types/kinds.html#_str_labels_in_the_type">5.6.2. Str: labels in the type</a></li>
+<li><a href="../types/kinds.html#_rec_schemas_in_the_type">5.6.3. Rec: schemas in the type</a></li>
+<li><a href="../types/kinds.html#_list_and_set_collections_of_labels">5.6.4. List and Set: collections of labels</a></li>
+<li><a href="../types/kinds.html#_gradual_arguments">5.6.5. Gradual arguments</a></li>
+<li><a href="../types/kinds.html#_reference_type_level_functions">5.6.6. Reference: type-level functions</a></li>
+<li><a href="../types/kinds.html#_reference_constraints">5.6.7. Reference: constraints</a></li>
+<li><a href="../types/kinds.html#_what_does_not_work_yet">5.6.8. What does not work yet</a></li>
+</ul>
+</li>
+<li><a href="../types/tensors.html">5.7. Tensors</a>
+<ul class="sectlevel3">
+<li><a href="../types/tensors.html#_shapes_that_have_to_agree">5.7.1. Shapes that have to agree</a></li>
+<li><a href="../types/tensors.html#_dimensions_computed_from_other_dimensions">5.7.2. Dimensions computed from other dimensions</a></li>
+<li><a href="../types/tensors.html#_dimensions_that_come_from_arguments">5.7.3. Dimensions that come from arguments</a></li>
+<li><a href="../types/tensors.html#_building_a_tensor_by_hand">5.7.4. Building a tensor by hand</a></li>
+<li><a href="../types/tensors.html#_omitting_dimensions">5.7.5. Omitting dimensions</a></li>
+<li><a href="../types/tensors.html#_what_is_checked_and_what_is_not">5.7.6. What is checked, and what is not</a></li>
+</ul>
+</li>
+<li><a href="../types/tables.html">5.8. Tables</a>
+<ul class="sectlevel3">
+<li><a href="../types/tables.html#_building_a_table">5.8.1. Building a table</a></li>
+<li><a href="../types/tables.html#_introspection">5.8.2. Introspection</a></li>
+<li><a href="../types/tables.html#_column_operations">5.8.3. Column operations</a></li>
+<li><a href="../types/tables.html#_row_operations">5.8.4. Row operations</a></li>
+<li><a href="../types/tables.html#_stacking_tables">5.8.5. Stacking tables</a></li>
+<li><a href="../types/tables.html#_crossing_a_language_boundary">5.8.6. Crossing a language boundary</a></li>
+<li><a href="../types/tables.html#_reading_and_writing_table_files">5.8.7. Reading and writing table files</a></li>
+<li><a href="../types/tables.html#_limits">5.8.8. Limits</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../clis/index.html">6. Building CLIs</a>
+<ul class="sectlevel2">
+<li><a href="../clis/example-program.html">6.1. The example program</a></li>
+<li><a href="../clis/argument-zones.html">6.2. The two argument zones</a>
+<ul class="sectlevel3">
+<li><a href="../clis/argument-zones.html#_programs_with_a_single_export">6.2.1. Programs with a single export</a></li>
+</ul>
+</li>
+<li><a href="../clis/docstrings.html">6.3. Docstrings</a>
+<ul class="sectlevel3">
+<li><a href="../clis/docstrings.html#_directives">6.3.1. Directives</a></li>
+</ul>
+</li>
+<li><a href="../clis/arguments.html">6.4. Arguments</a>
+<ul class="sectlevel3">
+<li><a href="../clis/arguments.html#_when_an_argument_is_wrong">6.4.1. When an argument is wrong</a></li>
+<li><a href="../clis/arguments.html#_options_flags_and_repeats">6.4.2. Options, flags, and repeats</a></li>
+<li><a href="../clis/arguments.html#_naming">6.4.3. Naming</a></li>
+<li><a href="../clis/arguments.html#_ending_option_parsing">6.4.4. Ending option parsing</a></li>
+</ul>
+</li>
+<li><a href="../clis/record-arguments.html">6.5. Record arguments</a>
+<ul class="sectlevel3">
+<li><a href="../clis/record-arguments.html#_three_ways_to_fill_it">6.5.1. Three ways to fill it</a></li>
+<li><a href="../clis/record-arguments.html#_what_is_rejected">6.5.2. What is rejected</a></li>
+</ul>
+</li>
+<li><a href="../clis/sum-type-arguments.html">6.6. Sum type arguments</a></li>
+<li><a href="../clis/input-shape.html">6.7. Input shape</a>
+<ul class="sectlevel3">
+<li><a href="../clis/input-shape.html#_a_worked_example">6.7.1. A worked example</a></li>
+<li><a href="../clis/input-shape.html#_shape_follows_the_wire_form">6.7.2. Shape follows the wire form</a></li>
+</ul>
+</li>
+<li><a href="../clis/reading-stdin.html">6.8. Reading a stream from standard input</a>
+<ul class="sectlevel3">
+<li><a href="../clis/reading-stdin.html#_what_standard_input_may_carry">6.8.1. What standard input may carry</a></li>
+<li><a href="../clis/reading-stdin.html#_rules_for_stdin">6.8.2. Rules for <code>@stdin</code></a></li>
+</ul>
+</li>
+<li><a href="../clis/output-formats.html">6.9. Output formats</a>
+<ul class="sectlevel3">
+<li><a href="../clis/output-formats.html#_nothing_to_report">6.9.1. Nothing to report</a></li>
+<li><a href="../clis/output-formats.html#_failure">6.9.2. Failure</a></li>
+</ul>
+</li>
+<li><a href="../clis/output-actions.html">6.10. Output actions</a>
+<ul class="sectlevel3">
+<li><a href="../clis/output-actions.html#_with_keeps_a_value_render_produces_bytes">6.10.1. <code>@with</code> keeps a value; <code>@render</code> produces bytes</a></li>
+<li><a href="../clis/output-actions.html#_giving_a_formatter_arguments">6.10.2. Giving a formatter arguments</a></li>
+<li><a href="../clis/output-actions.html#_choosing_a_default">6.10.3. Choosing a default</a></li>
+<li><a href="../clis/output-actions.html#_media_types">6.10.4. Media types</a></li>
+<li><a href="../clis/output-actions.html#action-rules">6.10.5. Rules and rejections</a></li>
+</ul>
+</li>
+<li><a href="../clis/streaming-output.html">6.11. Streaming output with <code>@collect</code></a>
+<ul class="sectlevel3">
+<li><a href="../clis/streaming-output.html#_actions_on_a_stream">6.11.1. Actions on a stream</a></li>
+<li><a href="../clis/streaming-output.html#_offset_where_a_batch_sits_in_the_stream">6.11.2. <code>@offset</code>: where a batch sits in the stream</a></li>
+<li><a href="../clis/streaming-output.html#_ifile_the_gathered_stream_as_a_file">6.11.3. <code>IFile</code>: the gathered stream as a file</a></li>
+<li><a href="../clis/streaming-output.html#_streaming_rules">6.11.4. Streaming rules</a></li>
+<li><a href="../clis/streaming-output.html#_what_the_help_says_a_stream_produces">6.11.5. What the help says a stream produces</a></li>
+</ul>
+</li>
+<li><a href="../clis/composing-tools.html">6.12. Composing tools</a>
+<ul class="sectlevel3">
+<li><a href="../clis/composing-tools.html#_grouping_commands">6.12.1. Grouping commands</a></li>
+<li><a href="../clis/composing-tools.html#_installing">6.12.2. Installing</a></li>
+</ul>
+</li>
+<li><a href="../clis/interface-as-data.html">6.13. The interface as data</a>
+<ul class="sectlevel3">
+<li><a href="../clis/interface-as-data.html#_other_views_of_the_same_commands">6.13.1. Other views of the same commands</a></li>
+</ul>
+</li>
+<li><a href="../clis/directive-reference.html">6.14. Directive reference</a></li>
+</ul>
+</li>
+<li><a href="../apis/index.html">7. Building APIs</a>
+<ul class="sectlevel2">
+<li><a href="../apis/search-and-install.html">7.1. Search and install</a></li>
+<li><a href="../apis/exposing-native-resources.html">7.2. Exposing native resources</a></li>
+<li><a href="../apis/data-transfer.html">7.3. Controlling data transfer</a>
+<ul class="sectlevel3">
+<li><a href="../apis/data-transfer.html#_combinations">7.3.1. Combinations</a></li>
+<li><a href="../apis/data-transfer.html#_examples">7.3.2. Examples</a></li>
+</ul>
+</li>
+<li><a href="../apis/api-interfaces.html">7.4. Building API interfaces</a>
+<ul class="sectlevel3">
+<li><a href="../apis/api-interfaces.html#_http_protocol">7.4.1. HTTP protocol</a></li>
+<li><a href="../apis/api-interfaces.html#_tcp_protocol">7.4.2. TCP protocol</a></li>
+<li><a href="../apis/api-interfaces.html#_unix_socket_protocol">7.4.3. Unix socket protocol</a></li>
+<li><a href="../apis/api-interfaces.html#_running_all_protocols_at_once">7.4.4. Running all protocols at once</a></li>
+<li><a href="../apis/api-interfaces.html#_from_single_daemons_to_a_router">7.4.5. From single daemons to a router</a></li>
+<li><a href="../apis/api-interfaces.html#_router_mode">7.4.6. Router mode</a></li>
+<li><a href="../apis/api-interfaces.html#_shutdown">7.4.7. Shutdown</a></li>
+<li><a href="../apis/api-interfaces.html#_summary">7.4.8. Summary</a></li>
+</ul>
+</li>
+<li><a href="../apis/mcp.html">7.5. Model Context Protocol (MCP)</a>
+<ul class="sectlevel3">
+<li><a href="../apis/mcp.html#_the_handshake">7.5.1. The handshake</a></li>
+<li><a href="../apis/mcp.html#_inspecting_the_tool_surface">7.5.2. Inspecting the tool surface</a></li>
+<li><a href="../apis/mcp.html#_how_arguments_map_to_properties">7.5.3. How arguments map to properties</a></li>
+<li><a href="../apis/mcp.html#_calling_a_tool">7.5.4. Calling a tool</a></li>
+<li><a href="../apis/mcp.html#_what_is_not_exposed">7.5.5. What is not exposed</a></li>
+<li><a href="../apis/mcp.html#_errors">7.5.6. Errors</a></li>
+<li><a href="../apis/mcp.html#_connecting_an_mcp_client">7.5.7. Connecting an MCP client</a></li>
+<li><a href="../apis/mcp.html#_inside_versus_outside_the_container">7.5.8. Inside versus outside the container</a></li>
+<li><a href="../apis/mcp.html#_summary_2">7.5.9. Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="current"><a href="index.html">8. Managing Runs</a>
+<ul class="sectlevel2">
+<li><a href="logging.html">8.1. Logging</a>
+<ul class="sectlevel3">
+<li><a href="logging.html#_enabling_logging">8.1.1. Enabling logging</a></li>
+<li><a href="logging.html#_template_placeholders">8.1.2. Template placeholders</a></li>
+<li><a href="logging.html#_color_codes">8.1.3. Color codes</a></li>
+<li><a href="logging.html#_terminal_detection_and_no_color">8.1.4. Terminal detection and NO_COLOR</a></li>
+<li><a href="logging.html#_worked_example">8.1.5. Worked example</a></li>
+</ul>
+</li>
+<li class="current active"><a href="benchmarking.html">8.2. Benchmarking</a>
+<ul class="sectlevel3">
+<li><a href="benchmarking.html#_the_summary_row">8.2.1. The summary row</a></li>
+<li><a href="benchmarking.html#_comparing_implementations">8.2.2. Comparing implementations</a></li>
+</ul>
+</li>
+<li><a href="run-directory.html">8.3. Run directory</a>
+<ul class="sectlevel3">
+<li><a href="run-directory.html#rundir-activation">8.3.1. Activation knobs</a></li>
+<li><a href="run-directory.html#_summary_json">8.3.2. summary.json</a></li>
+<li><a href="run-directory.html#rundir-location">8.3.3. Where the directory lives</a></li>
+<li><a href="run-directory.html#_cleanup">8.3.4. Cleanup</a></li>
+<li><a href="run-directory.html#_prologue_and_epilogue">8.3.5. Prologue and epilogue</a></li>
+<li><a href="run-directory.html#_nested_invocations">8.3.6. Nested invocations</a></li>
+</ul>
+</li>
+<li><a href="caching.html">8.4. Caching</a>
+<ul class="sectlevel3">
+<li><a href="caching.html#_declaring_a_cached_call">8.4.1. Declaring a cached call</a></li>
+<li><a href="caching.html#_what_goes_in_the_hash">8.4.2. What goes in the hash</a></li>
+<li><a href="caching.html#cache-layout">8.4.3. Storage layout</a></li>
+<li><a href="caching.html#_reading_and_writing">8.4.4. Reading and writing</a></li>
+</ul>
+</li>
+<li><a href="compression.html">8.5. Compression</a>
+<ul class="sectlevel3">
+<li><a href="compression.html#_compression_in_write">8.5.1. Compression in <code>@write</code></a></li>
+<li><a href="compression.html#_compression_in_morloc_nexus_run">8.5.2. Compression in <code>morloc-nexus run</code></a></li>
+<li><a href="compression.html#_compression_level_table">8.5.3. Compression-level table</a></li>
+<li><a href="compression.html#_algorithm_agnostic_surface">8.5.4. Algorithm-agnostic surface</a></li>
+<li><a href="compression.html#_caching_is_unaffected">8.5.5. Caching is unaffected</a></li>
+</ul>
+</li>
+<li><a href="debugging.html">8.6. Debugging</a>
+<ul class="sectlevel3">
+<li><a href="debugging.html#_enabling_at_compile_time">8.6.1. Enabling at compile time</a></li>
+<li><a href="debugging.html#_a_failing_run">8.6.2. A failing run</a></li>
+<li><a href="debugging.html#debug-knobs">8.6.3. Runtime knobs</a></li>
+<li><a href="debugging.html#dump-location">8.6.4. Where dumps land</a></li>
+<li><a href="debugging.html#_content_addressed_dedup">8.6.5. Content-addressed dedup</a></li>
+<li><a href="debugging.html#_frame_status_markers">8.6.6. Frame status markers</a></li>
+<li><a href="debugging.html#_recovering_an_input_via_load">8.6.7. Recovering an input via <code>@load</code></a></li>
+<li><a href="debugging.html#_interaction_with_the_cache">8.6.8. Interaction with the cache</a></li>
+</ul>
+</li>
+<li><a href="random-access-and-streaming.html">8.7. Random access and streaming</a>
+<ul class="sectlevel3">
+<li><a href="random-access-and-streaming.html#_random_access_with_ifile">8.7.1. Random access with IFile</a></li>
+<li><a href="random-access-and-streaming.html#_sequential_writing_with_ostream">8.7.2. Sequential writing with OStream</a></li>
+<li><a href="random-access-and-streaming.html#_sequential_reading_with_istream">8.7.3. Sequential reading with IStream</a></li>
+<li><a href="random-access-and-streaming.html#_typed_standard_streams">8.7.4. Typed standard streams</a></li>
+<li><a href="random-access-and-streaming.html#stream-env-vars">8.7.5. Environment variables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../utilities/index.html">9. Utilities</a>
+<ul class="sectlevel2">
+<li><a href="../utilities/nexus-file.html">9.1. morloc-nexus file</a>
+<ul class="sectlevel3">
+<li><a href="../utilities/nexus-file.html#stream-packets">9.1.1. Stream packets</a></li>
+<li><a href="../utilities/nexus-file.html#_options">9.1.2. Options</a></li>
+<li><a href="../utilities/nexus-file.html#_verbose_example">9.1.3. Verbose example</a></li>
+</ul>
+</li>
+<li><a href="../utilities/nexus-view.html">9.2. morloc-nexus view</a>
+<ul class="sectlevel3">
+<li><a href="../utilities/nexus-view.html#_reading_from_stdin">9.2.1. Reading from stdin</a></li>
+<li><a href="../utilities/nexus-view.html#_schema_resolution">9.2.2. Schema resolution</a></li>
+<li><a href="../utilities/nexus-view.html#_pattern_extract_a_subset">9.2.3. <code>--pattern</code>: extract a subset</a></li>
+<li><a href="../utilities/nexus-view.html#_packet_shape_output_s_d_p">9.2.4. Packet-shape output: <code>-s</code> / <code>-d</code> / <code>-p</code></a></li>
+<li><a href="../utilities/nexus-view.html#_f_jsonl_line_delimited_json">9.2.5. <code>-f jsonl</code>: line-delimited JSON</a></li>
+<li><a href="../utilities/nexus-view.html#view-size-guardrails">9.2.6. Size guardrails and <code>--force</code></a></li>
+<li><a href="../utilities/nexus-view.html#footer-less-streams">9.2.7. Footer-less streams</a></li>
+<li><a href="../utilities/nexus-view.html#_options_2">9.2.8. Options</a></li>
+</ul>
+</li>
+<li><a href="../utilities/mim.html">9.3. <code>mim</code> (Morloc Installation Manager)</a>
+<ul class="sectlevel3">
+<li><a href="../utilities/mim.html#_system_scope_environments">9.3.1. System-scope environments</a></li>
+<li><a href="../utilities/mim.html#_rebuilding_and_reconfiguring_environments">9.3.2. Rebuilding and reconfiguring environments</a></li>
+<li><a href="../utilities/mim.html#mim-packages">9.3.3. Packages</a></li>
+<li><a href="../utilities/mim.html#mim-language-toolchains">9.3.4. Language toolchains</a></li>
+<li><a href="../utilities/mim.html#_development_environments">9.3.5. Development environments</a></li>
+<li><a href="../utilities/mim.html#_inspecting_an_environment">9.3.6. Inspecting an environment</a></li>
+<li><a href="../utilities/mim.html#_checking_environment_health">9.3.7. Checking environment health</a></li>
+<li><a href="../utilities/mim.html#_the_environment_home_and_dotfiles">9.3.8. The environment home and dotfiles</a></li>
+<li><a href="../utilities/mim.html#mim-serve">9.3.9. Serving installed programs</a></li>
+</ul>
+</li>
+<li><a href="../utilities/morloc-eval.html">9.4. morloc eval</a>
+<ul class="sectlevel3">
+<li><a href="../utilities/morloc-eval.html#_imports_in_eval_strings">9.4.1. Imports in eval strings</a></li>
+<li><a href="../utilities/morloc-eval.html#_the_eval_sandbox">9.4.2. The eval sandbox</a></li>
+<li><a href="../utilities/morloc-eval.html#_single_line_layout_braces_and_semicolons">9.4.3. Single-line layout: braces and semicolons</a></li>
+<li><a href="../utilities/morloc-eval.html#_saving_an_eval_expression_as_a_command">9.4.4. Saving an eval expression as a command</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../modules/index.html">10. Modules and Libraries</a>
+<ul class="sectlevel2">
+<li><a href="../modules/importing-modules.html">10.1. Importing modules</a></li>
+<li><a href="../modules/installing-modules.html">10.2. Installing modules</a>
+<ul class="sectlevel3">
+<li><a href="../modules/installing-modules.html#configuring-cpp-build">10.2.1. Configuring the C++ build</a></li>
+</ul>
+</li>
+<li><a href="../modules/universal-library.html">10.3. The universal library</a></li>
+</ul>
+</li>
+<li><a href="../languages/index.html">11. Language Support</a>
+<ul class="sectlevel2">
+<li><a href="../languages/build-parameters.html">11.1. Build parameters</a>
+<ul class="sectlevel3">
+<li><a href="../languages/build-parameters.html#_per_machine_defaults_with_morloc_config">11.1.1. Per-machine defaults with <code>morloc config</code></a></li>
+<li><a href="../languages/build-parameters.html#_per_session_defaults_with_morloc_lang_params">11.1.2. Per-session defaults with <code>MORLOC_LANG_PARAMS</code></a></li>
+<li><a href="../languages/build-parameters.html#_precedence">11.1.3. Precedence</a></li>
+<li><a href="../languages/build-parameters.html#_recognized_keys">11.1.4. Recognized keys</a></li>
+<li><a href="../languages/build-parameters.html#_build_parameters_vs_package_yaml">11.1.5. Build parameters vs. <code>package.yaml</code></a></li>
+</ul>
+</li>
+<li><a href="../languages/cpp.html">11.2. C++</a>
+<ul class="sectlevel3">
+<li><a href="../languages/cpp.html#_library_dependencies_cpp_deps">11.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
+<li><a href="../languages/cpp.html#_link_flags_dependencies">11.2.2. Link flags (<code>dependencies</code>)</a></li>
+</ul>
+</li>
+<li><a href="../languages/python.html">11.3. Python</a>
+<ul class="sectlevel3">
+<li><a href="../languages/python.html#py-deps">11.3.1. Dependencies (<code>py-deps</code>)</a></li>
+<li><a href="../languages/python.html#local-deps">11.3.2. Local packages (<code>local-deps</code>)</a></li>
+</ul>
+</li>
+<li><a href="../languages/r.html">11.4. R</a>
+<ul class="sectlevel3">
+<li><a href="../languages/r.html#r-deps">11.4.1. Dependencies (<code>r-deps</code>)</a></li>
+</ul>
+</li>
+<li><a href="../languages/rust.html">11.5. Rust</a>
+<ul class="sectlevel3">
+<li><a href="../languages/rust.html#_cargo_pools">11.5.1. Cargo pools</a></li>
+<li><a href="../languages/rust.html#rust-deps">11.5.2. Dependencies (<code>rust-deps</code>)</a></li>
+<li><a href="../languages/rust.html#_local_crates_local_deps">11.5.3. Local crates (<code>local-deps</code>)</a></li>
+<li><a href="../languages/rust.html#_one_resolution_per_environment">11.5.4. One resolution per environment</a></li>
+</ul>
+</li>
+<li><a href="../languages/futhark.html">11.6. Futhark</a>
+<ul class="sectlevel3">
+<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">11.6.1. Futhark backends and GPU devices</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../install/index.html">12. Installation, Versions, and Deployment</a>
+<ul class="sectlevel2">
+<li><a href="../install/container-engine.html">12.1. Choosing a container engine</a></li>
+<li><a href="../install/creating-an-environment.html">12.2. Creating an environment</a></li>
+<li><a href="../install/running-commands.html">12.3. Running commands</a></li>
+<li><a href="../install/managing-environments.html">12.4. Managing environments</a></li>
+<li><a href="../install/customizing-environments.html">12.5. Customizing environments</a></li>
+<li><a href="../install/extra-container-flags.html">12.6. Extra container flags</a></li>
+<li><a href="../install/serve-and-freeze.html">12.7. Deployment: serve and freeze</a>
+<ul class="sectlevel3">
+<li><a href="../install/serve-and-freeze.html#_local_serving_with_start">12.7.1. Local serving with <code>start</code></a></li>
+<li><a href="../install/serve-and-freeze.html#_portable_images_with_freeze">12.7.2. Portable images with <code>freeze</code></a></li>
+</ul>
+</li>
+<li><a href="../install/composable-function-services.html">12.8. Beyond fixed APIs: composable function services</a></li>
+<li><a href="../install/execution-contexts.html">12.9. Execution contexts</a>
+<ul class="sectlevel3">
+<li><a href="../install/execution-contexts.html#_the_remote_context_dispatching_as_a_separate_job">12.9.1. The <code>remote:</code> context: dispatching as a separate job</a></li>
+<li><a href="../install/execution-contexts.html#_enabling_dispatch_codegen">12.9.2. Enabling dispatch codegen</a></li>
+<li><a href="../install/execution-contexts.html#dispatch-bridge">12.9.3. Running with the dispatch bridge</a></li>
+<li><a href="../install/execution-contexts.html#_what_lands_on_the_shared_filesystem">12.9.4. What lands on the shared filesystem</a></li>
+<li><a href="../install/execution-contexts.html#_preconditions_and_the_doctor_check">12.9.5. Preconditions and the <code>doctor</code> check</a></li>
+</ul>
+</li>
+<li><a href="../install/system-wide-podman.html">12.10. System-wide environments with Podman</a></li>
+</ul>
+</li>
+<li><a href="../internals/index.html">13. Build Architecture</a>
+<ul class="sectlevel2">
+<li><a href="../internals/architecture-overview.html">13.1. Architecture Overview</a></li>
+<li><a href="../internals/cross-language-calls.html">13.2. Cross-language function calls</a>
+<ul class="sectlevel3">
+<li><a href="../internals/cross-language-calls.html#_how_it_works">13.2.1. How it works</a></li>
+<li><a href="../internals/cross-language-calls.html#_what_the_generated_code_looks_like">13.2.2. What the generated code looks like</a></li>
+<li><a href="../internals/cross-language-calls.html#_performance_implications">13.2.3. Performance implications</a></li>
+</ul>
+</li>
+<li><a href="../internals/protocols.html">13.3. Protocols</a>
+<ul class="sectlevel3">
+<li><a href="../internals/protocols.html#_the_manifest">13.3.1. The manifest</a></li>
+<li><a href="../internals/protocols.html#_packet_protocol">13.3.2. Packet protocol</a></li>
+<li><a href="../internals/protocols.html#_shared_memory">13.3.3. Shared memory</a></li>
+<li><a href="../internals/protocols.html#schema-strings">13.3.4. Schema strings</a></li>
+<li><a href="../internals/protocols.html#_voidstar_binary_format">13.3.5. Voidstar binary format</a></li>
+</ul>
+</li>
+<li><a href="../internals/runtime-and-dev-builds.html">13.4. Runtime and Dev Builds</a>
+<ul class="sectlevel3">
+<li><a href="../internals/runtime-and-dev-builds.html#build-modes">13.4.1. Build modes</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#_what_the_runtime_provides">13.4.2. What the runtime provides</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#_build_dependencies">13.4.3. Build dependencies</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#_container_images">13.4.4. Container images</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../future/index.html">14. Future Directions</a>
+<ul class="sectlevel2">
+<li><a href="../future/index.html#planes-of-libraries">14.1. Planes of libraries</a></li>
+</ul>
+</li>
+<li><a href="../qa/index.html">15. Q&amp;A</a>
+<ul class="sectlevel2">
+<li><a href="../qa/one-language.html">15.1. I only use one language, is Morloc still useful?</a></li>
+<li><a href="../qa/bioinformatics-only.html">15.2. Is this just a bioinformatics workflow language?</a></li>
+<li><a href="../qa/per-function-environments.html">15.3. Does Morloc allow function-specific containerized environments?</a></li>
+<li><a href="../qa/object-oriented.html">15.4. What about object-oriented programming?</a></li>
+<li><a href="../qa/ai-relevance.html">15.5. Is Morloc still relevant when AI can program and translate?</a></li>
+<li><a href="../qa/not-a-human.html">15.6. I’m not a human, do I still need Morloc?</a></li>
+<li><a href="../qa/morlocks.html">15.7. Why is it named after Morlocks, weren’t they, like, bad?</a></li>
+<li><a href="../qa/more-questions.html">15.8. Wait! I have more questions!</a></li>
+</ul>
+</li>
+<li><a href="../env/index.html">16. Environmental Variable List</a>
+<ul class="sectlevel2">
+<li><a href="../env/index.html#env-installation">16.1. Installation and runtime setup</a></li>
+<li><a href="../env/index.html#env-module-installation">16.2. Module installation (setup-script environment)</a></li>
+<li><a href="../env/index.html#env-run-directory">16.3. Run directory, logging, and reporting</a></li>
+<li><a href="../env/index.html#env-debugging">16.4. Debugging</a></li>
+<li><a href="../env/index.html#env-caching">16.5. Caching</a></li>
+<li><a href="../env/index.html#env-data-transfer">16.6. Data transfer (packets and shared memory)</a></li>
+<li><a href="../env/index.html#env-streaming">16.7. Streaming and compression</a></li>
+<li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
+<li><a href="../env/index.html#env-inspection-tools">16.9. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
+<li><a href="../env/index.html#env-string-safety">16.10. String safety</a></li>
+</ul>
+</li>
+<li><a href="../contact/index.html">17. Contact</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<nav class="breadcrumb" data-pagefind-ignore><a href="../index.html">Morloc Manual</a> <span class="sep">&gt;</span> <a href="index.html">8. Managing Runs</a></nav>
+<div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Benchmarking"><div class="sect2">
+<h3 id="benchmarking"><a class="anchor" href="#benchmarking"></a>8.2. Benchmarking</h3>
+<div class="paragraph">
+<p><code>log: true</code> reports every call as it happens. A benchmark wants the
+opposite: not a line per iteration but one row per label summarising
+every call the run made. That is <code>benchmark: true</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">labeled-groups</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">parse</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt"> benchmark</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nv">true</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">}</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./main<span class="tok-w"> </span>run<span class="tok-w"> </span>big.fasta
+<span class="tok-go">parse:readSeqs [cpp] n=2000 mean=0.000431 min=0.000298 max=0.004117</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The two settings are independent and compose: a group may log, benchmark,
+both, or neither.</p>
+</div>
+<div class="paragraph">
+<p>Timing is per-manifold, so process startup and pool spawn are outside the
+measurement. Because the label follows the manifold into whatever pool
+realises it, <code>{lang}</code> tells you which language actually ran the work — and a labeled call that crosses a pool boundary is measured on the
+<strong>caller</strong> side, so its row includes the round trip.</p>
+</div>
+<div class="paragraph">
+<p>Only successful calls are recorded. A call that raised did not do the work
+being measured, and folding its duration into the mean would report a
+number that describes nothing.</p>
+</div>
+<div class="sect3">
+<h4 id="_the_summary_row"><a class="anchor" href="#_the_summary_row"></a>8.2.1. The summary row</h4>
+<div class="paragraph">
+<p>The row shape is the program-wide <code>benchmark-template</code>, whose one subfield
+is <code>summary</code>. Unlike <code>log-template</code> it is not per-label: the nexus
+aggregates every label’s timings and renders them through a single
+template.</p>
+</div>
+<div class="paragraph">
+<p>The built-in default is readable rather than machine-shaped:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">benchmark-template</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">summary</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">"{group}:{name}</span><span class="tok-nv"> </span><span class="tok-s">[{lang}]</span><span class="tok-nv"> </span><span class="tok-s">n={count}</span><span class="tok-nv"> </span><span class="tok-s">mean={mean}</span><span class="tok-nv"> </span><span class="tok-s">min={min}</span><span class="tok-nv"> </span><span class="tok-s">max={max}"</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>A suite that wants columns overrides it. Rows go to stderr, like every
+other morloc log line, so the program’s own output is unaffected:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">benchmark-template</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">summary</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">"{group}\t{name}\t{lang}\t{count}\t{mean}\t{stddev}"</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./main<span class="tok-w"> </span>run<span class="tok-w"> </span>big.fasta<span class="tok-w"> </span><span class="tok-m">2</span>&gt;<span class="tok-w"> </span>bench.tsv</code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Available placeholders:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Placeholder</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{group}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The label group name.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{name}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The labeled term’s identifier in source.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{lang}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The pool language that ran the calls.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{count}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of successful calls recorded.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{mean}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Arithmetic mean of the durations, in seconds.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{min}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fastest recorded call, in seconds.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{max}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Slowest recorded call, in seconds.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{total}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sum of all durations, in seconds.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{stddev}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sample standard deviation; <code>0.000000</code> for a single call.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Rows are ordered by <code>{group}</code>, then <code>{name}</code>, then <code>{lang}</code> — not by
+arrival. A benchmark exists to be compared against another run, and
+arrival order is not reproducible.</p>
+</div>
+<div class="paragraph">
+<p>Setting <code>benchmark: true</code> while nulling <code>summary</code> is rejected at compile
+time: the timings would be collected and never reported.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_comparing_implementations"><a class="anchor" href="#_comparing_implementations"></a>8.2.2. Comparing implementations</h4>
+<div class="paragraph">
+<p>Because labels are per-call-site, the same work measured under two labels
+yields two rows. That is the shape of an A/B comparison — one run, one
+input, the same warm pools:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">cmp</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">compare2</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">cpp</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"lib.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"incr"</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"lib.hpp"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"triple"</span><span class="tok-p">)</span>
+
+<span class="tok-n">incr</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">triple</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-n">compare2</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">compare2</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">slow</span><span class="tok-nb">@incr</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">fast</span><span class="tok-nb">@triple</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./cmp<span class="tok-w"> </span>compare2<span class="tok-w"> </span><span class="tok-m">5</span>
+<span class="tok-go">[6,15]</span>
+<span class="tok-go">fast:triple [cpp] n=1 mean=0.000003 min=0.000003 max=0.000003</span>
+<span class="tok-go">slow:incr [cpp] n=1 mean=0.000662 min=0.000662 max=0.000662</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Both rows say <code>cpp</code>, including the one for the Python <code>incr</code>. That is the
+caller-side rule at work: this program is rooted in the C++ pool, so the
+call into Python is measured where it is made, and the 0.000662 seconds is
+the round trip rather than the addition. Measuring the Python side in
+isolation means rooting the program there instead.</p>
+</div>
+<div class="paragraph">
+<p>Note also that <code>fast</code> precedes <code>slow</code> in the output despite running
+second. Rows are sorted, not logged.</p>
+</div>
+</div>
+</div></div>
+<nav class="page-nav" data-pagefind-ignore>
+<a class="prev" rel="prev" href="logging.html">Previous: 8.1. Logging</a>
+<a class="next" rel="next" href="run-directory.html">Next: 8.3. Run directory</a>
+</nav>
+</div>
+<div class="pwa-install-div hidden">
+	<div id="pwa-install-text">Ready for offline use!</div>
+	<button id="pwa-install-btn">Install</button>
+	<button id="pwa-install-dismiss" aria-label="Dismiss PWA install prompt">
+		<img loading="lazy" src="../static/img/clear_cross.svg" alt="X">
+	</button>
+</div>
+<button class="btn hidden back-to-top-btn" aria-label="Scroll to top"><img loading="lazy" src="../static/img/up-arrow.svg" alt="Top"></button>
+<div id="footer">
+<span class="credit">Created with <a href="https://github.com/HarshKapadia2/asciidoctor-jet" target="_blank" rel="noreferrer"><i>Asciidoctor Jet</i></a></span>
+
+<a href="../llms.txt">llms.txt</a>
+<a class="text-view" href="benchmarking.md">View as text</a></div>
+</body>
+</html>

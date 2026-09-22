@@ -1,0 +1,12 @@
+{
+  "name": "morloc-docs-build-deps",
+  "private": true,
+  "description": "Node packages used by build.sh; installed into /opt in the build image",
+  "dependencies": {
+    "cheerio": "1.2.0",
+    "katex": "0.16.11",
+    "pagefind": "1.5.2",
+    "turndown": "7.2.4",
+    "turndown-plugin-gfm": "1.0.2"
+  }
+}

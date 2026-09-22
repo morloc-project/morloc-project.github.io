@@ -1,0 +1,74 @@
+# 8.5. Compression
+
+Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/compression.html | prev: https://morloc-project.github.io/docs/runs/caching.md | next: https://morloc-project.github.io/docs/runs/debugging.md
+
+Morloc data packets carry a compression byte in their header, so any packet written to disk can transparently round-trip through a compressor. Two surfaces expose this: the `@write` intrinsic accepts a per-call compression level for each `OStream` sub-packet, and the nexus accepts a `-z` flag that compresses whatever result it would normally write to `-o <file>` as a packet.
+
+The pipeline is end-to-end: a compressed packet on disk is recognized by `@load` and by every `IFile` / `IStream` open, so the user never has to call a decompress step. Pool processes never see compressed bytes — decompression happens at the I/O boundary.
+
+## 8.5.1. Compression in `@write`
+
+`@write` takes a compression preset as its first argument. The preset is an integer in the range `0..=9`; `0` writes the sub-packet uncompressed and the other values map to zstd presets that trade speed for ratio.
+
+```morloc
+module main (writeBig)
+
+import root-py (id)
+
+writeBig :: [Int] -> Str -> <IO> ()
+writeBig xs path = do
+  Ok o <- @open path :: <IO> (Try Str (OStream Int))
+  @write 5 o (id xs)
+  @close o
+```
+
+The level is set per `@write` call, not per stream: each call chooses its own preset independently. Reading is unchanged — `@open path :: <IO> (Try Str (IFile Int))` (or `IStream`) inspects each sub-packet’s header and decompresses on the fly. The same call site reads both compressed and uncompressed sub-packets without any syntactic difference.
+
+The other save intrinsics (`@savem` for raw MessagePack, `@savej` for raw JSON) do not produce packets and so do not take a compression level. Compressing those file shapes is a separate feature and is not covered here.
+
+## 8.5.2. Compression in `morloc-nexus run`
+
+A nexus run that writes its result as a packet (`-f packet -o foo.packet`) can compress that packet with `-z N`:
+
+```bash
+$ ./nexus -f packet -o result.packet -z 5 myCommand args...
+```
+
+`-z` defaults to `0` (no compression). The long form is `--compression-level`. The flag is silently a no-op for non-packet output formats (JSON, MessagePack as a raw file, voidstar, Arrow, Parquet, CSV); for those the file shape itself has no header in which to record a compression algorithm.
+
+A packet written with `-z N` on one host is readable by `@load` (and by any future packet-reading surface) on any other host without an additional flag. The compression byte in the header is the only signal needed.
+
+## 8.5.3. Compression-level table
+
+The 0—​9 range is deliberately algorithm-agnostic: it spans "no compression" through "fast" through "archive-grade" without committing the user to a specific codec. Under the hood every non-zero level currently maps to a zstd preset, with long-range mode enabled for the top tiers:
+
+| `-z N` | zstd level | long mode | Use case |
+| --- | --- | --- | --- |
+| 0 | — | — | No compression (default) |
+| 1 | 1 | no | fastest; around 2x faster than level 2 |
+| 2 | 3 | no | good balance, zstd’s default |
+| 3 | 6 | no | better compression, still fast |
+| 4 | 9 | no |  |
+| 5 | 12 | no | high ratio, moderate cost |
+| 6 | 15 | no | very high compression |
+| 7 | 19 | yes | archive-grade; long-mode finds more distant repeats |
+| 8 | 21 | yes |  |
+| 9 | 22 | yes | maximum compression; very slow |
+
+Multithreaded compression kicks in automatically once a payload exceeds 1 MiB. The worker count scales with payload size up to the number of cores available (capped at 16); below 1 MiB the encoder is single-threaded so small-packet latency is unaffected. Decompression is single-threaded by zstd’s frame-format design and needs no tuning.
+
+## 8.5.4. Algorithm-agnostic surface
+
+The compression level is an *abstract* knob. The morloc nexus produces and consumes its own compressed packets, so the underlying algorithm is an implementation detail. zstd is the current choice (modern Pareto winner on speed vs. ratio), but a future release may switch to a different codec without changing the `-z 0..9` semantics or the `@write` signature. The packet header records the algorithm it was written with, so old packets remain readable across algorithm changes.
+
+The intent of preset N is stable: `1` is "fastest", `9` is "maximum ratio", and intermediate values increase ratio monotonically. The exact zstd levels in the table above may shift between releases as codec defaults evolve, but the user-facing meaning will not.
+
+## 8.5.5. Caching is unaffected
+
+Cache keys are content-based and hash the **uncompressed** value (see [Caching](https://morloc-project.github.io/docs/runs/caching.md)). This is deliberate:
+
+-   A cache write and a cache lookup do not need to use the same `-z` level to share an entry. Hashing happens before compression.
+-   Toggling `-z` on or off does not invalidate any cache.
+-   Two pool languages that produced the same return value still share a single on-disk `.dat` payload regardless of which one compressed.
+
+In short, compression affects bytes on disk but not the morloc-level identity of a value.

@@ -1,0 +1,82 @@
+# 11.1. Build parameters
+
+Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/build-parameters.html | prev: https://morloc-project.github.io/docs/languages/index.md | next: https://morloc-project.github.io/docs/languages/cpp.md
+
+Morloc compiles each part of a program with its own language toolchain. The `-X` flag passes key/value parameter pairs directly through to those builders:
+
+```bash
+morloc make -X futhark:backend=cuda -o nexus main.loc
+morloc make -X cpp:flags=-march=native main.loc
+```
+
+The syntax is `-X LANG:KEY=VALUE`. It is repeatable. Morloc splits on the first `:` and the first `=`. Everything after the `=` is the value and is taken **verbatim** (it may itself contain `:` or `=`, as in `-X cpp:flags=-DFOO=bar`).
+
+For every compiled language, the key `flags` is a raw passthrough: its value is appended verbatim to that language’s compile command, in order, without deduplication. This is the escape hatch for anything morloc does not model directly.
+
+```bash
+# each -X contributes one flag, appended in order
+morloc make -X cpp:flags=-march=native -X cpp:flags=-O3 main.loc
+```
+
+Because order and adjacency matter to a compiler (`-L` before `-l`, paired tokens like `-Xpreprocessor -foo`), `flags` values are never reordered or merged away.
+
+## 11.1.1. Per-machine defaults with `morloc config`
+
+Repeating `-X futhark:backend=cuda` on every build is tedious on a machine that always has the same GPU. `morloc config` stores per-machine defaults so you set them once:
+
+```bash
+morloc config set futhark:backend=cuda   # every build now defaults to CUDA
+morloc config list                       # show the current defaults
+morloc config unset futhark:backend      # drop the default
+```
+
+These write the `lang-params` block of the per-machine build config at `$MORLOC_HOME/.build-config.yaml` (by default `~/.local/share/morloc/.build-config.yaml`):
+
+```yaml
+lang-params:
+  futhark:
+    backend: cuda
+```
+
+Unlike `morloc init`, `morloc config` only edits this file — it does not rebuild the toolchain.
+
+## 11.1.2. Per-session defaults with `MORLOC_LANG_PARAMS`
+
+A shell session, a build script, or a test harness that cannot edit every command line can set parameters in the environment. `MORLOC_LANG_PARAMS` holds a `;`\-separated list of the same `LANG:KEY=VALUE` entries:
+
+```bash
+export MORLOC_LANG_PARAMS='rust:lto=off;cpp:flags=-O1'
+morloc make main.loc           # both parameters apply
+```
+
+Stray or trailing separators are ignored; a value cannot contain `;`.
+
+## 11.1.3. Precedence
+
+Parameters resolve in four layers, lowest to highest:
+
+```text
+compiled-in default  <  build config (per-machine)  <  MORLOC_LANG_PARAMS  <  -X on the command line
+```
+
+For most keys the highest layer wins. The `flags` key is the exception: values from each layer are concatenated (build-config flags, then environment flags, then command-line flags), so a per-machine default and a one-off flag both take effect.
+
+## 11.1.4. Recognized keys
+
+Morloc passes every `LANG:KEY` through; each language’s builder reads the keys it understands and rejects a value it does not. The keys the builders read:
+
+| Key | Values | Default | Effect |
+| --- | --- | --- | --- |
+| `cpp:flags` | any | *(none)* | Raw flags appended to the C++ compile command. |
+| `futhark:backend` | `c`, `multicore`, `opencl`, `cuda`, `hip`, `ispc` | `c` | Futhark code generation backend. |
+| `futhark:device` | a device selector | *(none)* | Device for a GPU backend; rejected with a CPU backend. |
+| `rust:lto` | `off`, `false`, `thin`, `fat`, `true` (Cargo’s `lto` vocabulary) | `thin` | Link-time optimization of the Rust pool. `thin` re-optimizes across the pool’s dependencies (rustmorloc, Arrow) on every link and costs seconds per pool; `off` links the precompiled dependencies as they are. |
+| `rust:opt-level` | `0`, `1`, `2`, `3`, `s`, `z` | `2` | Cargo `opt-level` of the Rust pool. |
+
+A non-default `rust:lto` or `rust:opt-level` compiles its own copy of the pool’s dependencies into the shared build cache the first time it is used; after that both profiles are cached side by side.
+
+## 11.1.5. Build parameters vs. `package.yaml`
+
+A project’s `package.yaml` is for **hard build requirements** — libraries the code cannot compile without (`dependencies`), a required C++ standard (`cpp-version`), or fixed compiler flags (`cxx-flags`). These are committed with the project and apply on every machine.
+
+Build parameters are for **per-machine, per-invocation variance** — which Futhark backend this host’s hardware supports, a tuning flag like `-march=native` that is specific to the build machine. Keep these out of committed source: choose them on the command line, or set a per-machine default with `morloc config`. A `flags` passthrough is appended after the `package.yaml` flags, so the two compose.

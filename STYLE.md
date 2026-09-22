@@ -214,13 +214,37 @@ not reach the table of contents.
 
 **Headings.** `index.adoc` owns `==` (chapter). Content files start at `===`:
 
-| Level | Use | In the TOC? |
+| Level | Use | Rendered as |
 |-------|-----|-------------|
-| `===` | section -- the unit a reader navigates to | yes |
-| `====` | subsection | yes |
-| `=====` | sub-subsection; use sparingly | no (`:toclevels: 2`) |
+| `==` | chapter | `/docs/<chapter>/`: the chapter's overview, made of the prose written before its first `===` |
+| `===` | section -- the unit a reader navigates to | its own page, `/docs/<chapter>/<section>.html` |
+| `====` | subsection | a heading on that page, listed in the sidebar while the page is open |
+| `=====` | sub-subsection; use sparingly | a heading on that page |
 
 Sections are auto-numbered (`:sectnums:`), so never number a heading by hand.
+
+A chapter's overview is whatever sits between its `==` line and the first
+`===`: prose inline in `index.adoc`, or an included file that opens with prose
+rather than a heading (`cli-intro.asc`). Say what the chapter covers and why a
+reader would go there; do not list the sections, the sidebar already does.
+
+**Anchors are URLs.** Every `==` and `===` heading carries an explicit anchor on
+the line above it, and that anchor is the page's slug:
+
+```asciidoc
+[[effects]]
+=== Effects and delayed evaluation
+```
+
+becomes `/docs/features/effects.html`. Slugs are lowercase `a-z`, digits and
+`-`, unique across the whole manual, and never `index`, `all`, `static` or
+`pagefind`; the build refuses an auto-generated `_id` on these headings. A
+chapter that should stay on one page (an essay, or a chapter with a single
+section) takes the role instead: `[#why.onepage]`.
+
+Renaming a slug, or removing a section, changes a published URL. Add the old
+path to `src/redirects.json` (`"old/page.html": "new/page.html"`) in the same
+change, or the build fails.
 
 **Line width.** Wrap prose at 80 columns. Do not wrap inside a URL or a table
 cell. Never reflow a paragraph you did not otherwise edit -- it buries the real
@@ -293,11 +317,13 @@ it is prose, not a table. Give every table a `[cols=...]` spec and a header row.
    communities.
 ```
 
-**Cross-references.** `<<_section_title>>` against auto-generated anchors, or
-`<<anchor-name>>` against an explicit `[[anchor-name]]`. Prefer an explicit
-anchor for anything referenced from more than one place -- auto anchors change
-when a heading is reworded, and a dangling xref renders as visible red text.
-Check that every xref you write resolves.
+**Cross-references.** `<<anchor-name>>` against an explicit `[[anchor-name]]`.
+Chapters and sections always have one (above). A `====` or deeper heading that
+is referenced from another section needs one too: its auto-generated id
+renumbers whenever a same-titled heading appears earlier in the manual, so a
+cross-page link to it would resolve to the wrong page, and the build refuses
+it. Within one section, `<<_auto_id>>` is fine. A dangling xref fails the
+build.
 
 **Terminology.** "Morloc" capitalized in prose, `morloc` in code and when naming
 the binary. `mim` is always lowercase, always code-formatted. A *module* is
@@ -313,4 +339,6 @@ different things and the manual has conflated them before.
 - Check the file still ends with a blank line.
 - Check for non-ASCII: `LC_ALL=C grep -n '[^ -~\t]' <file>`
 - Check block delimiters balance: `---- `, `====`, `=====`, `|===` each even.
-- Build the site (`make`) before claiming the change renders.
+- Build the site (`make`) before claiming the change renders; the build's
+  link audit and search-coverage check are part of that claim.
+- Preview with `make serve` and browse `http://localhost:8000/docs/`.

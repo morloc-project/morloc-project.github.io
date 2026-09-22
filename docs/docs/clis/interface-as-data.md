@@ -1,0 +1,160 @@
+# 6.13. The interface as data
+
+Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/interface-as-data.html | prev: https://morloc-project.github.io/docs/clis/composing-tools.md | next: https://morloc-project.github.io/docs/clis/directive-reference.md
+
+`-h` is written for a person. `--json-help` is the same information written for a program: a complete, machine-readable description of every command, its arguments, their types, and what it returns.
+
+```console
+$ ./sift --json-help
+```
+
+The top of the document records the compiler version, names the program, and lists its command groups:
+
+```json
+{
+...
+  "program": {
+    "name": "sift",
+    "description": [
+      "Search notes and count what turns up"
+    ]
+  },
+  "groups": []
+}
+```
+
+Each command follows. `summarize` is the simplest one in `sift`:
+
+```json
+{
+  "name": "summarize",
+  "kind": "remote",
+  "group": null,
+  "description": [
+    "Count the hits in each file"
+  ],
+  "arguments": [
+    {
+      "name": "arg0",
+      "role": "positional",
+      "position": 0,
+      "metavar": null,
+      "required": true,
+      "variadic": false,
+      "stdin": false,
+      "quoted": false,
+      "default": null,
+      "description": [
+        "Hits produced by an earlier search"
+      ],
+      "type": {
+        "morloc": "[Hit]",
+        "wire": "am34paths4linej4texts",
+        "structure": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": { "type": "string" },
+              "line": { "type": "integer" },
+              "text": { "type": "string" }
+            },
+            "required": ["path", "line", "text"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "named_type_kind": null,
+      "input": {
+        "source": "auto",
+        "form": "auto",
+        "checks": [],
+        "list_source": "inline",
+        "list_form": "auto",
+        "list_checks": [],
+        "format": null
+      }
+    }
+  ],
+  "return": {
+    "description": [],
+    "streaming": false,
+    "type": {
+      "morloc": "[(Str, Int)]",
+      "wire": "at2sj",
+      "structure": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "prefixItems": [
+            { "type": "string" },
+            { "type": "integer" }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    }
+  },
+  "terminals": []
+}
+```
+
+Every type appears three ways, because three different readers want it: `morloc` is the type as written, `wire` is the serialization schema, and `structure` is JSON Schema, which a validator or a form generator can consume directly. The `wire` schema is the **general** one: the concrete schema the runtime dispatches on names the container the pool’s language builds, which would make the published contract move whenever the implementation language did. The `input` block carries the shape directives of [Input shape](https://morloc-project.github.io/docs/clis/input-shape.md), so a caller can tell that an argument wants a path rather than a value without parsing prose.
+
+`return.streaming` says whether the command writes a stream to standard output rather than returning a value; when it does, `return.type` describes the batch that reaches stdout rather than the `()` the function returns.
+
+`terminals` lists a command’s output actions, each with the type its flag puts on the wire. `scan` has two:
+
+```json
+[
+  {
+    "short": "c",
+    "long": "count",
+    "description": "Report the number of matches instead of the matches",
+    "render": false,
+    "default": false,
+    "type": {
+      "morloc": "U64",
+      "wire": "u8",
+      "structure": {
+        "type": "integer"
+      }
+    }
+  },
+  {
+    "short": "p",
+    "long": "plain",
+    "description": "Print one `path:line:text` record per line",
+    "render": true,
+    "default": false,
+    "type": {
+      "morloc": "Str",
+      "wire": "s",
+      "structure": {
+        "type": "string"
+      }
+    }
+  }
+]
+```
+
+None of this is written by hand or kept in a sidecar file. It is derived from the same types and docstrings as the help text, on the same build, which is what makes it worth trusting: a description that can go stale is a description you have to verify, and this one cannot. Point a script at a directory of Morloc programs and you can build an accurate inventory of every command in it, with argument types, without knowing anything about any of them.
+
+## 6.13.1. Other views of the same commands
+
+Two more flags render the same information for model clients:
+
+| Flag | Output |
+| --- | --- |
+| `--mcp-tools` | An MCP `tools/list` definition: one entry per command, with a JSON Schema `inputSchema` and `outputSchema`. |
+| `--mcp-config` | A client MCP server config — an `mcpServers` JSON entry using the stdio transport — so the program can be registered with a model client by redirecting one command into a config file. |
+
+Commands whose types cannot cross the MCP boundary are excluded, and the reason is printed on standard error rather than left for you to discover:
+
+```console
+$ ./sift --mcp-tools > tools.json
+morloc mcp: excluding command 'total' from the tool surface (reads from @stdin)
+```
+
+The MCP surface is covered in [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/apis/mcp.md), and the same module served over HTTP, TCP, and Unix sockets in [Building API interfaces](https://morloc-project.github.io/docs/apis/api-interfaces.md). They are worth reading together with this section, because they are the same point from three directions: the command line is one view of a typed library, not the thing the library is built on. A CLI, an HTTP endpoint, and an MCP tool are three renderings of one set of functions, and none of them is written by hand.

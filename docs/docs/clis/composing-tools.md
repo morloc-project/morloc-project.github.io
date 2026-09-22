@@ -1,0 +1,183 @@
+# 6.12. Composing tools
+
+Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/composing-tools.html | prev: https://morloc-project.github.io/docs/clis/streaming-output.md | next: https://morloc-project.github.io/docs/clis/interface-as-data.md
+
+A module that compiles to a CLI is still a module. Nothing about being a command line tool stops another module from importing it, so a toolbox is a module that imports and re-exports.
+
+Here is a second module, unrelated to `sift` and written in R, that turns label-count pairs into a bar chart:
+
+**stats.R**
+
+```r
+histogram <- function(counts){
+  paste0(
+    sapply(counts, function(row){
+      sprintf("%-24s %s", row[[1]], strrep("#", as.integer(row[[2]])))
+    }),
+    collapse = "\n"
+  )
+}
+```
+
+**stats.loc**
+
+```morloc
+module stats (histogram)
+
+import root-r
+
+source R from "stats.R" ("histogram" as histogramR)
+
+histogramR :: [(Str, Int)] -> Str
+
+--' Draw a bar for each label
+histogram :: [(Str, Int)] -> Str
+histogram = histogramR
+```
+
+A toolbox picks what it wants from each:
+
+**tools.loc**
+
+```morloc
+--' A little toolbox for reading notes
+module tools (scan, summarize, histogram)
+
+import .sift
+import .stats
+```
+
+The leading `.` marks a local file rather than an installed module. Both modules here are files you built a moment ago, so both take it. A toolbox assembled from modules you installed names them without the dot — `import sift` — and is otherwise identical; that is the more common shape, and the only reason this chapter uses local files is so you can run it without installing anything first.
+
+That is the whole toolbox: two imports and an export list, no glue code:
+
+```console
+$ morloc make -o tools tools.loc
+$ ./tools -h
+A little toolbox for reading notes
+
+Usage: ./tools <nexus_options> <command> <command_options>
+
+Commands:
+  scan       Search a directory tree for lines containing a pattern
+  summarize  Count the hits in each file
+  histogram  Draw a bar for each label
+
+General Options:
+  -h, --help  Print help; -hh adds details and examples, -hhh adds schemas
+              (nexus options: -h @)
+```
+
+Two of those commands run in Python and one in R. The pools start on demand, so a run that only touches `scan` never starts the R interpreter, and a pipeline that touches all three starts each once:
+
+```console
+$ ./tools scan the notes | ./tools summarize - | ./tools -p histogram -
+notes/todo.txt           ##
+notes/2026/plan.txt      ##
+```
+
+That pipeline is worth a second look. Three processes, two language runtimes, and no agreement between the stages about a file format: `scan` writes a `[Hit]`, `summarize` reads a `[Hit]` and writes a `[(Str, Int)]`, `histogram` reads a `[(Str, Int)]`. Each side knows the type, so each side knows how to read what arrived. Adding a stage means writing a function with the right type, not a parser.
+
+Subtraction works the same way. A toolbox that lists three of \`sift’s five exports is a tool with three commands; nothing of the other two is compiled in. There is no plugin mechanism here because none is needed — the export list is the mechanism.
+
+## 6.12.1. Grouping commands
+
+A toolbox grows, and a flat list of twenty commands is a bad interface. Group them with `--*` annotations in the export list:
+
+**tools.loc**
+
+```morloc
+--' A little toolbox for reading notes
+module tools
+  --* group: find
+  --* Search the filesystem
+  ( scan
+  , scanAll
+  --* group: report
+  --* Turn hits into something readable
+  , summarize
+  , histogram
+  )
+
+import .sift
+import .stats
+```
+
+A `--* group: <name>` line opens a group, and the `--*` lines after it are its description. Every export listed below it belongs to that group, until the next group line. Each group becomes a subcommand of its own:
+
+```console
+$ ./tools -h
+A little toolbox for reading notes
+
+Usage: ./tools <nexus_options> <command> <command_options>
+
+Commands:
+  find    Search the filesystem
+  report  Turn hits into something readable
+
+General Options:
+  -h, --help  Print help; -hh adds details and examples, -hhh adds schemas
+              (nexus options: -h @)
+
+$ ./tools find -h
+Search the filesystem
+
+Usage: ./tools <nexus_options> find <command> <command_options>
+
+Commands:
+  scan     Search a directory tree for lines containing a pattern
+  scanAll  Search for any of several patterns, one per line of a file
+
+General Options:
+  -h, --help  Print help; -hh adds details and examples, -hhh adds schemas
+              (nexus options: -h @)
+```
+
+and the group name joins the invocation:
+
+```console
+$ ./tools find scan the notes | ./tools report summarize -
+[["notes\/todo.txt",2],["notes\/2026\/plan.txt",2]]
+```
+
+Grouping is optional per export. Write `--* group:` with no name to close the current group; exports after it are ungrouped and appear at the top level alongside the groups.
+
+## 6.12.2. Installing
+
+`morloc make --install` puts the built program on your `PATH` instead of leaving it in the current directory:
+
+```console
+$ morloc make --install -o sift sift.loc
+Installed 'sift' to /opt/morloc/bin/sift   # your MORLOC_HOME will differ
+```
+
+`morloc list` shows what is installed — modules first, then programs:
+
+```console
+$ morloc list
+Modules:
+  root 0.7.0  Define type signatures for common functions
+...
+Programs:
+  sift  5 commands
+...
+```
+
+Add `-v` to list each program’s commands with their return types.
+
+Installing also regenerates shell completion for every installed program, into `$MORLOC_HOME/completions/`. The completions are derived from the same manifest the help is — command names, group names, and each command’s flags — so they cover the groups of the previous section without any extra declaration:
+
+```console
+$ sed -n '/Installed program: sift/,+9p' $MORLOC_HOME/completions/morloc-completions.bash | tail -2
+    COMPREPLY=($(compgen -W "scan scanAll summarize total stream" -- "$cur"))
+    return
+```
+
+Source the one for your shell from your shell’s startup file:
+
+```console
+$ source $MORLOC_HOME/completions/morloc-completions.bash   # bash
+$ source $MORLOC_HOME/completions/_morloc_completions       # zsh
+```
+
+The entry points the compiler synthesizes for each output action are marked internal in the manifest, so they are absent from the count and from the completions — the surface you see is the surface the program accepts.

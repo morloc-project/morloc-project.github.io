@@ -1,0 +1,144 @@
+= Morloc Manual
+:author: Fixture Author
+:docinfo: shared
+:docinfodir: ../../src
+:favicon: static/img/favicon.ico
+:figure-caption!:
+:icons: image
+:iconsdir: static/img/admonition_icons
+:imagesdir: static/img
+:nofooter:
+:sectanchors:
+:sectnums:
+:source-highlighter: pygments
+:pygments-css: class
+:stem: latexmath
+:toc: left
+:toclevels: 3
+
+// Rendered by `make fixture` into mini.html, which bin/paginate.test.mjs
+// reads. Every block shape the manual uses appears here once, so a change in
+// asciidoctor's markup shows up as a diff in mini.html.
+
+[#intro.onepage]
+== Intro
+
+Chapter prose before any section. Links: <<one-program>> (same page),
+<<records>> (another page), <<field-order>> (a subsection on another page).
+
+[[one-program]]
+=== One program
+
+A first paragraph that becomes the summary. A second sentence that does not.
+
+[[what-it-is-not]]
+=== What it is not
+
+Nothing to see.
+
+[[features]]
+== Syntax & Features
+
+[[records]]
+=== Records, "tuples" [and lists]
+
+[WARNING]
+.Experimental Feature
+====
+
+An admonition comes first so the summary must skip it.
+
+====
+
+Records name their fields. Ampersand & angle <brackets> in prose.
+
+[source, morloc]
+.rec.loc
+----
+module m (f)
+f :: Int -> Str
+----
+
+[source, console]
+----
+$ ./rec f 1
+"1"
+----
+
+....
+literal block, no language
+....
+
+==== Field order
+
+Fields keep declaration order. A `code` heading follows.
+
+[[field-order]]
+==== `where` and order
+
+An explicit anchor on a level-4 heading, referenced from the Intro chapter.
+
+.Why the order matters
+[%collapsible]
+====
+
+Collapsed detail about ordering.
+
+====
+
+[[strings]]
+=== Strings
+
+Interpolation costs latexmath:[O(n)] per string; the bound is
+latexmath:[\sum_{i=1}^{n} i = \frac{n(n+1)}{2}].
+
+[horizontal]
+`Str`:: a byte string
+`Int`:: a signed integer
+
+Term:: a plain definition list entry
+
+[cols="1,1,2", options="header"]
+|===
+| Type | Operator | Meaning
+
+| `Bool`
+| `\|\|`
+| `True \| False`
+
+| `Int`
+| `+`
+| addition
+|===
+
+[cols="1,1"]
+|===
+| headerless | table
+| second | row
+|===
+
+image::icon-192.png[An icon]
+
+* a bullet
+* another bullet
+
+Then a sequence:
+
+. first step
+. second step
+
+[[runs]]
+== Managing Runs
+
+Chapter prose that a landing page must carry, with a link to <<strings>>.
+
+[[logging]]
+=== Logging
+
+Logs go to standard error. See <<records>> and <<what-it-is-not>>.
+
+[#future.onepage]
+== Future
+
+Only prose, no sections, in a one-page chapter.
+

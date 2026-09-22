@@ -1,6 +1,18 @@
 all:
 	podman run -v .:/documents -w /documents ghcr.io/morloc-project/morloc/morloc-docs bash build.sh
 
+# Unit tests for the page split (bin/paginate.test.mjs against bin/fixtures)
+test:
+	podman run -v .:/documents -w /documents ghcr.io/morloc-project/morloc/morloc-docs node --test bin/paginate.test.mjs
+
+# Re-render the test fixture after an asciidoctor upgrade; commit the result
+fixture:
+	podman run -v .:/documents -w /documents ghcr.io/morloc-project/morloc/morloc-docs sh bin/fixture.sh
+
+# Preview the built site the way GitHub Pages serves it (search needs http)
+serve:
+	python3 -m http.server -d docs 8000
+
 build:
 	podman build --no-cache --force-rm -t ghcr.io/morloc-project/morloc/morloc-docs .
 

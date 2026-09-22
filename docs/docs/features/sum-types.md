@@ -1,0 +1,588 @@
+# 4.14. Sum types
+
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/sum-types.html | prev: https://morloc-project.github.io/docs/features/recursion.md | next: https://morloc-project.github.io/docs/features/effects.md
+
+A record holds all of its fields at once. A **sum type** holds one shape out of several. You write one with `data`, listing every constructor the type has:
+
+```morloc
+data Color = Red | Green | Blue
+```
+
+`Color` now has exactly three values. `Red`, `Green` and `Blue` are ordinary terms that you can return, pass, put in a list, or match on.
+
+A constructor belongs to one type and no other, so the compiler works out the type from the constructor alone. That is why `warmest` below needs no signature:
+
+**colors.loc**
+
+```morloc
+module main (describe, palette, warmest)
+
+import root-py
+
+data Color = Red | Green | Blue
+
+describe :: Color -> Str
+describe | Red = "warm"
+         | Green = "cool"
+         | Blue = "cold"
+
+palette :: [Color]
+palette = [Red, Green, Blue]
+
+warmest = Red
+```
+
+```console
+$ morloc typecheck colors.loc
+describe :: Color -> Str
+palette :: [Color]
+warmest :: Color
+```
+
+`describe` takes the value apart with `|`\-clauses (see [Pattern Matching](https://morloc-project.github.io/docs/features/pattern-matching.md)). A constructor in a clause is a test, not a binding: `Red` matches the value `Red` and nothing else.
+
+```console
+$ morloc make -o colors colors.loc
+$ ./colors describe Green
+"cool"
+$ ./colors palette
+["Red","Green","Blue"]
+```
+
+## 4.14.1. A constructor set is closed, and the compiler counts
+
+A `|`\-match over a `data` type does not need a catch-all, because the compiler knows how many constructors there are. It also does not let you forget one. Drop the `Blue` clause from `describe` and the build stops:
+
+```console
+colors.loc:8:1: `|` patterns for 'describe' are not exhaustive; missing Blue
+    |
+  8 | describe | Red = "warm"
+    | ^
+```
+
+The same knowledge runs in the other direction. Add a second `Red` clause and it can never fire, so it is rejected rather than silently dropped:
+
+```console
+colors.loc:8:1: `|` patterns for 'describe' match 'Red' more than once; the later clause is unreachable
+    |
+  8 | describe | Red = "warm"
+    | ^
+```
+
+A catch-all is still allowed when you want one:
+
+```morloc
+warm :: Color -> Bool
+warm | Red = True
+     | _ = False
+```
+
+## 4.14.2. The constructor names reach the interface
+
+Constructor names are part of the type, so every interface Morloc derives knows them. On the command line the constructor is written as itself, and help says which words are legal:
+
+```console
+$ ./colors describe -h
+
+Usage: ./colors <nexus_options> describe <command_options>
+
+General Options:
+  -h, --help  Print help; -hh adds details and examples, -hhh adds schemas
+              (nexus options: -h @)
+
+Positional arguments:
+  1:  type: Color
+      values: Red, Green, Blue
+
+Return: Str
+$ ./colors describe Blue
+"cold"
+$ ./colors describe Purple
+Error: failed to parse argument #0: serialization error: 'Purple' is not a constructor of this type; expected one of Red, Green, Blue
+```
+
+and a model client is handed a closed set rather than a free-text string:
+
+```console
+$ ./colors --mcp-tools
+...
+      "_1": {
+        "type": "string",
+        "enum": [
+          "Red",
+          "Green",
+          "Blue"
+        ]
+      }
+...
+```
+
+On the command line the case of a constructor does not matter: `blue`, `BLUE` and `Blue` are the same value. The convention that constructors are capitalized is Morloc’s, and a person typing a command should not have to know it. That leniency is the command line’s alone — a quoted JSON string, whether it is the whole argument, a field of a record, or an element of a list, is matched exactly, because JSON is a contract between programs. For the same reason two constructors of one type may not differ only in case; the compiler rejects the declaration.
+
+A constructor can carry a description. Write it above the constructor’s `=` or `|`, the way a record field’s description sits above the field:
+
+```morloc
+--' How urgent a task is
+data Priority
+  --' can wait
+  = Low
+  --' this week
+  | Medium
+  --' today
+  | High
+```
+
+The description reaches every interface. Terminal help prints a `Data Types` block beneath the command at `-hhh`, `--json-help` carries it in the `types` glossary, and the MCP tool folds each constructor’s note into the argument’s description so a model reading the tool sees what the names mean and not only which are legal:
+
+```console
+$ ./tasks pick -hhh
+...
+Optional arguments:
+  -p, --priority <Priority>  the priority
+                             type: Priority
+                             values: Low, Medium, High [default: Medium]
+
+Data Types:
+  Priority
+    How urgent a task is
+    Low     can wait
+    Medium  this week
+    High    today
+```
+
+An option whose type is a `data` may give its default as the bare constructor (`--' @default medium`), and a `@many` option takes bare constructors one per occurrence (`-p low -p high`).
+
+## 4.14.3. Constructors that take arguments
+
+A constructor may carry fields. Write their types after the constructor name:
+
+**shapes.loc**
+
+```morloc
+module main (area, describe, grow, columns)
+
+import root-py
+
+data Shape = Circle Real | Rect Real Real | Dot
+
+area :: Shape -> Real
+area | (Circle r) = 3.14159 * r * r
+     | (Rect w h) = w * h
+     | Dot = 0.0
+
+describe :: Shape -> Str
+describe | (Circle 0.0) = "a circle of no radius"
+         | (Circle _) = "a circle"
+         | (Rect _ _) = "a rectangle"
+         | Dot = "a dot"
+
+grow :: Real -> Shape -> Shape
+grow | k (Circle r) = Circle (k * r)
+     | k (Rect w h) = Rect (k * w) (k * h)
+     | _ Dot = Dot
+
+columns :: [Real] -> [Shape]
+columns = map (Rect 2.5)
+```
+
+`Circle 2.0` builds a value. In a pattern, `(Circle r)` matches a circle and binds `r` to its radius. A constructor pattern with fields needs the parentheses, since the fields would otherwise read as further arguments of the clause — which is exactly what they are in `grow`, whose clauses each carry two patterns, one per argument.
+
+A constructor is a function of its fields, so it partially applies like any other. `Rect 2.5` in `columns` is a `Real → Shape` waiting for a height.
+
+```console
+$ morloc make -o shapes shapes.loc
+$ ./shapes area '{"Circle":[2.0]}'
+12.56636
+$ ./shapes area '"Dot"'
+0
+$ ./shapes grow 1.5 '{"Rect":[1.5,2.5]}'
+{"Rect":[2.25,3.75]}
+$ ./shapes columns '[1.25,4.5]'
+[{"Rect":[2.5,1.25]},{"Rect":[2.5,4.5]}]
+```
+
+A constructor with fields is JSON `{"Circle":[2.0]}` — one key, the constructor, and its fields in declaration order. One with no fields is the bare string `"Dot"`. That is the whole encoding, and it is what you type on the command line, send over HTTP, and read back out.
+
+> **Warning: Quote a shape on the command line**
+> A constructor-only `data` takes a bare word (`./colors describe Blue`), because its argument is a string as far as the interface is concerned. A `data` with fields does not: its argument is JSON, so a nullary constructor has to be written `'"Dot"'`, quoted twice. An unquoted `Dot` is rejected as neither JSON nor a file path.
+
+A field can be matched rather than bound. `(Circle 0.0)` in `describe` matches only a circle of that radius, so it refines `Circle` without closing it — every other circle falls through to the clause below, and the compiler still requires that clause:
+
+```console
+$ ./shapes describe '{"Circle":[0.0]}'
+"a circle of no radius"
+$ ./shapes describe '{"Circle":[2.0]}'
+"a circle"
+```
+
+Field counts are checked against the declaration:
+
+```console
+arity.loc:8:9: constructor 'Circle' takes 1 argument but the pattern gives 2
+    |
+  8 | area | (Circle r h) = r * h
+    |         ^
+```
+
+Fields are positional and have no names, so there is no getter into a `data` type — which field exists depends on which constructor you have, and a getter cannot ask. Matching is the only way in. When you want names, put a record in the arm.
+
+## 4.14.4. Matching a value that is not an argument
+
+`|`\-clauses take a definition’s arguments apart. To take apart anything else, use a `match` expression (see [`match` expressions](https://morloc-project.github.io/docs/features/pattern-matching.md#match-expressions)), which accepts the same constructor patterns and the same exhaustiveness rule. Here the value being matched is the parameter of a local helper:
+
+```morloc
+totalArea :: [Shape] -> Real
+totalArea shapes = sum (map one shapes)
+  where
+    one :: Shape -> Real
+    one s = match s
+      | (Circle r) = 3.14159 * r * r
+      | (Rect w h) = w * h
+      | Dot = 0.0
+```
+
+```console
+$ ./shapes totalArea '[{"Circle":[1.0]},{"Rect":[2.0,3.0]},"Dot"]'
+9.14159
+```
+
+The signature on `one` is doing work. A constructor pattern is checked against the type it is matching, and the compiler will not run that in reverse: it cannot infer `Shape` from seeing `Circle` in a pattern, the way it infers `Color` for `warmest = Red` from seeing a constructor in an expression. Leave the signature off and the build stops with `'Circle' is not a constructor of` followed by an unsolved type variable. The same holds for a definition’s `|`\-clauses, so give any term you match on a signature.
+
+## 4.14.5. Recursive types
+
+A constructor may take its own type. That is how you get a tree:
+
+**tree.loc**
+
+```morloc
+module main (total, depth)
+
+import root-py
+
+data Tree = Leaf | Node Real Tree Tree
+
+total :: Tree -> Real
+total | Leaf = 0.0
+      | (Node v l r) = v + total l + total r
+
+depth :: Tree -> Int
+depth | Leaf = 0
+      | (Node _ l r) = 1 + max (depth l) (depth r)
+```
+
+```console
+$ ./tree total '{"Node":[1.5,{"Node":[2.25,"Leaf","Leaf"]},"Leaf"]}'
+3.75
+$ ./tree depth '{"Node":[1.5,{"Node":[2.25,"Leaf","Leaf"]},"Leaf"]}'
+2
+```
+
+Two `data` types may also refer to each other, which is the shape an abstract syntax tree takes: an expression holds a term and a term holds an expression.
+
+**ast.loc**
+
+```morloc
+module main (eval)
+
+import root-py
+
+data Expr = Lit Real | Neg Term | Add Expr Expr
+
+data Term = Wrap Expr | Zero
+
+eval :: Expr -> Real
+eval | (Lit v) = v
+     | (Neg t) = 0.0 - evalT t
+     | (Add a b) = eval a + eval b
+
+evalT :: Term -> Real
+evalT | (Wrap e) = eval e
+      | Zero = 0.0
+```
+
+```console
+$ ./ast eval '{"Add":[{"Lit":[1.5]},{"Neg":[{"Wrap":[{"Lit":[2.0]}]}]}]}'
+-0.5
+```
+
+A record may sit on such a cycle too, as long as a `data` is on it as well — with one caveat. A record on a cycle is a recursive record, and in C and Rust a recursive record still has to be a type you write yourself; the compiler does not yet generate one (\`record Cpp => Node = "struct"\` on a cycle fails at build time). In C that leaves no way through at all, since a header you write is included before the `data` type it would have to name. Python and R take the shape as it is.
+
+What may not close a cycle is a set of records or aliases alone:
+
+**mutual.loc**
+
+```morloc
+type A = [B]
+type B = [A]
+```
+
+```console
+mutual.loc:5:1: error:
+Mutual recursion between type definitions is not supported unless a `data` type cuts the cycle. Cycle: A, B
+  |
+5 | type A = [B]
+  | ^
+```
+
+The reason is what a `data` does that an alias or a record does not. A constructor’s fields sit behind a pointer in every language, so a value’s size does not depend on how deep the recursion goes; and the compiler never expands a `data` into its constructors when it reduces a type, so a cycle through one cannot send it round forever. A record’s fields are laid out inline and an alias is expanded on sight, and neither gives a cycle a place to stop.
+
+## 4.14.6. Constructor names are global
+
+A constructor name determines its type, which only works if the name is claimed once. Declaring it twice is an error at the second declaration:
+
+```console
+dup.loc:6:22: Constructor 'Red' is already declared by another `data` type; constructor names must be unique
+    |
+  6 | data Fruit = Apple | Red
+    |                      ^
+```
+
+Constructors travel with their type. Exporting `Color` exports `Red`, `Green` and `Blue` with it, importing `Color` brings them in, and a module that only re-exports `Color` passes them along, so a `data` type declared in one module is usable in another however the two are wired:
+
+**types.loc**
+
+```morloc
+module types (Color)
+
+data Color = Red | Green | Blue
+```
+
+**main.loc**
+
+```morloc
+module main (favourite)
+
+import .types (Color)
+
+favourite :: Color
+favourite = Blue
+```
+
+An import that gives the module an alias puts its constructors behind that alias, the same way it does every other imported name. Write `p.Red` in an expression and in a pattern alike:
+
+```morloc
+module main (warm)
+
+import .types as p
+
+warm :: Color -> Bool
+warm | p.Red = True
+     | _ = False
+```
+
+The alias is the only qualifier there is. A module’s own name is not one — a name like `root-py` is not something an expression can spell — and neither is the type’s. Two modules that each declare a `Red` can therefore both be used from a third by giving at least one of them an alias; two `data` types in the **same** module cannot share a constructor name.
+
+## 4.14.7. Native representations
+
+Every language gets a representation of a `data` type, and by default the compiler writes it: an `enum class` in C++, a `#[repr(u8)]` enum in Rust, an ordinal in Python, an ordered factor in R. You declare nothing, and functions written in Morloc work across all four.
+
+Native code you **source** is a different matter, because it has to name the type to take it apart. Rust can name a generated type directly. C++ cannot: a sourced header is included before the compiler’s own declarations, so a header that mentions `Shape` must declare `Shape` itself, and you tell Morloc that with a per-language declaration — the same `⇒` form records already use:
+
+```morloc
+data Cpp => Shape = "Shape"
+```
+
+The mapping says only which native name to use. The constructors and their field types are not repeated, and the native declaration has to match the layout Morloc expects: a wrapper `Shape`, one `Shape_<Constructor>` struct per arm, and fields named `f0`, `f1` and so on. The foldout at the end of this section gives that layout for each language.
+
+**shapes.hpp**
+
+```cpp
+#pragma once
+#include <memory>
+#include <variant>
+
+struct Shape_Circle;
+struct Shape_Rect;
+struct Shape_Dot;
+
+struct Shape {
+    std::variant<std::shared_ptr<Shape_Circle>,
+                 std::shared_ptr<Shape_Rect>,
+                 std::shared_ptr<Shape_Dot>> v;
+};
+
+struct Shape_Circle { double f0; };
+struct Shape_Rect   { double f0; double f1; };
+struct Shape_Dot    { };
+
+inline double area(Shape s) {
+    if (auto p = std::get_if<std::shared_ptr<Shape_Circle>>(&s.v))
+        return 3.14159 * (*p)->f0 * (*p)->f0;
+    if (auto p = std::get_if<std::shared_ptr<Shape_Rect>>(&s.v))
+        return (*p)->f0 * (*p)->f1;
+    return 0.0;
+}
+```
+
+Python needs no declaration. A value with fields arrives as a pair of the constructor’s name and a tuple of its fields:
+
+**shapes.py**
+
+```python
+def grow(k, s):
+    match s:
+        case ("Circle", (r,)):
+            return ("Circle", (k * r,))
+        case ("Rect", (w, h)):
+            return ("Rect", (k * w, k * h))
+        case _:
+            return s
+```
+
+**crossing.loc**
+
+```morloc
+module main (areaCpp, growPy, bigArea)
+
+import root-py
+import root-cpp
+
+data Shape = Circle Real | Rect Real Real | Dot
+
+data Cpp => Shape = "Shape"
+
+source Py  from "shapes.py"  ("grow" as growPy)
+source Cpp from "shapes.hpp" ("area" as areaCpp)
+
+growPy  :: Real -> Shape -> Shape
+areaCpp :: Shape -> Real
+
+bigArea :: Shape -> Real
+bigArea s = areaCpp (growPy 2.0 s)
+```
+
+```console
+$ ./crossing growPy 1.5 '{"Circle":[2.5]}'
+{"Circle":[3.75]}
+$ ./crossing bigArea '{"Rect":[1.5,2.25]}'
+13.5
+```
+
+`bigArea` grew the shape in Python and measured it in C++. One declaration, two native representations, and a wire form both agree on.
+
+Forget the mapping and the C++ compiler reports `error: redefinition of 'struct Shape'` against the generated pool source. It means the mapping is missing, not that your header is wrong.
+
+## 4.14.8. Comparing values
+
+`==` compares two `data` values by constructor first and then by field, so `Circle 2.0 == Circle 2.0` is `True` while `Rect 1.0 2.0 == Rect 2.0 1.0` is `False`.
+
+The ordering operators use the same order the declaration does. `Red < Green` is `True` because `Red` is declared first, and so is `Circle 1.0 < Dot`. Two values of the same constructor are ordered by their fields, so `Circle 1.0 < Circle 2.0`.
+
+The answer does not depend on where the comparison runs. Which pool the compiler picks for an expression is its choice rather than yours, so a comparison that meant one thing in Python and another in R would be a bug you could not see in the source.
+
+One gap to know about: the Python and R representations shown above are an interim form, to be replaced by a generated class per arm. Treat the pair shape as something to match on rather than something to build a library around.
+
+**How a data value is encoded**
+
+For the reader who wants the bytes. It assumes you know what a tagged union is, and nothing about Morloc beyond this section. Two terms are used below: a **pool** is the process that runs one language’s share of a program, and the **nexus** is the process that drives them. Values move between them through shared memory, as a fixed-layout binary value with a **schema** string describing it.
+
+**A constructor-only `data` is one byte.** The byte is the constructor’s 0-based position in the declaration. Alignment is 1 and the width is fixed, so an array of them is a flat buffer copied in bulk: a `[Color]` occupies one byte per element and is byte-for-byte a `[U8]`. The limit is 256 constructors, because the tag is a byte.
+
+**A `data` with fields is sixteen bytes**, whatever its arms hold: a tag byte at offset 0, seven bytes of padding, and a relative pointer at offset 8 to the arm’s fields, laid out as a tuple. An arm with no fields stores a null pointer. Alignment is 8 and the width is never fixed, so an array of them is walked rather than copied.
+
+The pointer is the reason recursion terminates. An inline payload would give `Tree` the width equation `width >= 1 + 2 * width`, which has no solution; behind a pointer, every arm costs the same sixteen bytes. It also makes appending an arm layout-neutral.
+
+**The schema** travels with the value and carries the constructor names. Counts and lengths are one character from a 64-symbol alphabet (`0`\-`9`, `a`\-`z`, `A`\-`Z`, `+`, `/`); a value of 64 or more is written low digit first, with `=` before each digit but the last.
+
+| Form | Meaning |
+| --- | --- |
+| `e<count>(<len><name>)*` | A constructor-only `data`. Names in declaration order. |
+| `v<count>(<len><name><arity><field schema>*)*` | A `data` with fields. Each arm names itself, states how many fields it has, and then gives their schemas. |
+| `&<len><name>` | Declares a name for the schema that follows, so it can be referred to again. |
+| `^<len><name>` | A back-reference to a declared name. |
+
+The three types in this section:
+
+```text
+Color   e33Red5Green4Blue
+Shape   v36Circle1f84Rect2f8f83Dot0
+Tree    &4Treev24Leaf04Node3f8^4Tree^4Tree
+```
+
+Read `Shape` as: variant, 3 arms; `6`\-character name `Circle` with `1` field of type `f8` (an 8-byte float); `4`\-character name `Rect` with `2` fields, both `f8`; `3`\-character name `Dot` with `0` fields. `Tree` declares its own name first, because its arms point back at it.
+
+Nothing in `e` or `v` carries the **type’s** name — only a recursive type declares one, and only so its arms can refer back. Two `data` types with the same constructor names and field types therefore have the same wire form and are interchangeable at a boundary. Records behave the same way; the encoding is structural.
+
+**Outside shared memory** a value takes one of two forms. In MessagePack, which carries packets and on-disk values, a constructor-only `data` is its ordinal and one with fields is the two-element array `[tag, fields-or-nil]` — ordinals rather than names, because spelling out a constructor for every element would multiply the size of a large array. In JSON, which is what the command line, the HTTP API and the MCP tool descriptions speak, both forms use names.
+
+**Wire compatibility follows from the tag being the declaration ordinal.** Appending a constructor leaves every existing value byte-identical, and changes the schema only by its arm count and the new name. Reordering or removing constructors changes what old bytes mean, and is a breaking change to every stored value and to every peer that has not been rebuilt.
+
+**What a data type looks like in each language**
+
+For the reader writing native code against a Morloc `data` type. Each row is what a **sourced** function receives and must return. Morloc generates these declarations itself unless you map the type with `data <Lang> ⇒ T = "<name>"`, in which case your file declares it and must match the layout below.
+
+| Language | Constructors without fields | Constructors with fields |
+| --- | --- | --- |
+| Python | The ordinal, as an `int`. A list of them is a byte buffer, the same object a `[U8]` produces. | `("Circle", (2.0,))` — the constructor’s name and a tuple of its fields. |
+| R | An ordered `factor`, so `<` compares in declaration order. Codes are 1-based, so a code is the wire tag plus one; the levels are the constructor names in declaration order. | `list("Circle", list(2.0))` — the name and a list of fields. |
+| C++ | `enum class Color : uint8_t` with explicit discriminants, so the native value and the wire tag are the same byte. | A wrapper struct holding a `std::variant` of `std::shared_ptr` to one struct per arm. |
+| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | An enum whose arms each hold one `Box` of a tuple of their fields. Not `Copy`, since a box is not. |
+
+The generated C++ and Rust declarations, for the `Shape` of this section:
+
+```cpp
+struct Shape_Circle;
+struct Shape_Rect;
+struct Shape_Dot;
+struct Shape {
+    std::variant<std::shared_ptr<Shape_Circle>, std::shared_ptr<Shape_Rect>, std::shared_ptr<Shape_Dot>> v;
+};
+struct Shape_Circle {
+    double f0;
+};
+struct Shape_Rect {
+    double f0;
+    double f1;
+};
+struct Shape_Dot {
+};
+```
+
+```rust
+#[derive(Clone)]
+pub enum Shape {
+    Circle(::std::boxed::Box<(f64,)>),
+    Rect(::std::boxed::Box<(f64, f64)>),
+    Dot,
+}
+```
+
+Three consequences worth knowing before you write against them.
+
+Arm fields have no names in Morloc, so the C++ form names them `f0`, `f1`, and so on by position, and Rust reaches them as tuple elements. A mapped type that spells a field differently will not compile, which is the outcome you want.
+
+Every arm is behind a pointer in both compiled languages even when its fields would fit inline. That is what gives a recursive type a finite size, and it is uniform so that no per-type analysis decides it.
+
+A type with parameters maps to a template, exactly as an alias does (`type Cpp ⇒ (List a) = "std::vector<$1>" a`), and each instantiation names the template with that instantiation’s arguments: `Box Int` is `MyBox<int>` and `Box Str` is `MyBox<std::string>`. In C++ the arms are templates too, named by appending `_<Constructor>` to the wrapper’s **head** and taking the same arguments — `MyBox<$1>` has the arms `MyBox_Empty<$1>` and `MyBox_Full<$1>`. In Rust it is an ordinary generic enum.
+
+```morloc
+data Box a = Empty | Full a
+
+data Cpp  => (Box a) = "MyBox<$1>" a
+data Rust => (Box a) = "MyBox<$1>" a
+```
+
+```cpp
+template <typename T> struct MyBox_Empty;
+template <typename T> struct MyBox_Full;
+
+template <typename T> struct MyBox {
+    std::variant<std::shared_ptr<MyBox_Empty<T>>,
+                 std::shared_ptr<MyBox_Full<T>>> v;
+};
+
+template <typename T> struct MyBox_Empty {};
+template <typename T> struct MyBox_Full { T f0; };
+```
+
+```rust
+#[derive(Clone)]
+pub enum MyBox<T> {
+    Empty,
+    Full(::std::boxed::Box<(T,)>),
+}
+```
+
+The same holds for a `record` with parameters: `record Rust ⇒ (Wrap a) = "MyWrap<$1>" a` names a `struct MyWrap<T>`. Python and R still declare nothing; a mapping there is a hint carried on the wire and the value keeps its structural shape.
+
+Python and R declare nothing. The pair above is a structural interim representation, chosen because it needs nothing the generic marshaller cannot already build; a generated class per arm is the intended end state. The cost of the interim form is that neither language’s compiler — and neither has one — checks that you built an arm correctly, so a field order swapped between two same-typed fields is silently wrong in Python and R where C++ and Rust would reject it.

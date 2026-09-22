@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<meta name="author" content="Fixture Author">
+<link rel="icon" type="image/x-icon" href="static/img/favicon.ico">
+<title>Morloc Manual</title>
+<link rel="stylesheet" href="static/css/asciidoctor.css">
+<link rel="stylesheet" href="static/css/pygments-default.css">
+<script>
+/* Runs before the body is parsed so the page never paints in the wrong theme. */
+(function () {
+	var stored = null;
+
+	try {
+		stored = localStorage.getItem("theme");
+	} catch (e) {}
+
+	var dark =
+		stored === "dark" ||
+		(stored !== "light" &&
+			window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+	if (dark) document.documentElement.classList.add("dark");
+})();
+</script>
+
+<meta
+	name="keywords"
+	content="morloc, polyglot, workflow language, type system, function composition, C++, Python, R, Rust, CLI, MCP"
+/>
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="description" content="The Morloc Manual website." />
+<meta name="theme-color" content="#000000" />
+<meta property="og:site_name" content="Morloc Manual" />
+<meta property="og:title" content="Morloc Manual" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="The Morloc Manual website." />
+<meta
+	property="og:url"
+	content="https://morloc-project.github.io/docs"
+/>
+<meta
+	property="og:image"
+	content="https://morloc-project.github.io/docs/static/img/icon-512.png"
+/>
+<meta property="og:image:width" content="512" />
+<meta property="og:image:height" content="512" />
+<meta
+	property="twitter:image"
+	content="https://morloc-project.github.io/docs/static/img/icon-512.png"
+/>
+
+<script defer src="pagefind/pagefind-ui.js"></script>
+<script defer src="static/js/script.js"></script>
+<script defer src="static/js/redirect.js"></script>
+
+<link rel="stylesheet" href="static/css/katex.min.css" />
+<link rel="stylesheet" href="pagefind/pagefind-ui.css" />
+
+<link
+	rel="preload"
+	href="static/fonts/montserrat-400-latin.woff2"
+	as="font"
+	type="font/woff2"
+	crossorigin
+/>
+<link
+	rel="preload"
+	href="static/fonts/pt-mono-400-latin.woff2"
+	as="font"
+	type="font/woff2"
+	crossorigin
+/>
+<link rel="stylesheet" href="static/css/fonts.css" />
+
+<link rel="stylesheet" href="static/css/style.css" />
+<link rel="stylesheet" href="static/css/pygments-light.css" />
+<link rel="stylesheet" href="static/css/pygments-dark.css" />
+
+<link rel="apple-touch-icon" href="static/img/icon-192.png" />
+
+<link rel="manifest" href="manifest.webmanifest" />
+</head>
+<body class="book toc2 toc-left">
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="copy-glyph" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path></symbol></svg>
+<div id="header">
+<h1>Morloc Manual</h1>
+<div class="details">
+<span id="author" class="author">Fixture Author</span><br>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#intro">1. Intro</a>
+<ul class="sectlevel2">
+<li><a href="#one-program">1.1. One program</a></li>
+<li><a href="#what-it-is-not">1.2. What it is not</a></li>
+</ul>
+</li>
+<li><a href="#features">2. Syntax &amp; Features</a>
+<ul class="sectlevel2">
+<li><a href="#records">2.1. Records, "tuples" [and lists]</a>
+<ul class="sectlevel3">
+<li><a href="#_field_order">2.1.1. Field order</a></li>
+<li><a href="#field-order">2.1.2. <code>where</code> and order</a></li>
+</ul>
+</li>
+<li><a href="#strings">2.2. Strings</a></li>
+</ul>
+</li>
+<li><a href="#runs">3. Managing Runs</a>
+<ul class="sectlevel2">
+<li><a href="#logging">3.1. Logging</a></li>
+</ul>
+</li>
+<li><a href="#future">4. Future</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1 onepage">
+<h2 id="intro"><a class="anchor" href="#intro"></a>1. Intro</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Chapter prose before any section. Links: <a href="#one-program">One program</a> (same page),
+<a href="#records">Records, "tuples" [and lists]</a> (another page), <a href="#field-order"><code>where</code> and order</a> (a subsection on another page).</p>
+</div>
+<div class="sect2">
+<h3 id="one-program"><a class="anchor" href="#one-program"></a>1.1. One program</h3>
+<div class="paragraph">
+<p>A first paragraph that becomes the summary. A second sentence that does not.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="what-it-is-not"><a class="anchor" href="#what-it-is-not"></a>1.2. What it is not</h3>
+<div class="paragraph">
+<p>Nothing to see.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features"><a class="anchor" href="#features"></a>2. Syntax &amp; Features</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="records"><a class="anchor" href="#records"></a>2.1. Records, "tuples" [and lists]</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/warning.png" alt="Warning">
+</td>
+<td class="content">
+<div class="title">Experimental Feature</div>
+<div class="paragraph">
+<p>An admonition comes first so the summary must skip it.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Records name their fields. Ampersand &amp; angle &lt;brackets&gt; in prose.</p>
+</div>
+<div class="listingblock">
+<div class="title">rec.loc</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">m</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">f</span><span class="tok-p">)</span>
+<span class="tok-n">f</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./rec<span class="tok-w"> </span>f<span class="tok-w"> </span><span class="tok-m">1</span>
+<span class="tok-go">&quot;1&quot;</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>literal block, no language</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_field_order"><a class="anchor" href="#_field_order"></a>2.1.1. Field order</h4>
+<div class="paragraph">
+<p>Fields keep declaration order. A <code>code</code> heading follows.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="field-order"><a class="anchor" href="#field-order"></a>2.1.2. <code>where</code> and order</h4>
+<div class="paragraph">
+<p>An explicit anchor on a level-4 heading, referenced from the Intro chapter.</p>
+</div>
+<details>
+<summary class="title">Why the order matters</summary>
+<div class="content">
+<div class="paragraph">
+<p>Collapsed detail about ordering.</p>
+</div>
+</div>
+</details>
+</div>
+</div>
+<div class="sect2">
+<h3 id="strings"><a class="anchor" href="#strings"></a>2.2. Strings</h3>
+<div class="paragraph">
+<p>Interpolation costs <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> per string; the bound is
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mi>i</mi><mo>=</mo><mfrac><mrow><mi>n</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">\sum_{i=1}^{n} i = \frac{n(n+1)}{2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.104em;vertical-align:-0.2997em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8043em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">i</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.355em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.01em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">n</span><span class="mbin mtight">+</span><span class="mord mtight">1</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>.</p>
+</div>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+<code>Str</code>
+</td>
+<td class="hdlist2">
+<p>a byte string</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>Int</code>
+</td>
+<td class="hdlist2">
+<p>a signed integer</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Term
+</td>
+<td class="hdlist2">
+<p>a plain definition list entry</p>
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Operator</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Bool</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>||</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>True | False</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>+</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">addition</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">headerless</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">table</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">second</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">row</p></td>
+</tr>
+</tbody>
+</table>
+<div class="imageblock">
+<div class="content">
+<img loading="lazy" src="static/img/icon-192.png" alt="An icon">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a bullet</p>
+</li>
+<li>
+<p>another bullet</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Then a sequence:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>first step</p>
+</li>
+<li>
+<p>second step</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="runs"><a class="anchor" href="#runs"></a>3. Managing Runs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Chapter prose that a landing page must carry, with a link to <a href="#strings">Strings</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="logging"><a class="anchor" href="#logging"></a>3.1. Logging</h3>
+<div class="paragraph">
+<p>Logs go to standard error. See <a href="#records">Records, "tuples" [and lists]</a> and <a href="#what-it-is-not">What it is not</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1 onepage">
+<h2 id="future"><a class="anchor" href="#future"></a>4. Future</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Only prose, no sections, in a one-page chapter.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="pwa-install-div hidden">
+	<div id="pwa-install-text">Ready for offline use!</div>
+	<button id="pwa-install-btn">Install</button>
+	<button id="pwa-install-dismiss" aria-label="Dismiss PWA install prompt">
+		<img loading="lazy" src="static/img/clear_cross.svg" alt="X">
+	</button>
+</div>
+
+<button class="btn hidden back-to-top-btn" aria-label="Scroll to top"><img loading="lazy" src="static/img/up-arrow.svg" alt="Top"></button>
+
+<div id="footer">
+<span class="credit">Created with <a
+		href="https://github.com/HarshKapadia2/asciidoctor-jet"
+		target="_blank"
+		rel="noreferrer"
+		><i>Asciidoctor Jet</i></a></span>
+</div>
+</body>
+</html>

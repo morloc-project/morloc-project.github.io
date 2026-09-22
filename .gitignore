@@ -8,3 +8,6 @@ CLAUDE.md
 findings/
 test-spec.md
 .claude/settings.local.json
+
+# kroki diagram cache, kept between builds but never published
+/docs/docs/.asciidoctor/

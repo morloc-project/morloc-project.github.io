@@ -1,0 +1,166 @@
+# Morloc Manual
+
+> Morloc replaces the application with the function as the unit you build, publish, and compose.
+
+## 1. Intro
+
+- [1. Intro](https://morloc-project.github.io/docs/intro/index.md): Morloc replaces the application with the function as the unit you build, publish, and compose.
+
+## 2. Why Morloc?
+
+- [2. Why Morloc?](https://morloc-project.github.io/docs/why/index.md): Every command line tool solves the same problems a second time.
+
+## 3. Getting Started
+
+- [3. Getting Started](https://morloc-project.github.io/docs/getting-started/index.md)
+- [3.1. Installing Morloc](https://morloc-project.github.io/docs/getting-started/installing.md): Morloc is installed and managed by mim, the Morloc installation manager.
+- [3.2. Your first program](https://morloc-project.github.io/docs/getting-started/first-program.md): The inevitable "Hello World" case is implemented in Morloc like so:
+- [3.3. Sourcing a foreign function](https://morloc-project.github.io/docs/getting-started/sourcing.md): A Morloc module on its own has no implementations.
+- [3.4. Writing code that is not tied to a language](https://morloc-project.github.io/docs/getting-started/abstract-modules.md): Sourcing C++ works, but it pins these conversions to C++.
+- [3.5. Mixing languages in one program](https://morloc-project.github.io/docs/getting-started/mixing-languages.md): Morloc composes across languages freely, and that includes passing functions across the boundary.
+- [3.6. Parallelism across languages](https://morloc-project.github.io/docs/getting-started/parallelism.md): Because implementations are interchangeable, so are execution strategies.
+- [3.7. Where to go next](https://morloc-project.github.io/docs/getting-started/where-to-go-next.md): You now have the whole shape of Morloc: modules export terms, terms get general types, implementations come from foreign languages or from other Morloc...
+- [3.8. Editor support](https://morloc-project.github.io/docs/getting-started/editor-support.md): Morloc is a young language and editor support reflects that.
+- [3.9. Troubleshooting](https://morloc-project.github.io/docs/getting-started/troubleshooting.md): The problems new users actually hit, and what to do about each.
+
+## 4. Syntax and Features
+
+- [4. Syntax and Features](https://morloc-project.github.io/docs/features/index.md)
+- [4.1. Functions](https://morloc-project.github.io/docs/features/functions.md): Everything in Morloc is built out of functions, so this is where to start.
+- [4.2. Foreign functions](https://morloc-project.github.io/docs/features/foreign-functions.md): A Morloc module by itself declares types and compositions but contains no implementations.
+- [4.3. Booleans](https://morloc-project.github.io/docs/features/booleans.md): Booleans are written True and False and have the type Bool.
+- [4.4. Integer types](https://morloc-project.github.io/docs/features/integers.md): Morloc has one integer type for ordinary use and a family of fixed-width types for when the width matters.
+- [4.5. Floating-point types](https://morloc-project.github.io/docs/features/floats.md): Morloc’s floating-point types are IEEE 754 binary formats.
+- [4.6. Strings](https://morloc-project.github.io/docs/features/strings.md): A Morloc string is double-quoted and holds Unicode text:
+- [4.7. Tuples and Lists](https://morloc-project.github.io/docs/features/tuples-and-lists.md): Tuples and lists are the two containers you will reach for first.
+- [4.8. Records](https://morloc-project.github.io/docs/features/records.md): A record is a named, fixed set of named fields.
+- [4.9. Patterns](https://morloc-project.github.io/docs/features/patterns.md): Morloc’s pattern functions are first-class getters, setters, and bracket operators for reaching into and rearranging data structures.
+- [4.10. Pattern Matching](https://morloc-project.github.io/docs/features/pattern-matching.md): A pattern describes the shape of a value using the same notation you would use to build it.
+- [4.11. where and let clauses](https://morloc-project.github.io/docs/features/where-and-let.md): Both introduce local bindings, and they differ in exactly one way that matters: where is order-invariant, let is sequential.
+- [4.12. Conditionals](https://morloc-project.github.io/docs/features/conditionals.md): Guards are Morloc’s conditional branching.
+- [4.13. Recursion](https://morloc-project.github.io/docs/features/recursion.md)
+- [4.14. Sum types](https://morloc-project.github.io/docs/features/sum-types.md): A record holds all of its fields at once.
+- [4.15. Effects and delayed evaluation](https://morloc-project.github.io/docs/features/effects.md)
+- [4.16. Optional types](https://morloc-project.github.io/docs/features/optionals.md): Every language needs a way to say "no value here".
+- [4.17. Intrinsics](https://morloc-project.github.io/docs/features/intrinsics.md): Intrinsics are compiler-generated special functions.
+
+## 5. Advanced Types
+
+- [5. Advanced Types](https://morloc-project.github.io/docs/types/index.md)
+- [5.1. One term may have many definitions](https://morloc-project.github.io/docs/types/term-polymorphism.md): A Morloc term may have more than one definition, and the compiler picks whichever one produces the best program.
+- [5.2. Overload terms with typeclasses](https://morloc-project.github.io/docs/types/typeclasses.md): A typeclass lets one name have a different implementation for each type it is applied to.
+- [5.3. Infix operators](https://morloc-project.github.io/docs/types/infix-operators.md): An operator in Morloc is an ordinary function whose name happens to be punctuation.
+- [5.4. Naming a type: type and newtype](https://morloc-project.github.io/docs/types/newtype.md): Morloc gives you two keywords for putting a name on a type, and the choice between them decides whether the new name is the same type as the old one or a...
+- [5.5. Serializing custom types with Packable](https://morloc-project.github.io/docs/types/packable.md): Morloc can move a value between languages when it knows how to write that value down.
+- [5.6. The kind system](https://morloc-project.github.io/docs/types/kinds.md): A kind says what sort of thing a type variable stands for.
+- [5.7. Tensors](https://morloc-project.github.io/docs/types/tensors.md): The standard library’s tensor types carry their dimensions in the type, so the compiler can catch a shape mismatch — a 3x4 matrix where a 4x3 was wanted —...
+- [5.8. Tables](https://morloc-project.github.io/docs/types/tables.md): A Table is columnar data whose row count and column schema are part of its type:
+
+## 6. Building CLIs
+
+- [6. Building CLIs](https://morloc-project.github.io/docs/clis/index.md): A Morloc module compiles to a command line tool.
+- [6.1. The example program](https://morloc-project.github.io/docs/clis/example-program.md): The chapter uses one tool throughout: sift, which searches a directory tree for lines matching a pattern and reports what it finds.
+- [6.2. The two argument zones](https://morloc-project.github.io/docs/clis/argument-zones.md): Every Morloc program’s argv is split into two zones.
+- [6.3. Docstrings](https://morloc-project.github.io/docs/clis/docstrings.md): A docstring is a comment that the compiler keeps.
+- [6.4. Arguments](https://morloc-project.github.io/docs/clis/arguments.md): By default every argument in a signature is a positional, in the order it appears.
+- [6.5. Record arguments](https://morloc-project.github.io/docs/clis/record-arguments.md): A record argument is a natural fit for a group of related settings, but a caller does not want to write a JSON object to set one field.
+- [6.6. Sum type arguments](https://morloc-project.github.io/docs/clis/sum-type-arguments.md): A record says "all of these"; a data type says "one of these".
+- [6.7. Input shape](https://morloc-project.github.io/docs/clis/input-shape.md): The defaults from Arguments cover most arguments: a scalar is read from argv, a compound value is inline JSON or a file.
+- [6.8. Reading a stream from standard input](https://morloc-project.github.io/docs/clis/reading-stdin.md): A tool that reads standard input when you do not give it a file is the shape that makes pipelines work.
+- [6.9. Output formats](https://morloc-project.github.io/docs/clis/output-formats.md): A command’s return value is serialized and written to standard output.
+- [6.10. Output actions](https://morloc-project.github.io/docs/clis/output-actions.md): One typed function usually wants more than one presentation.
+- [6.11. Streaming output with @collect](https://morloc-project.github.io/docs/clis/streaming-output.md): Everything so far has treated a command’s output as one value: compute it, serialize it, write it.
+- [6.12. Composing tools](https://morloc-project.github.io/docs/clis/composing-tools.md): A module that compiles to a CLI is still a module.
+- [6.13. The interface as data](https://morloc-project.github.io/docs/clis/interface-as-data.md): -h is written for a person.
+- [6.14. Directive reference](https://morloc-project.github.io/docs/clis/directive-reference.md): Every docstring directive that affects the generated interface, grouped by where it may be written.
+
+## 7. Building APIs
+
+- [7. Building APIs](https://morloc-project.github.io/docs/apis/index.md)
+- [7.1. Search and install](https://morloc-project.github.io/docs/apis/search-and-install.md): The docstrings are used for discoverability as well.
+- [7.2. Exposing native resources](https://morloc-project.github.io/docs/apis/exposing-native-resources.md): The dependencies field links against shared libraries.
+- [7.3. Controlling data transfer](https://morloc-project.github.io/docs/apis/data-transfer.md): When a Morloc value crosses a pool boundary, the runtime picks one of three routes for data transfer:
+- [7.4. Building API interfaces](https://morloc-project.github.io/docs/apis/api-interfaces.md): In addition to being CLI tools, compiled Morloc programs can run as long-lived daemons, accepting function calls over HTTP, TCP, or Unix sockets.
+- [7.5. Model Context Protocol (MCP)](https://morloc-project.github.io/docs/apis/mcp.md): The same compiled program that runs as a CLI tool or a daemon can also serve as an MCP server, exposing its exported functions as tools that an AI agent...
+
+## 8. Managing Runs
+
+- [8. Managing Runs](https://morloc-project.github.io/docs/runs/index.md): A morloc program is an executable that can dispatch work across multiple language pools and, optionally, remote compute nodes.
+- [8.1. Logging](https://morloc-project.github.io/docs/runs/logging.md): Morloc programs can emit per-call log lines around any labeled term in source.
+- [8.2. Benchmarking](https://morloc-project.github.io/docs/runs/benchmarking.md): log: true reports every call as it happens.
+- [8.3. Run directory](https://morloc-project.github.io/docs/runs/run-directory.md): Every persistent-logging invocation of a morloc-built executable is one run.
+- [8.4. Caching](https://morloc-project.github.io/docs/runs/caching.md): Mark any labeled call site cache: true in the program YAML and its result is memoized to disk.
+- [8.5. Compression](https://morloc-project.github.io/docs/runs/compression.md): Morloc data packets carry a compression byte in their header, so any packet written to disk can transparently round-trip through a compressor.
+- [8.6. Debugging](https://morloc-project.github.io/docs/runs/debugging.md): When a foreign function throws — a Python ZeroDivisionError, a C++ std::invalid_argument, an R stop(…​) — the default behavior of a morloc-built program is...
+- [8.7. Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md): Three abstract types describe a value that lives in a file rather than in memory:
+
+## 9. Utilities
+
+- [9. Utilities](https://morloc-project.github.io/docs/utilities/index.md): The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: file (identifies a file) and view (loads and...
+- [9.1. morloc-nexus file](https://morloc-project.github.io/docs/utilities/nexus-file.md): morloc-nexus file plays the role of the UNIX file utility for Morloc-compatible data files.
+- [9.2. morloc-nexus view](https://morloc-project.github.io/docs/utilities/nexus-view.md): Reads a data file (morloc data-packet, morloc stream-packet, .json, .mpk, .arrow, .parquet, or .csv) and re-emits it in a chosen output format.
+- [9.3. mim (Morloc Installation Manager)](https://morloc-project.github.io/docs/utilities/mim.md)
+- [9.4. morloc eval](https://morloc-project.github.io/docs/utilities/morloc-eval.md): Morloc has three subcommands that turn source into a result, and they serve distinct roles:
+
+## 10. Modules and Libraries
+
+- [10. Modules and Libraries](https://morloc-project.github.io/docs/modules/index.md)
+- [10.1. Importing modules](https://morloc-project.github.io/docs/modules/importing-modules.md): Every Morloc file is a module.
+- [10.2. Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md): The default Morloc modules are hosted on GitHub under the morloclib organization.
+- [10.3. The universal library](https://morloc-project.github.io/docs/modules/universal-library.md): A module may export types, typeclasses, and function signatures but no implementations.
+
+## 11. Language Support
+
+- [11. Language Support](https://morloc-project.github.io/docs/languages/index.md)
+- [11.1. Build parameters](https://morloc-project.github.io/docs/languages/build-parameters.md): Morloc compiles each part of a program with its own language toolchain.
+- [11.2. C++](https://morloc-project.github.io/docs/languages/cpp.md): C++ has no language-level package manager, so a C++ pool’s dependencies are external system libraries: the environment provisions the library (its headers...
+- [11.3. Python](https://morloc-project.github.io/docs/languages/python.md)
+- [11.4. R](https://morloc-project.github.io/docs/languages/r.md)
+- [11.5. Rust](https://morloc-project.github.io/docs/languages/rust.md)
+- [11.6. Futhark](https://morloc-project.github.io/docs/languages/futhark.md)
+
+## 12. Installation, Versions, and Deployment
+
+- [12. Installation, Versions, and Deployment](https://morloc-project.github.io/docs/install/index.md): mim is distributed as a static binary for x86 Linux, Linux ARM, and Apple Silicon macOS.
+- [12.1. Choosing a container engine](https://morloc-project.github.io/docs/install/container-engine.md): There is no separate setup step.
+- [12.2. Creating an environment](https://morloc-project.github.io/docs/install/creating-an-environment.md): An environment is a self-contained Morloc installation: a base container image (or, on the native backend, none), a pinned Morloc compiler and runtime, a...
+- [12.3. Running commands](https://morloc-project.github.io/docs/install/running-commands.md): run executes a command inside an environment (the default when no --env is given); shell drops you into an interactive shell:
+- [12.4. Managing environments](https://morloc-project.github.io/docs/install/managing-environments.md): You can keep multiple named environments and act on any of them with --env:
+- [12.5. Customizing environments](https://morloc-project.github.io/docs/install/customizing-environments.md): An environment’s contents are declared, not scripted: there is no user Dockerfile.
+- [12.6. Extra container flags](https://morloc-project.github.io/docs/install/extra-container-flags.md): Anything a container engine needs beyond what mim passes on its own — a GPU device, a proxy, a bind mount, a hostname — goes in an engine flag file: a YAML...
+- [12.7. Deployment: serve and freeze](https://morloc-project.github.io/docs/install/serve-and-freeze.md): Once a program is installed in an environment (mim install, or morloc make --install inside it) there are two ways to put it in front of other machines and...
+- [12.8. Beyond fixed APIs: composable function services](https://morloc-project.github.io/docs/install/composable-function-services.md): A conventional API exposes a fixed set of endpoints.
+- [12.9. Execution contexts](https://morloc-project.github.io/docs/install/execution-contexts.md): A term in morloc can be annotated with a label that associates the term with a computational context.
+- [12.10. System-wide environments with Podman](https://morloc-project.github.io/docs/install/system-wide-podman.md): Podman stores images per-user.
+
+## 13. Build Architecture
+
+- [13. Build Architecture](https://morloc-project.github.io/docs/internals/index.md)
+- [13.1. Architecture Overview](https://morloc-project.github.io/docs/internals/architecture-overview.md): A compiled Morloc program has two kinds of components: one nexus and one or more pools.
+- [13.2. Cross-language function calls](https://morloc-project.github.io/docs/internals/cross-language-calls.md): When a Morloc program composes functions from different languages, the compiler must bridge the language boundary.
+- [13.3. Protocols](https://morloc-project.github.io/docs/internals/protocols.md): This section describes the binary formats used for communication between the nexus and pools: the manifest, the packet protocol, the shared memory layout,...
+- [13.4. Runtime and Dev Builds](https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.md): The Morloc runtime — the shared library (libmorloc.so) and the nexus binary (morloc-nexus) — is written in Rust.
+
+## 14. Future Directions
+
+- [14. Future Directions](https://morloc-project.github.io/docs/future/index.md)
+
+## 15. Q&A
+
+- [15. Q&A](https://morloc-project.github.io/docs/qa/index.md)
+- [15.1. I only use one language, is Morloc still useful?](https://morloc-project.github.io/docs/qa/one-language.md): Yes, Morloc remains useful even if you only use one programming language.
+- [15.2. Is this just a bioinformatics workflow language?](https://morloc-project.github.io/docs/qa/bioinformatics-only.md): No.
+- [15.3. Does Morloc allow function-specific containerized environments?](https://morloc-project.github.io/docs/qa/per-function-environments.md): No, unlike workflow managers such as Snakemake and Nextflow, Morloc does not offer function-specific environments.
+- [15.4. What about object-oriented programming?](https://morloc-project.github.io/docs/qa/object-oriented.md): An "object" is a somewhat loaded term in the programming world.
+- [15.5. Is Morloc still relevant when AI can program and translate?](https://morloc-project.github.io/docs/qa/ai-relevance.md): Maybe.
+- [15.6. I’m not a human, do I still need Morloc?](https://morloc-project.github.io/docs/qa/not-a-human.md): Yes, you are still a programmer and writing endless glue code to stitch things together takes time and is brittle.
+- [15.7. Why is it named after Morlocks, weren’t they, like, bad?](https://morloc-project.github.io/docs/qa/morlocks.md): While the Morlocks of Wellian fame are best known for their culinary preferences, I think Wells misrepresented them.
+- [15.8. Wait! I have more questions!](https://morloc-project.github.io/docs/qa/more-questions.md): Great!
+
+## 16. Environmental Variable List
+
+- [16. Environmental Variable List](https://morloc-project.github.io/docs/env/index.md): Every environment variable that morloc reads or sets lives in the MORLOC_ namespace.
+
+## 17. Contact
+
+- [17. Contact](https://morloc-project.github.io/docs/contact/index.md): This is a young project and any brave early users are highly valued.

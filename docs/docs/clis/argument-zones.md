@@ -1,0 +1,121 @@
+# 6.2. The two argument zones
+
+Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/argument-zones.html | prev: https://morloc-project.github.io/docs/clis/example-program.md | next: https://morloc-project.github.io/docs/clis/docstrings.md
+
+Every Morloc program’s argv is split into two zones. The **nexus zone** holds the options that every Morloc CLI has — output format, output file, logging. The **command zone** holds the arguments and flags of the subcommand you are calling.
+
+The two zones have separate namespaces, which is the point of the split: the options the runtime provides can never collide with the options your function declares. `sift` has a `-p` in each zone — `-p/--print` is the nexus’s pretty-printer, `-p/--plain` is the formatter declared on `scan` — and they do not interfere:
+
+```console
+$ ./sift -p scan the notes
+[
+  {
+    "path": "notes\/todo.txt",
+    "line": 2,
+    "text": "fix the parser"
+  },
+...
+
+$ ./sift scan the notes -p
+notes/todo.txt:2:fix the parser
+notes/todo.txt:3:write the manual
+notes/2026/plan.txt:1:fix the build
+notes/2026/plan.txt:2:ship the manual
+```
+
+The boundary is the subcommand name. Everything left of it is the nexus zone, everything right of it is the command zone. The nexus zone has no positionals, so every token in it is an `-x` or `--option` taking a fixed number of values. `-f` picks the output format and is the nexus option you will reach for most often; [Output formats](https://morloc-project.github.io/docs/clis/output-formats.md) covers it and the rest:
+
+```console
+$ ./sift -f jsonl scan the notes -c
+4
+
+$ ./sift scan -f jsonl the notes -c
+error: unexpected argument '-f' found
+...
+```
+
+Help follows the same rule. `-h` in the command zone documents the command; `-h` in the nexus zone documents the runtime:
+
+```console
+$ ./sift scan -h        # help for the `scan` command
+$ ./sift -h             # help for the program: its commands
+$ ./sift -h @           # help for the nexus: -f, -o, -p, and the rest
+```
+
+That last one introduces `@`, the explicit zone separator. You rarely need it, because a subcommand name already marks the boundary. It matters when there is no subcommand name to mark it.
+
+## 6.2.1. Programs with a single export
+
+When a module exports exactly one term, naming it is optional — there is nothing to choose between. Take a one-command program:
+
+**greet.loc**
+
+```morloc
+--' Say hello
+module greet (hello)
+
+import root-py
+
+--' Greet someone by name
+hello :: Str -> Str
+hello name = "Hello, " <> name
+```
+
+```console
+$ morloc make -o greet greet.loc
+$ ./greet Weena
+"Hello, Weena"
+$ ./greet hello Weena
+"Hello, Weena"
+```
+
+Both forms work, and the help says so by putting `@` where the subcommand name would go:
+
+```console
+$ ./greet -h
+Greet someone by name
+
+Usage: ./greet <nexus_options> @ <command_options>
+
+General Options:
+  -h, --help  Print help; -hh adds details and examples, -hhh adds schemas
+              (nexus options: -h @)
+
+Positional arguments:
+  1:  type: Str
+      format: literal string
+
+Return: Str
+```
+
+With the name omitted there is no token marking the zone boundary, so a nexus option has nothing to end it and the parser reads it as a command argument:
+
+```console
+$ ./greet -f jsonl Weena
+error: unexpected argument '-f' found
+...
+```
+
+Write `@` to close the nexus zone by hand:
+
+```console
+$ ./greet -f jsonl @ Weena
+"Hello, Weena"
+$ ./greet -p @ Weena
+Hello, Weena
+```
+
+The command name will not do it here. It is optional, so the parser cannot treat it as a boundary marker, and spelling it out changes nothing:
+
+```console
+$ ./greet -f jsonl hello Weena
+error: unexpected argument '-f' found
+...
+```
+
+`@` is accepted in multi-command programs too, where it is redundant with the subcommand name:
+
+```console
+$ ./sift -f jsonl @ scan the notes -c
+4
+```

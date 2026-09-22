@@ -1,0 +1,125 @@
+# 9.4. morloc eval
+
+Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/morloc-eval.html | prev: https://morloc-project.github.io/docs/utilities/mim.md | next: https://morloc-project.github.io/docs/modules/index.md
+
+Morloc has three subcommands that turn source into a result, and they serve distinct roles:
+
+-   `morloc make` — compile a **module** into an executable (the nexus and its language pools). This is the full language: a module may `source` foreign code, declare types, typeclasses, and instances, import local modules, and export zero, one, or many terms.
+-   `morloc typecheck` — type-check a **module** without compiling or running it. Same full language as `make`; it only reports the inferred types of the exported terms.
+-   `morloc eval` — compile and run a single **expression**. An expression **composes functions that are already installed on the system**; it cannot introduce new ones. An eval expression may import installed modules and use `let`/`where`/`do`, but it may not `source` foreign code or declare types, typeclasses, instances, or module structure.
+
+The dividing line is **module vs expression**. `make` and `typecheck` consume a module, which can define and source new functionality and export any number of terms. `eval` consumes one expression assembled purely from already-installed pieces, producing exactly one result. Use `eval` for quick experiments, shell pipelines, and for exposing a fixed set of installed functions to callers who may only **compose** them — never to introduce new code.
+
+Pass the expression inline with `-e`, or name a file containing it as the positional argument. The two are interchangeable: writing an `-e` string to a file and running `morloc eval file` gives the same result — the file is treated as expression text, not as a module.
+
+```console
+$ morloc eval -e "import root-py; 1 + 2"
+3
+
+$ morloc eval -e 'import root-py; "foo" <> "bar"'
+"foobar"
+
+$ printf 'import root-py\n1 + 2\n' > add.loc
+$ morloc eval add.loc
+3
+```
+
+Because an eval expression can only compose installed functions, `eval` is also the safe surface to expose over an API or daemon: it resolves only **installed** modules, never local-filesystem modules, so an untrusted caller cannot `source` arbitrary foreign code or reach a module they uploaded. A local import — a bare name that resolves on the filesystem, or a dot-prefixed name (`.utils`) — is rejected in eval mode; build programs that depend on local modules with `morloc make` instead. The `--allow-local-modules` flag re-enables local resolution for local development only and is insecure for server use.
+
+## 9.4.1. Imports in eval strings
+
+Morloc has no implicit prelude: every name an expression refers to must come from a module the eval string explicitly imports. Operators like `+` and `<>` are typeclass methods sourced from the standard library, so a typical eval string begins with one or more imports:
+
+```console
+$ morloc eval -e "import root-py; import root-cpp; 1 + 2"
+3
+```
+
+As described above, only installed modules may be imported (named bare, like `root-py`); local imports are rejected in eval mode. See [Importing modules](https://morloc-project.github.io/docs/modules/importing-modules.md) for the full import rules.
+
+If no import brings the required operator or function into scope, the compiler reports an undefined-term error with a hint pointing at the fix:
+
+```console
+$ morloc eval -e "1 + 2"
+<expr>:1:2: error:
+Undefined term: +
+hint: an eval expression has no implicit prelude; prefix the expression with 'import root-py;' (or the module that defines +) to bring it into scope
+```
+
+## 9.4.2. The eval sandbox
+
+The `morloc eval` CLI is **trusted**: on your own machine it may import any installed module and use any intrinsic, exactly like the examples above. When eval is exposed to untrusted callers — over a daemon or router — it is **sandboxed**, and two further gates apply on top of the base rules (installed-only, no `source`, no type/class/instance declarations):
+
+-   **Module allow-list.** The expression’s top-level imports are limited to a curated list. An empty list allows no imports, so only pure, module-free expressions run: literals and the pure intrinsics such as `@show`/`@hash`/`@lang`. Nothing else is in scope — not even `+`, which is a typeclass method that must be imported. Matching is on the resolved module name, so `import M as N` is checked against `M`.
+-   **IO-intrinsic ban.** An IO intrinsic (`@open`, `@save`, `@write`, `@stdin`, …​) may not be written **directly** in the expression. An IO intrinsic reached **through** a function exported by an allow-listed module is fine: a server exposes the IO surface it chooses as named functions, never a raw filesystem primitive. Pure intrinsics remain usable.
+
+Together these give the operator term-level control: allow-list a curated module that re-exports exactly the functions callers may compose (the standard re-export idiom — a `public` facade), and eval can reach only those.
+
+Two flags drive the gates:
+
+| Flag | Effect |
+| --- | --- |
+| `--eval-allowed-modules a,b` | Restrict top-level imports to `a` and `b` (comma-separated). Implies `--eval-sandbox`. An empty list permits no imports. |
+| `--eval-sandbox` | Enable the gates without granting any modules (an empty allow-list). Mainly for previewing the sandbox from the CLI. |
+
+On the CLI these let you preview how an expression behaves once served:
+
+```console
+$ morloc eval --eval-allowed-modules root-py -e 'import root-py; 1 + 2'
+3
+$ morloc eval --eval-allowed-modules root-py -e 'import root-py; @write "x" 1'
+error: IO intrinsics may not be used directly in a sandboxed eval expression ...
+$ morloc eval --eval-allowed-modules base -e 'import root-py; 1 + 2'
+error: module 'root-py' is not in the eval allow-list
+```
+
+Served eval (over a daemon or router) is **always** sandboxed — there is no unsandboxed served mode. The operator sets the allow-list once when starting the server. Effects other than IO are not yet gated: a future effect disallow-list distinguishing read, write, and execute is planned; today the module allow-list and the IO-intrinsic ban are the sandbox.
+
+## 9.4.3. Single-line layout: braces and semicolons
+
+A Morloc source file relies on indentation to delimit blocks. An `eval` string is a single shell argument, so block structure must use the explicit-brace forms that the grammar provides as alternatives to the indentation-based forms. Two rules apply:
+
+-   Top-level items (imports and the trailing expression) are separated by a literal `;`. The eval preprocessor rewrites every top-level `;` to a newline before handing the string to the parser, which is the same effect as starting a new top-level line in a file.
+-   Block bindings inside `where`, `let`, and `do` are written with literal braces and semicolons: `where { a = 1; b = 2 }`, `let { a = 1; b = 2 } in expr`, `do { stmt1; stmt2; expr }`. Semicolons inside `{…​}` are preserved by the preprocessor and consumed by the parser as item separators.
+
+A `where` clause that would normally span multiple indented lines in a source file:
+
+```morloc
+result = a + b where
+    a = 10
+    b = 20
+```
+
+becomes, on the command line:
+
+```console
+$ morloc eval -e 'import root-py; a + b where { a = 10; b = 20 }'
+30
+```
+
+Likewise for `let`:
+
+```console
+$ morloc eval -e 'import root-py; let { a = 10; b = 20 } in a + b'
+30
+```
+
+A `do`\-block (see [Effects and delayed evaluation](https://morloc-project.github.io/docs/features/effects.md)) uses the same brace-and-semicolon form:
+
+```morloc
+do { stmt1; stmt2; final_expr }
+```
+
+These explicit-brace forms are not specific to `eval` — they are part of the Morloc grammar and may be used in source files too. They are simply the only practical way to write multi-binding blocks inside a single shell-quoted string.
+
+## 9.4.4. Saving an eval expression as a command
+
+`--save NAME` installs the compiled expression as a reusable command:
+
+```console
+$ morloc eval --save adder -e "import root-py; 1 + 2"
+$ adder
+3
+```
+
+The installed command behaves like any other Morloc executable.

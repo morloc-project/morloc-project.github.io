@@ -1,7 +1,11 @@
-const cacheName = "v0.1.8";
+// Precaches the shell every page needs; pages themselves are cached as they
+// are visited. Bump cacheName whenever the precached list changes.
+const cacheName = "v0.2.0";
 const cacheAssets = [
 	"./",
 	"./index.html",
+	"./static/css/asciidoctor.css",
+	"./static/css/pygments-default.css",
 	"./static/css/style.css",
 	"./static/css/pygments-light.css",
 	"./static/css/pygments-dark.css",
@@ -10,6 +14,7 @@ const cacheAssets = [
 	"./static/fonts/montserrat-400-latin.woff2",
 	"./static/fonts/pt-mono-400-latin.woff2",
 	"./static/js/script.js",
+	"./static/js/redirect.js",
 	"./static/img/admonition_icons/tip.png",
 	"./static/img/admonition_icons/warning.png",
 	"./static/img/admonition_icons/note.png",
@@ -23,6 +28,11 @@ const cacheAssets = [
 	"./static/img/sun.svg",
 	"./static/img/up-arrow.svg"
 ];
+
+// Never cached at runtime: the machine-readable files (an agent wants the
+// current one), the whole-manual page (2 MB), and the search index (its
+// chunk names change every build).
+const uncached = /\.(md|txt|json|xml)$|\/all\.html$|\/pagefind\//;
 
 self.addEventListener("install", (e) => {
 	// Cache files
@@ -49,21 +59,32 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
+	if (e.request.method !== "GET") return;
+
+	const url = new URL(e.request.url);
+
+	if (url.origin !== self.location.origin || uncached.test(url.pathname))
+		return;
+
 	e.respondWith(
 		fetch(e.request)
 			.then((response) => {
-				const resClone = response.clone();
+				// Only a real, same-origin success is worth keeping: an error page
+				// cached during a deploy would otherwise be served offline forever.
+				if (response.ok && response.type === "basic") {
+					const resClone = response.clone();
 
-				// Add response to cache
-				if (e.request.url.indexOf("http") === 0)
 					caches
 						.open(cacheName)
 						.then((cache) => cache.put(e.request, resClone));
+				}
 
 				return response;
 			})
-			.catch((err) =>
-				caches.match(e.request).then((response) => response)
+			.catch(() =>
+				caches
+					.match(e.request)
+					.then((response) => response || Response.error())
 			)
 	);
 });

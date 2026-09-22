@@ -1,0 +1,210 @@
+# 7.1. Search and install
+
+Morloc Manual > Building APIs | https://morloc-project.github.io/docs/apis/search-and-install.html | prev: https://morloc-project.github.io/docs/apis/index.md | next: https://morloc-project.github.io/docs/apis/exposing-native-resources.md
+
+The docstrings are used for discoverability as well. In this section I’ll cover how modules are installed as executables or standard modules and how they can be searched.
+
+I’ll demonstrate this with a simple two module Morloc program describing a set of DnD operations. The first module defines general random operations:
+
+**fate.loc**
+
+```morloc
+module fate (roll, coinToss, choose)
+
+import root-py
+import random
+
+source Py from "fate.py"
+  ( "roll" as roll
+  , "coin_toss" as coinToss
+  , "choose" as choose
+  )
+
+--' Roll n d-sided dice
+roll ::
+  --' Number of dice
+  Int ->
+  --' Number of pips per die
+  Int ->
+  --' Roll values
+  <Random> [Int]
+
+--' Randomly return True or False
+coinToss :: <Random> Bool
+
+--' Randomly choose one element from a non-empty list
+choose :: [a] -> <Random> a
+```
+
+The sourced `fate.py` script contains the following code:
+
+**fate.py**
+
+```python
+import random
+
+def choose(xs):
+    return random.choice(xs)
+
+def roll(n, d):
+    return [random.randint(1, d) for _ in range(n)]
+
+def coin_toss():
+    return bool(random.randint(0,1))
+```
+
+We can install `fate` with `morloc install --build ./fate`. This installs the module so it can be imported by other Morloc programs, and the `--build` flag additionally builds an executable we can test.
+
+> **Note**
+> `morloc install` (with or without `--build`) installs modules for import — from remote sources by name (e.g., `morloc install root`) or from local directories with `./`. In contrast, `morloc make --install` compiles a local program and installs the resulting executable.
+
+Either way, an installed program is named after its **module** — the `module <name>` declaration — and not after the file it was compiled from. That is why the executable below is `fate`. Plain `morloc make` does the opposite and names its launcher after the source file ([Your first program](https://morloc-project.github.io/docs/getting-started/first-program.md)), and the difference is deliberate: `make` leaves a **local** artifact in your working directory, where the source name is the natural handle, the same way a C++ compiler hands you `a.out`. `--install` writes into a **global** namespace, where a program’s identity is the name other code imports it by. The entry file is conventionally `main.loc` and carries no identity at all.
+
+We can test this, for example by rolling 3d8:
+
+```console
+$ fate roll 3 8
+[8,2,5]
+```
+
+Next let’s build on this foundation. First let’s make a simple tavern script that helps generate new characters.
+
+**tavern.loc**
+
+```morloc
+module tavern (randomClass, randomRace)
+
+import root-py
+import fate (choose)
+
+--' Select a random class
+randomClass :: <Random> Str
+randomClass = choose ["Fighter", "Wizard", "Rogue", "Cleric", "Ranger", "Bard"]
+
+--' Select a random race
+randomRace :: <Random> Str
+randomRace = choose ["Human", "Elf", "Dwarf", "Halfling"]
+```
+
+Next let’s add a module for combat:
+
+**combat.loc**
+
+```morloc
+module combat (rollAdv, fighterDamage, intro)
+
+import root-py
+import root-r
+import fate (roll, coinToss)
+
+--' Roll a pair of d20 dice and keep the larger result
+rollAdv :: <Random> Int
+rollAdv = do fold max 0 !(roll 2 20)
+
+--' Damage done on hit, modifier + sum of dice rolls
+damage ::
+  --' Enemy Armor Class
+  Int ->
+  --' Attack modifier
+  Int ->
+  --' Attack dice
+  <Random> [Int] ->
+  --' Damage modifier
+  Int ->
+  --' Damage dice
+  <Random> [Int] ->
+  --' Total damage
+  <Random> Int
+damage ac atkMod atkDice dmgMod dmgDice = do
+  atkD <- atkDice
+  dmgD <- dmgDice
+  let atkRoll = fold max 0 atkD
+  let atk = atkMod + atkRoll
+  let dmg = dmgMod + sum dmgD
+  ? atkRoll == 20 = 2 * dmg  -- critical
+    ? atk >= ac = dmg        -- hit
+    : 0                      -- miss
+
+--' Damage calculation for a fighter
+fighterDamage ::
+  --' Enemy Armor Class
+  Int ->
+  --' Fighter's damage
+  <Random> Int
+fighterDamage ac = damage ac 4 (roll 1 20) 2 (roll 2 8)
+
+source R from "combat.R" ("intro")
+
+--' Introduce a new battle!
+intro ::
+  --' Monster name
+  Str ->
+  --' DM's monster intro
+  Str
+```
+
+We can build and install the program with:
+
+```bash
+$ morloc make --install combat.loc
+```
+
+This command does several things.
+
+First it installs the `combat` executable to a standard path. The build artifacts (the `manifest.json` and compiled pools) and the source files in the package — the directory holding the entry `.loc` file, wherever you run the command from — need to be moved to a standard location. There are two ways you can specify the required build files.
+
+You can specify required files with `--include` arguments
+
+```bash
+$ morloc make --install combat.loc --include fate.loc --include combat.R
+```
+
+Or you can create a `package.yaml` file and add an `include` field. The default file can be generaed for you with `morloc new`. You can then modify the `include` field list with the required files:
+
+```yaml
+name: combat
+version: 0.1.0
+homepage: null
+synopsis: null
+description: null
+category: null
+license: MIT
+author: null
+maintainer: null
+github: null
+bug-reports: null
+dependencies: []
+# Files to include when installing with `morloc make --install`
+include: ["combat.R"]
+```
+
+Then run `morloc make --install combat.loc`.
+
+The opposite control is a `.morlocignore` file in the project root: one pattern per line, `#` comments, a trailing `/` for a directory, and `!` to negate. Without an `include` list the install copies the whole project minus `.git/` and whatever `.morlocignore` names, so a cargo `target/` or a `*pycache*/` beside the sources is copied too. Name them; a deployment image built with `mim freeze` refuses a program that carries them.
+
+In both install paths, the `combat` source code is copied to the `~/.local/share/morloc/exe/<modname>/` folder (with the build artifacts, `manifest.json` and the compiled pools, nested under `<modname>-build/` inside it) and the launcher script itself is written to `~/.local/share/morloc/bin/`.
+
+We can view the installed executable:
+
+```console
+$ morloc list -v combat
+Programs:
+  combat  3 commands
+    rollAdv :: Int
+    fighterDamage :: Int -> Int
+    intro :: Str -> Str
+```
+
+If we add the Morloc bin folder above to PATH, then we can now use this program naturally:
+
+```console
+$ combat -h
+... (auto-generated help: the three exported commands under a General Options section;
+     `combat --help` additionally lists the nexus options, and `combat -h @` renders them too)
+$ combat fighterDamage 15
+12
+$ combat fighterDamage 15
+8
+```
+
+We can also uninstall with `morloc uninstall combat`. This will cleanly remove the installed source and the installed executable script.

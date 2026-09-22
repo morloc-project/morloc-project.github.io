@@ -1,0 +1,416 @@
+# 7.4. Building API interfaces
+
+Morloc Manual > Building APIs | https://morloc-project.github.io/docs/apis/api-interfaces.html | prev: https://morloc-project.github.io/docs/apis/data-transfer.md | next: https://morloc-project.github.io/docs/apis/mcp.md
+
+In addition to being CLI tools, compiled Morloc programs can run as long-lived daemons, accepting function calls over HTTP, TCP, or Unix sockets. A serving front-end (the `router` mode) aggregates several programs behind one HTTP port, serving both a JSON API (for HTTP clients) and MCP (for AI assistants) with optional bearer-token auth.
+
+The daemon, HTTP, TCP, and socket machinery is already part of the `morloc-nexus` runtime that every compiled program wraps. To get a dedicated daemon executable, build the program with `--daemon-out`:
+
+```console
+$ morloc make --daemon-out combatd combat.loc
+```
+
+This writes a `./combatd` launcher next to the ordinary `./combat` CLI (you can produce both at once with `morloc make -o combat --daemon-out combatd combat.loc`). Running `./combatd` starts the program as a long-lived daemon and accepts the listener options shown below.
+
+> **Note**
+> `./combatd` is a thin wrapper around the shared runtime — it is equivalent to `morloc-nexus daemon ./combat`. Either form works; the dedicated executable is just the more convenient one to hand out and script against.
+
+## 7.4.1. HTTP protocol
+
+To start `combat` as a daemon on HTTP port 8080:
+
+```console
+$ ./combatd --http-port 8080 &
+morloc-daemon: listening on http://0.0.0.0:8080
+$ DAEMON_PID=$!
+```
+
+The trailing `&` creates the process in the background and `$!` captures its PID for later shutdown (see the Shutdown section below). This command launches all language pool processes (Python and R in this case) as child processes in separate process groups. A thread pool handles concurrent requests. If a pool crashes, the daemon detects it restarts it automatically.
+
+We can check the daemon’s health:
+
+```bash
+$ curl -s localhost:8080/health
+{"status":"ok","result":[true]}
+```
+
+The /health endpoint returns the liveness status of each pool.
+
+The running daemons are discoverable:
+
+```console
+$ curl -s localhost:8080/discover | jq .
+{
+  "status": "ok",
+  "result": {
+    "name": "combat",
+    "morloc_version": "0.94.0",
+    "commands": [
+      {
+        "name": "rollAdv",
+        "type": "remote",
+        "return": { "type": "Int", "schema": "j" },
+        "args": [],
+        "desc": "Roll a pair of d20 dice and keep the larger result"
+      },
+      {
+        "name": "fighterDamage",
+        "type": "remote",
+        "return": { "type": "Int", "schema": "j" },
+        "args": [
+          { "kind": "pos", "type": "Int", "schema": "j" }
+        ],
+        "desc": "Damage calculation for a fighter"
+      },
+      {
+        "name": "intro",
+        "type": "remote",
+        "return": { "type": "Str", "schema": "s" },
+        "args": [
+          { "kind": "pos", "type": "Str", "schema": "s" }
+        ],
+        "desc": "Introduce a new battle!"
+      }
+    ]
+  }
+}
+```
+
+The `morloc_version` string identifies the compiler that produced the program. Each command has one of two `type` tags: `"remote"` (dispatched to a language pool) or `"pure"` (evaluated by the nexus itself — e.g. a plain composition that never crosses a language boundary). The `return` object bundles the general `type` and its wire `schema`; each entry in `args` uses the same shape (plus a `kind` field, `"pos"` for positional or `"opt"` for optional).
+
+> **Note**
+> The front-end’s `GET /discover/<program>` (see below) returns this same per-program shape; its top-level `GET /discover` is a flatter index across all served programs.
+
+Functions can be called over the port:
+
+```console
+$ curl -s -X POST localhost:8080/call/rollAdv -d '[]'
+{"status":"ok","result":18}
+
+$ curl -s -X POST localhost:8080/call/fighterDamage -d '[15]'
+{"status":"ok","result":12}
+```
+
+Bad commands will return sensible errors:
+
+```bash
+$ curl -s -X POST localhost:8080/call/fireball -d '[]'
+{"status":"error","error":"Unknown command: fireball"}
+```
+
+Beyond the pre-compiled commands, `POST /eval` and `POST /typecheck` take a JSON body `{"expr": "…​"}` and evaluate (or type-check) a single Morloc expression on the fly:
+
+```bash
+$ curl -s -X POST localhost:8080/eval -d '{"expr":"import root-py; 1 + 2"}'
+{"status":"ok","result":3}
+```
+
+`POST /eval` runs the expression in the **eval sandbox**. Beyond the base eval rules — it may use `let`/`where`/`do` but may not declare types, typeclasses, instances, `source` foreign code, or import local-filesystem modules — served eval is **always** sandboxed by two gates the operator configures when starting the server:
+
+-   **Module allow-list.** The expression’s top-level imports are limited to the modules passed in `--eval-allowed-modules` (comma-separated). The default is empty, so an out-of-the-box daemon runs only pure, module-free expressions (literals and pure intrinsics like `@show`/`@hash`); grant access by curating the list. Matching is on the resolved module, so `import M as N` is checked against `M`.
+-   **IO-intrinsic ban.** The expression may not write an IO intrinsic (`@open`, `@save`, `@write`, `@stdin`, …​) directly. IO reached **through** a function exported by an allow-listed module is fine, so a server exposes exactly the IO surface it chooses — wrapped in named functions — and never a raw filesystem primitive.
+
+```bash
+$ ./progd --eval-allowed-modules root-py &
+$ curl -s -X POST localhost:8080/eval -d '{"expr":"import root-py; @write \"x\" 1"}'
+{"status":"error","error":"IO intrinsics may not be used directly ..."}
+$ curl -s -X POST localhost:8080/eval -d '{"expr":"import shell-py (run); run \"id\""}'
+{"status":"error","error":"module '\''shell-py'\'' is not in the eval allow-list"}
+```
+
+This is the intended interface for exposing a curated set of server-side functions to untrusted callers — they can only compose what the operator allow-lists; arbitrary code upload is not possible. There is no unsandboxed served mode: for trusted, unrestricted evaluation use the local `morloc eval` CLI, and use `morloc make` server-side to build programs that need local modules. `POST /typecheck` only reports the inferred type and never executes anything, so it is not sandboxed the same way.
+
+Every response also carries an HTTP status code that reflects the class of outcome, so HTTP clients with built-in retry / branching logic (curl `--fail`, axios, fetch) work as expected without parsing the JSON envelope. The JSON body is still always present for clients that prefer it.
+
+| Code | Meaning | When |
+| --- | --- | --- |
+| `200` | OK | Success. The body’s `result` field carries the return value. |
+| `204` | No Content | The response to a CORS preflight `OPTIONS` request. The daemon never dispatches OPTIONS through any handler; it answers immediately with the standard `Access-Control-Allow-*` headers and an empty body. |
+| `400` | Bad Request | The request was malformed: missing required field, unparseable args JSON, wrong number of arguments, a value that didn’t match its declared schema, or a string containing an embedded NUL byte the target language can’t represent. |
+| `404` | Not Found | The path or named resource doesn’t exist: an unknown HTTP endpoint (`GET /nope`), an unknown command (`POST /call/fireball`), or a binding name that wasn’t registered (`DELETE /bindings/missing`). |
+| `408` | Request Timeout | A `POST /eval` or `POST /typecheck` expression consumed more CPU than the `--eval-timeout` budget (default 30s) and was killed by the kernel via `SIGXCPU`. This guard only applies to those two endpoints, which fork `morloc eval`/`typecheck` as a subprocess. `POST /call/` requests dispatch into a pre-compiled pool worker and are **not** bounded by `--eval-timeout` — long-running calls there are allowed. |
+| `500` | Internal Server Error | A genuinely server-side failure: a pool socket error, a fork/pipe failure, the eval engine returning an unexpected error, or any other state that wasn’t the client’s fault. |
+| `503` | Service Unavailable | The service is temporarily unable to handle the request but the caller should retry. The daemon emits 503 during the brief window where it is tearing down and respawning a crashed pool; the router emits 503 when forwarding a request to a daemon in that state, or when its cluster `/health` reports at least one program unhealthy. All 503 responses include `Retry-After: 1`. Clients with built-in retry middleware (curl `--retry`, axios-retry, hyper-retry) will back off and re-issue automatically. |
+
+The same status-code mapping applies whether you call a single daemon directly or hit the router; the router forwards classification through unchanged. Client errors (4xx) describe something the caller can fix; server errors (5xx) describe something the caller should retry or report. Unix-socket and TCP clients see the same classification via the JSON envelope’s `status` and `error` fields, though they don’t get the HTTP-level `Retry-After` hint on 503.
+
+## 7.4.2. TCP protocol
+
+HTTP adds overhead per request: headers, text parsing, and the full HTTP framing around each message. When your client is a program rather than a browser or `curl`, you can skip all of that. The TCP protocol uses a compact binary framing — just a 4-byte big-endian length prefix followed by the JSON payload. This makes it well suited for service-to-service communication, high-throughput automated pipelines, or any context where you control both ends of the connection and want minimal overhead.
+
+Start a daemon on TCP port 9001:
+
+```bash
+$ ./combatd --port 9001 &
+morloc-daemon: listening on tcp://127.0.0.1:9001
+```
+
+Unlike the HTTP protocol, you can’t use `curl` to talk to a TCP daemon. You need a client that speaks the length-prefixed binary framing. Here is a minimal Python client:
+
+**tcp\_client.py — minimal TCP client**
+
+```python
+import socket, struct, json
+
+def recvall(s, n):
+    data = b''
+    while len(data) < n:
+        chunk = s.recv(n - len(data))
+        if not chunk:
+            raise RuntimeError("Connection closed")
+        data += chunk
+    return data
+
+def call(host, port, method, command=None, args=None):
+    msg = {"method": method}
+    if command: msg["command"] = command
+    if args is not None: msg["args"] = args
+
+    payload = json.dumps(msg).encode()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
+    # send 4-byte big-endian length, then the JSON payload
+    s.sendall(struct.pack('>I', len(payload)) + payload)
+
+    # read the 4-byte response length, then the response
+    resp_len = struct.unpack('>I', recvall(s, 4))[0]
+    resp = recvall(s, resp_len)
+    s.close()
+    return json.loads(resp)
+
+print(call("localhost", 9001, "call", "rollAdv"))
+# {"status": "ok", "result": 18}
+
+print(call("localhost", 9001, "call", "fighterDamage", [15]))
+# {"status": "ok", "result": 12}
+
+print(call("localhost", 9001, "health"))
+# {"status": "ok", "result": [true]}
+
+print(call("localhost", 9001, "discover"))
+# {"status": "ok", "result": {"name": "combat", "commands": [...]}}
+```
+
+The request is a JSON object with a `method` field (`"call"`, `"discover"`, or `"health"`), an optional `command` field naming the function, and an optional `args` array.
+
+## 7.4.3. Unix socket protocol
+
+For processes running on the same machine, Unix domain sockets are the fastest option. They bypass the entire network stack — no TCP handshake, no port allocation, no loopback routing. This is how Morloc pools communicate with the nexus internally.
+
+To start a daemon on a Unix socket:
+
+```bash
+$ ./combatd --socket /tmp/combat.sock &
+morloc-daemon: listening on unix:///tmp/combat.sock
+```
+
+The wire protocol is identical to TCP: a 4-byte big-endian length prefix followed by the JSON payload. The only difference is the socket type.
+
+**unix\_client.py — minimal socket client**
+
+```python
+import socket, struct, json
+
+def recvall(s, n):
+    data = b''
+    while len(data) < n:
+        chunk = s.recv(n - len(data))
+        if not chunk:
+            raise RuntimeError("Connection closed")
+        data += chunk
+    return data
+
+def call(sock_path, method, command=None, args=None):
+    msg = {"method": method}
+    if command: msg["command"] = command
+    if args is not None: msg["args"] = args
+
+    payload = json.dumps(msg).encode()
+    s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    s.connect(sock_path)
+    s.sendall(struct.pack('>I', len(payload)) + payload)
+
+    resp_len = struct.unpack('>I', recvall(s, 4))[0]
+    resp = recvall(s, resp_len)
+    s.close()
+    return json.loads(resp)
+
+print(call("/tmp/combat.sock", "call", "rollAdv"))
+# {"status": "ok", "result": 18}
+
+print(call("/tmp/combat.sock", "call", "fighterDamage", [15]))
+# {"status": "ok", "result": 12}
+
+print(call("/tmp/combat.sock", "discover"))
+# {"status": "ok", "result": {"name": "combat", "commands": [...]}}
+```
+
+## 7.4.4. Running all protocols at once
+
+You don’t have to choose. One daemon can listen through all three protocols at the same time:
+
+```bash
+$ ./combatd \
+      --http-port 8080 \
+      --port 9001 \
+      --socket /tmp/combat.sock
+morloc-daemon: listening on unix:///tmp/combat.sock
+morloc-daemon: listening on tcp://127.0.0.1:9001
+morloc-daemon: listening on http://0.0.0.0:8080
+```
+
+All three protocols hit the same daemon process and share the same pool processes. A request arriving over HTTP, TCP, or the Unix socket is dispatched identically — only the framing differs.
+
+### Ephemeral ports
+
+If you don’t care which port the daemon binds to — which is the common case for tests, CI jobs, or any orchestrator running many daemons in parallel — pass `0` and the OS picks a free one for you. The actual port appears in the stderr ready line, and can also be written to a file in a fixed JSON shape:
+
+```bash
+$ ./combatd --http-port 0 --port 0 --port-file ports.json &
+morloc-daemon: listening on tcp://127.0.0.1:46217
+morloc-daemon: listening on http://0.0.0.0:39381
+
+$ cat ports.json
+{"http":39381,"tcp":46217,"unix":null}
+```
+
+The file is written atomically (via `rename`) only after every listener is bound, so a `stat`\-waiting client never sees a half-written file. Missing listeners are `null`, never absent — the schema is fixed.
+
+## 7.4.5. From single daemons to a router
+
+Everything above shows a single program running as a daemon. This is enough when you have one service, but Morloc programs are designed to be composed. You might have a `tavern` program that picks character classes and races, and a `combat` program that resolves attacks and damage. Each is its own compiled Morloc program with its own pools.
+
+You *could* start each one as an independent daemon on its own port and have your client keep track of which port maps to which program. But that gets tedious. The router solves this: it presents a single HTTP endpoint — a **serving front-end** — that serves the programs you select behind one port, forwarding each call to that program’s own daemon. The front-end runs no user code itself, so a crashing call takes down only its program’s worker (restarted automatically), never the front-end. Router mode is the `router` subcommand of `morloc-nexus`; in practice you launch it through `mim start` (see [`mim` (Morloc Installation Manager)](https://morloc-project.github.io/docs/utilities/mim.md)), which adds the container, loopback/token handling, and the `install` → `expose` → `start` lifecycle.
+
+The front-end exposes both adapters on the one port: MCP at `POST /mcp` (for AI assistants) and a JSON API at `POST /call/<program>/<command>` (for HTTP clients), plus `GET /discover` and `GET /health`.
+
+The following diagram illustrates how a client request flows through the router to a program daemon and its language pools:
+
+```
+                  Client
+                    |
+                    | HTTP: POST /call/tavern/randomClass -d '[]'
+                    v
+             +--------------+
+             |    Router    |  morloc-nexus router --http-port 9090
+             |  (HTTP:9090) |  Reads manifests from fdb/ at startup
+             +--------------+
+              /            \
+    Unix socket            Unix socket
+            /                \
+  +-----------+         +-----------+
+  |  tavern   |         |  combat   |
+  |  daemon   |         |  daemon   |
+  +-----------+         +-----------+
+       |                 /        \
+       v                v          v
+    Python           Python        R
+     pool             pool        pool
+```
+
+Each daemon is a child process of the router, started lazily on first request. The router and its daemons communicate over Unix sockets using the same length-prefixed JSON protocol described above.
+
+## 7.4.6. Router mode
+
+### Setup
+
+To make a program available to the router, install it with `--install`. This installs the program under the `exe/` directory (identified by its **module name**), where the front-end finds each named program’s `exe/<name>/<name>-build/manifest.json` at startup.
+
+```bash
+$ morloc make --install -o tavern tavern.loc
+Installed 'tavern' to ~/.local/share/morloc/bin/tavern
+
+$ morloc make --install -o combat combat.loc
+Installed 'combat' to ~/.local/share/morloc/bin/combat
+
+$ ls ~/.local/share/morloc/exe/
+combat  tavern
+```
+
+### Starting the router
+
+Name the programs to serve (there is no serve-everything scan); `--program` serves a program over both adapters, `--mcp`/`--api` restrict it to one:
+
+```bash
+$ morloc-nexus router --http-port 9090 --program combat --program tavern
+morloc serve: MCP at http://0.0.0.0:9090/mcp (5 tools) | API at http://0.0.0.0:9090/call/<module>/<command> | discovery at http://0.0.0.0:9090/discover
+```
+
+If an auth token is configured (`--auth-token`, or `MORLOC_MCP_TOKEN`), every `/mcp` and `/call` request must carry `Authorization: Bearer <token>`; `/health` and CORS preflight (`OPTIONS`) stay open. A non-loopback bind with no token is refused unless `--allow-no-auth` is passed.
+
+### Discovery
+
+`GET /discover` is the API index — the served modules, the `/call` URL shape, and a pointer to the MCP `tools/list` catalog. `GET /discover/<program>` returns one program’s commands and their positional argument order:
+
+```bash
+$ curl -s localhost:9090/discover | python3 -m json.tool
+{
+    "api": { "modules": [ {"module": "combat", "call": "/call/combat/<command>", "help": "/discover/combat"}, ... ],
+             "call": "/call/<module>/<command>", "note": "POST positional args as a JSON array." },
+    "mcp": { "endpoint": "/mcp", "tools": 5, "note": "Use tools/list for the MCP catalog." },
+    "eval": { "enabled": false, "endpoints": ["/eval", "mcp tool 'eval'"] }
+}
+
+$ curl -s localhost:9090/discover/tavern | python3 -m json.tool
+{ "program": {"name": "tavern", ...}, "commands": [...] }
+```
+
+### Calling functions
+
+Calls are routed by program name in the URL: `/call/<program>/<command>`.
+
+```bash
+$ curl -s -X POST localhost:9090/call/tavern/randomClass -d '[]'
+{"status":"ok","result":"Rogue"}
+
+$ curl -s -X POST localhost:9090/call/tavern/randomRace -d '[]'
+{"status":"ok","result":"Elf"}
+
+$ curl -s -X POST localhost:9090/call/combat/rollAdv -d '[]'
+{"status":"ok","result":17}
+
+$ curl -s -X POST localhost:9090/call/combat/fighterDamage -d '[15]'
+{"status":"ok","result":12}
+
+$ curl -s -X POST localhost:9090/call/combat/intro -d '["Goblin"]'
+{"status":"ok","result":"A wild Goblin appears!"}
+```
+
+The first call to a program starts its daemon automatically. Subsequent calls reuse the running daemon with no startup cost. If a daemon crashes between calls, the front-end detects the failure and restarts it transparently. The same commands are available to MCP clients at `POST /mcp` as tools named `<program>*<command>*` *(e.g. `combat`*`rollAdv`), called with named arguments.
+
+### Error handling
+
+A program that is not served on the API adapter is `404`:
+
+```bash
+$ curl -s -X POST localhost:9090/call/dungeon/explore -d '[]'
+{"error":"module not exposed on the API"}
+```
+
+### Independent daemons vs router-managed daemons
+
+A daemon started manually (e.g., `./combatd --http-port 8080`) is completely independent of the front-end. The front-end only knows about the programs you named (`--program`/`--mcp`/`--api`), whose manifests live under the `exe/` directory, and it starts its own daemon instances as child processes. If you start a daemon on your own and also serve the same program through the front-end, you will have two separate daemon processes — each with its own pool processes and its own state.
+
+## 7.4.7. Shutdown
+
+Send `SIGTERM` (or `SIGINT`) to stop a daemon or router gracefully. The daemon sends `SIGTERM` to each pool process group, waits briefly for clean exit, then sends `SIGKILL` to any stragglers. Unix socket files are removed.
+
+```bash
+$ kill $DAEMON_PID
+morloc-daemon: shutting down
+
+$ kill $ROUTER_PID
+morloc-router: shutting down
+```
+
+When a router shuts down, it terminates all the daemons it started. There is currently no way to stop an individual program’s daemon through the router API — the router manages their lifecycles internally. If you need to restart a specific program, restart the router.
+
+## 7.4.8. Summary
+
+| Role | Invocation | Description |
+| --- | --- | --- |
+| Daemon | `./<daemon-exe>` (built with `morloc make --daemon-out`) | Run one program as a persistent service |
+| Front-end (router) | `morloc-nexus router --program <name>…​` | Serve the named programs behind one HTTP port (MCP + JSON API); usually launched by `mim start` |
+| HTTP (daemon) | `--http-port <n>` | RESTful JSON API (curl-friendly); `0` = ephemeral. The daemon also serves TCP (`--port`), a Unix socket (`--socket`), and `--port-file` for ephemeral ports; the front-end is HTTP-only. |
+| Auth (front-end) | `--auth-token` / `MORLOC_MCP_TOKEN` | Require a bearer token on `/mcp` and `/call` |
+| exe | `--fdb <path>` | Override the installed-program directory (default: `$MORLOC_HOME/exe`) |

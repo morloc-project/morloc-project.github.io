@@ -1,0 +1,504 @@
+# 5.8. Tables
+
+Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/tables.html | prev: https://morloc-project.github.io/docs/types/tensors.md | next: https://morloc-project.github.io/docs/clis/index.md
+
+> **Warning: Experimental Feature**
+> Typed tables work for the operations shown here, but the type-level side has holes, and two of them will bite you. `cbind` does not reject duplicate column names unless you write the result type out — otherwise it builds a table with a repeated key. A `getCol` on a column that is not in the schema passes `morloc typecheck` and then fails at code generation with an internal message pointing at the wrong line. Both are flagged where they come up below. The API will change.
+
+A `Table` is columnar data whose row count and column schema are part of its type:
+
+```morloc
+type Table (n :: Nat) (r :: Rec)
+```
+
+`n` is the row count and `r` is the schema — a mapping from column names to column types, such as `{state = Str, pop = Int}`. Both are erased at runtime; they exist so the compiler can tell you that a column you asked for is not there, or that two tables you are stacking disagree.
+
+The declaration has no right-hand side, which makes `Table` an opaque primitive (see [Naming a type: `type` and `newtype`](https://morloc-project.github.io/docs/types/newtype.md)): Morloc knows nothing about its structure and each language supplies its own form. In Python a `Table` is a `pyarrow.RecordBatch`, in C++ an `mlc::ArrowTable`, and in R an `arrow::RecordBatch`. All three are views over the same Apache Arrow C Data Interface buffers, which live in a memory region the pools share rather than in any one pool’s heap. That is why a table can cross a language boundary without being copied.
+
+Pick the language module for the backend you want: `table-py`, `table-cpp`, or `table-r`.
+
+## 5.8.1. Building a table
+
+`asCol` lifts a `Vector` into a one-column table, and `setCol` adds or replaces a column. Multi-column tables are built by composing them.
+
+```morloc
+-- The label f@Str makes the column name a type-level value, so the
+-- result schema names the column exactly.
+asCol  :: f@Str -> Vector n a -> Table n (Singleton f a)
+setCol :: f@Str -> Vector n a -> Table n r
+                              -> Table n ((r - f) + Singleton f a)
+```
+
+`(r - f) + Singleton f a` reads "drop any field named `f` from `r`, then add `f` back at the vector’s element type" — which is why `setCol` works whether or not the column is already there.
+
+Everything in this section builds one program. Its header and first export:
+
+**census.loc**
+
+```morloc
+module main
+  ( census
+  , shape
+  , columns
+  , pops
+  , justNames
+  , withDensity
+  , bigOnly
+  , byPop
+  , reversed
+  , summarize
+  )
+
+import root-py
+import table-py
+import vector-py
+
+census :: Table 4 {state = Str, pop = Int}
+census =
+  let states = (["WA", "OR", "CA", "NV"] :: Vector 4 Str)
+      pops   = ([7705281, 4237256, 39538223, 3104614] :: Vector 4 Int)
+  in setCol "pop" pops (asCol "state" states)
+```
+
+```console
+$ morloc make -o census census.loc
+$ ./census census
+[{"state":"WA","pop":7705281},{"state":"OR","pop":4237256},{"state":"CA","pop":39538223},{"state":"NV","pop":3104614}]
+```
+
+`table-py` supplies the table operations. `vector-py` is there for the `Functor` and `Foldable` instances on `Vector`, which the later examples use; without it, `map` over a column has no implementation.
+
+## 5.8.2. Introspection
+
+Three functions read a table’s shape at runtime, and none of them cares what is in it:
+
+```morloc
+nrow  :: Table n r -> Int
+ncol  :: Table n r -> Int
+names :: Table n r -> [Str]
+```
+
+The `r` in those signatures is a `Rec` variable — it stands for any schema at all, so one compiled function serves every table:
+
+```morloc
+shape :: Table n r -> (Int, Int)
+shape t = (nrow t, ncol t)
+
+columns :: Table n r -> [Str]
+columns = names
+```
+
+```console
+$ ./census shape '[{"state":"WA","pop":1}]'
+[1,2]
+$ ./census columns '[{"state":"WA","pop":1}]'
+["state","pop"]
+```
+
+## 5.8.3. Column operations
+
+Column operations change the schema, and the type follows along.
+
+```morloc
+-- Extract a column. ProjectField looks its type up in the schema.
+getCol :: f@Str -> Table n r -> Vector n (ProjectField r f)
+
+-- Drop columns named in a literal list.
+dropCols :: l@[Str] -> Table n r -> Table n (r - l)
+
+-- Keep columns named in a literal list, in the order given.
+selectCols :: l@[Str] -> Table n r -> Table n (Restrict r l)
+
+-- Rename one column, keeping its type.
+renameCol :: f@Str -> g@Str -> Table n r
+          -> Table n ((r - f) + Singleton g (ProjectField r f))
+
+-- Project by a list computed at runtime. The result schema cannot be
+-- tracked, so the caller binds it. Prefer selectCols when the names
+-- are known statically.
+selectColsDyn :: [Str] -> Table n r1 -> Table n r2
+```
+
+`getCol` gives back a `Vector` whose element type came out of the schema, so ordinary vector functions apply to it:
+
+```morloc
+pops :: Vector 4 Int
+pops = getCol "pop" census
+
+justNames :: Table 4 {state = Str}
+justNames = selectCols ["state"] census
+
+withDensity :: Table 4 {state = Str, pop = Int, density = Real}
+withDensity =
+  setCol "density" (map (\p -> toReal p / 1000.0) (getCol "pop" census)) census
+```
+
+```console
+$ ./census pops
+[7705281,4237256,39538223,3104614]
+$ ./census justNames
+[{"state":"WA"},{"state":"OR"},{"state":"CA"},{"state":"NV"}]
+$ ./census withDensity
+[{"state":"WA","pop":7705281,"density":7705.281},{"state":"OR","pop":4237256,"density":4237.256},{"state":"CA","pop":39538223,"density":39538.223},{"state":"NV","pop":3104614,"density":3104.614}]
+```
+
+Ask for a column that is not in the schema and `selectCols` refuses at compile time:
+
+```console
+$ morloc typecheck badcol.loc
+Constraint violation: Subset: literal set missing 'county'
+```
+
+That check comes from the `Restrict r l` in \`selectCols’s own signature; you did not have to write a constraint (see [The kind system](https://morloc-project.github.io/docs/types/kinds.md)).
+
+> **Warning: A getCol typo is not caught by the typechecker**
+> `getCol` has no such constraint. A column name that is not in the schema leaves an unreduced `ProjectField` in the result type, which `morloc typecheck` reports as if it were fine:
+> 
+> ```console
+> $ morloc typecheck typo.loc
+> oops :: Vector 4 {pop=Int, state=Str}."poop"
+> ```
+> 
+> The build then fails with an internal message located at the module’s export list:
+> 
+> ```console
+> $ morloc make -o typo typo.loc
+> typo.loc:1:14: error:
+> Cannot find constructor in VarF "list"  finalType=Vector
+>   |
+> 1 | module main (oops)
+>   |              ^
+> ```
+> 
+> The `."poop"` in the typecheck output is the tell. Annotate the result of every `getCol` and the mismatch is reported properly instead.
+
+`selectColsDyn` gives up on static checking entirely, which is the point of having it: the column list is not known until the program runs. What it does not do is make up for that at runtime.
+
+> **Warning: selectColsDyn does not check the schema you claim**
+> `r2` is a free variable that the caller pins down, and nothing confronts that claim with the columns that actually come back. A function declared `[Str] → Table 4 {state = Str}` will happily return a table of `pop`:
+> 
+> ```console
+> $ ./dyn pick '["state"]'
+> [{"state":"WA"},{"state":"OR"},{"state":"CA"},{"state":"NV"}]
+> $ ./dyn pick '["pop"]'
+> [{"pop":7705281},{"pop":4237256},{"pop":39538223},{"pop":3104614}]
+> ```
+> 
+> The mismatch surfaces later, as a runtime error in whatever consumes the table:
+> 
+> ```console
+> $ ./dyn2 grab '["pop"]'
+> Error: run failed
+> 'Field "state" does not exist in schema'
+>   at grab [py] (mid=1, dyn2.loc:1:14)
+> ```
+> 
+> Use `selectCols` whenever the column names are known when you write the code.
+
+## 5.8.4. Row operations
+
+Row operations leave the schema alone and may change the row count. Where the output count cannot be known statically it is left as a fresh variable `m` that the caller pins down.
+
+```morloc
+-- Rows in the half-open range [start, end). Bounds are clamped: if
+-- start >= end the result is empty, and end > nrow clamps to nrow.
+--   sliceRows 0 (nrow t) t            -- everything
+--   sliceRows 1 (nrow t) t            -- drop the first row
+--   sliceRows 0 5 t                   -- head 5
+--   sliceRows (nrow t - 5) (nrow t) t -- tail 5
+sliceRows :: start@Int -> end@Int -> Table n r -> Table m r
+
+-- Keep the rows where the mask is True. The mask must be as long as
+-- the table.
+filterRows :: Vector n Bool -> Table n r -> Table m r
+
+-- Gather rows by index. Indices may repeat or be out of order;
+-- out-of-range indices are a runtime error.
+pickRows :: Vector m Int -> Table n r -> Table m r
+
+-- Drop duplicate rows, comparing whole rows.
+distinctRows :: Table n r -> Table m r
+
+-- Stable multi-key sort. True is ascending, False descending; later
+-- entries break ties in earlier ones.
+sortRows :: [(Str, Bool)] -> Table n r -> Table n r
+```
+
+```morloc
+bigOnly :: Table m {state = Str, pop = Int}
+bigOnly = filterRows (map (\p -> p > 5000000) (getCol "pop" census)) census
+
+byPop :: Table 4 {state = Str, pop = Int}
+byPop = sortRows [("pop", False)] census
+
+reversed :: Table 4 {state = Str, pop = Int}
+reversed = pickRows ([3, 2, 1, 0] :: Vector 4 Int) census
+```
+
+```console
+$ ./census bigOnly
+[{"state":"WA","pop":7705281},{"state":"CA","pop":39538223}]
+$ ./census byPop
+[{"state":"CA","pop":39538223},{"state":"WA","pop":7705281},{"state":"OR","pop":4237256},{"state":"NV","pop":3104614}]
+$ ./census reversed
+[{"state":"NV","pop":3104614},{"state":"CA","pop":39538223},{"state":"OR","pop":4237256},{"state":"WA","pop":7705281}]
+```
+
+`sortRows` takes its column names as ordinary runtime strings, not labels, so a name that is not in the schema is a runtime error rather than a compile-time one.
+
+## 5.8.5. Stacking tables
+
+```morloc
+-- Row-wise: the schemas must match and the row counts add.
+rbind :: Table n1 r -> Table n2 r -> Table (n1 + n2) r
+
+-- Column-wise: the row counts must match and the schemas merge.
+cbind :: Table n r1 -> Table n r2 -> Table n (r1 + r2)
+```
+
+`rbind` adds the row counts in the type, and the compiler does the arithmetic:
+
+**stacked.loc**
+
+```morloc
+module main (stacked)
+
+import root-py
+import table-py
+
+west :: Table 2 {state = Str, pop = Int}
+west =
+  let states = (["WA", "OR"] :: Vector 2 Str)
+      pops   = ([7705281, 4237256] :: Vector 2 Int)
+  in setCol "pop" pops (asCol "state" states)
+
+south :: Table 3 {state = Str, pop = Int}
+south =
+  let states = (["TX", "NM", "AZ"] :: Vector 3 Str)
+      pops   = ([29145505, 2117522, 7151502] :: Vector 3 Int)
+  in setCol "pop" pops (asCol "state" states)
+
+stacked :: Table 5 {state = Str, pop = Int}
+stacked = rbind west south
+```
+
+```console
+$ morloc make -o stacked stacked.loc
+$ ./stacked stacked
+[{"state":"WA","pop":7705281},{"state":"OR","pop":4237256},{"state":"TX","pop":29145505},{"state":"NM","pop":2117522},{"state":"AZ","pop":7151502}]
+```
+
+Claim 6 rows instead of 5:
+
+```console
+$ morloc typecheck stacked-bad.loc
+stacked-bad.loc:19:11: error:
+Type mismatch:
+  expected: Table 6 {state=Str, pop=Int}
+  inferred: Table 5 {pop=Int, state=Str}
+Subtype error: Nat constraint mismatch
+  5 <: 6
+   |
+19 | stacked = rbind west south
+   |           ^
+```
+
+`cbind` merges schemas with `+`. Merging two schemas that share a column name has no sensible answer, so it is meant to be rejected:
+
+**widen.loc**
+
+```morloc
+module main (widened, oops)
+
+import root-py
+import table-py
+
+names :: Table 2 {state = Str}
+names = asCol "state" (["WA", "OR"] :: Vector 2 Str)
+
+pops :: Table 2 {pop = Int}
+pops = asCol "pop" ([7705281, 4237256] :: Vector 2 Int)
+
+again :: Table 2 {state = Str}
+again = asCol "state" (["CA", "NV"] :: Vector 2 Str)
+
+widened :: Table 2 {state = Str, pop = Int}
+widened = cbind names pops
+
+oops :: Table 2 ({state = Str} + {state = Str})
+oops = cbind names again
+```
+
+```console
+$ morloc typecheck widen.loc
+widen.loc:19:8: error:
+Type mismatch:
+  expected: Table 2 ({state=Str} + {state=Str})
+  inferred: Table 2 ({state=Str} + {state=Str})
+Subtype error: Rec constraint mismatch: Rec union has overlapping keys: state
+  ({state=Str} + {state=Str}) <: ({state=Str} + {state=Str})
+   |
+19 | oops = cbind names again
+   |        ^
+```
+
+The message prints the same type twice, which is unhelpful, but the middle line names the clash.
+
+> **Warning: Always annotate the result of cbind**
+> Delete the `oops ::` line so the result type is inferred, and the same program compiles and runs, producing a table with a duplicated key:
+> 
+> ```console
+> $ ./widen2 oops
+> [{"state":"WA","state":"CA"},{"state":"OR","state":"NV"}]
+> ```
+> 
+> Writing the expected schema on the binding turns it back into a compile-time error. Do that on every `cbind` until this is fixed.
+
+## 5.8.6. Crossing a language boundary
+
+A table handoff between pools passes a shared-memory offset and a schema descriptor, not the data. The receiving pool imports the same column buffers.
+
+Here Python loads the table with `pyarrow` and C++ slices it:
+
+**crosslang.loc**
+
+```morloc
+module main (top2)
+
+import root-py
+import table-cpp
+
+-- table-cpp gives the C++ operations; this line gives the Python side
+-- the form it needs to hand a table across.
+type Py => (Table (n :: Nat) (r :: Rec)) = "arrow" n r
+
+source Py from "loader.py" ("load_census" as loadCensus)
+loadCensus :: Int -> Table n {state = Str, pop = Int}
+
+top2 :: Int -> Table m {state = Str, pop = Int}
+top2 year = sliceRows 0 2 (loadCensus year)
+```
+
+**loader.py**
+
+```python
+import pyarrow as pa
+
+def load_census(_year):
+    return pa.record_batch(
+        {"state": pa.array(["WA", "OR", "CA", "NV"]),
+         "pop":   pa.array([7705281, 4237256, 39538223, 3104614])}
+    )
+```
+
+```console
+$ morloc make -o crosslang crosslang.loc
+$ ./crosslang top2 2024
+[{"state":"WA","pop":7705281},{"state":"OR","pop":4237256}]
+$ ls crosslang-build/pools/
+cpp
+py
+```
+
+Two pools, and the table itself never leaves shared memory. Import both `table-py` and `table-cpp` and the compiler would collapse the program onto one language instead; the explicit `type Py ⇒ Table …​` line above supplies the Python form without the Python operations, which is what forces the split.
+
+## 5.8.7. Reading and writing table files
+
+A `Table` argument can be a literal JSON string or a path, and the runtime detects the format:
+
+| Form | How it is recognised |
+| --- | --- |
+| JSON | Row-oriented `[{col: v, …​}, …​]` or column-oriented `{col: [v, …​], …​}`; the two are equivalent |
+| Arrow IPC | the `ARROW1` magic |
+| Parquet | the `PAR1` magic at head and tail |
+| CSV / TSV | the `.csv` / `.tsv` extension; a header row is required |
+
+The schema in your signature drives validation, and a file that does not match it is rejected before the data reaches a pool:
+
+```console
+$ ./census summarize bad.csv
+Error: failed to parse argument #0: file 'bad.csv': Declared column 'pop' missing from CSV header
+$ ./census summarize wrong.csv
+Error: failed to parse argument #0: file 'wrong.csv': Failed to read CSV: Parser error: Error while parsing value 'abc' as type 'Int64' for column 1 at line 1. Row data: '[WA,abc]'
+```
+
+A nullable Arrow or Parquet column is accepted into a non-optional Morloc column as long as it holds no nulls at runtime. One actual null and it is refused:
+
+```console
+$ ./census summarize plainnull.parquet
+Error: failed to parse argument #0: file 'plainnull.parquet': Failed to project record batch: Invalid argument error: Column 'pop' is declared as non-nullable but contains null values
+```
+
+> **Warning: Compressed Parquet cannot be read**
+> The Parquet reader is compiled without its compression codecs, so a file written with snappy — the default for pyarrow, pandas and Spark — fails:
+> 
+> ```console
+> $ ./census summarize snappy.parquet
+> Error: failed to parse argument #0: file 'snappy.parquet': Failed to read Parquet record batches: Parquet argument error: Parquet error: Disabled feature at compile time: snap
+> ```
+> 
+> Re-write the file with `compression='none'`, or use Arrow IPC, until this is fixed. Parquet written by the nexus itself is uncompressed and reads back fine.
+
+Results are written in whatever `--output-form` (short form `-f`) asks for. It is a nexus option, so it goes to the left of the subcommand; putting it after gives `error: unexpected argument '-f' found`.
+
+```console
+$ ./census -f csv census > census.csv
+$ cat census.csv
+state,pop
+WA,7705281
+OR,4237256
+CA,39538223
+NV,3104614
+$ ./census -f arrow   census > census.arrow
+$ ./census -f parquet census > census.parquet
+```
+
+And read back, whatever the format, they are the same table:
+
+```console
+$ ./census summarize census.csv
+54585374
+$ ./census summarize census.arrow
+54585374
+$ ./census summarize census.parquet
+54585374
+$ ./census summarize '[{"state":"WA","pop":7705281},{"state":"OR","pop":4237256}]'
+11942537
+$ ./census summarize '{"state":["WA","OR"],"pop":[7705281,4237256]}'
+11942537
+```
+
+where `summarize` is the last export of `census.loc`:
+
+```morloc
+summarize :: Table n {state = Str, pop = Int} -> Int
+summarize t = fold (+) 0 (getCol "pop" t)
+```
+
+The Arrow, Parquet and CSV libraries are compiled into the nexus binary, so none of this depends on PyArrow, arrow-cpp or arrow-r being installed for a pool. Pools only ever see the Arrow C Data Interface.
+
+## 5.8.8. Limits
+
+**Column types must be primitive.** `Bool`, `Int`, `Real`, the sized integer and float types, and `Str`. A list-, struct-, or dictionary-typed column is accepted by the typechecker and fails when the data is built:
+
+```console
+$ ./nested t
+Error: run failed
+Unsupported Arrow column type for column 1
+  at t [py] (mid=1, nested.loc:1:14)
+```
+
+`Date`, `Timestamp` and `Duration` round-trip as the underlying integer or string but have no Morloc types of their own yet.
+
+**A table cannot be piped in.** A file path works and inline JSON works, but `-` for standard input fails:
+
+```console
+$ cat census.csv | ./census summarize -
+Error: failed to parse argument #0: stdin: serialization error: Cannot compute msgpack size for a Table; Tables use the Arrow IPC SHM wire path
+```
+
+**You cannot write your own column operations.** A function whose signature mentions `r1 + r2`, `Restrict r l` or `ProjectField r f` can be declared and called but cannot be given a body, even one that delegates to a stdlib function with the same signature. See the end of [The kind system](https://morloc-project.github.io/docs/types/kinds.md). In practice every schema-changing operation has to be a primitive sourced from a foreign language.
+
+**Tables are immutable.** Every column-modifying operation produces a new table. The Arrow shared-memory layer is reference-counted across pools, so building a "new" table is usually only a descriptor update, but there is no in-place mutation API.
+
+Joins, group-by, aggregation and column casting belong to follow-on modules and are not part of `table`.

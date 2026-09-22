@@ -1,0 +1,282 @@
+# 6.1. The example program
+
+Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/example-program.html | prev: https://morloc-project.github.io/docs/clis/index.md | next: https://morloc-project.github.io/docs/clis/argument-zones.md
+
+The chapter uses one tool throughout: `sift`, which searches a directory tree for lines matching a pattern and reports what it finds. It is small enough to read in one sitting and has every shape the chapter needs — positional arguments, flags, a record of options, file inputs, structured output, and a streaming mode.
+
+The work is done in Python:
+
+**sift.py**
+
+```python
+import os
+
+def walk_files(root):
+    out = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames.sort()
+        for name in sorted(filenames):
+            out.append(os.path.join(dirpath, name))
+    return out
+
+def hits_in(path, needles, fold):
+    out = []
+    with open(path) as fh:
+        for i, line in enumerate(fh, start=1):
+            hay = line.lower() if fold else line
+            if any(n in hay for n in needles):
+                out.append({"path": path, "line": i,
+                            "text": line.rstrip("\n")})
+    return out
+
+def scan_many(patterns, root, opts):
+    fold = opts["ignoreCase"]
+    limit = opts["maxCount"]
+    needles = [p.lower() if fold else p for p in patterns]
+    hits = []
+    for path in walk_files(root):
+        hits.extend(hits_in(path, needles, fold))
+        if limit and len(hits) >= limit:
+            return hits[:limit]
+    return hits
+
+def scan(pattern, root, opts):
+    return scan_many([pattern], root, opts)
+
+def produce(pattern, root, opts, sink):
+    fold = opts["ignoreCase"]
+    needles = [pattern.lower() if fold else pattern]
+    for path in walk_files(root):
+        sink(hits_in(path, needles, fold))
+
+def as_lines(hits):
+    return "".join("%s:%d:%s\n" % (h["path"], h["line"], h["text"])
+                   for h in hits)
+
+def per_file(hits):
+    counts = {}
+    for h in hits:
+        counts[h["path"]] = counts.get(h["path"], 0) + 1
+    return [[p, n] for p, n in counts.items()]
+
+def total(counts):
+    return sum(n for _, n in counts)
+
+def numbered(offset, hits):
+    return ["%d %s:%d" % (offset + i + 1, h["path"], h["line"])
+            for i, h in enumerate(hits)]
+```
+
+None of it knows about Morloc. It takes and returns dictionaries, lists, and strings.
+
+The Morloc side gives those functions types, names them, and exports five of them. Read past the docstring directives for now — each one is introduced in its own section below.
+
+**sift.loc**
+
+```morloc
+--' Search notes and count what turns up
+module sift (scan, scanAll, summarize, total, stream)
+
+import root-py
+
+--' One matching line
+record Hit where
+  path :: Str
+  line :: Int
+  text :: Str
+
+record Py => Hit = "dict"
+
+--' How to search
+--' @unroll
+--' @arg --options
+record Options where
+  --' Match without regard to case
+  --' @true -i/--ignore-case
+  ignoreCase :: Bool
+
+  --' Stop after this many hits; 0 means no limit
+  --' @arg -m/--max-count
+  --' @default 0
+  maxCount :: Int
+
+record Py => Options = "dict"
+
+source Py from "sift.py"
+  ( "scan"      as scanPy
+  , "scan_many" as scanManyPy
+  , "produce"   as producePy
+  , "as_lines"  as asLines
+  , "per_file"  as perFile
+  , "total"     as totalPy
+  , "numbered"  as numberHits
+  )
+
+scanPy     :: Str -> Str -> Options -> <IO> [Hit]
+scanManyPy :: [Str] -> Str -> Options -> <IO> [Hit]
+producePy  :: Str -> Str -> Options -> ([Hit] -> <IO> ()) -> <IO> ()
+perFile    :: [Hit] -> [(Str, Int)]
+totalPy    :: [(Str, Int)] -> Int
+
+--' Print one `path:line:text` record per line
+asLines :: [Hit] -> Str
+
+--' Report the number of matches instead of the matches
+countHits :: [Hit] -> U64
+countHits = size
+
+--' Number the hits as they stream past
+numberHits :: U64 -> [Hit] -> [Str]
+
+--' Count the hits without loading them into memory
+countStaged :: IFile [Hit] -> <IO> Int
+countStaged f = do
+  Ok n <- @flen f
+  n
+
+--' Search a directory tree for lines containing a pattern
+--' @with   -c/--count=countHits
+--' @render -p/--plain=asLines
+scan ::
+  --' The text to search for
+  --' @metavar PATTERN
+  Str ->
+  --' The directory to search
+  --' @check.path r
+  Str ->
+  Options ->
+  <IO> [Hit]
+scan = scanPy
+
+--' Search for any of several patterns, one per line of a file
+--' @with   -c/--count=countHits
+--' @render -p/--plain=asLines
+scanAll ::
+  --' A file of patterns, one per line
+  --' @form list
+  [Str] ->
+  --' The directory to search
+  --' @check.path r
+  Str ->
+  Options ->
+  <IO> [Hit]
+scanAll = scanManyPy
+
+--' Count the hits in each file
+summarize ::
+  --' Hits produced by an earlier search
+  [Hit] ->
+  [(Str, Int)]
+summarize = perFile
+
+--' Add up a stream of per-file counts
+total ::
+  --' A file of counts; standard input when omitted
+  --' @stdin
+  Str ->
+  <IO> Int
+total f = do
+  Ok s <- @open f :: <IO> (Try Str (IStream (Str, Int)))
+  Ok counts <- @next s
+  totalPy counts
+
+--' Stream hits to standard output, one file at a time
+--' @render -p/--plain=asLines @stream
+--' @with   -c/--count=countHits
+--' @with   -n/--staged=countStaged
+--' @with   -N/--numbered=numberHits(@offset) @stream
+stream ::
+  --' The text to search for
+  Str ->
+  --' The directory to search
+  --' @check.path r
+  Str ->
+  Options ->
+  <IO> ()
+stream pat root opts = @collect (producePy pat root opts)
+```
+
+There is something to search. Make it now; every search in this chapter runs against these two files:
+
+```console
+$ mkdir -p notes/2026
+$ printf 'buy milk\nfix the parser\nwrite the manual\nuse -p for plain output\n' > notes/todo.txt
+$ printf 'fix the build\nship the manual\nrest\n' > notes/2026/plan.txt
+```
+
+Build it:
+
+```console
+$ morloc make -o sift sift.loc
+```
+
+The five exports are the five subcommands, each with the first line of its docstring:
+
+```console
+$ ./sift -h
+Search notes and count what turns up
+
+Usage: ./sift <nexus_options> <command> <command_options>
+
+Commands:
+  scan       Search a directory tree for lines containing a pattern
+  scanAll    Search for any of several patterns, one per line of a file
+  summarize  Count the hits in each file
+  total      Add up a stream of per-file counts
+  stream     Stream hits to standard output, one file at a time
+
+General Options:
+  -h, --help  Print help; -hh adds details and examples, -hhh adds schemas
+              (nexus options: -h @)
+```
+
+and `scan` runs:
+
+```console
+$ ./sift scan the notes -p
+notes/todo.txt:2:fix the parser
+notes/todo.txt:3:write the manual
+notes/2026/plan.txt:1:fix the build
+notes/2026/plan.txt:2:ship the manual
+```
+
+The docstring above `module` becomes the program’s description. `-h` shows its first line; repeating the flag shows more. `-hh` adds the rest of the description and any examples, and `-hhh` adds the layout of every named type the help mentions. `--help` is the same flag spelled long and repeats the same way. This is the split every piece of help follows: a command’s own `-h` shows the first line of its docstring, its `-hh` the rest.
+
+A module docstring can also carry an `@epilogue` block. Everything after that directive is printed verbatim below the options, from `-hh` up:
+
+```morloc
+--' Search notes and count what turns up
+--'
+--' @epilogue
+--' Examples:
+--'   sift scan needle ./notes
+--'   sift total needle ./notes
+module sift (scan, scanAll, summarize, total, stream)
+```
+
+```console
+$ ./sift -hh
+Search notes and count what turns up
+
+Usage: ./sift <nexus_options> <command> <command_options>
+...
+General Options:
+  -h, --help  Print help; -hh adds details and examples, -hhh adds schemas
+              (nexus options: -h @)
+
+Examples:
+  sift scan needle ./notes
+  sift total needle ./notes
+```
+
+A command’s signature preamble takes the same block, and it renders at the foot of that subcommand’s help alone. Blank lines and `#` comments inside the block are kept, so each example can say what it is for:
+
+```morloc
+--' Count matches of a needle in one file
+--' @epilogue
+--' Examples:
+--'
+--' # count in a single file
+--' sift total needle ./notes/today.md
+total :: Str -> Str -> Int
+```

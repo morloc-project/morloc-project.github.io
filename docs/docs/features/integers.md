@@ -1,0 +1,403 @@
+# 4.4. Integer types
+
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/integers.html | prev: https://morloc-project.github.io/docs/features/booleans.md | next: https://morloc-project.github.io/docs/features/floats.md
+
+Morloc has one integer type for ordinary use and a family of fixed-width types for when the width matters. This section covers how integers are written, how the default type behaves across languages, and what happens at the boundaries.
+
+## 4.4.1. Writing integer literals
+
+Integers may be written in decimal, hexadecimal, octal, or binary:
+
+```morloc
+-- standard decimal notation
+42
+
+-- hexadecimal notation (case insensitive)
+0xf00d
+0xDEADBEEF
+
+-- octal notation (upper or lowercase 'o')
+0o755
+
+-- binary notation (upper or lowercase 'b')
+0b0101
+```
+
+A prefixed literal must contain only digits valid for its base and must end on a non-identifier character. A trailing character that is not a valid digit for the base is a compile-time error, not a silently truncated literal followed by an unrelated identifier:
+
+```console
+$ morloc eval -e "0xF00D"
+61453
+$ morloc eval -e "0xF0OD"
+<expr>:1:1: malformed hexadecimal literal: 0xF0OD
+$ morloc eval -e "0b1001"
+9
+$ morloc eval -e "0o755"
+493
+```
+
+`morloc eval` evaluates a single expression, which makes it a good way to check one of these rules. It has no implicit prelude, so anything beyond a bare literal needs an import:
+
+```console
+$ morloc eval -e '5 - 1'
+<expr>:1:3: error:
+Undefined term: -
+hint: an eval expression has no implicit prelude; prefix the expression with 'import root-py;' (or the module that defines -) to bring it into scope
+$ morloc eval -e 'import root-py; 5 - 1'
+4
+```
+
+## 4.4.2. Integer types at a glance
+
+| Type | Width | Use case |
+| --- | --- | --- |
+| `Int` | Variable (arbitrary precision) | Default integer for most code. Works across all languages. |
+| `I8`, `I16`, `I32`, `I64` | 8, 16, 32, 64 bits (signed) | Performance-critical code with known bounds. |
+| `U8`, `U16`, `U32`, `U64` | 8, 16, 32, 64 bits (unsigned) | Bit manipulation, byte data, indices. |
+
+## 4.4.3. The default `Int` type
+
+`Int` is Morloc’s universal integer, and integer literals are `Int` unless something says otherwise:
+
+```morloc
+x = 42          -- Int
+y = 0xDEADBEEF  -- Int (hex literal)
+z = -9999       -- Int
+```
+
+On the wire `Int` is variable-width: values up to 64 bits fit in 16 bytes inline, and larger values spill to a pointer to an array of 64-bit limbs. But the range you actually get **inside** a language is whatever that language’s native binding provides:
+
+| Language | Native binding for `Int` | Representable range |
+| --- | --- | --- |
+| Python | `int` | Arbitrary precision |
+| C++ | `int` | 32-bit signed (`-2^31` to `2^31 - 1`) |
+| R | `integer` | 32-bit signed |
+
+This asymmetry is the thing to remember about `Int`. A value that a Python pool holds happily may not fit in the C++ or R pool it is handed to. If a field needs more than 32 bits on those backends, declare it `I64` or `U64`, which map to `int64_t` in C++ and to R’s `numeric` (53-bit integer precision via double).
+
+## 4.4.4. Big integers from Python
+
+Python’s integers are arbitrary precision and Morloc’s `Int` takes full advantage of that. Factorials make the point quickly:
+
+**main.loc**
+
+```morloc
+module main (fact)
+
+import root-py
+
+fact :: Int -> Int
+fact n
+  ? n == 0 = 1
+  : n * fact (n - 1)
+```
+
+```console
+$ morloc make -o calc main.loc
+$ ./calc fact 100
+93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000
+```
+
+That is a 525-bit integer, far past any fixed-width type. It is stored as a multi-limb big integer and printed exactly.
+
+## 4.4.5. Overflow at a language boundary
+
+When a value too large for the target language’s type crosses into it, Morloc raises an error at the boundary rather than truncating silently.
+
+To show this we need to force the computation to happen in Python and then move the result. `root-py` exports `idpy` and `root-cpp` exports `idcpp`: identity functions pinned to one language. Wrapping a term in `idpy` forces it into the Python pool, and `idcpp` then drags the result across into C++. Without them the compiler would collapse `fact` to pure C++ — faster, but it would not demonstrate anything.
+
+**main.loc**
+
+```morloc
+module main (factCpp, factR)
+
+import root-py
+import root-cpp
+import root-r
+
+fact :: Int -> Int
+fact n
+  ? n == 0 = 1
+  : n * fact (n - 1)
+
+factPy :: Int -> Int
+factPy n = idpy (fact n)
+
+factCpp :: Int -> Int
+factCpp x = idcpp (factPy x)
+
+factR :: Int -> Int
+factR x = idr (factPy x)
+```
+
+Small values cross without trouble:
+
+```console
+$ ./calc factCpp 5
+120
+```
+
+Large ones report where and why they failed:
+
+```console
+$ ./calc factCpp 100
+Error: run failed
+Integer overflow: 9-limb integer (576 bits) does not fit in 32-bit type (range -2147483648 to 2147483647)
+  at _ [cpp] (mid=2787, main.loc:16:20)
+  at factCpp [cpp] (mid=1, main.loc:1:14)
+```
+
+R is limited to 32-bit integers, and to 53-bit integer precision through doubles, so it refuses the same value:
+
+```console
+$ ./calc factR 100
+Error: run failed
+Integer overflow: 9-limb integer (576 bits) does not fit in R's numeric type (max 2^53 for integer precision).
+  at _ [r] (mid=2815, main.loc:19:16)
+  at factR [r] (mid=2, main.loc:1:23)
+```
+
+Both report the same shape: what overflowed, what it would not fit in, and the call chain that got there.
+
+## 4.4.6. Compile-time literal bounds
+
+A literal written into a fixed-width type is bounds-checked against that type:
+
+```morloc
+tooLarge :: U8
+tooLarge = 1000
+```
+
+The check happens during code generation, so `morloc typecheck` passes and `morloc make` is what rejects it:
+
+```console
+$ morloc typecheck intbounds.loc
+tooLarge :: U8
+$ morloc make intbounds.loc
+intbounds.loc:6:12: error:
+Integer literal 1000 overflows U8 (range 0 to 255)
+  |
+6 | tooLarge = 1000
+  |            ^
+```
+
+The caret points at the literal, not at the binding name, so when the same literal is referenced from several sites the diagnostic stays on the offending source.
+
+## 4.4.7. Fixed-width integer types
+
+When values are known to be bounded, fixed-width types map directly onto the target language’s native types:
+
+| Morloc type | C++ | Python | R |
+| --- | --- | --- | --- |
+| `I8` | `int8_t` | `int` | `integer` |
+| `I16` | `int16_t` | `int` | `integer` |
+| `I32` | `int32_t` | `int` | `integer` |
+| `I64` | `int64_t` | `int` | `numeric` (double) |
+| `U8` | `uint8_t` | `int` | `raw` |
+| `U16` | `uint16_t` | `int` | `integer` |
+| `U32` | `uint32_t` | `int` | `numeric` (double) |
+| `U64` | `uint64_t` | `int` | `numeric` (double) |
+
+These serialize directly: the wire format is identical to the in-memory representation, with no conversion step. That makes them the right choice for numerical code and for interop with C libraries that require specific widths.
+
+> **Note**
+> The Python column is `int` throughout rather than a genuinely fixed-size type such as a numpy scalar. Types can be specialized that way; see [Native type mappings](https://morloc-project.github.io/docs/features/foreign-functions.md#mapping-native-types), and [Tensors](https://morloc-project.github.io/docs/types/tensors.md) and [Tables](https://morloc-project.github.io/docs/types/tables.md) for the higher-performance shared-memory types.
+
+## 4.4.8. Converting between integer types
+
+Two typeclasses in `root` cover numeric conversion. `into` is for conversions that can never fail and never lose information. `tryInto` is for everything else:
+
+```morloc
+class TotalInto a b where
+  into :: a -> b
+
+class PartialInto a b where
+  tryInto :: a -> b
+```
+
+Widening is total — signed to wider signed, unsigned to wider unsigned, and unsigned into a strictly wider signed target. A reflexive `TotalInto a a` instance covers the identity case.
+
+```morloc
+wide :: I8 -> I64
+wide x = into x
+```
+
+Anything that can fail goes through `tryInto`: narrowing, negative into unsigned, or unsigned into a same-or-narrower signed target. Its signature looks total because every instance is a conversion written in a backend language, and it reports a value that does not fit by raising there:
+
+```morloc
+byte :: I32 -> U8
+byte x = tryInto x
+```
+
+```console
+$ ./bytes byte 65
+65
+$ ./bytes byte 9999
+Error: run failed
+value 9999 out of range [0, 255]
+  at byte [py] (mid=2, bytes.loc:1:20)
+```
+
+To decide for yourself what an out-of-range value means, wrap the conversion in `@try`, which turns a raise into a value you can match on — either the converted number or the reason there isn’t one. `@try` and the `Try` type it produces are covered in [Failure and recovery](https://morloc-project.github.io/docs/features/intrinsics.md#failure-and-recovery); the shape is:
+
+```morloc
+byteOrZero :: I32 -> U8
+byteOrZero x = match (@try (tryInto x :: U8))
+  | (Ok b)  = b
+  | (Err _) = 0
+
+byteOrReport :: I32 -> Str
+byteOrReport x = match (@try (tryInto x :: U8))
+  | (Ok b)  = "fits: #{@show b}"
+  | (Err e) = "does not fit: #{e}"
+```
+
+```console
+$ ./bytes byteOrZero 65
+65
+$ ./bytes byteOrZero 9999
+0
+$ ./bytes byteOrReport 9999
+"does not fit: value 9999 out of range [0, 255]"
+```
+
+**The \`**
+
+U8\` ascription is doing the work the old signature used to: `tryInto` is polymorphic in its target, so something has to say which conversion you meant.
+
+`Int` gets the most restrictive treatment, because its width varies by backend: 32-bit in R and C++, unbounded in Python. Every `Int` to fixed-width conversion goes through `tryInto` — even `Int → I64` — and converting `U32` or wider **into** `Int` does too. That keeps behaviour the same everywhere.
+
+## 4.4.9. Negation and unary minus
+
+The `-` glyph plays two roles: binary subtraction and unary negation. Which one you get depends on whitespace.
+
+```morloc
+-- prefix `-` on a value: the additive inverse
+neg :: Int -> Int
+neg x = -x
+
+-- prefix `-` on an expression: parenthesize the expression
+shifted :: Int -> Int
+shifted x = -(x + 1)
+
+-- works on any numeric primitive (Int, I8..I64, U8..U64,
+-- Real, F32, F64) via the `Negatable` typeclass
+flipReal :: Real -> Real
+flipReal x = -x
+```
+
+### Negative literals
+
+A `-` directly against a digit, with no space between, is part of the literal. So `-1` is an atomic integer rather than a function call, and works in places where calls are not allowed, such as pure-data files:
+
+```morloc
+xs :: [Int]
+xs = [-1, -2, -3, -100]
+
+ys :: [Real]
+ys = [-1.5, -2.0e-3, -0xff]
+
+point :: (Int, Int)
+point = (-3, -4)
+```
+
+```console
+$ ./neg xs
+[-1,-2,-3,-100]
+$ ./neg ys
+[-1.5,-0.002,-255]
+$ ./neg point
+[-3,-4]
+```
+
+The same atomic-lexing rule extends to the non-finite `Real` literals `-Inf` and `-NaN`; see [Floating-point types](https://morloc-project.github.io/docs/features/floats.md).
+
+### When `-` is unary and when it is binary
+
+The lexer uses an asymmetric-whitespace rule. A `-` immediately followed by a digit is part of a negative literal whenever the dash sits where an expression cannot have just ended:
+
+-   at the start of input;
+-   after an opening delimiter (`(`, `[`, `,`, `=`, and so on);
+-   after another operator;
+-   after whitespace, when the digit is not separated from the dash.
+
+Anywhere else — where the dash directly follows a token that finishes an operand, with no whitespace between — it is binary subtraction.
+
+| Expression | Interpretation |
+| --- | --- |
+| `-1` | atomic literal `-1` |
+| `f -1` | `f` applied to literal `-1` (asymmetric whitespace) |
+| `f - 1` | binary subtraction `f - 1` (symmetric whitespace) |
+| `f-1` | binary subtraction `f - 1` (no whitespace) |
+| `[-1, -2]` | list of two negative literals |
+| `1 + -2` | `1 + (-2)`; the `-2` is a literal |
+| `-(x + 1)` | desugars to `negate (x + 1)` |
+| `-x` | desugars to `negate x` |
+
+The first row of that table is easy to verify. Applying a number to something is a type error, and that is exactly the error `5 -1` produces — proving the `-1` was read as an argument rather than as subtraction:
+
+```console
+$ morloc eval -e "5 -1"
+<expr>:1:1: error:
+General type error: Application of non-functional expression of type: Int
+```
+
+**With \`f**
+
+Int → Int\` defined as `f x = x * 10`, the three spellings behave as the table says:
+
+```console
+$ ./dashtest t1     -- t1 = f -1
+-10
+$ ./dashtest t2     -- t2 = 100 - 1
+99
+$ ./dashtest t3     -- t3 = 100-1
+99
+```
+
+### Position restrictions
+
+Prefix `-` on a non-literal expression is allowed wherever an expression can begin, including on the right of an infix operator. The one restriction is that its operand must start with an atom — an identifier, a literal, an open paren or bracket — and not with another prefix `-`.
+
+```morloc
+-- ok: -x at the start of an expression
+neg1 :: Int -> Int
+neg1 x = -x
+
+-- ok: -x on the right of a binary operator
+neg2 :: Int -> Int
+neg2 x = 1 + -x
+
+-- ok: subtracting a negated value
+neg3 :: Int -> Int -> Int
+neg3 x y = x - -y
+
+-- ok: -x parenthesized; equivalent to neg2
+neg4 :: Int -> Int
+neg4 x = 1 + (-x)
+
+-- ok: parenthesize the inner negation to stack two
+double :: Int -> Int
+double x = -(-x)
+```
+
+Two adjacent prefix dashes are a parse error:
+
+```console
+$ morloc typecheck negbad.loc
+negbad.loc:6:11: unexpected '-'
+    |
+  6 | bad x = - -x
+    |           ^
+```
+
+### The `Negatable` typeclass
+
+Negation comes from a typeclass in the `internal` module:
+
+```morloc
+class Negatable a where
+  negate :: a -> a
+```
+
+Every numeric primitive has an instance in `root-py`, `root-cpp`, and `root-r` that dispatches to the host language’s native unary minus. The parser desugars `-x` to `negate x`, so writing `negate x` yourself is equivalent. The compiler picks the language for a negation the same way it picks the language for any other polymorphic call: from the imported language modules and the surrounding cross-language boundaries.

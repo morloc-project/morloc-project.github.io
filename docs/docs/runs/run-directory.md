@@ -1,0 +1,119 @@
+# 8.3. Run directory
+
+Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/run-directory.html | prev: https://morloc-project.github.io/docs/runs/benchmarking.md | next: https://morloc-project.github.io/docs/runs/caching.md
+
+> **Warning: Experimental Feature**
+> The run directory’s contents are not settled. What a run writes today is narrower than what this section describes: a run matching the layout below produces the per-label directories and `summary.json`, but the top-level `log` appears only when a prologue writes to it. The compiler’s own test asserts a `start.json` that nothing produces.
+> 
+> Treat the directory as a place to find logs, not as a stable on-disk format to parse. The file names and the layout may change.
+
+Every persistent-logging invocation of a morloc-built executable is one **run**. The run gets a unique id and a directory on disk holding the run’s artifacts: a top-level log file teed from stderr, per-label log files for `log: true` labels, and a `summary.json` sentinel.
+
+The directory is opt-in. A bare `./my_program …​` invocation never creates one; pass `--log-dir <path>` (or set `MORLOC_LOG_DIR`) to activate. Interactive use stays clutter-free; cron jobs and servers opt in and get the structured artifacts.
+
+The directory layout, after a run with `--log-dir runs/` and at least one labeled term with `log: true`, looks like:
+
+```
+ . runs/20260608T172304Z-a3f9c41b/
+ |
+ |-- a
+ |   `-- log
+ |-- b
+ |   `-- log
+ |-- log
+ `-- summary.json
+```
+
+The run id is `{utc-iso8601-second}-{8-hex-random}` — lexically sortable, so `ls` orders runs chronologically. The top-level `log` is the prologue / epilogue / per-label-line tee; per-label `log` files hold only the per-label start / pass / fail emissions for that label.
+
+## 8.3.1. Activation knobs
+
+| Knob | Effect |
+| --- | --- |
+| `--log-dir PATH` (or `MORLOC_LOG_DIR=PATH`) | Creates a per-run subdir under `PATH`, tees stderr log lines into `PATH/<run_id>/log`, and writes `PATH/<run_id>/summary.json` at exit. Without this flag, none of these files exist — the run is pure stderr. |
+| `--summary FILE` (or `MORLOC_SUMMARY=FILE`) | Writes the structured `summary.json` to `FILE`. Independent of `--log-dir`: an orchestrator that just wants a completion sentinel can use this alone without committing to a rundir of log files. When both are set, the explicit `--summary` path wins. |
+| `--quiet` (or `MORLOC_QUIET=1`) | Suppress **all** morloc-emitted log lines — prologue, epilogue, per -label start / pass / fail — at the source. Lines are never generated, so they neither hit stderr nor tee into the rundir’s `log` file. `summary.json` is still written when `--log-dir` or `--summary` is active: the sentinel survives the silence. |
+
+## 8.3.2. summary.json
+
+Presence of `summary.json` means the run reached a clean exit (good or bad). The fields are minimal and stable:
+
+```json
+{
+  "status": "ok",
+  "exit_code": 0,
+  "command": "align_reads",
+  "run_id": "20260608T172304Z-a3f9c41b",
+  "started_at": "2026-06-08T17:23:04Z",
+  "finished_at": "2026-06-08T17:25:18.231Z",
+  "wall_ms": 134231,
+  "morloc_version": "0.88.0",
+  "error": null
+}
+```
+
+On a failing run, `status` is `"fail"`, `exit_code` is nonzero, and `error` carries the error packet’s message (often a foreign-language traceback). The write is atomic (tmp + rename) so a watcher polling for the file never sees a partial JSON.
+
+A wrapper that runs morloc as a workflow step can poll for `--summary` existence to detect completion and read `status` to branch:
+
+```bash
+./align --summary $WORK/align.summary.json --log-dir $WORK/logs @ \
+        reads.fastq.gz reference.fa
+case "$(jq -r .status $WORK/align.summary.json)" in
+  ok)   ./next_step ;;
+  fail) echo "align failed: $(jq -r .error $WORK/align.summary.json)" ;;
+esac
+```
+
+SIGKILL / OOM / kernel panic bypass the writer; the wrapper should have a timeout fallback for those.
+
+## 8.3.3. Where the directory lives
+
+Resolution order, highest precedence first:
+
+| Source | Notes |
+| --- | --- |
+| `--log-dir PATH` / `MORLOC_LOG_DIR=PATH` | Activation knob **and** base directory. The run lands at `PATH/<run_id>/`. |
+| Inheritance from a parent morloc process | If a morloc-built program launches another morloc-built program, the child reuses the parent’s run dir so logs interleave naturally. The check requires the parent’s owning PID to match `getppid()`, defeating stale shell-exported `MORLOC_RUN_DIR` values. |
+
+There is no fallback default base directory: persistent logging is strictly opt-in. A `MORLOC_RUN_DIR` set without the matching `MORLOC_RUN_PARENT_PID` is treated as stale and ignored.
+
+## 8.3.4. Cleanup
+
+Morloc never deletes a past run directory. Old runs accumulate under the base until you remove them. A simple housekeeping cron (or a one-off `find <log-base> -mtime +30 -delete`) is sufficient.
+
+## 8.3.5. Prologue and epilogue
+
+Two top-level YAML keys add run-scope log entries. They behave like the per-label `log-template`: always emitted to stderr when defined, tee’d to the rundir’s `log` when `--log-dir` is active, suppressed entirely under `--quiet`.
+
+```yaml
+prologue: "[{c:bold}morloc{c:reset}] {name} v{version} start {started_at}"
+epilogue:
+  ok:   "[morloc] {name} ok in {runtime}s"
+  fail: "[morloc] {name} FAILED ({exit_code}) in {runtime}s: {error}"
+```
+
+Two epilogue branches so the success line doesn’t have to render an empty `{error}` and the failure line can include fields the success line lacks. The compiler picks the matching branch based on the run’s exit status.
+
+Available placeholders:
+
+| Placeholder | Where it comes from |
+| --- | --- |
+| `{module}` | Entry-point morloc module name. Substituted at compile time. |
+| `{version}` | Program version from `package.yaml` (or `?` if absent). Compile time. |
+| `{morloc_version}` | Compiler version. Compile time. |
+| `{name}` | Subcommand the user invoked. Runtime. |
+| `{run_id}` | Per-run unique id. Empty when no rundir is materialized. Runtime. |
+| `{started_at}` / `{finished_at}` | ISO 8601 timestamps. Runtime. |
+| `{runtime}` | Wall seconds, six decimal places. Runtime (epilogue only). |
+| `{pid}` | Nexus PID. Runtime. |
+| `{hostname}` | `gethostname(2)` result. Runtime. |
+| `{exit_code}` | Integer exit code. Runtime (`fail` epilogue only). |
+| `{error}` | Error packet contents (may be multi-line). Runtime (`fail` epilogue only). |
+| `{c:red}` / `{c:bold}` / `{c:reset}` / …​ | ANSI color codes. Compile time. The runtime strips them when stderr is not a TTY or `NO_COLOR` is set. |
+
+## 8.3.6. Nested invocations
+
+If a morloc-built program launches another morloc-built program, the child **inherits** the parent’s run directory when the parent activated one. Both programs' logs land under the same run id, so the user’s `tail -f` / `grep` tooling sees the full workflow as one entity rather than two. Pool processes are children of the nexus and use the same mechanism, which is why every pool’s log emission ends up in the expected per-label log file.
+
+The inheritance check is robust against a stale `MORLOC_RUN_DIR` left over in a shell environment from a previous run: the child only inherits when the run-dir’s owning PID matches its actual parent. A mismatched PID falls back to no run dir (the child is then a normal, non-persistent invocation).

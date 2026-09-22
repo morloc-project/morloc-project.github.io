@@ -1,0 +1,184 @@
+# 4.6. Strings
+
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/strings.html | prev: https://morloc-project.github.io/docs/features/floats.md | next: https://morloc-project.github.io/docs/features/tuples-and-lists.md
+
+A Morloc string is double-quoted and holds Unicode text:
+
+```morloc
+cn :: Str
+cn = "你知道得太多了🤫"
+```
+
+```console
+$ ./strs cn
+"你知道得太多了🤫"
+```
+
+## 4.6.1. Interpolation
+
+`#{…​}` splices an expression into a string. The expression must already have type `Str` — nothing is converted for you. To embed an `Int`, `Real`, `Bool`, or anything else, call `show` (or another explicit stringifier) inside the braces:
+
+```morloc
+helloYou :: Str -> Str
+helloYou you = "hello #{you}"
+
+sayCount :: Int -> Str
+sayCount n = "count: #{show n}"
+```
+
+```console
+$ ./strs helloYou world
+"hello world"
+$ ./strs sayCount 42
+"count: 42"
+```
+
+## 4.6.2. Escapes
+
+Inside a string, a backslash introduces an escape sequence:
+
+| Escape | Meaning |
+| --- | --- |
+| `\n` | newline |
+| `\t` | tab |
+| `\r` | carriage return |
+| `\0` | NUL byte (U+0000) |
+| `\\` | a single backslash |
+| `\"` | a literal double quote |
+
+Any other backslashed character is a compile-time error:
+
+```console
+$ morloc typecheck escbad.loc
+escbad.loc:6:10: invalid escape sequence \q
+```
+
+A literal backslash must therefore always be written `\\`, which matters most for Windows paths:
+
+```morloc
+winPath :: Str
+winPath = "C:\\Users\\weena\\file.txt"
+```
+
+Writing `"C:\Users"` instead does not compile, because `\U` is not a recognized escape:
+
+```console
+$ morloc typecheck escwin.loc
+escwin.loc:6:8: invalid escape sequence \U
+```
+
+## 4.6.3. Triple-quoted strings
+
+Triple quotes come in double and single flavours. On one line they save you from escaping the other kind of quote:
+
+```morloc
+dblStr :: Str
+dblStr = """That's weird, I also spelled it "ear quotes", like "bunny ears"."""
+
+sinStr :: Str
+sinStr = '''"Why do the pigeons here have so few toes?"'''
+```
+
+The result is identical to the single-quoted form with the quotes escaped:
+
+```console
+$ ./strs dblStr
+"That's weird, I also spelled it \"ear quotes\", like \"bunny ears\"."
+$ ./strs sinStr
+"\"Why do the pigeons here have so few toes?\""
+```
+
+Their real value is multi-line text. The indentation is trimmed by three rules, applied in order:
+
+1.  Initial spaces up to and including the first newline are removed.
+2.  Terminal spaces up to and including the final newline are removed.
+3.  Every line loses as many leading spaces as the least-indented line has.
+
+So a block can sit at whatever indentation the surrounding code wants:
+
+```morloc
+longString :: Str
+longString =
+  """
+  this is a long
+  string
+  """
+```
+
+```console
+$ ./strs longString
+"this is a long\nstring"
+```
+
+The leading and trailing newlines and the two-space indent are all gone, which is what lets you write natural paragraphs without breaking your code’s indentation.
+
+## 4.6.4. NUL bytes in strings
+
+This is the thorniest corner of multi-language string support, and it is worth understanding before it bites you.
+
+In C, a NUL byte terminates a string, so `strlen` and `strdup` cannot see past one. R is built on C and makes within-string NULs strictly illegal. Python and C++ (through `std::string`) both allow them — but even there, problems appear whenever the string is converted to a C string, through `.c_str()` in C++ or across the C ABI in Python.
+
+NULs are not common in text. Their main use is binary data, and `Str` is not the right type for that — prefer `[U8]`, or better a `Vector n U8` ([Tensors](https://morloc-project.github.io/docs/types/tensors.md)). But Morloc’s philosophy is to support what is idiomatic in each language, and `Str` is meant to be the ordinary string type everywhere. So Morloc’s `Str` does support NULs: they can be written with `\0`, the evaluator preserves them end to end, and JSON represents them with the standard `\u0000` escape.
+
+In a Python-only program that works exactly as you would expect:
+
+```morloc
+nulStr :: Str
+nulStr = "ab\0cd"
+
+pyNul :: Str
+pyNul = idpy nulStr
+
+len :: U64
+len = size nulStr
+```
+
+```console
+$ ./nul len
+5
+$ ./nul pyNul
+"ab\u0000cd"
+```
+
+Five bytes, and the NUL survives the round trip.
+
+Each language declares `allow_string_null` in its `lang.yaml`. When a `Str` carrying a NUL is sent to a language that does not allow one, the call is rejected.
+
+A **literal** is caught while compiling, because the generated source would not parse. The error names the pool and points at the place the literal enters it:
+
+```console
+$ morloc make nul.loc
+nul.loc:13:12: error:
+This string literal contains a NUL byte, which the r pool cannot represent in its native string type. Move the literal to a language that can (Python, C++, Julia, or the nexus itself), or remove the NUL byte. See the allow_string_null field in the language's lang.yaml.
+   |
+13 | rNul = idr nulStr
+   |            ^
+```
+
+It points at the use rather than the declaration, because the same literal is perfectly legal in a pool that can hold it.
+
+A value computed at **run time** is caught at the boundary it tries to cross. Arriving as a command-line argument:
+
+```console
+r does not support embedded NUL bytes in strings (at args[0])
+```
+
+or produced inside one pool and handed to another:
+
+```console
+$ ./nexus listR ab
+Error: run failed
+R cannot represent an embedded NUL byte in a string; one arrived at [1] (byte 2 of 5)
+  at _ [r] (mid=2053, main.loc:11:14)
+```
+
+The path locates the offending slot, which matters when the NUL is buried: `[1]` is the second element of a list, `.b` a record field, and a bare value reports just the byte offset.
+
+Whether that scan happens is decided when your program is compiled. A value whose type contains no string cannot carry a NUL, so no check is generated for it, and a pool in a language that tolerates NULs is compiled exactly as it would have been. You pay only where a string actually crosses into a language that cannot hold one.
+
+Scanning every string for NULs costs time. You can opt out two ways when you know it is safe:
+
+-   `morloc make --unsafe-skip-null-check` bakes a per-program skip flag into the manifest.
+-   `MORLOC_SKIP_NULL_CHECK=1` skips the scan for one run.
+
+Both are unsafe in the same way: a NUL that reaches R still crashes inside the R runtime, just with R’s error instead of Morloc’s. There is nothing useful user-written R code can do with a NUL-bearing string.

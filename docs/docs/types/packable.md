@@ -1,0 +1,213 @@
+# 5.5. Serializing custom types with `Packable`
+
+Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/packable.html | prev: https://morloc-project.github.io/docs/types/newtype.md | next: https://morloc-project.github.io/docs/types/kinds.md
+
+Morloc can move a value between languages when it knows how to write that value down. Primitives, lists, tuples and records all have a canonical written form, so they cross a boundary with no help from you. A type that does not decompose into those forms needs you to say what it looks like on the wire. You say it by declaring a `Packable` instance.
+
+Consider `Map k v`. In Python it is a `dict`, in C++ a `std::map`, in R a named list; it could equally be a list of pairs, a pair of columns, or a balanced tree. None of those is more canonical than the others. What they share is that any of them can be written as a list of key/value pairs, and that is what `Packable` records.
+
+The class lives in `internal` and has two methods:
+
+```morloc
+class Packable a b where
+    pack :: a -> b
+    unpack :: b -> a
+```
+
+`a` is the wire form and `b` is the type being described. `pack` builds the type from its wire form, `unpack` takes it apart.
+
+## 5.5.1. A worked example: `Map`
+
+`Map` is declared with no right-hand side — it is a primitive, opaque to Morloc, with a form in each language (see [Naming a type: `type` and `newtype`](https://morloc-project.github.io/docs/types/newtype.md)). The `Packable` instance says it travels as a list of pairs:
+
+**counts.loc**
+
+```morloc
+module main (tally, topCount)
+
+import root-py
+import root-cpp
+
+newtype Map key val
+
+type Py  => Map key val = "dict" key val
+type Cpp => Map key val = "std::map<$1,$2>" key val
+
+instance Packable [(a, b)] (Map a b) where
+    source Py  from "map-packing.py"  ("pack", "unpack")
+    source Cpp from "map-packing.hpp" ("pack", "unpack")
+
+source Py from "counts.py" ("tally")
+tally :: [Str] -> Map Str Int
+
+source Cpp from "counts.hpp" ("biggest")
+biggest :: Map Str Int -> Int
+
+topCount :: [Str] -> Int
+topCount = biggest . tally
+```
+
+The packers are ordinary functions in their own languages. Python:
+
+**map-packing.py**
+
+```python
+def pack(xs):
+    return dict(xs)
+
+def unpack(d):
+    return list(d.items())
+```
+
+C++:
+
+**map-packing.hpp**
+
+```cpp
+#pragma once
+#include <map>
+#include <tuple>
+#include <vector>
+
+template <class K, class V>
+std::map<K,V> pack(std::vector<std::tuple<K,V>> xs){
+    std::map<K,V> m;
+    for (auto& kv : xs) m[std::get<0>(kv)] = std::get<1>(kv);
+    return m;
+}
+
+template <class K, class V>
+std::vector<std::tuple<K,V>> unpack(std::map<K,V> m){
+    std::vector<std::tuple<K,V>> xs;
+    for (auto& kv : m) xs.push_back({kv.first, kv.second});
+    return xs;
+}
+```
+
+And the two functions that actually do the work:
+
+**counts.py**
+
+```python
+def tally(words):
+    d = {}
+    for w in words:
+        d[w] = d.get(w, 0) + 1
+    return d
+```
+
+**counts.hpp**
+
+```cpp
+#pragma once
+#include <map>
+#include <string>
+
+inline int biggest(std::map<std::string,int> m){
+    int best = 0;
+    for (auto& kv : m) if (kv.second > best) best = kv.second;
+    return best;
+}
+```
+
+`topCount` composes a Python function that returns a `dict` with a C++ function that takes a `std::map`. Neither language knows about the other:
+
+```console
+$ morloc make -o counts counts.loc
+$ ./counts topCount '["a","b","a"]'
+2
+$ ls counts-build/pools/
+cpp
+py
+```
+
+The standard library ships a fuller `Map` in its `map` module, declared exactly this way — `newtype Map a b`, then `instance Packable [(a, b)] (Map a b)`, with the per-language forms and packers in `map-py`, `map-cpp` and `map-r`. The version above is standalone so it can be read on its own.
+
+You never call `pack` or `unpack` yourself here. The compiler builds a serialization tree from the general type and generates the native code to decompose the value recursively until only primitives remain. Those are what travel. The wire form is also what the command line accepts and prints, which is why `Map Str Int` appears as a list of pairs:
+
+```console
+$ ./counts tally '["a","b","a"]'
+[["a",2],["b",1]]
+```
+
+## 5.5.2. Specialized instances
+
+A native type is sometimes less general than the Morloc type. R’s named list, for example, can only have string keys. Declare a narrower instance and the compiler will use it where it fits and prune the language elsewhere:
+
+```morloc
+type R => Map key val = "list" key val
+
+instance Packable [(Str, b)] (Map Str b) where
+    source R from "map-packing.R" ("pack", "unpack")
+```
+
+If R is the only language available and a signature demands a non-string key, the program does not build:
+
+**ronly.loc**
+
+```morloc
+module main (countStr, countInt)
+
+import root-r
+
+newtype Map key val
+type R => Map key val = "list" key val
+
+instance Packable [(Str, b)] (Map Str b) where
+    source R from "map-packing.R" ("pack", "unpack")
+
+source R from "ops.R" ("count_keys" as countKeys)
+countKeys :: Map a b -> Int
+
+countStr :: Map Str Int -> Int
+countStr = countKeys
+
+countInt :: Map Int Str -> Int
+countInt = countKeys
+```
+
+```console
+$ morloc make -o ronly ronly.loc
+ronly.loc:1:24: error:
+There was an error raised in subtyping while resolving serialization
+The packer involved maps the type:
+  forall b . Map Str b
+
+To the serialized form:
+  forall b . [(Str, b)]
+...
+However, the b <: a step failed:
+Cannot compare types character and integer
+
+The packer function may not be generic enough to pack the type you specify, if this is the case, you may need to simplify the datatype
+  |
+1 | module main (countStr, countInt)
+  |                        ^
+```
+
+That is the message telling you the R backend cannot serve `Map Int Str`. With a Python implementation also in scope, the same program compiles and the R implementations are not selected.
+
+One line of that message, elided above, currently prints raw compiler internals rather than a Morloc type. Read past it to the `Cannot compare types` line, which is the real content.
+
+## 5.5.3. `pack` in your own code
+
+`pack` and `unpack` are ordinary methods, so you can call them. `unpack` is how you convert a nominal type back to its wire form, as the `Deque` example in [Naming a type: `type` and `newtype`](https://morloc-project.github.io/docs/types/newtype.md) does.
+
+Calling `pack` has one sharp edge. If the wire form itself contains a packable type, the compiler will not chain the two conversions and reports a missing instance. Here the target is `Matrix`, the standard library’s two-dimensional tensor (see [Tensors](https://morloc-project.github.io/docs/types/tensors.md)), whose wire form is a dimension tuple paired with a `Vector`:
+
+```console
+$ morloc typecheck m.loc
+m.loc:7:5: error:
+General type error: No instance found for Packable::pack
+  Are you missing a top-level type signature?
+  |
+7 | m = pack ((2, 3), [1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+  |     ^
+```
+
+Annotate the inner expression with the type it should have and it goes through:
+
+```morloc
+m :: Matrix 2 3 Real
+m = pack ((2, 3), ([1.0, 2.0, 3.0, 4.0, 5.0, 6.0] :: Vector 6 Real))
+```

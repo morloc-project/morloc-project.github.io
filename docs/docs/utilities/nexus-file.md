@@ -1,0 +1,69 @@
+# 9.1. morloc-nexus file
+
+Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/nexus-file.html | prev: https://morloc-project.github.io/docs/utilities/index.md | next: https://morloc-project.github.io/docs/utilities/nexus-view.md
+
+`morloc-nexus file` plays the role of the UNIX `file` utility for Morloc-compatible data files. It recognises morloc packets (`data-packet`, `call-packet`, `stream-packet`, `ping-packet`), JSON, MessagePack, CSV, Arrow IPC, Parquet, ASCII / UTF-8 text, and empty files.
+
+Default output is exactly one line per input file, formatted as `<path>: <type> key=value …​`. The stream is grep / awk / sort friendly: `morloc-nexus file * | wc -l` always equals the number of input files.
+
+For example:
+
+```console
+$ morloc-nexus file data.packet log.stream data.json data.mpk people.csv README empty.bin
+data.packet: data-packet source=mesg format=msgpack schema="as" payload=1024 metadata=64 total=1120
+log.stream: stream-packet schema="ad8" state=final status=closed subpackets=42 elements=524288 payload_full_size=8388608 payload_wire_size=524288
+data.json: json
+data.mpk: msgpack
+people.csv: csv columns=3 delimiter=","
+README: text encoding=ascii
+empty.bin: empty
+```
+
+For morloc packets, classification is magic-byte based and seek-only, so even a multi-gigabyte CALL or STREAM packet costs a few hundred bytes of I/O. The on-disk file size is checked against the size declared in the packet header by default; truncated or oversize packets are reported and exit non-zero.
+
+## 9.1.1. Stream packets
+
+Stream-packet output carries the footer’s summary when one is present. `state=final` marks a cleanly closed stream (final footer + end-of-file tail present); `state=temp` marks an intermediate mid-stream footer written by an in-progress `@close`; `state=missing` marks a stream whose writer exited before writing a footer.
+
+For `state=missing` files, `morloc-nexus file` runs a bounded forward scan of the sub-packet headers to report a best-effort `subpackets=N` and `elements=N` count. The scan is capped at 10 000 sub-packets (`MORLOC_FILE_MAX_SCAN_SUBPACKETS` to override); when the cap is hit the counts carry a trailing `+` and the file is flagged as truncated at the scan boundary. Scan results annotate the `state=missing` line but are diagnostic only: the file is left untouched. `morloc-nexus view` reuses the same scan to open the file through `IStream` or the pattern walker.
+
+For the remaining formats, classification reads up to one kilobyte of the file and feeds it through the same parsers the runtime uses on real ingest.
+
+## 9.1.2. Options
+
+| `-F`, `--no-file` | Suppress the `<path>:` prefix. |
+| --- | --- |
+| `-D`, `--no-description` | Suppress every `key=value` field; keep only the type token. `-FD` combined yields a clean type stream for programmatic use. |
+| `-v`, `--verbose` | Break the one-line rule. CALL packets emit one indented `arg[i]: data-packet …​` line per argument. CSV files emit one indented `<name>:<type>` line per column, with type inferred as one of `int`, `float`, `str`, `bool`, `date`, `time`, or `other`. STREAM packets emit the extended footer diag (writer pid, flush timestamps, oversize count, largest sub-packet, EOF tail window). |
+| `-n`, `--bytes SIZE` | Bytes read for content-based detection. Accepts a K / M / G suffix. Default `1k`. Morloc-packet detection always uses just the 32-byte header regardless. |
+| `--json` | Emit one JSON object per file. JSON output is unaffected by `-F` / `-D` / `-v` and always includes the full structure, including CSV column names and types. |
+| `--validate` | After classifying, fully load each file through the exact same loader the `run` subcommand uses, then discard the result. Appends `validated=yes`, `validated=no error="<msg>"`, or `validated=structure-only`. If `file --validate` passes, `run` (or `view`) reading the same file will not fail at the load stage. |
+| `--schema STRING` | Morloc schema used by `--validate` for inputs that don’t embed one. Ignored without `--validate`. |
+
+## 9.1.3. Verbose example
+
+```console
+$ morloc-nexus file -v people.csv
+people.csv: csv columns=3 delimiter=","
+  name:str
+  age:int
+  city:str
+
+$ morloc-nexus file -v call.packet
+call.packet: call-packet midx=42 entrypoint=local nargs=3 payload=72 total=104
+  arg[0]: data-packet source=mesg format=msgpack schema="i4" payload=4
+  arg[1]: data-packet source=mesg format=msgpack schema="as" payload=16
+  arg[2]: data-packet source=rptr format=voidstar schema="ad8" payload=8
+
+$ morloc-nexus file -v log.stream
+log.stream: stream-packet schema="ad8" state=final status=closed subpackets=42 elements=524288 payload_full_size=8388608 payload_wire_size=524288
+  diag_version=1
+  writer_pid=12345
+  n_oversize_subpackets=0
+  writer_start_time=1720000000
+  first_flush_time=1720000001
+  last_flush_time=1720000042
+  largest_packet_uncompressed=262144
+  largest_packet_idx=17
+  tail_window=[...]
+```

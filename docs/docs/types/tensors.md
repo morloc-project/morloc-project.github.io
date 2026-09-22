@@ -1,0 +1,241 @@
+# 5.7. Tensors
+
+Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/tensors.html | prev: https://morloc-project.github.io/docs/types/kinds.md | next: https://morloc-project.github.io/docs/types/tables.md
+
+The standard library’s tensor types carry their dimensions in the type, so the compiler can catch a shape mismatch — a 3x4 matrix where a 4x3 was wanted — even when the two functions live in different languages. This is the kind system ([The kind system](https://morloc-project.github.io/docs/types/kinds.md)) doing its most useful job.
+
+The types live in `vector` and `tensor`, with a language module for each backend. `Vector` is the flat one-dimensional form; the higher ranks pair a runtime dimension tuple with a flat `Vector` of the row-major data:
+
+```morloc
+newtype Vector  (n :: Nat) a = List a
+
+newtype Matrix  (m :: Nat) (n :: Nat) a
+        = ((Int, Int), Vector (m * n) a)
+
+newtype Tensor3 (d1 :: Nat) (d2 :: Nat) (d3 :: Nat) a
+        = ((Int, Int, Int), Vector (d1 * d2 * d3) a)
+
+-- Tensor4 and Tensor5 follow the same pattern
+```
+
+The `Nat` parameters exist only while the program is being compiled; at runtime a `Vector 5 Int` is a list of five integers and the `5` is gone. `a` is the element type.
+
+Each backend maps these onto the natural array type for its language:
+
+| Language | Native form |
+| --- | --- |
+| Python | `numpy.ndarray` for every rank, which puts numeric data on the zero-copy deserialization path |
+| C++ | `std::vector<T>` for `Vector`; `mlc::Tensor2<T>` and up for the higher ranks, an owning buffer with an `std::mdspan` view |
+| R | an atomic vector (`numeric`, `integer`, `logical`, `character`) for `Vector`; `matrix` for `Matrix`; `array` above that |
+
+## 5.7.1. Shapes that have to agree
+
+`matmul` in `tensor` has the signature you would write on a whiteboard:
+
+```morloc
+matmul :: Matrix m k a -> Matrix k n a -> Matrix m n a
+```
+
+The `k` appears in both arguments, so the inner dimensions must match, and the result’s shape follows from the outer ones.
+
+**matmul.loc**
+
+```morloc
+module main (project)
+
+import root-py
+import tensor-py
+
+-- Multiply a 2x3 matrix by a 3x2 matrix
+project :: Matrix 2 3 Real -> Matrix 3 2 Real -> Matrix 2 2 Real
+project = matmul
+```
+
+```console
+$ morloc make -o matmul matmul.loc
+$ ./matmul project '[[2,3],[1,2,3,4,5,6]]' '[[3,2],[1,0,0,1,1,1]]'
+[[2,2],[4,5,10,11]]
+```
+
+Claim a shape that does not hold and the compiler names the offending dimension pair:
+
+```console
+$ morloc typecheck matmul-bad.loc
+matmul-bad.loc:8:11: error:
+Type mismatch:
+  expected: (Matrix 2 3 Real) -> (Matrix 2 3 Real) -> (Matrix 2 3 Real)
+  inferred: (Matrix b d a) -> (Matrix d c a) -> (Matrix b c a)
+Subtype error: Nat constraint mismatch
+  2 <: 3
+  |
+8 | project = matmul
+  |           ^
+```
+
+> **Note: Tensors on the command line**
+> A tensor argument is written in its **wire form**: the dimension tuple first, then the flat row-major data. So a 2x3 matrix of reals is `[[2,3],[1,2,3,4,5,6]]`, and that is also how a tensor result prints. A `Vector` is the exception — its wire form is a plain list, so it is written `[1,2,3]`.
+
+## 5.7.2. Dimensions computed from other dimensions
+
+A signature can state an arithmetic relationship between shapes, and the compiler will evaluate it. Convolution is the standard case: a valid-mode convolution of an `n`\-element signal with a `k`\-element kernel gives `n - k + 1` elements.
+
+**conv.loc**
+
+```morloc
+module main (smooth)
+
+import root-py
+import tensor-py
+
+source Py from "conv.py" ("conv1d")
+conv1d :: Vector n Real -> Vector k Real -> Vector (n - k + 1) Real
+
+smooth :: Vector 8 Real -> Vector 3 Real -> Vector 6 Real
+smooth = conv1d
+```
+
+**conv.py**
+
+```python
+import numpy as np
+
+def conv1d(signal, kernel):
+    return np.convolve(signal, kernel, mode="valid")
+```
+
+```console
+$ morloc make -o conv conv.loc
+$ ./conv smooth '[1,2,3,4,5,6,7,8]' '[0.25,0.5,0.25]'
+[2,3,4,5,6,7]
+```
+
+`8 - 3 + 1` is 6, so the annotation holds. Write 5 instead and the compiler does the arithmetic for you:
+
+```console
+$ morloc typecheck conv-bad.loc
+conv-bad.loc:10:10: error:
+Type mismatch:
+  expected: (Vector 8 Real) -> (Vector 3 Real) -> (Vector 5 Real)
+  inferred: (Vector a Real) -> (Vector b Real) -> (Vector ((1 + a) + (-1 * b)) Real)
+Subtype error: Nat constraint mismatch
+  6 <: 5
+   |
+10 | smooth = conv1d
+   |          ^
+```
+
+The `inferred` line shows the un-substituted shape formula in the solver’s normal form — `(1 + a) + (-1 * b)` is `a - b + 1`.
+
+Any relationship you can write as arithmetic works the same way. These are signatures you might give your own foreign functions; the standard library does not supply them:
+
+```morloc
+flatten :: Matrix m n Real -> Vector (m * n) Real
+vstack  :: Matrix m n Real -> Matrix p n Real -> Matrix (m + p) n Real
+kron    :: Matrix m n Real -> Matrix p q Real -> Matrix (m * p) (n * q) Real
+```
+
+When a dimension is still a free variable the check is deferred until it is solved. If it never is, it is never checked.
+
+## 5.7.3. Dimensions that come from arguments
+
+The constructors in `vector` and `tensor` take their sizes as ordinary integer arguments, and the label syntax (see [The kind system](https://morloc-project.github.io/docs/types/kinds.md)) lifts those arguments into the result type:
+
+```morloc
+zeros1   :: d@Int -> Vector d a
+zeros2   :: d1@Int -> d2@Int -> Matrix d1 d2 a
+ones2    :: d1@Int -> d2@Int -> Matrix d1 d2 a
+fill2    :: a -> d1@Int -> d2@Int -> Matrix d1 d2 a
+identity :: n@Int -> Matrix n n a
+```
+
+Calling one with a literal fixes the shape, and the fixed shape flows onward:
+
+**labels.loc**
+
+```morloc
+module main (eye, scaled)
+
+import root-py
+import tensor-py
+
+eye :: Matrix 3 3 Real
+eye = identity 3
+
+scaled :: Matrix 2 3 Real
+scaled = matmul (fill2 2.0 2 2) (ones2 2 3)
+```
+
+```console
+$ morloc make -o labels labels.loc
+$ ./labels eye
+[[3,3],[1,0,0,0,1,0,0,0,1]]
+$ ./labels scaled
+[[2,3],[4,4,4,4,4,4]]
+```
+
+`identity 3` really is a `Matrix 3 3 Real` as far as the typechecker is concerned:
+
+```console
+$ morloc typecheck labels-bad.loc
+labels-bad.loc:7:7: error:
+Type mismatch:
+  expected: Matrix 4 4 Real
+  inferred: Matrix 3 3 a
+Subtype error: Nat constraint mismatch
+  3 <: 4
+  |
+7 | eye = identity 3
+  |       ^
+```
+
+Let-bound variables and tuple accessors work too, so `let dims = (3, 4) in zeros2 (.0 dims) (.1 dims)` is a `Matrix 3 4 Real`.
+
+## 5.7.4. Building a tensor by hand
+
+Higher-rank tensors reach a language boundary through `Packable` ([Serializing custom types with `Packable`](https://morloc-project.github.io/docs/types/packable.md)). The standard library declares one instance per rank:
+
+```morloc
+instance Packable ((Int, Int), Vector (d1 * d2) a)
+                  (Matrix d1 d2 a)
+
+instance Packable ((Int, Int, Int), Vector (d1 * d2 * d3) a)
+                  (Tensor3 d1 d2 d3 a)
+```
+
+The split is deliberate. The **runtime** dimension tuple is what crosses the wire and tells the receiver how much buffer to allocate. The **type-level** dimensions on the `Vector` let the compiler check that the flat data has as many elements as the shape claims. Device residency — whether a tensor lives on CPU or GPU — is left out on purpose: it is local to a node and meaningless across a wire, which is the same choice NumPy’s `.npy`, Arrow IPC, ONNX, HDF5 and TensorProto make. The `pack` and `unpack` functions handle host-device transfers where a backend needs them.
+
+`Vector` needs no instance to reach a pool. Its wire parent is `List`, so a list literal becomes a `Vector` on shape alone, and each backend’s declared form does the rest: `vector-py` maps it to `numpy.ndarray`, which the Python binding builds directly, and `vector-cpp` declares no form at all because a `List` is already a `std::vector`. That is what keeps numpy buffers on the zero-copy path and lets a `std::vector` round-trip without an intermediate Python list.
+
+`Vector` does declare `Packable (List a) (Vector n a)`, and `vector-py` implements it, but the serializer never routes through it. It is there so you can call `pack` and `unpack` on a `Vector` yourself.
+
+Normally the compiler calls `pack` for you. When you write a tensor literal in Morloc you call it yourself, and the inner list needs an annotation, because the compiler will not chain two `Packable` conversions:
+
+```morloc
+m :: Matrix 2 3 Real
+m = pack ((2, 3), ([1.0, 2.0, 3.0, 4.0, 5.0, 6.0] :: Vector 6 Real))
+```
+
+**Without the \`**
+
+Vector 6 Real\`, the compiler reports a missing `Packable` instance for `pack`.
+
+## 5.7.5. Omitting dimensions
+
+Dimension arguments are opt-in, as [The kind system](https://morloc-project.github.io/docs/types/kinds.md) describes. `Vector 3 U8`, `Vector n U8` and `Vector U8` all coexist, and a concrete vector flows into a gradual slot:
+
+```morloc
+prettyPrint :: Tensor3 Real -> Str          -- three unknown dims
+normalize   :: Tensor3 h Real -> Tensor3 h w d Real
+```
+
+Positions fill left to right, so `Tensor3 h Real` fixes the first dimension and leaves the other two open.
+
+**The element type is never optional. Use \`size v**
+
+U64\` from `Sizeable` to read a length at runtime whatever the signature says.
+
+## 5.7.6. What is checked, and what is not
+
+Morloc checks that the dimensions in your compositions agree. It does not check that a foreign function honours the signature you gave it. A C++ function declared `Matrix m n Real → Matrix n m Real` that actually returns its input unchanged will not be caught. This is the same bargain as a C header file: the types are a contract and the implementation is trusted to keep it.
+
+Arithmetic constraints are checked when every variable involved is known. When some stay free the check is deferred, and if they are never resolved it does not happen at all.

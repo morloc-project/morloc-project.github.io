@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+Disallow: /docs/all.html
+Sitemap: https://morloc-project.github.io/docs/sitemap.xml

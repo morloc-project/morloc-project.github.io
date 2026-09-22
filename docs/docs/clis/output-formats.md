@@ -1,0 +1,148 @@
+# 6.9. Output formats
+
+Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/output-formats.html | prev: https://morloc-project.github.io/docs/clis/reading-stdin.md | next: https://morloc-project.github.io/docs/clis/output-actions.md
+
+A command’s return value is serialized and written to standard output. The default form is JSON:
+
+```console
+$ ./sift summarize hits.json
+[["notes\/todo.txt",2],["notes\/2026\/plan.txt",2]]
+```
+
+`/` is escaped as `\/`, which JSON permits and which some encoders do. It is the same string either way.
+
+The nexus option `-f` picks a different form. Which forms are available does not depend on the program — serialization is the runtime’s job, not the tool’s, so every Morloc command can emit every form its type supports:
+
+| Form | Notes |
+| --- | --- |
+| `json` | The default. Human-readable, lossy on integer width. |
+| `jsonl` | One element per line. Meaningful for list-shaped results; a scalar is one line. |
+| `mpk` | MessagePack. Compact, exact. |
+| `voidstar` | Morloc’s in-memory binary form, written out. Carries the value’s schema. |
+| `packet` | A Morloc wire packet: the value plus its schema and framing. This is what `@stdin` readers expect, and what `-z` compresses. |
+| `arrow`, `parquet` | Apache Arrow IPC and Parquet. Requires a `Table` return type. |
+| `csv` | Requires a `Table` return type. |
+
+Because the reader detects the format from the bytes, a value written in one form is read back without being told which:
+
+```console
+$ ./sift -f mpk scan the notes > hits.mpk
+$ ./sift summarize hits.mpk
+[["notes\/todo.txt",2],["notes\/2026\/plan.txt",2]]
+```
+
+`-f jsonl` is the form to reach for when the next thing in the pipeline is a line-oriented Unix tool:
+
+```console
+$ ./sift -f jsonl scan the notes
+{"path":"notes\/todo.txt","line":2,"text":"fix the parser"}
+{"path":"notes\/todo.txt","line":3,"text":"write the manual"}
+{"path":"notes\/2026\/plan.txt","line":1,"text":"fix the build"}
+{"path":"notes\/2026\/plan.txt","line":2,"text":"ship the manual"}
+```
+
+Asking for a form the type cannot produce is an error, not a silent approximation:
+
+```console
+$ ./sift -f csv summarize hits.json
+Error: --format=arrow|parquet|csv requires a Table return type
+```
+
+Two more nexus options shape the output. `-o` writes to a file instead of stdout. `-p` pretty-prints: JSON gets indentation, and a top-level `Str` is printed as text rather than as a quoted JSON string.
+
+```console
+$ ./sift -p summarize hits.json
+[
+  [
+    "notes\/todo.txt",
+    2
+  ],
+  [
+    "notes\/2026\/plan.txt",
+    2
+  ]
+]
+```
+
+`-z` compresses `-f packet` output; it is covered with the rest of the compression settings in [Compression](https://morloc-project.github.io/docs/runs/compression.md).
+
+## 6.9.1. Nothing to report
+
+A command that returns `()` or a top-level `Null` prints nothing at all. That matches the Unix convention that a tool with no result says nothing, and it is what you want when a Morloc command feeds `grep`, `xargs`, or a status check — a `()` carries no information, and a top-level `None` usually means "it ran and there was nothing to say".
+
+A small program with an optional result, to show it with:
+
+**nulls.py**
+
+```python
+def lookup(key, table):
+    return dict(table).get(key)
+
+def pair():
+    return [5, None]
+```
+
+**nulls.loc**
+
+```morloc
+module nulls (lookupKey, pair)
+
+import root-py
+import map-py
+
+source Py from "nulls.py" ("lookup" as lookupKey, "pair")
+
+--' Look up a key, or nothing
+lookupKey :: Str -> Map Str Str -> ?Str
+
+--' A pair whose second element is Unit
+pair :: (Int, ())
+```
+
+```console
+$ ./nulls lookupKey zz '[["a","1"],["b","2"]]'
+$ echo $?
+0
+```
+
+When the distinction matters — a downstream consumer that needs `null` to mean "a null result" as against an empty file meaning "the process died" — pass `--keep-null`:
+
+```console
+$ ./nulls --keep-null lookupKey zz '[["a","1"],["b","2"]]'
+null
+```
+
+Suppression is a JSON-only convenience. The binary forms always write a well-formed nil, so a reader sees the bytes it expects:
+
+```console
+$ ./nulls -f mpk lookupKey zz '[["a","1"]]' | od -An -tx1
+ c0
+```
+
+A `null` **inside** a value is never suppressed — the shape carries information the consumer needs:
+
+```console
+$ ./nulls pair
+[5,null]
+```
+
+## 6.9.2. Failure
+
+Errors go to standard error and the process exits non-zero, so a Morloc command behaves in a `set -e` script or a `&&` chain the way any other tool does:
+
+```console
+$ ./sift summarize nosuch.json
+Error: failed to parse argument #0: file 'nosuch.json' not found
+$ echo $?
+1
+```
+
+Errors raised inside a pool name the function and the source position that raised them:
+
+```console
+$ ./sift total < /dev/urandom
+Error: run failed
+...
+@next: stdin is not a morloc packet; expected a morloc data or stream packet. Foreign formats (JSON, MessagePack, CSV, ...) are not supported on stdin. A morloc program writes packets only when asked: add `-f packet` to the command on the writing end of this pipe.
+  at total [py] (mid=4, sift.loc:2:40)
+```

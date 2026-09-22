@@ -1,0 +1,25 @@
+# 11.4. R
+
+Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/r.html | prev: https://morloc-project.github.io/docs/languages/python.md | next: https://morloc-project.github.io/docs/languages/rust.md
+
+## 11.4.1. Dependencies (`r-deps`)
+
+Declare a module’s R dependencies in its `package.yaml` under `r-deps`, using the canonical CRAN package name and a version constraint:
+
+```yaml
+r-deps:
+  ggplot2: ">=3.4"
+```
+
+R packages are provisioned from the [conda-forge](https://conda-forge.org/) package database, which mirrors CRAN as `r-<name>` feedstocks. You write the plain CRAN name; morloc lowercases it and prefixes `r-` when lowering, so `ggplot2` above is installed as the conda package `r-ggplot2`. Do not write the `r-` prefix yourself.
+
+`conda` is the default — and, for now, only — source, so the bare form above is equivalent to `ggplot2: {version: ">=3.4", source: conda}`. The `cran` and `bioconductor` sources (installing directly from those registries, compiling against the environment’s R) are recognized but not yet supported; declaring one is a build error today.
+
+The `r-`\-prefixing applies only under conda-forge. An R dependency may instead draw from another conda `channel` (see the Python chapter), in which case the name is passed directly to that channel:
+
+```yaml
+r-deps:
+  bioconductor-deseq2: {version: "*", channel: bioconda}
+```
+
+As with the other languages, the compiler takes the union of `r-deps` across every imported module and the solver intersects conflicting constraints. Only packages that exist as a conda-forge `r-` feedstock can be resolved this way; most of CRAN (and Bioconductor) is mirrored there.

@@ -16,23 +16,14 @@
 :pygments-css: class
 :stem: latexmath
 :toc: left
-:toclevels: 2
+:toclevels: 3
 :includedir: content
 :kroki-server-url: https://kroki.io
 :kroki-fetch-diagram:
 :kroki-default-format: svg
 
+[#intro.onepage]
 == Intro
-
-// Transcripts here were produced on morloc 0.101.0 / mim 0.28.0 (2026-09-06) by
-// running the example shown: the sums program (build, run, -h, --mcp-tools) and
-// the two vector test runs, which are the `vector` module's own suite executed
-// unmodified against the py and cpp implementations.
-// ONE EXCEPTION: the three-stage `./tools` pipeline is carried from
-// cli-composition.asc, where it was verified on 0.100.2 against the `sift` and
-// `stats` modules that chapter builds. It is repeated here because it is the
-// clearest demonstration of typed values crossing a pipe; re-verify it there,
-// not here. Changing any example means re-running it.
 
 Morloc replaces the application with the function as the unit you build,
 publish, and compose.
@@ -50,6 +41,17 @@ several. The compiler generates the code that carries data between them. That is
 why Morloc is polyglot: a library of functions cannot be universal if it is
 partitioned by language.
 
+// Transcripts here were produced on morloc 0.101.0 / mim 0.28.0 (2026-09-06) by
+// running the example shown: the sums program (build, run, -h, --mcp-tools) and
+// the two vector test runs, which are the `vector` module's own suite executed
+// unmodified against the py and cpp implementations.
+// ONE EXCEPTION: the three-stage `./tools` pipeline is carried from
+// cli-composition.asc, where it was verified on 0.100.2 against the `sift` and
+// `stats` modules that chapter builds. It is repeated here because it is the
+// clearest demonstration of typed values crossing a pipe; re-verify it there,
+// not here. Changing any example means re-running it.
+
+[[one-program]]
 === Morloc in one program
 
 Two functions, in two languages, neither aware of the other. A {cpp} sum:
@@ -118,9 +120,10 @@ $ ./sums sumOfSums '[[1,2],[3,4,5]]'
 ----
 
 A Python function called a {cpp} function across a process boundary, and you
-wrote no binding, no serializer, and no argument parser. <<_getting_started>>
+wrote no binding, no serializer, and no argument parser. <<getting-started>>
 builds this program up one step at a time.
 
+[[what-morloc-is-not]]
 === What Morloc is not
 
 Morloc is not a foreign function interface generator. You write no bindings and
@@ -133,6 +136,7 @@ Morloc program is ordinary code in those languages, with no Morloc imports, no
 annotations, and no base class. You keep your editor, your debugger, your
 libraries, and your existing code. What Morloc adds is a type and a name.
 
+[#why.onepage]
 == Why Morloc?
 
 Every command line tool solves the same problems a second time. Argument
@@ -158,6 +162,7 @@ Morloc's answer to each of these is the same answer: derive the interface from
 the type instead of writing it. The sections below are that answer applied in
 different directions.
 
+[[derived-interface]]
 === The interface is derived, not written
 
 The program above declared two functions. It also, without further instruction,
@@ -213,9 +218,10 @@ types the compiler already checked, so they cannot drift from the functions:
 rename an argument or change a return type and every one of them moves on the
 next build.
 
-<<building-clis>> covers the command line view, <<building-apis>> the network
-and MCP views, and <<_the_interface_as_data>> the introspection formats.
+<<clis>> covers the command line view, <<apis>> the network
+and MCP views, and <<interface-as-data>> the introspection formats.
 
+[[values-cross-boundaries]]
 === Values cross boundaries, not file formats
 
 A Morloc command writes its return type, serialized. A command that accepts
@@ -285,8 +291,9 @@ pointer on the socket, and the reader can ask for JSON or MessagePack instead.
 Data too large for memory need not be a value at all: `IFile`, `IStream`, and
 `OStream` describe data that lives in a file, indexed or walked in order, and a
 handle to one crosses a pool boundary like any other argument. See
-<<_controlling_data_transfer>> and <<_random_access_and_streaming>>.
+<<data-transfer>> and <<random-access-and-streaming>>.
 
+[[signature-vs-implementation]]
 === A signature and its implementations are separate things
 
 A Morloc module may declare types and signatures and supply no code at all. Such
@@ -309,6 +316,7 @@ type in a few lines. Morloc modules are small in their typed interface, which is
 the surface you compose against, and can be whatever size they need to be
 underneath.
 
+[[tests-follow-the-type]]
 === Tests and benchmarks follow the type, not the language
 
 Because the signature is separate from the implementations, so is everything
@@ -353,8 +361,9 @@ Benchmarking works the same way, and for the same reason. Write the composition
 once against the abstract module, bind it to two implementations, and call both
 from one program. The runtime reports per-call timings through a log template
 you configure rather than code you write, so the measurement is not something
-each implementation reports for itself. See <<_logging>>.
+each implementation reports for itself. See <<logging>>.
 
+[[toolboxes]]
 === Toolboxes add and subtract
 
 A module that compiles to a command line tool is still a module, so another
@@ -382,6 +391,7 @@ three left out are gone from the help, from the completions, and from the MCP
 surface, with the code behind them never built. Neither move requires a plugin
 system, and neither requires the consent of whoever wrote `sift`.
 
+[[annotations]]
 === Caching, logging, and placement are annotations
 
 Memoizing an expensive step, recording what ran and how long it took, or moving
@@ -414,9 +424,10 @@ remote worker.
 Failure is handled in the same spirit. A build flag wraps every foreign call so
 that anything which throws dumps its arguments to disk and records the chain of
 calls that reached it, which makes a failure inspectable without reproducing it.
-Builds without the flag pay nothing. See <<caching>>, <<_logging>>,
-<<debugging>>, and <<_execution_contexts>>.
+Builds without the flag pay nothing. See <<caching>>, <<logging>>,
+<<debugging>>, and <<execution-contexts>>.
 
+[[one-environment]]
 === One environment, solved once
 
 The usual objection to a polyglot program is that it multiplies package
@@ -454,6 +465,7 @@ module reads an archival format once instead of every tool reimplementing it.
 
 <<per-function-environments>> in the Q&A takes up the comparison directly.
 
+[[what-this-makes-possible]]
 === What this makes possible
 
 Everything above is already in the compiler. What it is *for* is not built yet,
@@ -480,11 +492,12 @@ possible today:
 * *Communities organized by values instead of by language.* Morloc calls these
   *planes*: namespaces that differ not by subject area or language but by what
   their members demand of code -- review, verification, performance, or nothing
-  at all. See <<_planes_of_libraries>>.
+  at all. See <<planes-of-libraries>>.
 
 None of that infrastructure exists yet. There is no registry, no type-directed
 search, and no plane but the default one.
 
+[[project-status]]
 === Where the project stands
 
 Morloc has been in development for about ten years. I use it for my own work,
@@ -501,6 +514,7 @@ development, editor support is current for vim and Pygments and stale for VS
 Code/Zed, some aspects of the type system are still experimental, and the module
 registry is unbuilt.
 
+[[what-i-need]]
 === What I need
 
 I'm looking for people who can:
@@ -516,12 +530,14 @@ I'm looking for people who can:
   interesting theory to hash through. There's a paper or two buried somewhere in
   all of this.
 
+[[getting-started]]
 == Getting Started
 
 include::{includedir}/getting-started.asc[]
 
 // include::{includedir}/motivation.asc[]
 
+[[features]]
 == Syntax and Features
 
 include::{includedir}/features-functions.asc[]
@@ -542,6 +558,7 @@ include::{includedir}/features-effects.asc[]
 include::{includedir}/features-optionals.asc[]
 include::{includedir}/features-intrinsics.asc[]
 
+[[types]]
 == Advanced Types
 
 include::{includedir}/types-term-polymorphism.asc[]
@@ -553,7 +570,7 @@ include::{includedir}/types-kinds.asc[]
 include::{includedir}/features-tensors.asc[]
 include::{includedir}/features-tables.asc[]
 
-[[building-clis]]
+[[clis]]
 == Building CLIs
 
 include::{includedir}/cli-intro.asc[]
@@ -570,7 +587,7 @@ include::{includedir}/cli-composition.asc[]
 include::{includedir}/cli-introspection.asc[]
 include::{includedir}/cli-reference.asc[]
 
-[[building-apis]]
+[[apis]]
 == Building APIs
 
 include::{includedir}/interface-install.asc[]
@@ -579,6 +596,7 @@ include::{includedir}/interface-data-transfer.asc[]
 include::{includedir}/interface-daemons.asc[]
 include::{includedir}/interface-mcp.asc[]
 
+[[runs]]
 == Managing Runs
 
 include::{includedir}/runs-logging.asc[]
@@ -588,6 +606,7 @@ include::{includedir}/runs-compression.asc[]
 include::{includedir}/runs-debugging.asc[]
 include::{includedir}/runs-streaming.asc[]
 
+[[utilities]]
 == Utilities
 
 include::{includedir}/utilities-nexus-file.asc[]
@@ -595,11 +614,13 @@ include::{includedir}/utilities-nexus-view.asc[]
 include::{includedir}/utilities-mim.asc[]
 include::{includedir}/utilities-morloc-eval.asc[]
 
+[[modules]]
 == Modules and Libraries
 
 include::{includedir}/features-modules.asc[]
 include::{includedir}/ecosystem.asc[]
 
+[[languages]]
 == Language Support
 
 include::{includedir}/lang-parameters.asc[]
@@ -609,10 +630,12 @@ include::{includedir}/lang-r.asc[]
 include::{includedir}/lang-rust.asc[]
 include::{includedir}/lang-futhark.asc[]
 
+[[install]]
 == Installation, Versions, and Deployment
 
 include::{includedir}/installation.asc[]
 
+[[internals]]
 == Build Architecture
 
 include::{includedir}/internals-overview.asc[]
@@ -625,6 +648,7 @@ include::{includedir}/internals-runtime.asc[]
 // include::{includedir}/serialization.asc[]
 
 
+[#future.onepage]
 == Future Directions
 
 include::{includedir}/future-directions.asc[]
@@ -633,14 +657,17 @@ include::{includedir}/future-directions.asc[]
 //
 // include::{includedir}/case-sequence-trimming.asc[]
 
+[[qa]]
 == Q&A
 
 include::{includedir}/questions-and-answers.asc[]
 
+[#env.onepage]
 == Environmental Variable List
 
 include::{includedir}/environmental-variables.asc[]
 
+[#contact.onepage]
 == Contact
 
 include::{includedir}/contact.asc[]
@@ -650,16 +677,3 @@ include::{includedir}/contact.asc[]
 // = References
 //
 // bibliography::[]
-
-// DO NOT remove the HTML block below as it is required for the PWA install prompt and the 'back to top' button.
-++++
-<div class="pwa-install-div hidden">
-	<div id="pwa-install-text">Ready for offline use!</div>
-	<button id="pwa-install-btn">Install</button>
-	<button id="pwa-install-dismiss" aria-label="Dismiss PWA install prompt">
-		<img src="static/img/clear_cross.svg" alt="X">
-	</button>
-</div>
-
-<button class="btn hidden back-to-top-btn" aria-label="Scroll to top"><img src="static/img/up-arrow.svg" alt="Top"></button>
-++++

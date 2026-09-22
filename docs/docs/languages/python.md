@@ -1,0 +1,66 @@
+# 11.3. Python
+
+Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/python.html | prev: https://morloc-project.github.io/docs/languages/cpp.md | next: https://morloc-project.github.io/docs/languages/r.md
+
+## 11.3.1. Dependencies (`py-deps`)
+
+Declare a module’s Python dependencies in its `package.yaml` under `py-deps`. Every entry must state its `source` — the package database it is drawn from — because Python packages split across two incompatible worlds:
+
+```yaml
+py-deps:
+  matplotlib: {version: ">=3.5", source: "conda"}
+  requests: {version: "*", source: "pypi"}
+```
+
+`source: conda` draws the package from the [conda-forge](https://conda-forge.org/) package database; `source: pypi` draws it from the [Python Package Index](https://pypi.org/). Use **conda** for anything that ships a compiled C/C++/Fortran extension (`numpy`, `scipy`, `pandas`, `matplotlib`, `pyarrow`, `pillow`, …​) so it shares one ABI with the rest of the environment; **pypi** is appropriate for pure-Python packages that are not mirrored on conda-forge.
+
+Unlike the other languages, `source` is **mandatory** for Python: a bare `matplotlib: ">=3.5"` is a build error, because the correct database cannot be guessed safely. Names are used exactly as written (there is no PyPI-to-conda renaming table), so under `source: "conda"` use the conda-forge package name where it differs from the PyPI name.
+
+The compiler takes the union of `py-deps` across every imported module; two modules constraining the same package differently are intersected by the solver rather than being an error.
+
+### conda channels
+
+A conda dependency may name the **channel** it is drawn from — a distinct package database within conda — for a package that lives on a channel other than conda-forge:
+
+```yaml
+py-deps:
+  pysam: {version: "*", channel: "bioconda"}
+  numpy: {version: ">=2", source: "conda"}
+```
+
+The `channel` field implies `source: conda` (channels are a conda-only concept), so `pysam` above needs no explicit `source`. conda-forge remains the universal default and the highest-priority base; a named channel such as [bioconda](https://bioconda.github.io/) sits **below** it under strict priority and can only supply packages conda-forge lacks. The environment’s channel list is **derived** automatically from the channels its modules declare — channels are never configured at the environment level, because a package’s database of record is a property of the module that needs it, not of where it is deployed.
+
+`channel` is valid only on a conda dependency: pairing it with `source: pypi` is a build error. And because a package has a single database of record, two modules that draw the same package from **different** channels is a build error naming both modules — unlike differing version constraints, which are simply intersected.
+
+## 11.3.2. Local packages (`local-deps`)
+
+A Python package that lives in your project tree rather than in a package database — typically the helper package you are writing alongside the Morloc program — is declared under `local-deps`. The section is keyed by language, and each entry gives a path relative to the module’s directory:
+
+```yaml
+local-deps:
+  py:
+    greet:
+      path: ./src/greet
+      editable: true
+```
+
+`path` must be a pip-installable package: a directory holding a `pyproject.toml` or `setup.py`. When you run `morloc make`, the environment installs it into the pool’s Python, so pool code can `import greet` like any other package. With `editable: true` the install points at your source tree, so an edit to the package is picked up on the next run of the program without rebuilding it; the default is `false`, a snapshot taken at build time. An installed program (`mim install`) always gets a snapshot, whatever `editable` says, so a running service does not change under you.
+
+`source Py from` still names a file, not a package, so reach the package through a one-line bridge:
+
+**glue.py**
+
+```python
+from greet import greet
+```
+
+```morloc
+source Py from "glue.py" ("greet")
+```
+
+Three rules keep a local dependency portable. Only the top-level module being built may declare `local-deps`; an imported module’s relative path has no meaning from the build root, and the build refuses it. The path must stay inside the project: it cannot be absolute and cannot contain `..`. To depend on a package stored elsewhere, put a symlink to it inside the project and point `path` at the symlink. And only Python and Rust support `local-deps`; the build rejects it for C++ and R. Each rule fails with an error naming the dependency:
+
+```console
+$ morloc make main.loc
+morloc: user error (local dependency 'greet' for py has path '../greet' that must not contain '..' (use an in-project symlink for an external source))
+```
