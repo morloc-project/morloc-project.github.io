@@ -251,6 +251,7 @@
  "_actions_on_a_stream": "clis/streaming-output.html",
  "_offset_where_a_batch_sits_in_the_stream": "clis/streaming-output.html",
  "_ifile_the_gathered_stream_as_a_file": "clis/streaming-output.html",
+ "stream-fold": "clis/streaming-output.html",
  "_streaming_rules": "clis/streaming-output.html",
  "_what_the_help_says_a_stream_produces": "clis/streaming-output.html",
  "composing-tools": "clis/composing-tools.html",

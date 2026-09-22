@@ -52,6 +52,9 @@ Every docstring directive that affects the generated interface, grouped by where
 | --- | --- |
 | `@default` | On a `@with` / `@render` directive: this action fires when no action flag and no `-f` is given. At most one per command. |
 | `@stream` | On a `@with` / `@render` directive of a `@collect` command: apply the handler to each batch instead of the gathered stream. |
+| `@fold=<term>` | On a `@with` / `@render` directive of a `@collect` command: fold the stream into one accumulator with `<term> :: b → [a] → b` and apply the handler to that. Requires `@init` and `@combine`; excludes `@stream`. |
+| `@init=<term>` | Under `@fold`: `<term> :: b` starts every accumulator, and is the answer for an empty stream. Must be an identity for `@combine`. |
+| `@combine=<term>` | Under `@fold`: `<term> :: b → b → b` merges the accumulators of the threads a producer drove its sink from. Must be associative, and commutative if that producer is threaded. |
 | `@offset` | As a handler argument under `@stream`: the number of elements already written. |
 | `@value` | As a handler argument: the value being formatted. Appended last if not written explicitly. |
 | `$1`, `$2`, …​ | As a handler argument: the command’s own Nth argument. |

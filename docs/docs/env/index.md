@@ -92,6 +92,7 @@ Set by the nexus and read by the pools it launches.
 | `MORLOC_NEXUS_PATH` | Absolute path of the running nexus, exported to every pool so remote/SLURM dispatch can wrap an `sbatch` call to the same binary. | *(from `current_exe`)* | (pending) |
 | `MORLOC_MANIFEST_PATH` | Absolute (canonicalized) path of the program manifest, exported to pools for tooling that must re-enter the same program. | *(canonical manifest path)* | (pending) |
 | `MORLOC_NEXUS_STDIO_SOCK` | Unix socket the nexus binds for its stdio server; a pool connects to it to route `@stdin` / `@stdout` / `@stderr` back to the nexus. Unset means the pool was not started by a nexus. | *(unset)* | (pending) |
+| `MORLOC_STDOUT_COMPRESSION_LEVEL` | The nexus’s explicit `-z N`, when one was given. A pool writing a stream to `@stdout` compresses every sub-packet at this level instead of the `@write` level. Unset means the `@write` level stands. | *(unset)* | [Compression](https://morloc-project.github.io/docs/runs/compression.md) |
 
 ## 16.9. Nexus inspection tools (`view` / `file`)
 

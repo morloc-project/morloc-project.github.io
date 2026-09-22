@@ -22,6 +22,53 @@
 :kroki-fetch-diagram:
 :kroki-default-format: svg
 
+// The preamble is the manual's home page (docs/index.html); bin/paginate.mjs
+// lifts it out of the chapters. Keep it to about one screen. Ids are not
+// allowed here: every id must belong to a chapter page.
+
+Morloc is a language that allows function composition across languages under a
+common type system. You write idiomatic Python, {cpp}, R, or Rust functions,
+source them into a Morloc module, add a type signature, and they become first
+class citizens. You can then build modules that export arbitrarily complex
+programs composed from these functions. These modules may be imported into other
+modules or compiled into programs with generated command line interfaces and
+HTTP/TCP/UDS/MCP servers.
+
+[.home-features]
+--
+[.home-feature]
+====
+*The interface is derived.* The same module is a command line tool, a server
+over HTTP, TCP, and Unix sockets, and a set of MCP tool definitions. Each is
+projected from checked types, so none can drift from the functions.
+<<derived-interface,More>>
+====
+
+[.home-feature]
+====
+*Scale complexity with a modern functional language.* Morloc supports generics,
+higher-order functions, typeclasses, sum types and tail-call optimized recursion
+in a fully polyglot setting. <<features,More>>
+====
+
+[.home-feature]
+====
+*Fine grained logging, benchmarking and debugging.* Add hooks to expressions and
+monitor their runtime, caching behavior, and more. Full multi-language
+tracebacks with optional input data capture at failure points.
+<<annotations,More>>
+====
+
+[.home-feature]
+====
+*Design with types, reuse across implementations.* Write a test suite once
+against a type signature and run it against every language that implements
+it. <<tests-follow-the-type,More>>
+====
+--
+
+
+
 [#intro.onepage]
 == Intro
 
@@ -40,6 +87,10 @@ from any supported language, or from a composition of functions written in
 several. The compiler generates the code that carries data between them. That is
 why Morloc is polyglot: a library of functions cannot be universal if it is
 partitioned by language.
+
+NOTE: AI was used in the generation of parts of this documentation. This is a
+temporary concession. I'll revise the AI sections and re-introduce some much
+needed profanity once the code base settles with v1.0. December, maybe?
 
 // Transcripts here were produced on morloc 0.101.0 / mim 0.28.0 (2026-09-06) by
 // running the example shown: the sums program (build, run, -h, --mcp-tools) and

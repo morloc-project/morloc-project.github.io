@@ -188,15 +188,17 @@ test("a section page carries title, canonical, prev/next, alternate and the sear
 	assert.match(records, /<body class="book toc2 toc-left">/);
 	assert.match(records, /class="pwa-install-div/);
 	assert.doesNotMatch(records, /<h1/, "the site title is not repeated above every page");
-	assert.match(records, /<nav class="breadcrumb"[^>]*><a href="\.\.\/index\.html">Morloc Manual<\/a> <span class="sep">&gt;<\/span> <a href="index\.html">2\. Syntax &amp; Features<\/a><\/nav>/);
+	assert.match(records, /<nav class="breadcrumb"[^>]*><a href="index\.html">2\. Syntax &amp; Features<\/a><\/nav>/, "the breadcrumb names the chapter, not the site");
+	assert.doesNotMatch(records.match(/<div id="content">[\s\S]*/)[0].split('<div id="footer">')[0], /Morloc Manual<\/a>/, "no link home above the footer");
+	assert.doesNotMatch(file(run(), "docs/features/index.html"), /class="breadcrumb"/, "a chapter page has no breadcrumb");
 });
 
-test("the footer is three spaced links: the credit, llms.txt, and the text twin", () => {
+test("the footer is spaced links: the credit, home, llms.txt, and the text twin", () => {
 	const records = file(run(), "docs/features/records.html");
 	const footer = records.match(/<div id="footer">[\s\S]*?<\/div>/)[0];
 
 	assert.match(footer, /<span class="credit">Created with <a [^>]*><i>Asciidoctor Jet<\/i><\/a><\/span>/);
-	assert.match(footer, /<a href="\.\.\/llms\.txt">llms\.txt<\/a>/);
+	assert.match(footer, /<a class="home" href="\.\.\/index\.html">Home<\/a>\s*<a href="\.\.\/llms\.txt">llms\.txt<\/a>/);
 	assert.match(footer, /<a class="text-view" href="records\.md">View as text<\/a>/);
 	assert.doesNotMatch(footer, /Created using|Jet<\/i><\/a>\./);
 
@@ -210,6 +212,8 @@ test("the footer is three spaced links: the credit, llms.txt, and the text twin"
 
 	assert.match(home, /<div id="footer">[\s\S]*?<\/div>/);
 	assert.doesNotMatch(home.match(/<div id="footer">[\s\S]*?<\/div>/)[0], /View as text/, "the home page has no text twin");
+	assert.match(home.match(/<div id="footer">[\s\S]*?<\/div>/)[0], /<a class="home" href="index\.html">Home<\/a>\s*<a href="llms\.txt">llms\.txt<\/a>/, "the home footer matches every other page's");
+	assert.match(file(run(), "404.html").match(/<div id="footer">[\s\S]*?<\/div>/)[0], /<a class="home" href="docs\/index\.html">Home<\/a>/);
 });
 
 test("the last section of a chapter links forward to the next landing", () => {
@@ -271,21 +275,71 @@ test("a chapter page is the chapter heading and its prose, nothing else", () => 
 	assert.doesNotMatch(records, /<h2 /, "a section page carries no chapter heading");
 });
 
-test("home and 404 have no search body and link the whole-manual views", () => {
+test("home and 404 have no search body; only 404 lists the whole-manual views", () => {
 	const home = file(run(), "docs/index.html");
 	const notFound = file(run(), "404.html");
 
 	for (const page of [home, notFound]) {
 		assert.doesNotMatch(page, /data-pagefind-body/);
-		assert.match(page, /llms\.txt/);
-		assert.match(page, /all\.html/);
 		assert.match(page, /data-anchors="/);
 	}
 
+	assert.match(notFound, /Other views:.*all\.html/);
+	assert.doesNotMatch(home, /Other views|all\.html/);
+
 	assert.match(notFound, /href="docs\/static\/css\/style\.css"/);
 	assert.match(home, /<h1>Morloc Manual<\/h1>/, "the home page is the one that carries the title");
-	assert.match(home, /<a href="features\/index\.html">2\. Syntax &amp; Features<\/a><p>Records name their fields\.<\/p>/, "a chapter without prose borrows its first section's summary");
-	assert.match(home, /<a href="runs\/index\.html">3\. Managing Runs<\/a><p>Chapter prose that a landing page must carry, with a link to Strings\.<\/p>/);
+});
+
+// The preamble, between the document header and the first chapter, is the
+// home page's body.
+const PREAMBLE = `<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph home-tagline"><p>A tagline.</p></div>
+<div class="paragraph"><p>See <a href="#records">Records</a> and <a href="#features">Features</a>. <img src="static/img/x.svg" alt="x"></p></div>
+<div class="listingblock"><div class="content"><pre>code</pre><button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div></div>
+</div>
+</div>`;
+const withPreamble = fixture.replace('<div id="content">', `<div id="content">\n${PREAMBLE}`);
+
+test("the home page is the preamble, with links pointed at pages, and no chapter list", () => {
+	const home = file(run(withPreamble), "docs/index.html");
+
+	assert.match(home, /<div class="paragraph home-tagline"><p>A tagline\.<\/p><\/div>/);
+	assert.match(home, /<a href="features\/records\.html">Records<\/a>/);
+	assert.match(home, /<a href="features\/index\.html">Features<\/a>/);
+	assert.match(home, /<img src="static\/img\/x\.svg"/);
+	assert.match(home, /<symbol id="copy-glyph"/, "a copy button on the home page needs the sprite");
+	assert.doesNotMatch(home, /chapter-list/, "the sidebar is the table of contents");
+	assert.doesNotMatch(home, /Chapter prose before any section/, "no chapter summary is repeated on the home page");
+});
+
+test("the 404 page carries neither the preamble nor a chapter list", () => {
+	const notFound = file(run(withPreamble), "404.html");
+
+	assert.match(notFound, /That page does not exist/);
+	assert.doesNotMatch(notFound, /A tagline/);
+	assert.doesNotMatch(notFound, /chapter-list/);
+});
+
+test("the preamble stays off every chapter page and out of the markdown", () => {
+	const result = run(withPreamble);
+
+	assert.doesNotMatch(file(result, "docs/intro/index.html"), /A tagline/);
+	assert.doesNotMatch(file(result, "docs/intro/index.md"), /A tagline/);
+	assert.doesNotMatch(file(result, "docs/llms-full.txt"), /A tagline/);
+});
+
+test("an id in the preamble fails the build", () => {
+	const broken = withPreamble.replace('<div class="paragraph home-tagline">', '<div class="paragraph home-tagline" id="tag">');
+
+	assert.throws(() => run(broken), /"tag"/);
+});
+
+test("a preamble link to a missing id fails the build", () => {
+	const broken = withPreamble.replace('href="#records"', 'href="#nowhere"');
+
+	assert.throws(() => run(broken), /nowhere/);
 });
 
 // ----------------------------------------------------------------- markdown

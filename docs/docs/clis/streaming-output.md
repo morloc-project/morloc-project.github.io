@@ -59,6 +59,7 @@ The output actions of [Output actions](https://morloc-project.github.io/docs/cli
 | `@with …​ @stream` | `[a] → [b]` | Apply to each batch as it arrives, at constant memory; the `b` elements are serialized by `-f`. |
 | `@render` | `[a] → Str` / `[a] → [U8]` (or `IFile [a] → …​`) | Gather the whole stream, apply once, write the bytes verbatim. |
 | `@render …​ @stream` | `[a] → Str` / `[a] → [U8]` | Apply to each batch, write each result’s bytes verbatim. |
+| `@with`/`@render …​ @fold=` | as above, with `b` in place of `[a]` | Fold the stream into one accumulator, apply once to it. See [`@fold`: one accumulator instead of a list](#stream-fold). |
 
 ``sift’s `stream`` declares one action from three of those cells:
 
@@ -134,14 +135,58 @@ $ ./sift stream the notes -n
 
 `IFile` and the rest of the random-access handles are covered in [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md).
 
-## 6.11.4. Streaming rules
+## 6.11.4. `@fold`: one accumulator instead of a list
+
+A gather holds the whole stream before the handler sees any of it. `@fold` keeps one accumulator instead, so peak memory does not grow with the stream. It takes three terms beside the handler:
+
+| Modifier | Type | Role |
+| --- | --- | --- |
+| `@init` | `b` | Starts every accumulator, and is the answer for an empty stream. |
+| `@fold` | `b → [a] → b` | Folds one batch in. It takes the batch, not the element. |
+| `@combine` | `b → b → b` | Merges two accumulators. |
+
+The handler receives `b` instead of `[a]`. Nothing else about the command changes: a folding action and a gathering one sit on the same `@collect`, and the flag the caller gives decides which runs.
+
+`sift` streams one batch per file, so an accumulator can count both:
+
+```morloc
+type Tally = (Int, Int)
+
+noHits     :: Tally
+addFile    :: Tally -> [Hit] -> Tally
+mergeTally :: Tally -> Tally -> Tally
+showTally  :: Tally -> Str
+
+--' @render -t/--tally=showTally @fold=addFile @init=noHits @combine=mergeTally
+```
+
+```console
+$ ./sift stream the notes -t
+4 hits in 2 files
+```
+
+`@combine` is there because a producer may call its sink from several threads. Each thread folds into an accumulator of its own, and `@combine` merges them at the end. Every accumulator starts from `@init`, so `@init` has to be an identity for `@combine`. Otherwise the answer changes with the number of threads the producer used, and a single-threaded producer will not show it. Nothing checks this — checking it would mean running your code.
+
+**What a fold costs**
+
+Peak memory is the streaming working set plus one accumulator per worker thread. Two things give that up.
+
+Each fold copies the accumulator, so `b` should be of bounded size. One that grows with the stream — collecting every element into a list — makes the fold quadratic, a worse way to pay what the gather was already paying.
+
+The producer must drive its sink from a worker pool rather than a thread per batch, since one accumulator exists per thread that folds. A fold that reaches a few thousand accumulators is refused rather than allowed to grow.
+
+`@combine` must also be associative, and commutative if the producer is threaded: accumulators are merged in the order the threads reached the sink, which is not reproducible between runs.
+
+## 6.11.5. Streaming rules
 
 The rules in [Rules and rejections](https://morloc-project.github.io/docs/clis/output-actions.md#action-rules) all apply. Two more are specific to streaming:
 
 -   A `@stream` handler must return a list; its elements are what reach the wire.
 -   `@render` under `@stream` writes each batch’s bytes as they are produced, with nothing added between batches — no separator, no trailing newline beyond what the handler itself emits.
+-   `@fold` and `@stream` are mutually exclusive: `@stream` emits one result per batch, `@fold` one for the whole stream.
+-   `@fold` requires a reachable `@collect`, and all three of `@fold`, `@init` and `@combine`.
 
-## 6.11.5. What the help says a stream produces
+## 6.11.6. What the help says a stream produces
 
 A streaming command’s `Return:` block describes **standard output**, not the `()` the function returns. The two coincide for every other command and come apart here, so the block is worth reading closely:
 

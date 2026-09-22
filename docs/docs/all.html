@@ -435,8 +435,9 @@
 <li><a href="#_actions_on_a_stream">6.11.1. Actions on a stream</a></li>
 <li><a href="#_offset_where_a_batch_sits_in_the_stream">6.11.2. <code>@offset</code>: where a batch sits in the stream</a></li>
 <li><a href="#_ifile_the_gathered_stream_as_a_file">6.11.3. <code>IFile</code>: the gathered stream as a file</a></li>
-<li><a href="#_streaming_rules">6.11.4. Streaming rules</a></li>
-<li><a href="#_what_the_help_says_a_stream_produces">6.11.5. What the help says a stream produces</a></li>
+<li><a href="#stream-fold">6.11.4. <code>@fold</code>: one accumulator instead of a list</a></li>
+<li><a href="#_streaming_rules">6.11.5. Streaming rules</a></li>
+<li><a href="#_what_the_help_says_a_stream_produces">6.11.6. What the help says a stream produces</a></li>
 </ul>
 </li>
 <li><a href="#composing-tools">6.12. Composing tools</a>
@@ -747,6 +748,61 @@
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Morloc is a language that allows function composition across languages under a
+common type system. You write idiomatic Python, C&#43;&#43;, R, or Rust functions,
+source them into a Morloc module, add a type signature, and they become first
+class citizens. You can then build modules that export arbitrarily complex
+programs composed from these functions. These modules may be imported into other
+modules or compiled into programs with generated command line interfaces and
+HTTP/TCP/UDS/MCP servers.</p>
+</div>
+<div class="openblock home-features">
+<div class="content">
+<div class="exampleblock home-feature">
+<div class="content">
+<div class="paragraph">
+<p><strong>The interface is derived.</strong> The same module is a command line tool, a server
+over HTTP, TCP, and Unix sockets, and a set of MCP tool definitions. Each is
+projected from checked types, so none can drift from the functions.
+<a href="#derived-interface">More</a></p>
+</div>
+</div>
+</div>
+<div class="exampleblock home-feature">
+<div class="content">
+<div class="paragraph">
+<p><strong>Scale complexity with a modern functional language.</strong> Morloc supports generics,
+higher-order functions, typeclasses, sum types and tail-call optimized recursion
+in a fully polyglot setting. <a href="#features">More</a></p>
+</div>
+</div>
+</div>
+<div class="exampleblock home-feature">
+<div class="content">
+<div class="paragraph">
+<p><strong>Fine grained logging, benchmarking and debugging.</strong> Add hooks to expressions and
+monitor their runtime, caching behavior, and more. Full multi-language
+tracebacks with optional input data capture at failure points.
+<a href="#annotations">More</a></p>
+</div>
+</div>
+</div>
+<div class="exampleblock home-feature">
+<div class="content">
+<div class="paragraph">
+<p><strong>Design with types, reuse across implementations.</strong> Write a test suite once
+against a type signature and run it against every language that implements
+it. <a href="#tests-follow-the-type">More</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div class="sect1 onepage">
 <h2 id="intro"><a class="anchor" href="#intro"></a>1. Intro</h2>
 <div class="sectionbody">
@@ -768,6 +824,20 @@ from any supported language, or from a composition of functions written in
 several. The compiler generates the code that carries data between them. That is
 why Morloc is polyglot: a library of functions cannot be universal if it is
 partitioned by language.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img loading="lazy" src="static/img/admonition_icons/note.png" alt="Note">
+</td>
+<td class="content">
+AI was used in the generation of parts of this documentation. This is a
+temporary concession. I&#8217;ll revise the AI sections and re-introduce some much
+needed profanity once the code base settles with v1.0. December, maybe?
+</td>
+</tr>
+</table>
 </div>
 <div class="sect2">
 <h3 id="one-program"><a class="anchor" href="#one-program"></a>1.1. Morloc in one program</h3>
@@ -16039,6 +16109,12 @@ serialized by <code>-f</code>.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] &#8594; Str</code> / <code>[a] &#8594; [U8]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Apply to each batch, write each result&#8217;s bytes verbatim.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@with</code>/<code>@render &#8230;&#8203; @fold=</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">as above, with <code>b</code> in place of <code>[a]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fold the stream into one accumulator, apply once to it. See
+<a href="#stream-fold"><code>@fold</code>: one accumulator instead of a list</a>.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
@@ -16146,7 +16222,104 @@ touching the data:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_streaming_rules"><a class="anchor" href="#_streaming_rules"></a>6.11.4. Streaming rules</h4>
+<h4 id="stream-fold"><a class="anchor" href="#stream-fold"></a>6.11.4. <code>@fold</code>: one accumulator instead of a list</h4>
+<div class="paragraph">
+<p>A gather holds the whole stream before the handler sees any of it. <code>@fold</code>
+keeps one accumulator instead, so peak memory does not grow with the stream.
+It takes three terms beside the handler:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 33.3333%;">
+<col style="width: 50.0001%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Modifier</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@init</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Starts every accumulator, and is the answer for an empty stream.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@fold</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b &#8594; [a] &#8594; b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Folds one batch in. It takes the batch, not the element.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@combine</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b &#8594; b &#8594; b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Merges two accumulators.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The handler receives <code>b</code> instead of <code>[a]</code>. Nothing else about the command
+changes: a folding action and a gathering one sit on the same <code>@collect</code>, and
+the flag the caller gives decides which runs.</p>
+</div>
+<div class="paragraph">
+<p><code>sift</code> streams one batch per file, so an accumulator can count both:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+
+<span class="tok-n">noHits</span><span class="tok-w">     </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tally</span>
+<span class="tok-n">addFile</span><span class="tok-w">    </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Hit</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tally</span>
+<span class="tok-n">mergeTally</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tally</span>
+<span class="tok-n">showTally</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+
+<span class="tok-cs">--&#39; @render -t/--tally=showTally @fold=addFile @init=noHits @combine=mergeTally</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./sift<span class="tok-w"> </span>stream<span class="tok-w"> </span>the<span class="tok-w"> </span>notes<span class="tok-w"> </span>-t
+<span class="tok-go">4 hits in 2 files</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p><code>@combine</code> is there because a producer may call its sink from several threads.
+Each thread folds into an accumulator of its own, and <code>@combine</code> merges them at
+the end. Every accumulator starts from <code>@init</code>, so <code>@init</code> has to be an identity
+for <code>@combine</code>. Otherwise the answer changes with the number of threads the
+producer used, and a single-threaded producer will not show it. Nothing checks
+this&#8201;&#8212;&#8201;checking it would mean running your code.</p>
+</div>
+<details>
+<summary class="title">What a fold costs</summary>
+<div class="content">
+<div class="paragraph">
+<p>Peak memory is the streaming working set plus one accumulator per worker
+thread. Two things give that up.</p>
+</div>
+<div class="paragraph">
+<p>Each fold copies the accumulator, so <code>b</code> should be of bounded size. One that
+grows with the stream&#8201;&#8212;&#8201;collecting every element into a list&#8201;&#8212;&#8201;makes the fold
+quadratic, a worse way to pay what the gather was already paying.</p>
+</div>
+<div class="paragraph">
+<p>The producer must drive its sink from a worker pool rather than a thread per
+batch, since one accumulator exists per thread that folds. A fold that reaches
+a few thousand accumulators is refused rather than allowed to grow.</p>
+</div>
+<div class="paragraph">
+<p><code>@combine</code> must also be associative, and commutative if the producer is
+threaded: accumulators are merged in the order the threads reached the sink,
+which is not reproducible between runs.</p>
+</div>
+</div>
+</details>
+</div>
+<div class="sect3">
+<h4 id="_streaming_rules"><a class="anchor" href="#_streaming_rules"></a>6.11.5. Streaming rules</h4>
 <div class="paragraph">
 <p>The rules in <a href="#action-rules">Rules and rejections</a> all apply. Two more are specific to
 streaming:</p>
@@ -16161,11 +16334,19 @@ streaming:</p>
 with nothing added between batches&#8201;&#8212;&#8201;no separator, no trailing newline
 beyond what the handler itself emits.</p>
 </li>
+<li>
+<p><code>@fold</code> and <code>@stream</code> are mutually exclusive: <code>@stream</code> emits one result per
+batch, <code>@fold</code> one for the whole stream.</p>
+</li>
+<li>
+<p><code>@fold</code> requires a reachable <code>@collect</code>, and all three of <code>@fold</code>, <code>@init</code>
+and <code>@combine</code>.</p>
+</li>
 </ul>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_what_the_help_says_a_stream_produces"><a class="anchor" href="#_what_the_help_says_a_stream_produces"></a>6.11.5. What the help says a stream produces</h4>
+<h4 id="_what_the_help_says_a_stream_produces"><a class="anchor" href="#_what_the_help_says_a_stream_produces"></a>6.11.6. What the help says a stream produces</h4>
 <div class="paragraph">
 <p>A streaming command&#8217;s <code>Return:</code> block describes <strong>standard output</strong>, not the
 <code>()</code> the function returns. The two coincide for every other command and come
@@ -16855,6 +17036,23 @@ no <code>-f</code> is given. At most one per command.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stream</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On a <code>@with</code> / <code>@render</code> directive of a <code>@collect</code> command: apply the handler
 to each batch instead of the gathered stream.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@fold=&lt;term&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On a <code>@with</code> / <code>@render</code> directive of a <code>@collect</code> command: fold the stream
+into one accumulator with <code>&lt;term&gt; :: b &#8594; [a] &#8594; b</code> and apply the handler to
+that. Requires <code>@init</code> and <code>@combine</code>; excludes <code>@stream</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@init=&lt;term&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Under <code>@fold</code>: <code>&lt;term&gt; :: b</code> starts every accumulator, and is the answer for
+an empty stream. Must be an identity for <code>@combine</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@combine=&lt;term&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Under <code>@fold</code>: <code>&lt;term&gt; :: b &#8594; b &#8594; b</code> merges the accumulators of the
+threads a producer drove its sink from. Must be associative, and commutative
+if that producer is threaded.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@offset</code></p></td>
@@ -19811,11 +20009,22 @@ can compress that packet with <code>-z N</code>:</p>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
-<p><code>-z</code> defaults to <code>0</code> (no compression). The long form is
-<code>--compression-level</code>. The flag is silently a no-op for non-packet
-output formats (JSON, MessagePack as a raw file, voidstar, Arrow,
-Parquet, CSV); for those the file shape itself has no header in
+<p>The long form is <code>--compression-level</code>. A returned value is written
+uncompressed unless <code>-z</code> is given. The flag is silently a no-op for
+non-packet output formats (JSON, MessagePack as a raw file, voidstar,
+Arrow, Parquet, CSV); for those the file shape itself has no header in
 which to record a compression algorithm.</p>
+</div>
+<div class="paragraph">
+<p>A stream written to <code>@stdout</code> is different: each sub-packet already
+carries the level its <code>@write</code> chose, so that level is the default and
+<code>-z</code> is an override. <code>./nexus -f packet stream &gt; out.dat</code> keeps the
+<code>@write</code> levels; <code>./nexus -f packet -z 5 stream &gt; out.dat</code> compresses
+every sub-packet at 5, and <code>-z 0</code> writes them all uncompressed. The
+pool compresses the sub-packets in both cases, so the footer&#8217;s
+sub-packet index describes the bytes on disk and <code>out.dat</code> is a valid
+<code>IFile</code> as well as an <code>IStream</code>. As with a file, two sub-packets of one
+stdout stream may not use different levels; under <code>-z</code> they cannot.</p>
 </div>
 <div class="paragraph">
 <p>A packet written with <code>-z N</code> on one host is readable by <code>@load</code> (and
@@ -26082,6 +26291,14 @@ read by that script.</p>
   Unset means the pool was not started by a nexus.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>(unset)</em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">(pending)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MORLOC_STDOUT_COMPRESSION_LEVEL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus&#8217;s explicit <code>-z N</code>, when one was given. A pool writing a
+  stream to <code>@stdout</code> compresses every sub-packet at this level instead
+  of the <code>@write</code> level. Unset means the <code>@write</code> level stands.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>(unset)</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#compression">Compression</a></p></td>
 </tr>
 </tbody>
 </table>

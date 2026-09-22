@@ -482,11 +482,6 @@ samp {
 	margin-bottom: 1em;
 }
 
-.breadcrumb .sep {
-	margin: 0 0.4em;
-	opacity: 0.6;
-}
-
 .page-nav {
 	display: flex;
 	justify-content: space-between;
@@ -499,23 +494,6 @@ samp {
 
 .page-nav .next {
 	margin-left: auto;
-}
-
-.section-list,
-.chapter-list {
-	list-style: none;
-	padding-left: 0;
-}
-
-.section-list > li,
-.chapter-list > li {
-	margin-bottom: 0.75em;
-}
-
-.section-list p,
-.chapter-list p {
-	margin: 0.15em 0 0 0;
-	font-size: 0.95em;
 }
 
 html.dark .page-nav {
@@ -533,4 +511,60 @@ html.dark #search {
 #search .search-unavailable {
 	font-size: 0.85em;
 	opacity: 0.8;
+}
+
+/* ================================================== HOME PAGE ==================================================== */
+
+/* The home page is the manual's preamble: prose and a grid of feature cards.
+   Every block keeps its asciidoctor class, so the page reads as plain prose
+   without these rules. */
+
+#content > .details {
+	margin-bottom: 1.25em;
+}
+
+.home-features > .content {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1em;
+	margin-bottom: 2em;
+}
+
+.home-feature > .content {
+	height: 100%;
+	box-sizing: border-box;
+	margin: 0 !important;
+	border: 1px solid #e0e0dc;
+	border-top: 4px solid #2156a5;
+	border-radius: 8px;
+	box-shadow: none;
+	background: none !important;
+}
+
+.home-feature p {
+	margin: 0;
+	line-height: 1.5;
+}
+
+.home-feature strong {
+	display: block;
+	font-size: 1.1em;
+	margin-bottom: 0.35em;
+	color: #ba3925;
+}
+
+html.dark .home-feature strong {
+	color: #ff8a80 !important;
+}
+
+html.dark .home-feature > .content {
+	background-color: #121212 !important;
+	border-color: #333;
+	border-top-color: #90caf9;
+}
+
+@media (max-width: 600px) {
+	.home-features > .content {
+		grid-template-columns: 1fr;
+	}
 }

@@ -8,7 +8,7 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "138dde62058a4aff2da0af7c4ef23070b4d8e447"
+  "source": "ffd30f50c83434eee0ab86300ec827b85d60a380"
  },
  "pages": [
   {
@@ -1613,14 +1613,19 @@
      "number": "6.11.3."
     },
     {
+     "id": "stream-fold",
+     "title": "@fold: one accumulator instead of a list",
+     "number": "6.11.4."
+    },
+    {
      "id": "_streaming_rules",
      "title": "Streaming rules",
-     "number": "6.11.4."
+     "number": "6.11.5."
     },
     {
      "id": "_what_the_help_says_a_stream_produces",
      "title": "What the help says a stream produces",
-     "number": "6.11.5."
+     "number": "6.11.6."
     }
    ]
   },

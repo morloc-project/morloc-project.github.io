@@ -413,8 +413,9 @@
 <li><a href="docs/clis/streaming-output.html#_actions_on_a_stream">6.11.1. Actions on a stream</a></li>
 <li><a href="docs/clis/streaming-output.html#_offset_where_a_batch_sits_in_the_stream">6.11.2. <code>@offset</code>: where a batch sits in the stream</a></li>
 <li><a href="docs/clis/streaming-output.html#_ifile_the_gathered_stream_as_a_file">6.11.3. <code>IFile</code>: the gathered stream as a file</a></li>
-<li><a href="docs/clis/streaming-output.html#_streaming_rules">6.11.4. Streaming rules</a></li>
-<li><a href="docs/clis/streaming-output.html#_what_the_help_says_a_stream_produces">6.11.5. What the help says a stream produces</a></li>
+<li><a href="docs/clis/streaming-output.html#stream-fold">6.11.4. <code>@fold</code>: one accumulator instead of a list</a></li>
+<li><a href="docs/clis/streaming-output.html#_streaming_rules">6.11.5. Streaming rules</a></li>
+<li><a href="docs/clis/streaming-output.html#_what_the_help_says_a_stream_produces">6.11.6. What the help says a stream produces</a></li>
 </ul>
 </li>
 <li><a href="docs/clis/composing-tools.html">6.12. Composing tools</a>
@@ -726,26 +727,6 @@
 </div>
 <div id="content">
 <div class="paragraph"><p><strong>That page does not exist.</strong> The manual moved to one page per section; the table of contents and the search box are on the left.</p></div>
-<div class="paragraph"><p>Morloc replaces the application with the function as the unit you build, publish, and compose.</p></div>
-<ul class="chapter-list">
-<li><a href="docs/intro/index.html">1. Intro</a><p>Morloc replaces the application with the function as the unit you build, publish, and compose.</p></li>
-<li><a href="docs/why/index.html">2. Why Morloc?</a><p>Every command line tool solves the same problems a second time.</p></li>
-<li><a href="docs/getting-started/index.html">3. Getting Started</a><p>Morloc is installed and managed by mim, the Morloc installation manager.</p></li>
-<li><a href="docs/features/index.html">4. Syntax and Features</a><p>Everything in Morloc is built out of functions, so this is where to start.</p></li>
-<li><a href="docs/types/index.html">5. Advanced Types</a><p>A Morloc term may have more than one definition, and the compiler picks whichever one produces the best program.</p></li>
-<li><a href="docs/clis/index.html">6. Building CLIs</a><p>A Morloc module compiles to a command line tool.</p></li>
-<li><a href="docs/apis/index.html">7. Building APIs</a><p>The docstrings are used for discoverability as well.</p></li>
-<li><a href="docs/runs/index.html">8. Managing Runs</a><p>A morloc program is an executable that can dispatch work across multiple language pools and, optionally, remote compute nodes.</p></li>
-<li><a href="docs/utilities/index.html">9. Utilities</a><p>The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: file (identifies a file) and view (loads and...</p></li>
-<li><a href="docs/modules/index.html">10. Modules and Libraries</a><p>Every Morloc file is a module.</p></li>
-<li><a href="docs/languages/index.html">11. Language Support</a><p>Morloc compiles each part of a program with its own language toolchain.</p></li>
-<li><a href="docs/install/index.html">12. Installation, Versions, and Deployment</a><p>mim is distributed as a static binary for x86 Linux, Linux ARM, and Apple Silicon macOS.</p></li>
-<li><a href="docs/internals/index.html">13. Build Architecture</a><p>A compiled Morloc program has two kinds of components: one nexus and one or more pools.</p></li>
-<li><a href="docs/future/index.html">14. Future Directions</a></li>
-<li><a href="docs/qa/index.html">15. Q&amp;A</a><p>Yes, Morloc remains useful even if you only use one programming language.</p></li>
-<li><a href="docs/env/index.html">16. Environmental Variable List</a><p>Every environment variable that morloc reads or sets lives in the MORLOC_ namespace.</p></li>
-<li><a href="docs/contact/index.html">17. Contact</a><p>This is a young project and any brave early users are highly valued.</p></li>
-</ul>
 <div class="paragraph other-views"><p>Other views: <a href="docs/all.html">the whole manual on one page</a>, <a href="docs/llms.txt">llms.txt</a> (an index for language models), <a href="docs/llms-full.txt">llms-full.txt</a> (every page as text), <a href="docs/toc.json">toc.json</a>.</p></div>
 </div>
 <div class="pwa-install-div hidden">
@@ -759,6 +740,7 @@
 <div id="footer">
 <span class="credit">Created with <a href="https://github.com/HarshKapadia2/asciidoctor-jet" target="_blank" rel="noreferrer"><i>Asciidoctor Jet</i></a></span>
 
+<a class="home" href="docs/index.html">Home</a>
 <a href="docs/llms.txt">llms.txt</a></div>
 </body>
 </html>

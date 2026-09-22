@@ -67,7 +67,7 @@
 <link rel="canonical" href="https://morloc-project.github.io/docs/">
 </head>
 <body class="book toc2 toc-left" data-anchors="anchors.json">
-
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="copy-glyph" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path></symbol></svg>
 <div id="header">
 <h1>Morloc Manual</h1>
 <div id="toc" class="toc2">
@@ -413,8 +413,9 @@
 <li><a href="clis/streaming-output.html#_actions_on_a_stream">6.11.1. Actions on a stream</a></li>
 <li><a href="clis/streaming-output.html#_offset_where_a_batch_sits_in_the_stream">6.11.2. <code>@offset</code>: where a batch sits in the stream</a></li>
 <li><a href="clis/streaming-output.html#_ifile_the_gathered_stream_as_a_file">6.11.3. <code>IFile</code>: the gathered stream as a file</a></li>
-<li><a href="clis/streaming-output.html#_streaming_rules">6.11.4. Streaming rules</a></li>
-<li><a href="clis/streaming-output.html#_what_the_help_says_a_stream_produces">6.11.5. What the help says a stream produces</a></li>
+<li><a href="clis/streaming-output.html#stream-fold">6.11.4. <code>@fold</code>: one accumulator instead of a list</a></li>
+<li><a href="clis/streaming-output.html#_streaming_rules">6.11.5. Streaming rules</a></li>
+<li><a href="clis/streaming-output.html#_what_the_help_says_a_stream_produces">6.11.6. What the help says a stream produces</a></li>
 </ul>
 </li>
 <li><a href="clis/composing-tools.html">6.12. Composing tools</a>
@@ -727,27 +728,56 @@
 <div id="content">
 <div class="details">
 <span id="author" class="author">Zebulun Arendsee</span><br>
-</div><div class="paragraph"><p>Morloc replaces the application with the function as the unit you build, publish, and compose.</p></div>
-<ul class="chapter-list">
-<li><a href="intro/index.html">1. Intro</a><p>Morloc replaces the application with the function as the unit you build, publish, and compose.</p></li>
-<li><a href="why/index.html">2. Why Morloc?</a><p>Every command line tool solves the same problems a second time.</p></li>
-<li><a href="getting-started/index.html">3. Getting Started</a><p>Morloc is installed and managed by mim, the Morloc installation manager.</p></li>
-<li><a href="features/index.html">4. Syntax and Features</a><p>Everything in Morloc is built out of functions, so this is where to start.</p></li>
-<li><a href="types/index.html">5. Advanced Types</a><p>A Morloc term may have more than one definition, and the compiler picks whichever one produces the best program.</p></li>
-<li><a href="clis/index.html">6. Building CLIs</a><p>A Morloc module compiles to a command line tool.</p></li>
-<li><a href="apis/index.html">7. Building APIs</a><p>The docstrings are used for discoverability as well.</p></li>
-<li><a href="runs/index.html">8. Managing Runs</a><p>A morloc program is an executable that can dispatch work across multiple language pools and, optionally, remote compute nodes.</p></li>
-<li><a href="utilities/index.html">9. Utilities</a><p>The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: file (identifies a file) and view (loads and...</p></li>
-<li><a href="modules/index.html">10. Modules and Libraries</a><p>Every Morloc file is a module.</p></li>
-<li><a href="languages/index.html">11. Language Support</a><p>Morloc compiles each part of a program with its own language toolchain.</p></li>
-<li><a href="install/index.html">12. Installation, Versions, and Deployment</a><p>mim is distributed as a static binary for x86 Linux, Linux ARM, and Apple Silicon macOS.</p></li>
-<li><a href="internals/index.html">13. Build Architecture</a><p>A compiled Morloc program has two kinds of components: one nexus and one or more pools.</p></li>
-<li><a href="future/index.html">14. Future Directions</a></li>
-<li><a href="qa/index.html">15. Q&amp;A</a><p>Yes, Morloc remains useful even if you only use one programming language.</p></li>
-<li><a href="env/index.html">16. Environmental Variable List</a><p>Every environment variable that morloc reads or sets lives in the MORLOC_ namespace.</p></li>
-<li><a href="contact/index.html">17. Contact</a><p>This is a young project and any brave early users are highly valued.</p></li>
-</ul>
-<div class="paragraph other-views"><p>Other views: <a href="all.html">the whole manual on one page</a>, <a href="llms.txt">llms.txt</a> (an index for language models), <a href="llms-full.txt">llms-full.txt</a> (every page as text), <a href="toc.json">toc.json</a>.</p></div>
+</div><div class="paragraph">
+<p>Morloc is a language that allows function composition across languages under a
+common type system. You write idiomatic Python, C++, R, or Rust functions,
+source them into a Morloc module, add a type signature, and they become first
+class citizens. You can then build modules that export arbitrarily complex
+programs composed from these functions. These modules may be imported into other
+modules or compiled into programs with generated command line interfaces and
+HTTP/TCP/UDS/MCP servers.</p>
+</div><div class="openblock home-features">
+<div class="content">
+<div class="exampleblock home-feature">
+<div class="content">
+<div class="paragraph">
+<p><strong>The interface is derived.</strong> The same module is a command line tool, a server
+over HTTP, TCP, and Unix sockets, and a set of MCP tool definitions. Each is
+projected from checked types, so none can drift from the functions.
+<a href="why/index.html#derived-interface">More</a></p>
+</div>
+</div>
+</div>
+<div class="exampleblock home-feature">
+<div class="content">
+<div class="paragraph">
+<p><strong>Scale complexity with a modern functional language.</strong> Morloc supports generics,
+higher-order functions, typeclasses, sum types and tail-call optimized recursion
+in a fully polyglot setting. <a href="features/index.html">More</a></p>
+</div>
+</div>
+</div>
+<div class="exampleblock home-feature">
+<div class="content">
+<div class="paragraph">
+<p><strong>Fine grained logging, benchmarking and debugging.</strong> Add hooks to expressions and
+monitor their runtime, caching behavior, and more. Full multi-language
+tracebacks with optional input data capture at failure points.
+<a href="why/index.html#annotations">More</a></p>
+</div>
+</div>
+</div>
+<div class="exampleblock home-feature">
+<div class="content">
+<div class="paragraph">
+<p><strong>Design with types, reuse across implementations.</strong> Write a test suite once
+against a type signature and run it against every language that implements
+it. <a href="why/index.html#tests-follow-the-type">More</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="pwa-install-div hidden">
 	<div id="pwa-install-text">Ready for offline use!</div>
@@ -760,6 +790,7 @@
 <div id="footer">
 <span class="credit">Created with <a href="https://github.com/HarshKapadia2/asciidoctor-jet" target="_blank" rel="noreferrer"><i>Asciidoctor Jet</i></a></span>
 
+<a class="home" href="index.html">Home</a>
 <a href="llms.txt">llms.txt</a></div>
 </body>
 </html>

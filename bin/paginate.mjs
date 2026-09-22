@@ -265,11 +265,17 @@ function buildModel($, opts) {
 		}
 	});
 
+	// The preamble, the prose before the first chapter, is the home page. It
+	// is on no chapter page, so nothing inside it can be a link target.
+	const preamble = content.find("> #preamble");
+
+	preamble.find("[id]").each((_, el) => fail(`paginate: id "${$(el).attr("id")}" is in the preamble; only chapter pages can hold ids`));
+
 	// Every id in #content must belong to exactly one page.
 	content.find("[id]").each((_, el) => {
 		const id = $(el).attr("id");
 
-		if (!ids.has(id)) fail(`paginate: id "${id}" is outside every chapter`);
+		if (el !== preamble[0] && !ids.has(id)) fail(`paginate: id "${id}" is outside every chapter`);
 	});
 
 	for (const page of pages) {
@@ -288,7 +294,7 @@ function buildModel($, opts) {
 		page.next = pages[i + 1] ?? null;
 	});
 
-	return { chapters, pages, ids };
+	return { chapters, pages, ids, preamble: preamble.find("> .sectionbody").children().toArray() };
 }
 
 // The nodes a page is made of, in order: a chapter page is its heading and
@@ -609,23 +615,22 @@ function navLinks(prefix, page) {
 }
 
 function breadcrumb(prefix, page) {
-	const parts = [`<a href="${escAttr(prefix + "index.html")}">${SITE_NAME}</a>`];
+	if (page.kind !== "section") return "";
 
-	if (page.kind === "section")
-		parts.push(`<a href="${escAttr(linkTo(prefix, page.dir, page.chapter.slug + "/"))}">${escHtml(page.chapter.number + " " + page.chapter.title)}</a>`);
-
-	return `<nav class="breadcrumb" data-pagefind-ignore>${parts.join(' <span class="sep">&gt;</span> ')}</nav>`;
+	return `<nav class="breadcrumb" data-pagefind-ignore><a href="${escAttr(linkTo(prefix, page.dir, page.chapter.slug + "/"))}">${escHtml(page.chapter.number + " " + page.chapter.title)}</a></nav>`;
 }
 
-// Every page's footer: the credit asciidoctor's docinfo put there, then the
-// machine-readable index and, on a page that has one, its markdown twin.
+// Every page's footer: the credit asciidoctor's docinfo put there, the link
+// home, the machine-readable index and, on a page that has one, its markdown
+// twin.
 function footerLinks(tail, prefix, page) {
+	tail("#footer").append(`\n<a class="home" href="${escAttr(prefix + "index.html")}">Home</a>`);
 	tail("#footer").append(`\n<a href="${escAttr(prefix + "llms.txt")}">llms.txt</a>`);
 	if (page) tail("#footer").append(`\n<a class="text-view" href="${escAttr(linkTo(prefix, page.dir, page.md))}">View as text</a>`);
 }
 
-// The site title heads only the home and 404 pages; a section page starts
-// with its breadcrumb, whose first crumb is the same link home.
+// The site title heads only the home and 404 pages; every other page links
+// home from its footer, and a section page starts with its chapter crumb.
 function shell({ htmlAttrs, head, sprite, toc, title, content, tail, bodyAttrs }) {
 	return `<!DOCTYPE html>
 <html${htmlAttrs}>
@@ -738,22 +743,24 @@ export function paginate(html, opts) {
 
 	for (const page of model.pages) emitPage(page, "../");
 
-	// Home and 404: no search body, the chapter list, the whole-manual views,
-	// and the anchor map for links into the old single page.
-	function emitRoot(file, prefix) {
-		const cards = model.pages
-			.filter((p) => p.level === 1)
-			.map((p) => {
-				const summary = p.summary || (p.chapter.sections[0] && p.chapter.sections[0].page.summary) || "";
+	// The home page body: the preamble, its links pointed at pages.
+	function homeBody() {
+		const body = cheerio.load('<div id="home"></div>', null, false);
+		const root = body("#home").append(model.preamble.map((el) => $(el).clone()));
 
-				return `<li><a href="${escAttr(prefix + p.file)}">${escHtml(p.number + " " + p.title)}</a>${summary ? `<p>${escHtml(summary)}</p>` : ""}</li>`;
-			})
-			.join("\n");
+		rerootAssets(body, root, "");
+		rewriteLinks(body, root, { ids: new Set(), dir: "", path: "index.html" }, model, "");
+
+		return root.html();
+	}
+
+	// Home and 404: no search body, and the anchor map for links into the
+	// old single page. The sidebar is the table of contents, so neither lists
+	// the chapters; 404 also lists the whole-manual views.
+	function emitRoot(file, prefix) {
 		const content = [
-			file === "404.html" ? `<div class="paragraph"><p><strong>That page does not exist.</strong> The manual moved to one page per section; the table of contents and the search box are on the left.</p></div>` : "",
-			blurb ? `<div class="paragraph"><p>${escHtml(blurb)}</p></div>` : "",
-			`<ul class="chapter-list">\n${cards}\n</ul>`,
-			`<div class="paragraph other-views"><p>Other views: <a href="${escAttr(prefix + "all.html")}">the whole manual on one page</a>, <a href="${escAttr(prefix + "llms.txt")}">llms.txt</a> (an index for language models), <a href="${escAttr(prefix + "llms-full.txt")}">llms-full.txt</a> (every page as text), <a href="${escAttr(prefix + "toc.json")}">toc.json</a>.</p></div>`
+			file === "404.html" ? `<div class="paragraph"><p><strong>That page does not exist.</strong> The manual moved to one page per section; the table of contents and the search box are on the left.</p></div>` : homeBody(),
+			file === "404.html" && `<div class="paragraph other-views"><p>Other views: <a href="${escAttr(prefix + "all.html")}">the whole manual on one page</a>, <a href="${escAttr(prefix + "llms.txt")}">llms.txt</a> (an index for language models), <a href="${escAttr(prefix + "llms-full.txt")}">llms-full.txt</a> (every page as text), <a href="${escAttr(prefix + "toc.json")}">toc.json</a>.</p></div>`
 		];
 		const tail = cheerio.load(`<div id="tail">${tailHtml}</div>`, null, false);
 
@@ -767,7 +774,7 @@ export function paginate(html, opts) {
 		const doc = shell({
 			htmlAttrs,
 			head: pageHead(headFrag("#h").html(), null, prefix, siteUrl),
-			sprite: "",
+			sprite: file === "404.html" ? "" : spriteHtml,
 			toc: sidebar(tocHtml, null, model, prefix),
 			title: SITE_NAME,
 			content: (file === "404.html" ? "" : author) + content.filter(Boolean).join("\n"),

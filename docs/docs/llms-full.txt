@@ -10,6 +10,9 @@ You write ordinary code in an ordinary language and give it a type in Morloc. Fr
 
 Morloc types are language-neutral, so the implementation behind a type may come from any supported language, or from a composition of functions written in several. The compiler generates the code that carries data between them. That is why Morloc is polyglot: a library of functions cannot be universal if it is partitioned by language.
 
+> **Note**
+> AI was used in the generation of parts of this documentation. This is a temporary concession. I’ll revise the AI sections and re-introduce some much needed profanity once the code base settles with v1.0. December, maybe?
+
 ## 1.1. Morloc in one program
 
 Two functions, in two languages, neither aware of the other. A C++ sum:
@@ -9927,6 +9930,7 @@ The output actions of [Output actions](https://morloc-project.github.io/docs/cli
 | `@with …​ @stream` | `[a] → [b]` | Apply to each batch as it arrives, at constant memory; the `b` elements are serialized by `-f`. |
 | `@render` | `[a] → Str` / `[a] → [U8]` (or `IFile [a] → …​`) | Gather the whole stream, apply once, write the bytes verbatim. |
 | `@render …​ @stream` | `[a] → Str` / `[a] → [U8]` | Apply to each batch, write each result’s bytes verbatim. |
+| `@with`/`@render …​ @fold=` | as above, with `b` in place of `[a]` | Fold the stream into one accumulator, apply once to it. See [`@fold`: one accumulator instead of a list](#stream-fold). |
 
 ``sift’s `stream`` declares one action from three of those cells:
 
@@ -10002,14 +10006,58 @@ $ ./sift stream the notes -n
 
 `IFile` and the rest of the random-access handles are covered in [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md).
 
-## 6.11.4. Streaming rules
+## 6.11.4. `@fold`: one accumulator instead of a list
+
+A gather holds the whole stream before the handler sees any of it. `@fold` keeps one accumulator instead, so peak memory does not grow with the stream. It takes three terms beside the handler:
+
+| Modifier | Type | Role |
+| --- | --- | --- |
+| `@init` | `b` | Starts every accumulator, and is the answer for an empty stream. |
+| `@fold` | `b → [a] → b` | Folds one batch in. It takes the batch, not the element. |
+| `@combine` | `b → b → b` | Merges two accumulators. |
+
+The handler receives `b` instead of `[a]`. Nothing else about the command changes: a folding action and a gathering one sit on the same `@collect`, and the flag the caller gives decides which runs.
+
+`sift` streams one batch per file, so an accumulator can count both:
+
+```morloc
+type Tally = (Int, Int)
+
+noHits     :: Tally
+addFile    :: Tally -> [Hit] -> Tally
+mergeTally :: Tally -> Tally -> Tally
+showTally  :: Tally -> Str
+
+--' @render -t/--tally=showTally @fold=addFile @init=noHits @combine=mergeTally
+```
+
+```console
+$ ./sift stream the notes -t
+4 hits in 2 files
+```
+
+`@combine` is there because a producer may call its sink from several threads. Each thread folds into an accumulator of its own, and `@combine` merges them at the end. Every accumulator starts from `@init`, so `@init` has to be an identity for `@combine`. Otherwise the answer changes with the number of threads the producer used, and a single-threaded producer will not show it. Nothing checks this — checking it would mean running your code.
+
+**What a fold costs**
+
+Peak memory is the streaming working set plus one accumulator per worker thread. Two things give that up.
+
+Each fold copies the accumulator, so `b` should be of bounded size. One that grows with the stream — collecting every element into a list — makes the fold quadratic, a worse way to pay what the gather was already paying.
+
+The producer must drive its sink from a worker pool rather than a thread per batch, since one accumulator exists per thread that folds. A fold that reaches a few thousand accumulators is refused rather than allowed to grow.
+
+`@combine` must also be associative, and commutative if the producer is threaded: accumulators are merged in the order the threads reached the sink, which is not reproducible between runs.
+
+## 6.11.5. Streaming rules
 
 The rules in [Rules and rejections](https://morloc-project.github.io/docs/clis/output-actions.md#action-rules) all apply. Two more are specific to streaming:
 
 -   A `@stream` handler must return a list; its elements are what reach the wire.
 -   `@render` under `@stream` writes each batch’s bytes as they are produced, with nothing added between batches — no separator, no trailing newline beyond what the handler itself emits.
+-   `@fold` and `@stream` are mutually exclusive: `@stream` emits one result per batch, `@fold` one for the whole stream.
+-   `@fold` requires a reachable `@collect`, and all three of `@fold`, `@init` and `@combine`.
 
-## 6.11.5. What the help says a stream produces
+## 6.11.6. What the help says a stream produces
 
 A streaming command’s `Return:` block describes **standard output**, not the `()` the function returns. The two coincide for every other command and come apart here, so the block is worth reading closely:
 
@@ -10443,6 +10491,9 @@ Every docstring directive that affects the generated interface, grouped by where
 | --- | --- |
 | `@default` | On a `@with` / `@render` directive: this action fires when no action flag and no `-f` is given. At most one per command. |
 | `@stream` | On a `@with` / `@render` directive of a `@collect` command: apply the handler to each batch instead of the gathered stream. |
+| `@fold=<term>` | On a `@with` / `@render` directive of a `@collect` command: fold the stream into one accumulator with `<term> :: b → [a] → b` and apply the handler to that. Requires `@init` and `@combine`; excludes `@stream`. |
+| `@init=<term>` | Under `@fold`: `<term> :: b` starts every accumulator, and is the answer for an empty stream. Must be an identity for `@combine`. |
+| `@combine=<term>` | Under `@fold`: `<term> :: b → b → b` merges the accumulators of the threads a producer drove its sink from. Must be associative, and commutative if that producer is threaded. |
 | `@offset` | As a handler argument under `@stream`: the number of elements already written. |
 | `@value` | As a handler argument: the value being formatted. Appended last if not written explicitly. |
 | `$1`, `$2`, …​ | As a handler argument: the command’s own Nth argument. |
@@ -12031,7 +12082,9 @@ A nexus run that writes its result as a packet (`-f packet -o foo.packet`) can c
 $ ./nexus -f packet -o result.packet -z 5 myCommand args...
 ```
 
-`-z` defaults to `0` (no compression). The long form is `--compression-level`. The flag is silently a no-op for non-packet output formats (JSON, MessagePack as a raw file, voidstar, Arrow, Parquet, CSV); for those the file shape itself has no header in which to record a compression algorithm.
+The long form is `--compression-level`. A returned value is written uncompressed unless `-z` is given. The flag is silently a no-op for non-packet output formats (JSON, MessagePack as a raw file, voidstar, Arrow, Parquet, CSV); for those the file shape itself has no header in which to record a compression algorithm.
+
+A stream written to `@stdout` is different: each sub-packet already carries the level its `@write` chose, so that level is the default and `-z` is an override. `./nexus -f packet stream > out.dat` keeps the `@write` levels; `./nexus -f packet -z 5 stream > out.dat` compresses every sub-packet at 5, and `-z 0` writes them all uncompressed. The pool compresses the sub-packets in both cases, so the footer’s sub-packet index describes the bytes on disk and `out.dat` is a valid `IFile` as well as an `IStream`. As with a file, two sub-packets of one stdout stream may not use different levels; under `-z` they cannot.
 
 A packet written with `-z N` on one host is readable by `@load` (and by any future packet-reading surface) on any other host without an additional flag. The compression byte in the header is the only signal needed.
 
@@ -14854,6 +14907,7 @@ Set by the nexus and read by the pools it launches.
 | `MORLOC_NEXUS_PATH` | Absolute path of the running nexus, exported to every pool so remote/SLURM dispatch can wrap an `sbatch` call to the same binary. | *(from `current_exe`)* | (pending) |
 | `MORLOC_MANIFEST_PATH` | Absolute (canonicalized) path of the program manifest, exported to pools for tooling that must re-enter the same program. | *(canonical manifest path)* | (pending) |
 | `MORLOC_NEXUS_STDIO_SOCK` | Unix socket the nexus binds for its stdio server; a pool connects to it to route `@stdin` / `@stdout` / `@stderr` back to the nexus. Unset means the pool was not started by a nexus. | *(unset)* | (pending) |
+| `MORLOC_STDOUT_COMPRESSION_LEVEL` | The nexus’s explicit `-z N`, when one was given. A pool writing a stream to `@stdout` compresses every sub-packet at this level instead of the `@write` level. Unset means the `@write` level stands. | *(unset)* | [Compression](https://morloc-project.github.io/docs/runs/compression.md) |
 
 ## 16.9. Nexus inspection tools (`view` / `file`)
 

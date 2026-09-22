@@ -415,8 +415,9 @@
 <li><a href="streaming-output.html#_actions_on_a_stream">6.11.1. Actions on a stream</a></li>
 <li><a href="streaming-output.html#_offset_where_a_batch_sits_in_the_stream">6.11.2. <code>@offset</code>: where a batch sits in the stream</a></li>
 <li><a href="streaming-output.html#_ifile_the_gathered_stream_as_a_file">6.11.3. <code>IFile</code>: the gathered stream as a file</a></li>
-<li><a href="streaming-output.html#_streaming_rules">6.11.4. Streaming rules</a></li>
-<li><a href="streaming-output.html#_what_the_help_says_a_stream_produces">6.11.5. What the help says a stream produces</a></li>
+<li><a href="streaming-output.html#stream-fold">6.11.4. <code>@fold</code>: one accumulator instead of a list</a></li>
+<li><a href="streaming-output.html#_streaming_rules">6.11.5. Streaming rules</a></li>
+<li><a href="streaming-output.html#_what_the_help_says_a_stream_produces">6.11.6. What the help says a stream produces</a></li>
 </ul>
 </li>
 <li><a href="composing-tools.html">6.12. Composing tools</a>
@@ -727,7 +728,7 @@
 </div>
 </div>
 <div id="content">
-<nav class="breadcrumb" data-pagefind-ignore><a href="../index.html">Morloc Manual</a> <span class="sep">&gt;</span> <a href="index.html">6. Building CLIs</a></nav>
+<nav class="breadcrumb" data-pagefind-ignore><a href="index.html">6. Building CLIs</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Streaming output with @collect"><div class="sect2">
 <h3 id="streaming-output"><a class="anchor" href="#streaming-output"></a>6.11. Streaming output with <code>@collect</code></h3>
 <div class="paragraph">
@@ -838,6 +839,12 @@ serialized by <code>-f</code>.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] → Str</code> / <code>[a] → [U8]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Apply to each batch, write each result’s bytes verbatim.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@with</code>/<code>@render …​ @fold=</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">as above, with <code>b</code> in place of <code>[a]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fold the stream into one accumulator, apply once to it. See
+<a href="#stream-fold"><code>@fold</code>: one accumulator instead of a list</a>.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="paragraph">
@@ -945,7 +952,104 @@ touching the data:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_streaming_rules"><a class="anchor" href="#_streaming_rules"></a>6.11.4. Streaming rules</h4>
+<h4 id="stream-fold"><a class="anchor" href="#stream-fold"></a>6.11.4. <code>@fold</code>: one accumulator instead of a list</h4>
+<div class="paragraph">
+<p>A gather holds the whole stream before the handler sees any of it. <code>@fold</code>
+keeps one accumulator instead, so peak memory does not grow with the stream.
+It takes three terms beside the handler:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 33.3333%;">
+<col style="width: 50.0001%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Modifier</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@init</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Starts every accumulator, and is the answer for an empty stream.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@fold</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b → [a] → b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Folds one batch in. It takes the batch, not the element.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@combine</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b → b → b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Merges two accumulators.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The handler receives <code>b</code> instead of <code>[a]</code>. Nothing else about the command
+changes: a folding action and a gathering one sit on the same <code>@collect</code>, and
+the flag the caller gives decides which runs.</p>
+</div>
+<div class="paragraph">
+<p><code>sift</code> streams one batch per file, so an accumulator can count both:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">type</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Int</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+
+<span class="tok-n">noHits</span><span class="tok-w">     </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tally</span>
+<span class="tok-n">addFile</span><span class="tok-w">    </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Hit</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tally</span>
+<span class="tok-n">mergeTally</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Tally</span>
+<span class="tok-n">showTally</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Tally</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+
+<span class="tok-cs">--' @render -t/--tally=showTally @fold=addFile @init=noHits @combine=mergeTally</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./sift<span class="tok-w"> </span>stream<span class="tok-w"> </span>the<span class="tok-w"> </span>notes<span class="tok-w"> </span>-t
+<span class="tok-go">4 hits in 2 files</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p><code>@combine</code> is there because a producer may call its sink from several threads.
+Each thread folds into an accumulator of its own, and <code>@combine</code> merges them at
+the end. Every accumulator starts from <code>@init</code>, so <code>@init</code> has to be an identity
+for <code>@combine</code>. Otherwise the answer changes with the number of threads the
+producer used, and a single-threaded producer will not show it. Nothing checks
+this — checking it would mean running your code.</p>
+</div>
+<details>
+<summary class="title">What a fold costs</summary>
+<div class="content">
+<div class="paragraph">
+<p>Peak memory is the streaming working set plus one accumulator per worker
+thread. Two things give that up.</p>
+</div>
+<div class="paragraph">
+<p>Each fold copies the accumulator, so <code>b</code> should be of bounded size. One that
+grows with the stream — collecting every element into a list — makes the fold
+quadratic, a worse way to pay what the gather was already paying.</p>
+</div>
+<div class="paragraph">
+<p>The producer must drive its sink from a worker pool rather than a thread per
+batch, since one accumulator exists per thread that folds. A fold that reaches
+a few thousand accumulators is refused rather than allowed to grow.</p>
+</div>
+<div class="paragraph">
+<p><code>@combine</code> must also be associative, and commutative if the producer is
+threaded: accumulators are merged in the order the threads reached the sink,
+which is not reproducible between runs.</p>
+</div>
+</div>
+</details>
+</div>
+<div class="sect3">
+<h4 id="_streaming_rules"><a class="anchor" href="#_streaming_rules"></a>6.11.5. Streaming rules</h4>
 <div class="paragraph">
 <p>The rules in <a href="output-actions.html#action-rules">Rules and rejections</a> all apply. Two more are specific to
 streaming:</p>
@@ -960,11 +1064,19 @@ streaming:</p>
 with nothing added between batches — no separator, no trailing newline
 beyond what the handler itself emits.</p>
 </li>
+<li>
+<p><code>@fold</code> and <code>@stream</code> are mutually exclusive: <code>@stream</code> emits one result per
+batch, <code>@fold</code> one for the whole stream.</p>
+</li>
+<li>
+<p><code>@fold</code> requires a reachable <code>@collect</code>, and all three of <code>@fold</code>, <code>@init</code>
+and <code>@combine</code>.</p>
+</li>
 </ul>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_what_the_help_says_a_stream_produces"><a class="anchor" href="#_what_the_help_says_a_stream_produces"></a>6.11.5. What the help says a stream produces</h4>
+<h4 id="_what_the_help_says_a_stream_produces"><a class="anchor" href="#_what_the_help_says_a_stream_produces"></a>6.11.6. What the help says a stream produces</h4>
 <div class="paragraph">
 <p>A streaming command’s <code>Return:</code> block describes <strong>standard output</strong>, not the
 <code>()</code> the function returns. The two coincide for every other command and come
@@ -1016,6 +1128,7 @@ claims <code>()</code> for a command that streams.</p>
 <div id="footer">
 <span class="credit">Created with <a href="https://github.com/HarshKapadia2/asciidoctor-jet" target="_blank" rel="noreferrer"><i>Asciidoctor Jet</i></a></span>
 
+<a class="home" href="../index.html">Home</a>
 <a href="../llms.txt">llms.txt</a>
 <a class="text-view" href="streaming-output.md">View as text</a></div>
 </body>
