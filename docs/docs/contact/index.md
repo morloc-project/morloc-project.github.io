@@ -1,6 +1,6 @@
-# 17. Contact
+# 18. Contact
 
-Morloc Manual | https://morloc-project.github.io/docs/contact/ | prev: https://morloc-project.github.io/docs/env/index.md
+Morloc Manual | https://morloc-project.github.io/docs/contact/ | prev: https://morloc-project.github.io/docs/ai-policy/index.md
 
 This is a young project and any brave early users are highly valued. Feel free to contact me for any reason!
 

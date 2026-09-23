@@ -462,6 +462,7 @@
  "env-nexus-wiring": "env/",
  "env-inspection-tools": "env/",
  "env-string-safety": "env/",
+ "ai-policy": "ai-policy/",
  "contact": "contact/",
  "_a_bare_statement_checks_its_result": "features/effects.html#bare-statement-checks",
  "_a_do_block_does_not_return_a_try": "features/effects.html#do-block-no-try",

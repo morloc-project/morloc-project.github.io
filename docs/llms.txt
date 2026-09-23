@@ -161,6 +161,10 @@
 
 - [16. Environmental Variable List](https://morloc-project.github.io/docs/env/index.md): Every environment variable that morloc reads or sets lives in the MORLOC_ namespace.
 
-## 17. Contact
+## 17. AI Policy
 
-- [17. Contact](https://morloc-project.github.io/docs/contact/index.md): This is a young project and any brave early users are highly valued.
+- [17. AI Policy](https://morloc-project.github.io/docs/ai-policy/index.md): We are all coming to terms with how to use AI in this age (2026).
+
+## 18. Contact
+
+- [18. Contact](https://morloc-project.github.io/docs/contact/index.md): This is a young project and any brave early users are highly valued.

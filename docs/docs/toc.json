@@ -8,7 +8,7 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "ffd30f50c83434eee0ab86300ec827b85d60a380"
+  "source": "7eb63caa51dcb4dbd8cacfe053fdf8178e018e4a"
  },
  "pages": [
   {
@@ -3056,6 +3056,17 @@
   },
   {
    "number": "17.",
+   "title": "AI Policy",
+   "id": "ai-policy",
+   "url": "https://morloc-project.github.io/docs/ai-policy/",
+   "md": "https://morloc-project.github.io/docs/ai-policy/index.md",
+   "chapter": "ai-policy",
+   "level": 1,
+   "summary": "We are all coming to terms with how to use AI in this age (2026).",
+   "headings": []
+  },
+  {
+   "number": "18.",
    "title": "Contact",
    "id": "contact",
    "url": "https://morloc-project.github.io/docs/contact/",

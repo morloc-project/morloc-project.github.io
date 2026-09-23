@@ -88,10 +88,6 @@ several. The compiler generates the code that carries data between them. That is
 why Morloc is polyglot: a library of functions cannot be universal if it is
 partitioned by language.
 
-NOTE: AI was used in the generation of parts of this documentation. This is a
-temporary concession. I'll revise the AI sections and re-introduce some much
-needed profanity once the code base settles with v1.0. December, maybe?
-
 // Transcripts here were produced on morloc 0.101.0 / mim 0.28.0 (2026-09-06) by
 // running the example shown: the sums program (build, run, -h, --mcp-tools) and
 // the two vector test runs, which are the `vector` module's own suite executed
@@ -717,6 +713,11 @@ include::{includedir}/questions-and-answers.asc[]
 == Environmental Variable List
 
 include::{includedir}/environmental-variables.asc[]
+
+[#ai-policy.onepage]
+== AI Policy
+
+include::{includedir}/ai-policy.asc[]
 
 [#contact.onepage]
 == Contact

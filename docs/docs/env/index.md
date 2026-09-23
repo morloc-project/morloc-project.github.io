@@ -1,6 +1,6 @@
 # 16. Environmental Variable List
 
-Morloc Manual | https://morloc-project.github.io/docs/env/ | prev: https://morloc-project.github.io/docs/qa/more-questions.md | next: https://morloc-project.github.io/docs/contact/index.md
+Morloc Manual | https://morloc-project.github.io/docs/env/ | prev: https://morloc-project.github.io/docs/qa/more-questions.md | next: https://morloc-project.github.io/docs/ai-policy/index.md
 
 Every environment variable that morloc reads or sets lives in the `MORLOC_` namespace. They fall into two roles:
 

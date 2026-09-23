@@ -1,0 +1,13 @@
+# 17. AI Policy
+
+Morloc Manual | https://morloc-project.github.io/docs/ai-policy/ | prev: https://morloc-project.github.io/docs/env/index.md | next: https://morloc-project.github.io/docs/contact/index.md
+
+We are all coming to terms with how to use AI in this age (2026).
+
+For 6 years I developed Morloc without AI. I built all the foundations and iterated through many failed designs including a brief period where I parsed into RDF and implemented typechecking logic in SPARQL. Not a great idea.
+
+Then for 3 years I developed with the occasional chat bot interaction. ChatGPT and Perplexity were very helpful in writing functions, particularly in figuring out the wiring of the sockets and daemon design. The AIs where not then smart enough to be of much use in the core Haskell compiler.
+
+Then for the last year, since February of 2026, I’ve found that Claude Code had quite surpassed me. The design decisions remain mine. I iterate hard on every feature. But I hardly read the code now. I ceased to be a programmer and became a manager. The only code I write now is Morloc code. I harbor some hope of reversing this. Maybe, when the race slows, I can take back what was lost.
+
+As for the docs, even with the advent of AI, I do believe these should be written by me. And I will aspire to do so. However, with the frenetic pace of development, I have resorted to letting the AI write large sections of the documentation. And it shows. I will replace the amnesiac writings the machine gods. You have my promise.

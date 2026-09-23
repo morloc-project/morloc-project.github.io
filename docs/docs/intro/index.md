@@ -8,9 +8,6 @@ You write ordinary code in an ordinary language and give it a type in Morloc. Fr
 
 Morloc types are language-neutral, so the implementation behind a type may come from any supported language, or from a composition of functions written in several. The compiler generates the code that carries data between them. That is why Morloc is polyglot: a library of functions cannot be universal if it is partitioned by language.
 
-> **Note**
-> AI was used in the generation of parts of this documentation. This is a temporary concession. I’ll revise the AI sections and re-introduce some much needed profanity once the code base settles with v1.0. December, maybe?
-
 ## 1.1. Morloc in one program
 
 Two functions, in two languages, neither aware of the other. A C++ sum:
