@@ -212,6 +212,7 @@
 <li><a href="../features/where-and-let.html#_where">4.11.1. <code>where</code></a></li>
 <li><a href="../features/where-and-let.html#_let">4.11.2. <code>let</code></a></li>
 <li><a href="../features/where-and-let.html#_the_scope_rule_that_separates_them">4.11.3. The scope rule that separates them</a></li>
+<li><a href="../features/where-and-let.html#_when_bindings_are_evaluated">4.11.4. When bindings are evaluated</a></li>
 </ul>
 </li>
 <li><a href="../features/conditionals.html">4.12. Conditionals</a>
@@ -288,7 +289,9 @@
 <ul class="sectlevel3">
 <li><a href="typeclasses.html#_one_class_many_languages">5.2.1. One class, many languages</a></li>
 <li><a href="typeclasses.html#_superclasses">5.2.2. Superclasses</a></li>
-<li><a href="typeclasses.html#_importing_a_class_from_another_module">5.2.3. Importing a class from another module</a></li>
+<li><a href="typeclasses.html#_constraints_are_checked">5.2.3. Constraints are checked</a></li>
+<li><a href="typeclasses.html#_instances_with_contexts">5.2.4. Instances with contexts</a></li>
+<li><a href="typeclasses.html#_importing_a_class_from_another_module">5.2.5. Importing a class from another module</a></li>
 </ul>
 </li>
 <li><a href="infix-operators.html">5.3. Infix operators</a>
@@ -374,6 +377,7 @@
 <li><a href="../clis/arguments.html#_options_flags_and_repeats">6.4.2. Options, flags, and repeats</a></li>
 <li><a href="../clis/arguments.html#_naming">6.4.3. Naming</a></li>
 <li><a href="../clis/arguments.html#_ending_option_parsing">6.4.4. Ending option parsing</a></li>
+<li><a href="../clis/arguments.html#parse-arguments">6.4.5. Reading files in other formats</a></li>
 </ul>
 </li>
 <li><a href="../clis/record-arguments.html">6.5. Record arguments</a>
@@ -407,7 +411,8 @@
 <li><a href="../clis/output-actions.html#_giving_a_formatter_arguments">6.10.2. Giving a formatter arguments</a></li>
 <li><a href="../clis/output-actions.html#_choosing_a_default">6.10.3. Choosing a default</a></li>
 <li><a href="../clis/output-actions.html#_media_types">6.10.4. Media types</a></li>
-<li><a href="../clis/output-actions.html#action-rules">6.10.5. Rules and rejections</a></li>
+<li><a href="../clis/output-actions.html#action-files">6.10.5. Several outputs in one run</a></li>
+<li><a href="../clis/output-actions.html#action-rules">6.10.6. Rules and rejections</a></li>
 </ul>
 </li>
 <li><a href="../clis/streaming-output.html">6.11. Streaming output with <code>@collect</code></a>
@@ -955,7 +960,82 @@ means every <code>Numeric</code> type is also <code>Integral</code>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_importing_a_class_from_another_module"><a class="anchor" href="#_importing_a_class_from_another_module"></a>5.2.3. Importing a class from another module</h4>
+<h4 id="_constraints_are_checked"><a class="anchor" href="#_constraints_are_checked"></a>5.2.3. Constraints are checked</h4>
+<div class="paragraph">
+<p>A signature is a promise the compiler holds the body to, whether or not the
+function is ever used:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Every method the body uses at a type variable must follow from the</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">signature’s constraints or their superclasses. `same </dt>
+<dd>
+<p>a → a → Bool`</p>
+</dd>
+<dt class="hdlist1">with a body that calls <code>==</code> is rejected; `same </dt>
+<dd>
+<p>Eq a ⇒ a → a → Bool`
+is accepted.</p>
+</dd>
+</dl>
+</div>
+</li>
+<li>
+<p>A body cannot be narrower than its signature. A function declared
+<code>a → a</code> whose body only works on <code>Int</code> is rejected, even if every use is
+at <code>Int</code>.</p>
+</li>
+<li>
+<p>A constraint needs its type: <code>Ord ⇒ a → a → Bool</code> is an error.</p>
+</li>
+<li>
+<p>A number literal can have a type variable’s type only under a class whose</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">values have literals: `inc </dt>
+<dd>
+<p>Integral a ⇒ a → a; inc x = x + 1` is</p>
+</dd>
+<dt class="hdlist1">fine, `one </dt>
+<dd>
+<p>a → a; one x = 1` is not.</p>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A type variable named in a local signature inside a function means the
+enclosing signature’s variable, not a new one.</p>
+</div>
+<div class="paragraph">
+<p>These checks cover the module you compile; imported modules are taken at
+their signatures' word.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_instances_with_contexts"><a class="anchor" href="#_instances_with_contexts"></a>5.2.4. Instances with contexts</h4>
+<div class="paragraph">
+<p>An instance for a type with parameters may need instances at those
+parameters. Declare them before <code>⇒</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">instance</span><span class="tok-w"> </span><span class="tok-nc">Sz</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Sz</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">    </span><span class="tok-n">sz</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">sz</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">xs</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Inside the body, <code>sz x</code> at <code>a</code> is allowed because of <code>Sz a</code>, and
+<code>Sz (List Int)</code> exists wherever <code>Sz Int</code> does.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_importing_a_class_from_another_module"><a class="anchor" href="#_importing_a_class_from_another_module"></a>5.2.5. Importing a class from another module</h4>
 <div class="paragraph">
 <p>A class is exported and imported by its name. Its methods are not separately
 importable and may not appear in an export list:</p>

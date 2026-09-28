@@ -212,6 +212,7 @@
 <li><a href="../features/where-and-let.html#_where">4.11.1. <code>where</code></a></li>
 <li><a href="../features/where-and-let.html#_let">4.11.2. <code>let</code></a></li>
 <li><a href="../features/where-and-let.html#_the_scope_rule_that_separates_them">4.11.3. The scope rule that separates them</a></li>
+<li><a href="../features/where-and-let.html#_when_bindings_are_evaluated">4.11.4. When bindings are evaluated</a></li>
 </ul>
 </li>
 <li><a href="../features/conditionals.html">4.12. Conditionals</a>
@@ -288,7 +289,9 @@
 <ul class="sectlevel3">
 <li><a href="../types/typeclasses.html#_one_class_many_languages">5.2.1. One class, many languages</a></li>
 <li><a href="../types/typeclasses.html#_superclasses">5.2.2. Superclasses</a></li>
-<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.3. Importing a class from another module</a></li>
+<li><a href="../types/typeclasses.html#_constraints_are_checked">5.2.3. Constraints are checked</a></li>
+<li><a href="../types/typeclasses.html#_instances_with_contexts">5.2.4. Instances with contexts</a></li>
+<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.5. Importing a class from another module</a></li>
 </ul>
 </li>
 <li><a href="../types/infix-operators.html">5.3. Infix operators</a>
@@ -374,6 +377,7 @@
 <li><a href="arguments.html#_options_flags_and_repeats">6.4.2. Options, flags, and repeats</a></li>
 <li><a href="arguments.html#_naming">6.4.3. Naming</a></li>
 <li><a href="arguments.html#_ending_option_parsing">6.4.4. Ending option parsing</a></li>
+<li><a href="arguments.html#parse-arguments">6.4.5. Reading files in other formats</a></li>
 </ul>
 </li>
 <li><a href="record-arguments.html">6.5. Record arguments</a>
@@ -407,7 +411,8 @@
 <li><a href="output-actions.html#_giving_a_formatter_arguments">6.10.2. Giving a formatter arguments</a></li>
 <li><a href="output-actions.html#_choosing_a_default">6.10.3. Choosing a default</a></li>
 <li><a href="output-actions.html#_media_types">6.10.4. Media types</a></li>
-<li><a href="output-actions.html#action-rules">6.10.5. Rules and rejections</a></li>
+<li><a href="output-actions.html#action-files">6.10.5. Several outputs in one run</a></li>
+<li><a href="output-actions.html#action-rules">6.10.6. Rules and rejections</a></li>
 </ul>
 </li>
 <li><a href="streaming-output.html">6.11. Streaming output with <code>@collect</code></a>
@@ -778,7 +783,9 @@ is printed verbatim below the options from <code>-hh</code> up. Use it for an
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@with &lt;flags&gt;=&lt;term&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attach an output action whose result stays typed. See <a href="output-actions.html">Output actions</a>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attach an output action whose result stays typed. See <a href="output-actions.html">Output actions</a>.
+The flag writes to stdout, or with <code>=PATH</code> to a file; several may be named
+in one run (see <a href="output-actions.html#action-files">Several outputs in one run</a>), and the command also takes <code>--no-stdout</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@render &lt;flags&gt;=&lt;term&gt;</code></p></td>
@@ -863,6 +870,12 @@ See <a href="reading-stdin.html">Reading a stream from standard input</a>.</p></
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@unroll</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On a record argument: split it into one flag per field. <code>@unroll false</code> opts
 one use out.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@parse &lt;name&gt;=&lt;function&gt; [.ext …​]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Accept the argument as a file in another format, read by <code>&lt;function&gt;</code> when
+the value ends in one of the extensions or is prefixed with <code>&lt;name&gt;:</code>. Repeat
+it once per format. See <a href="arguments.html#parse-arguments">Reading files in other formats</a>.</p></td>
 </tr>
 </tbody>
 </table>

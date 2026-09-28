@@ -1,0 +1,1 @@
+- [@parse/drainStream perf review](parse-drain-perf-review.md) - 2026-09-28; noopDrain is StaticArgs-specialized, py numpy views need tracker, stdin EOF-on-empty

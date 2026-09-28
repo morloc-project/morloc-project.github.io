@@ -48,7 +48,7 @@ $ ./sift -f csv summarize hits.json
 Error: --format=arrow|parquet|csv requires a Table return type
 ```
 
-Two more nexus options shape the output. `-o` writes to a file instead of stdout. `-p` pretty-prints: JSON gets indentation, and a top-level `Str` is printed as text rather than as a quoted JSON string.
+Two more nexus options shape the output. `-o` writes to a file instead of stdout; terminal actions can also write files of their own, several in one run (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)). `-p` pretty-prints: JSON gets indentation, and a top-level `Str` is printed as text rather than as a quoted JSON string.
 
 ```console
 $ ./sift -p summarize hits.json

@@ -52,6 +52,8 @@ Return:
 
 The command’s declared return type is unchanged. Morloc code that composes `scan` still sees `<IO> [Hit]`; the actions exist only at the interface.
 
+`@parse` is the same idea on the way in: it reads an argument from a file in another format before the command runs (see [Reading files in other formats](https://morloc-project.github.io/docs/clis/arguments.md#parse-arguments)). A command can use both; its arguments are read first, whatever output action is chosen.
+
 ## 6.10.1. `@with` keeps a value; `@render` produces bytes
 
 The two directives differ in what they do with the formatter’s result.
@@ -257,10 +259,46 @@ It does more than label. The HTTP daemon returns the raw bytes with a matching `
 > 
 > The `ident` handler above exists for exactly this reason.
 
-## 6.10.5. Rules and rejections
+## 6.10.5. Several outputs in one run
 
--   One action flag per invocation. Siblings are mutually exclusive and a second one is rejected at parse time.
+An action flag takes an optional path, attached with `=`. `--json` writes to stdout as before; `--json=rows.json` writes to the file instead. Several actions may be named at once, each with its own path, and the command runs once to feed them all — the way to get a genome and its annotation table from one expensive run:
+
+```console
+$ ./rep fruit 12 --json=rows.json
+fruit-0     0
+fruit-1     1
+fruit-2     2
+
+$ cat rows.json
+"[[\"fruit-0\", 0], [\"fruit-1\", 1], [\"fruit-2\", 2]]"
+```
+
+Naming an action with a path never changes what stdout gets. Above, stdout still carries the `@default` table; with `-f`, it carries the typed value; with a bare action (no `=`), that action. `--no-stdout` sends nothing to stdout:
+
+```console
+$ ./rep fruit 12 --table=table.txt --json=rows.json --no-stdout
+
+$ cat table.txt
+fruit-0     0
+fruit-1     1
+fruit-2     2
+```
+
+`tabulate` is a sink — it prints its rows itself — and what it prints goes to its file. Whatever the command body prints goes to stdout, as it always does.
+
+Each file holds exactly what the action writes when run alone, `-f` and `-z` included. On a streaming command every action sees the whole stream, batch by batch as the producer wrote it (see [Streaming output with `@collect`](https://morloc-project.github.io/docs/clis/streaming-output.md)). Every file is written under a temporary name beside it and moved into place only when the whole run succeeds; if the command or any action fails, or the run is interrupted, no requested file is created or changed. A file that is replaced keeps its permissions, and a path through a symlink writes the file the link names. An existing path that is not a regular file (`/dev/null`, a named pipe) is written directly.
+
+Only `=` attaches a path. `--json rows.json` is still the flag followed by a positional argument, and a short flag (`-j`) always means stdout, as does `--json=-`.
+
+What makes this possible is that the run saves the command’s output, and the actions read it back. Three things follow. An action that writes to stdout in such a run does so after the command finishes, not as it streams. An action whose handler is all-morloc code that reads a stream batch by batch (`@stream`, `@fold`) cannot run on saved output; name it on its own to run it. And an action on a streaming command with more than one `@collect`, or one inside a branch or a where-binding, runs only on saved output, so the daemon and MCP servers, which run one action per call, do not offer it.
+
+A `-f` that one of the outputs cannot take — `csv` for a value that is not a table, or `mpk` for a stream — is refused before the command runs.
+
+## 6.10.6. Rules and rejections
+
+-   At most one action writes to stdout. Two bare action flags, or a bare one with `--no-stdout`, are rejected, as are one path given to two actions, a path that is also ``-o’s, and an empty `--act=``.
+-   A streaming command with actions must return `()`: its actions apply to what it streams.
 -   Action directives belong in the signature preamble — the `--'` lines directly above `name ::` — not on argument docstrings, record fields, or type aliases.
 -   The command needs an explicit signature.
--   Flag names must not collide with the command’s own `@arg` / `@true` / `@false` names, with each other, or with `-h` / `--help`.
+-   Flag names must not collide with the command’s own `@arg` / `@true` / `@false` names, with each other, or with `-h` / `--help` or `--no-stdout`.
 -   Two directives whose long flags collapse to the same internal name (say `--bar-baz` and `--bar_baz`) are rejected, as is a synthesized entry name that collides with a top-level identifier in the module.

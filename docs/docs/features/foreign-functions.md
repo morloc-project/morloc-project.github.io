@@ -112,6 +112,8 @@ Each value must be at least 1 and must leave at least one argument for the group
 
 `rsize` is the only place the curried-versus-flat distinction is recorded. Writing the type as `Real → ([Real] → [Real])` does not imply it and does not change the emitted call.
 
+The other direction is a function morloc passes to a source. There the source’s signature says how the source calls it, by how the parameter’s type is written: a parameter `(a → b → c)` is called with both arguments at once, and `(a → (b → c))` with one argument, the source then applying the function that returns. Morloc hands over any function of that type in that grouping, however the function was defined. If the function does work before the lambda it returns, that work runs when the source applies the first group, once per such call.
+
 The C++ side is an ordinary header:
 
 **foo.hpp**

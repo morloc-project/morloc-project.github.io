@@ -232,6 +232,7 @@
 <li><a href="#_where">4.11.1. <code>where</code></a></li>
 <li><a href="#_let">4.11.2. <code>let</code></a></li>
 <li><a href="#_the_scope_rule_that_separates_them">4.11.3. The scope rule that separates them</a></li>
+<li><a href="#_when_bindings_are_evaluated">4.11.4. When bindings are evaluated</a></li>
 </ul>
 </li>
 <li><a href="#conditionals">4.12. Conditionals</a>
@@ -308,7 +309,9 @@
 <ul class="sectlevel3">
 <li><a href="#_one_class_many_languages">5.2.1. One class, many languages</a></li>
 <li><a href="#_superclasses">5.2.2. Superclasses</a></li>
-<li><a href="#_importing_a_class_from_another_module">5.2.3. Importing a class from another module</a></li>
+<li><a href="#_constraints_are_checked">5.2.3. Constraints are checked</a></li>
+<li><a href="#_instances_with_contexts">5.2.4. Instances with contexts</a></li>
+<li><a href="#_importing_a_class_from_another_module">5.2.5. Importing a class from another module</a></li>
 </ul>
 </li>
 <li><a href="#infix-operators">5.3. Infix operators</a>
@@ -394,6 +397,7 @@
 <li><a href="#_options_flags_and_repeats">6.4.2. Options, flags, and repeats</a></li>
 <li><a href="#_naming">6.4.3. Naming</a></li>
 <li><a href="#_ending_option_parsing">6.4.4. Ending option parsing</a></li>
+<li><a href="#parse-arguments">6.4.5. Reading files in other formats</a></li>
 </ul>
 </li>
 <li><a href="#record-arguments">6.5. Record arguments</a>
@@ -427,7 +431,8 @@
 <li><a href="#_giving_a_formatter_arguments">6.10.2. Giving a formatter arguments</a></li>
 <li><a href="#_choosing_a_default">6.10.3. Choosing a default</a></li>
 <li><a href="#_media_types">6.10.4. Media types</a></li>
-<li><a href="#action-rules">6.10.5. Rules and rejections</a></li>
+<li><a href="#action-files">6.10.5. Several outputs in one run</a></li>
+<li><a href="#action-rules">6.10.6. Rules and rejections</a></li>
 </ul>
 </li>
 <li><a href="#streaming-output">6.11. Streaming output with <code>@collect</code></a>
@@ -2939,6 +2944,16 @@ an empty call behind.</p>
 <p><code>rsize</code> is the only place the curried-versus-flat distinction is recorded.
 Writing the type as <code>Real &#8594; ([Real] &#8594; [Real])</code> does not imply it and does not
 change the emitted call.</p>
+</div>
+<div class="paragraph">
+<p>The other direction is a function morloc passes to a source. There the
+source&#8217;s signature says how the source calls it, by how the parameter&#8217;s type
+is written: a parameter <code>(a &#8594; b &#8594; c)</code> is called with both arguments at once,
+and <code>(a &#8594; (b &#8594; c))</code> with one argument, the source then applying the function
+that returns. Morloc hands over any function of that type in that grouping,
+however the function was defined. If the function does work before the lambda
+it returns, that work runs when the source applies the first group, once per
+such call.</p>
 </div>
 </div>
 </details>
@@ -6345,6 +6360,45 @@ not collide with a function parameter. Both violations are compile-time errors.<
 <p>If you want shadowing, that is what <code>let</code> is for.</p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_when_bindings_are_evaluated"><a class="anchor" href="#_when_bindings_are_evaluated"></a>4.11.4. When bindings are evaluated</h4>
+<div class="paragraph">
+<p>Morloc is strict: an argument is evaluated once, where it is applied, no
+matter how many times the function uses it. Named values follow the same
+rule. A <code>where</code> or <code>let</code> binding is computed at most once each time its
+scope is evaluated, however many times it is mentioned:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A binding used in only one branch of a conditional is computed in that
+branch, so the other branch does not pay for it (or fail on it).</p>
+</li>
+<li>
+<p>A binding used only inside <code>@try</code> is computed inside it, so its failure
+is caught there.</p>
+</li>
+<li>
+<p>A value used inside a lambda is computed once, when the lambda is built,
+not on every call.</p>
+</li>
+<li>
+<p>A <code>where</code> binding nothing uses is never computed. A <code>let</code> binding nothing
+uses still runs where it is written.</p>
+</li>
+<li>
+<p>In a <code>do</code> block, a <code>let</code> never runs before the effects written above it.</p>
+</li>
+<li>
+<p>A top-level value is computed at most once per command.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A named value is also one value across languages: if Python and C++ code
+both read it, it is computed once and passed to both.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="conditionals"><a class="anchor" href="#conditionals"></a>4.12. Conditionals</h3>
@@ -9069,7 +9123,7 @@ and provide access to the Morloc runtime.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stream</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile a -&gt; &lt;IO&gt; (IStream a)</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile [a] -&gt; &lt;IO&gt; (IStream a)</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Derive a forward-walking <code>IStream</code> from an open <code>IFile</code>. The two share the underlying file but have independent cursors.</p></td>
 </tr>
 <tr>
@@ -10341,7 +10395,82 @@ means every <code>Numeric</code> type is also <code>Integral</code>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_importing_a_class_from_another_module"><a class="anchor" href="#_importing_a_class_from_another_module"></a>5.2.3. Importing a class from another module</h4>
+<h4 id="_constraints_are_checked"><a class="anchor" href="#_constraints_are_checked"></a>5.2.3. Constraints are checked</h4>
+<div class="paragraph">
+<p>A signature is a promise the compiler holds the body to, whether or not the
+function is ever used:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Every method the body uses at a type variable must follow from the</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">signature&#8217;s constraints or their superclasses. `same </dt>
+<dd>
+<p>a &#8594; a &#8594; Bool`</p>
+</dd>
+<dt class="hdlist1">with a body that calls <code>==</code> is rejected; `same </dt>
+<dd>
+<p>Eq a &#8658; a &#8594; a &#8594; Bool`
+is accepted.</p>
+</dd>
+</dl>
+</div>
+</li>
+<li>
+<p>A body cannot be narrower than its signature. A function declared
+<code>a &#8594; a</code> whose body only works on <code>Int</code> is rejected, even if every use is
+at <code>Int</code>.</p>
+</li>
+<li>
+<p>A constraint needs its type: <code>Ord &#8658; a &#8594; a &#8594; Bool</code> is an error.</p>
+</li>
+<li>
+<p>A number literal can have a type variable&#8217;s type only under a class whose</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">values have literals: `inc </dt>
+<dd>
+<p>Integral a &#8658; a &#8594; a; inc x = x + 1` is</p>
+</dd>
+<dt class="hdlist1">fine, `one </dt>
+<dd>
+<p>a &#8594; a; one x = 1` is not.</p>
+</dd>
+</dl>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A type variable named in a local signature inside a function means the
+enclosing signature&#8217;s variable, not a new one.</p>
+</div>
+<div class="paragraph">
+<p>These checks cover the module you compile; imported modules are taken at
+their signatures' word.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_instances_with_contexts"><a class="anchor" href="#_instances_with_contexts"></a>5.2.4. Instances with contexts</h4>
+<div class="paragraph">
+<p>An instance for a type with parameters may need instances at those
+parameters. Declare them before <code>&#8658;</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">instance</span><span class="tok-w"> </span><span class="tok-nc">Sz</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Sz</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">List</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">    </span><span class="tok-n">sz</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">fold</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">sz</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">xs</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Inside the body, <code>sz x</code> at <code>a</code> is allowed because of <code>Sz a</code>, and
+<code>Sz (List Int)</code> exists wherever <code>Sz Int</code> does.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_importing_a_class_from_another_module"><a class="anchor" href="#_importing_a_class_from_another_module"></a>5.2.5. Importing a class from another module</h4>
 <div class="paragraph">
 <p>A class is exported and imported by its name. Its methods are not separately
 importable and may not appear in an export list:</p>
@@ -14533,6 +14662,196 @@ positional too, so a search for the literal text <code>-p</code> cannot also ask
 output.</p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="parse-arguments"><a class="anchor" href="#parse-arguments"></a>6.4.5. Reading files in other formats</h4>
+<div class="paragraph">
+<p><code>@parse</code> lets an argument be given as a file in a format Morloc does not read
+itself&#8201;&#8212;&#8201;a CSV, a FASTA file, a column of numbers&#8201;&#8212;&#8201;and names the function
+that reads it. The command stays typed over the values it computes on, and the
+file is read before the command runs.</p>
+</div>
+<div class="listingblock">
+<div class="title">stats.py</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">gzip</span>
+
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">read_csv</span><span class="tok-p">(</span><span class="tok-n">path</span><span class="tok-p">):</span>
+    <span class="tok-k">with</span> <span class="tok-nb">open</span><span class="tok-p">(</span><span class="tok-n">path</span><span class="tok-p">)</span> <span class="tok-k">as</span> <span class="tok-n">fh</span><span class="tok-p">:</span>
+        <span class="tok-k">return</span> <span class="tok-p">[</span><span class="tok-nb">float</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)</span> <span class="tok-k">for</span> <span class="tok-n">x</span> <span class="tok-ow">in</span> <span class="tok-n">fh</span><span class="tok-o">.</span><span class="tok-n">read</span><span class="tok-p">()</span><span class="tok-o">.</span><span class="tok-n">split</span><span class="tok-p">(</span><span class="tok-s2">&quot;,&quot;</span><span class="tok-p">)]</span>
+
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">read_lines</span><span class="tok-p">(</span><span class="tok-n">path</span><span class="tok-p">):</span>
+    <span class="tok-n">opener</span> <span class="tok-o">=</span> <span class="tok-n">gzip</span><span class="tok-o">.</span><span class="tok-n">open</span> <span class="tok-k">if</span> <span class="tok-n">path</span><span class="tok-o">.</span><span class="tok-n">endswith</span><span class="tok-p">(</span><span class="tok-s2">&quot;.gz&quot;</span><span class="tok-p">)</span> <span class="tok-k">else</span> <span class="tok-nb">open</span>
+    <span class="tok-k">with</span> <span class="tok-n">opener</span><span class="tok-p">(</span><span class="tok-n">path</span><span class="tok-p">,</span> <span class="tok-s2">&quot;rt&quot;</span><span class="tok-p">)</span> <span class="tok-k">as</span> <span class="tok-n">fh</span><span class="tok-p">:</span>
+        <span class="tok-k">return</span> <span class="tok-p">[</span><span class="tok-nb">float</span><span class="tok-p">(</span><span class="tok-n">line</span><span class="tok-p">)</span> <span class="tok-k">for</span> <span class="tok-n">line</span> <span class="tok-ow">in</span> <span class="tok-n">fh</span> <span class="tok-k">if</span> <span class="tok-n">line</span><span class="tok-o">.</span><span class="tok-n">strip</span><span class="tok-p">()]</span>
+
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">average</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">):</span>
+    <span class="tok-k">return</span> <span class="tok-nb">sum</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span> <span class="tok-o">/</span> <span class="tok-nb">len</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="title">stats.loc</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">stats</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">mean</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">&quot;stats.py&quot;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">&quot;read_csv&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">readCsv</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;read_lines&quot;</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">readLines</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">&quot;average&quot;</span><span class="tok-p">)</span>
+
+<span class="tok-n">readCsv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span>
+<span class="tok-n">readLines</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span>
+<span class="tok-n">average</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-cs">--&#39; Average some numbers</span>
+<span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; the numbers to average</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @metavar NUMS</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @parse csv=readCsv .csv</span>
+<span class="tok-w">  </span><span class="tok-cs">--&#39; @parse lines=readLines .txt .txt.gz</span>
+<span class="tok-w">  </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-nc">Real</span>
+<span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">average</span><span class="tok-w"> </span><span class="tok-n">xs</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Each <code>@parse</code> line declares a format: a name (lowercase letters, digits and
+<code>-</code>), the function that reads it, and any number of file extensions. A value
+that ends in one of the extensions is read by that format&#8217;s function. So is a
+value prefixed with the format&#8217;s name and a colon, whatever its extension. A
+value that selects no format is read as always:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./stats<span class="tok-w"> </span><span class="tok-s1">&#39;[1,2,3]&#39;</span>
+<span class="tok-go">2</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>scores.csv
+<span class="tok-go">3</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>scores.txt.gz
+<span class="tok-go">2.5</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>lines:readings
+<span class="tok-go">2.5</span>
+<span class="tok-gp">$ </span>seq<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">9</span><span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>./stats<span class="tok-w"> </span>lines:-
+<span class="tok-go">5</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The rules for choosing a format:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A prefix counts only when the text before the first <code>:</code> is a declared format
+name, or <code>morloc</code>. Anything else is part of the value, so paths and JSON that
+contain colons are unaffected. A file literally named <code>lines:x</code> is written
+<code>./lines:x</code>.</p>
+</li>
+<li>
+<p>Without a prefix, the longest declared extension the value ends with picks
+the format, ignoring case: <code>.txt.gz</code> wins over <code>.gz</code>, and <code>SCORES.CSV</code> is a
+CSV.</p>
+</li>
+<li>
+<p><code>morloc:&lt;path&gt;</code> reads the file as a Morloc value, for a file whose name
+happens to end in a declared extension:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>cat<span class="tok-w"> </span>old.csv
+<span class="tok-go">[10,20]</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>morloc:old.csv
+<span class="tok-go">15</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+</li>
+<li>
+<p><code>-</code> reads standard input; the function receives the path <code>/dev/stdin</code>. Only
+one argument per command may read stdin.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Formats are never guessed from a file&#8217;s contents. A function that accepts
+several variants&#8201;&#8212;&#8201;<code>read_lines</code> above takes plain and gzipped text&#8201;&#8212;&#8201;decides
+that itself.</p>
+</div>
+<div class="paragraph">
+<p>The function&#8217;s type follows from the argument&#8217;s:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Argument type</th>
+<th class="tableblock halign-left valign-top">Function type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>T</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO&gt; T</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>?T</code> (an option)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; &lt;IO&gt; T</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IStream a</code> or <code>IFile [a]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str &#8594; ([a] &#8594; &lt;IO&gt; ()) &#8594; &lt;IO&gt; ()</code>: it reads
+the file and hands each batch to the function it is given</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A stream argument is read into a temporary file as it arrives, so it is never
+held in memory, and the command receives exactly the batches the function
+produced (see <a href="#random-access-and-streaming">Random access and streaming</a>). Temporary files go under
+<code>$MORLOC_TMPDIR</code>, else <code>$TMPDIR</code>, else <code>/tmp</code>, and are removed when the run
+ends, however it ends short of <code>kill -9</code>.</p>
+</div>
+<div class="paragraph">
+<p>If the function fails, the command does not run, and the run exits non-zero
+with the argument, the format and the path:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>cat<span class="tok-w"> </span>bad.csv
+<span class="tok-go">1,two,3</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>bad.csv
+<span class="tok-go">error: argument NUMS (format csv, path bad.csv): could not convert string to float: &#39;two&#39;</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The function reports a failure the way any sourced function does: an exception
+in Python or C++, <code>rustmorloc::morloc_throw</code> in Rust. A Rust panic is treated
+as a bug and stops the pool.</p>
+</div>
+<div class="paragraph">
+<p>Help lists each argument&#8217;s formats:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>-h
+<span class="tok-go">...</span>
+<span class="tok-go">Positional arguments:</span>
+<span class="tok-go">  1: NUMS  the numbers to average</span>
+<span class="tok-go">           type: [Real]</span>
+<span class="tok-go">           formats: csv (.csv), lines (.txt .txt.gz), morloc (the default)</span>
+<span class="tok-go">...</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p><code>@parse</code> belongs to the command line. A daemon, MCP or call-packet caller
+passes values, as before. It is not available on a <code>Str</code> argument (the function
+would be handed the string it is supposed to produce), on <code>@many</code>, <code>@unroll</code> or
+<code>@form list</code> arguments, on flags, or on an argument whose type has a type
+variable. The command or one of its format functions must be a foreign
+function: an all-Morloc command has no pool to read the file in.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="record-arguments"><a class="anchor" href="#record-arguments"></a>6.5. Record arguments</h3>
@@ -15468,7 +15787,8 @@ approximation:</p>
 </div>
 <div class="paragraph">
 <p>Two more nexus options shape the output. <code>-o</code> writes to a file instead of
-stdout. <code>-p</code> pretty-prints: JSON gets indentation, and a top-level <code>Str</code> is
+stdout; terminal actions can also write files of their own, several in one
+run (see <a href="#action-files">Several outputs in one run</a>). <code>-p</code> pretty-prints: JSON gets indentation, and a top-level <code>Str</code> is
 printed as text rather than as a quoted JSON string.</p>
 </div>
 <div class="listingblock">
@@ -15671,6 +15991,11 @@ table instead of a single line:</p>
 <div class="paragraph">
 <p>The command&#8217;s declared return type is unchanged. Morloc code that composes
 <code>scan</code> still sees <code>&lt;IO&gt; [Hit]</code>; the actions exist only at the interface.</p>
+</div>
+<div class="paragraph">
+<p><code>@parse</code> is the same idea on the way in: it reads an argument from a file in
+another format before the command runs (see <a href="#parse-arguments">Reading files in other formats</a>). A command can
+use both; its arguments are read first, whatever output action is chosen.</p>
 </div>
 <div class="sect3">
 <h4 id="_with_keeps_a_value_render_produces_bytes"><a class="anchor" href="#_with_keeps_a_value_render_produces_bytes"></a>6.10.1. <code>@with</code> keeps a value; <code>@render</code> produces bytes</h4>
@@ -15958,12 +16283,89 @@ currently how you get a file (<code>reports/0029</code>):</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="action-rules"><a class="anchor" href="#action-rules"></a>6.10.5. Rules and rejections</h4>
+<h4 id="action-files"><a class="anchor" href="#action-files"></a>6.10.5. Several outputs in one run</h4>
+<div class="paragraph">
+<p>An action flag takes an optional path, attached with <code>=</code>. <code>--json</code> writes to
+stdout as before; <code>--json=rows.json</code> writes to the file instead. Several
+actions may be named at once, each with its own path, and the command runs
+once to feed them all&#8201;&#8212;&#8201;the way to get a genome and its annotation table
+from one expensive run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./rep<span class="tok-w"> </span>fruit<span class="tok-w"> </span><span class="tok-m">12</span><span class="tok-w"> </span>--json<span class="tok-o">=</span>rows.json
+<span class="tok-go">fruit-0     0</span>
+<span class="tok-go">fruit-1     1</span>
+<span class="tok-go">fruit-2     2</span>
+
+<span class="tok-gp">$ </span>cat<span class="tok-w"> </span>rows.json
+<span class="tok-go">&quot;[[\&quot;fruit-0\&quot;, 0], [\&quot;fruit-1\&quot;, 1], [\&quot;fruit-2\&quot;, 2]]&quot;</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Naming an action with a path never changes what stdout gets. Above, stdout
+still carries the <code>@default</code> table; with <code>-f</code>, it carries the typed value;
+with a bare action (no <code>=</code>), that action. <code>--no-stdout</code> sends nothing to
+stdout:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./rep<span class="tok-w"> </span>fruit<span class="tok-w"> </span><span class="tok-m">12</span><span class="tok-w"> </span>--table<span class="tok-o">=</span>table.txt<span class="tok-w"> </span>--json<span class="tok-o">=</span>rows.json<span class="tok-w"> </span>--no-stdout
+
+<span class="tok-gp">$ </span>cat<span class="tok-w"> </span>table.txt
+<span class="tok-go">fruit-0     0</span>
+<span class="tok-go">fruit-1     1</span>
+<span class="tok-go">fruit-2     2</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p><code>tabulate</code> is a sink&#8201;&#8212;&#8201;it prints its rows itself&#8201;&#8212;&#8201;and what it prints goes
+to its file. Whatever the command body prints goes to stdout, as it always
+does.</p>
+</div>
+<div class="paragraph">
+<p>Each file holds exactly what the action writes when run alone, <code>-f</code> and <code>-z</code>
+included. On a streaming command every action sees the whole stream, batch by
+batch as the producer wrote it (see <a href="#streaming-output">Streaming output with <code>@collect</code></a>). Every file is
+written under a temporary name beside it and moved into place only when the
+whole run succeeds; if the command or any action fails, or the run is
+interrupted, no requested file is created or changed. A file that is
+replaced keeps its permissions, and a path through a symlink writes the
+file the link names. An existing path that is not a regular file
+(<code>/dev/null</code>, a named pipe) is written directly.</p>
+</div>
+<div class="paragraph">
+<p>Only <code>=</code> attaches a path. <code>--json rows.json</code> is still the flag followed by a
+positional argument, and a short flag (<code>-j</code>) always means stdout, as does
+<code>--json=-</code>.</p>
+</div>
+<div class="paragraph">
+<p>What makes this possible is that the run saves the command&#8217;s output, and the
+actions read it back. Three things follow. An action that writes to stdout
+in such a run does so after the command finishes, not as it streams. An
+action whose handler is all-morloc code that reads a stream batch by batch
+(<code>@stream</code>, <code>@fold</code>) cannot run on saved output; name it on its own to run
+it. And an action on a streaming command with more than one <code>@collect</code>, or
+one inside a branch or a where-binding, runs only on saved output, so the
+daemon and MCP servers, which run one action per call, do not offer it.</p>
+</div>
+<div class="paragraph">
+<p>A <code>-f</code> that one of the outputs cannot take&#8201;&#8212;&#8201;<code>csv</code> for a value that is not
+a table, or <code>mpk</code> for a stream&#8201;&#8212;&#8201;is refused before the command runs.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="action-rules"><a class="anchor" href="#action-rules"></a>6.10.6. Rules and rejections</h4>
 <div class="ulist">
 <ul>
 <li>
-<p>One action flag per invocation. Siblings are mutually exclusive and a second
-one is rejected at parse time.</p>
+<p>At most one action writes to stdout. Two bare action flags, or a bare one
+with <code>--no-stdout</code>, are rejected, as are one path given to two actions, a
+path that is also <code>-o&#8217;s, and an empty `--act=</code>.</p>
+</li>
+<li>
+<p>A streaming command with actions must return <code>()</code>: its actions apply to
+what it streams.</p>
 </li>
 <li>
 <p>Action directives belong in the signature preamble&#8201;&#8212;&#8201;the <code>--'</code> lines directly
@@ -15975,7 +16377,7 @@ aliases.</p>
 </li>
 <li>
 <p>Flag names must not collide with the command&#8217;s own <code>@arg</code> / <code>@true</code> /
-<code>@false</code> names, with each other, or with <code>-h</code> / <code>--help</code>.</p>
+<code>@false</code> names, with each other, or with <code>-h</code> / <code>--help</code> or <code>--no-stdout</code>.</p>
 </li>
 <li>
 <p>Two directives whose long flags collapse to the same internal name (say
@@ -16308,11 +16710,20 @@ which is not reproducible between runs.</p>
 <div class="sect3">
 <h4 id="_streaming_rules"><a class="anchor" href="#_streaming_rules"></a>6.11.5. Streaming rules</h4>
 <div class="paragraph">
-<p>The rules in <a href="#action-rules">Rules and rejections</a> all apply. Two more are specific to
-streaming:</p>
+<p>The rules in <a href="#action-rules">Rules and rejections</a> all apply. More are specific to streaming:</p>
 </div>
 <div class="ulist">
 <ul>
+<li>
+<p>An action applies to everything the command streams, whatever the shape of
+its body: a command with several `@collect`s, or one in a branch or a
+where-binding, gives each action the whole output, in order. Such a command&#8217;s actions run on its saved output (see
+<a href="#action-files">Several outputs in one run</a>), and so does any action combined with others.</p>
+</li>
+<li>
+<p>The producer needs a signature with a concrete batch type when its
+<code>@collect</code> is anywhere but the tail of the body.</p>
+</li>
 <li>
 <p>A <code>@stream</code> handler must return a list; its elements are what reach the wire.</p>
 </li>
@@ -16879,7 +17290,9 @@ is printed verbatim below the options from <code>-hh</code> up. Use it for an
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@with &lt;flags&gt;=&lt;term&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attach an output action whose result stays typed. See <a href="#output-actions">Output actions</a>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attach an output action whose result stays typed. See <a href="#output-actions">Output actions</a>.
+The flag writes to stdout, or with <code>=PATH</code> to a file; several may be named
+in one run (see <a href="#action-files">Several outputs in one run</a>), and the command also takes <code>--no-stdout</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@render &lt;flags&gt;=&lt;term&gt;</code></p></td>
@@ -16964,6 +17377,12 @@ See <a href="#reading-stdin">Reading a stream from standard input</a>.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@unroll</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">On a record argument: split it into one flag per field. <code>@unroll false</code> opts
 one use out.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@parse &lt;name&gt;=&lt;function&gt; [.ext &#8230;&#8203;]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Accept the argument as a file in another format, read by <code>&lt;function&gt;</code> when
+the value ends in one of the extensions or is prefixed with <code>&lt;name&gt;:</code>. Repeat
+it once per format. See <a href="#parse-arguments">Reading files in other formats</a>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -20606,7 +21025,7 @@ sub-packet.</p>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
-<p><code>@stream f</code> derives a fresh IStream from an open <code>IFile a</code>. The derived stream
+<p><code>@stream f</code> derives a fresh <code>IStream a</code> from an open <code>IFile [a]</code>. The derived stream
 has its own slot, fd, and cursor, so walking it does not perturb the IFile&#8217;s
 random-access state. The underlying file is the same&#8201;&#8212;&#8201;closing the IFile
 invalidates the derived IStream&#8217;s next read, which returns a generation-mismatch

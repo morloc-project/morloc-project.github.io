@@ -212,6 +212,7 @@
 <li><a href="where-and-let.html#_where">4.11.1. <code>where</code></a></li>
 <li><a href="where-and-let.html#_let">4.11.2. <code>let</code></a></li>
 <li><a href="where-and-let.html#_the_scope_rule_that_separates_them">4.11.3. The scope rule that separates them</a></li>
+<li><a href="where-and-let.html#_when_bindings_are_evaluated">4.11.4. When bindings are evaluated</a></li>
 </ul>
 </li>
 <li><a href="conditionals.html">4.12. Conditionals</a>
@@ -288,7 +289,9 @@
 <ul class="sectlevel3">
 <li><a href="../types/typeclasses.html#_one_class_many_languages">5.2.1. One class, many languages</a></li>
 <li><a href="../types/typeclasses.html#_superclasses">5.2.2. Superclasses</a></li>
-<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.3. Importing a class from another module</a></li>
+<li><a href="../types/typeclasses.html#_constraints_are_checked">5.2.3. Constraints are checked</a></li>
+<li><a href="../types/typeclasses.html#_instances_with_contexts">5.2.4. Instances with contexts</a></li>
+<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.5. Importing a class from another module</a></li>
 </ul>
 </li>
 <li><a href="../types/infix-operators.html">5.3. Infix operators</a>
@@ -374,6 +377,7 @@
 <li><a href="../clis/arguments.html#_options_flags_and_repeats">6.4.2. Options, flags, and repeats</a></li>
 <li><a href="../clis/arguments.html#_naming">6.4.3. Naming</a></li>
 <li><a href="../clis/arguments.html#_ending_option_parsing">6.4.4. Ending option parsing</a></li>
+<li><a href="../clis/arguments.html#parse-arguments">6.4.5. Reading files in other formats</a></li>
 </ul>
 </li>
 <li><a href="../clis/record-arguments.html">6.5. Record arguments</a>
@@ -407,7 +411,8 @@
 <li><a href="../clis/output-actions.html#_giving_a_formatter_arguments">6.10.2. Giving a formatter arguments</a></li>
 <li><a href="../clis/output-actions.html#_choosing_a_default">6.10.3. Choosing a default</a></li>
 <li><a href="../clis/output-actions.html#_media_types">6.10.4. Media types</a></li>
-<li><a href="../clis/output-actions.html#action-rules">6.10.5. Rules and rejections</a></li>
+<li><a href="../clis/output-actions.html#action-files">6.10.5. Several outputs in one run</a></li>
+<li><a href="../clis/output-actions.html#action-rules">6.10.6. Rules and rejections</a></li>
 </ul>
 </li>
 <li><a href="../clis/streaming-output.html">6.11. Streaming output with <code>@collect</code></a>
@@ -856,6 +861,45 @@ not collide with a function parameter. Both violations are compile-time errors.<
 </div>
 <div class="paragraph">
 <p>If you want shadowing, that is what <code>let</code> is for.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_when_bindings_are_evaluated"><a class="anchor" href="#_when_bindings_are_evaluated"></a>4.11.4. When bindings are evaluated</h4>
+<div class="paragraph">
+<p>Morloc is strict: an argument is evaluated once, where it is applied, no
+matter how many times the function uses it. Named values follow the same
+rule. A <code>where</code> or <code>let</code> binding is computed at most once each time its
+scope is evaluated, however many times it is mentioned:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A binding used in only one branch of a conditional is computed in that
+branch, so the other branch does not pay for it (or fail on it).</p>
+</li>
+<li>
+<p>A binding used only inside <code>@try</code> is computed inside it, so its failure
+is caught there.</p>
+</li>
+<li>
+<p>A value used inside a lambda is computed once, when the lambda is built,
+not on every call.</p>
+</li>
+<li>
+<p>A <code>where</code> binding nothing uses is never computed. A <code>let</code> binding nothing
+uses still runs where it is written.</p>
+</li>
+<li>
+<p>In a <code>do</code> block, a <code>let</code> never runs before the effects written above it.</p>
+</li>
+<li>
+<p>A top-level value is computed at most once per command.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A named value is also one value across languages: if Python and C++ code
+both read it, it is computed once and passed to both.</p>
 </div>
 </div>
 </div></div>

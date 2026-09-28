@@ -212,6 +212,7 @@
 <li><a href="where-and-let.html#_where">4.11.1. <code>where</code></a></li>
 <li><a href="where-and-let.html#_let">4.11.2. <code>let</code></a></li>
 <li><a href="where-and-let.html#_the_scope_rule_that_separates_them">4.11.3. The scope rule that separates them</a></li>
+<li><a href="where-and-let.html#_when_bindings_are_evaluated">4.11.4. When bindings are evaluated</a></li>
 </ul>
 </li>
 <li><a href="conditionals.html">4.12. Conditionals</a>
@@ -288,7 +289,9 @@
 <ul class="sectlevel3">
 <li><a href="../types/typeclasses.html#_one_class_many_languages">5.2.1. One class, many languages</a></li>
 <li><a href="../types/typeclasses.html#_superclasses">5.2.2. Superclasses</a></li>
-<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.3. Importing a class from another module</a></li>
+<li><a href="../types/typeclasses.html#_constraints_are_checked">5.2.3. Constraints are checked</a></li>
+<li><a href="../types/typeclasses.html#_instances_with_contexts">5.2.4. Instances with contexts</a></li>
+<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.5. Importing a class from another module</a></li>
 </ul>
 </li>
 <li><a href="../types/infix-operators.html">5.3. Infix operators</a>
@@ -374,6 +377,7 @@
 <li><a href="../clis/arguments.html#_options_flags_and_repeats">6.4.2. Options, flags, and repeats</a></li>
 <li><a href="../clis/arguments.html#_naming">6.4.3. Naming</a></li>
 <li><a href="../clis/arguments.html#_ending_option_parsing">6.4.4. Ending option parsing</a></li>
+<li><a href="../clis/arguments.html#parse-arguments">6.4.5. Reading files in other formats</a></li>
 </ul>
 </li>
 <li><a href="../clis/record-arguments.html">6.5. Record arguments</a>
@@ -407,7 +411,8 @@
 <li><a href="../clis/output-actions.html#_giving_a_formatter_arguments">6.10.2. Giving a formatter arguments</a></li>
 <li><a href="../clis/output-actions.html#_choosing_a_default">6.10.3. Choosing a default</a></li>
 <li><a href="../clis/output-actions.html#_media_types">6.10.4. Media types</a></li>
-<li><a href="../clis/output-actions.html#action-rules">6.10.5. Rules and rejections</a></li>
+<li><a href="../clis/output-actions.html#action-files">6.10.5. Several outputs in one run</a></li>
+<li><a href="../clis/output-actions.html#action-rules">6.10.6. Rules and rejections</a></li>
 </ul>
 </li>
 <li><a href="../clis/streaming-output.html">6.11. Streaming output with <code>@collect</code></a>
@@ -919,6 +924,16 @@ an empty call behind.</p>
 <p><code>rsize</code> is the only place the curried-versus-flat distinction is recorded.
 Writing the type as <code>Real → ([Real] → [Real])</code> does not imply it and does not
 change the emitted call.</p>
+</div>
+<div class="paragraph">
+<p>The other direction is a function morloc passes to a source. There the
+source’s signature says how the source calls it, by how the parameter’s type
+is written: a parameter <code>(a → b → c)</code> is called with both arguments at once,
+and <code>(a → (b → c))</code> with one argument, the source then applying the function
+that returns. Morloc hands over any function of that type in that grouping,
+however the function was defined. If the function does work before the lambda
+it returns, that work runs when the source applies the first group, once per
+such call.</p>
 </div>
 </div>
 </details>

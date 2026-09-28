@@ -8,7 +8,7 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "7eb63caa51dcb4dbd8cacfe053fdf8178e018e4a"
+  "source": "2a35dd18a869ce08c5d445119d9c40227f5881ed"
  },
  "pages": [
   {
@@ -701,6 +701,11 @@
      "id": "_the_scope_rule_that_separates_them",
      "title": "The scope rule that separates them",
      "number": "4.11.3."
+    },
+    {
+     "id": "_when_bindings_are_evaluated",
+     "title": "When bindings are evaluated",
+     "number": "4.11.4."
     }
    ]
   },
@@ -1095,9 +1100,19 @@
      "number": "5.2.2."
     },
     {
+     "id": "_constraints_are_checked",
+     "title": "Constraints are checked",
+     "number": "5.2.3."
+    },
+    {
+     "id": "_instances_with_contexts",
+     "title": "Instances with contexts",
+     "number": "5.2.4."
+    },
+    {
      "id": "_importing_a_class_from_another_module",
      "title": "Importing a class from another module",
-     "number": "5.2.3."
+     "number": "5.2.5."
     }
    ]
   },
@@ -1448,6 +1463,11 @@
      "id": "_ending_option_parsing",
      "title": "Ending option parsing",
      "number": "6.4.4."
+    },
+    {
+     "id": "parse-arguments",
+     "title": "Reading files in other formats",
+     "number": "6.4.5."
     }
    ]
   },
@@ -1581,9 +1601,14 @@
      "number": "6.10.4."
     },
     {
+     "id": "action-files",
+     "title": "Several outputs in one run",
+     "number": "6.10.5."
+    },
+    {
      "id": "action-rules",
      "title": "Rules and rejections",
-     "number": "6.10.5."
+     "number": "6.10.6."
     }
    ]
   },

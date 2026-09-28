@@ -144,7 +144,49 @@ class Pretty a => Boxed a where
 
 Any type with a `Boxed` instance must also have a `Pretty` instance, and a function constrained on `Boxed a` may use `pretty` as well as `box`. This is how `root` layers its numeric hierarchy: `class Integral a ⇒ Numeric a` means every `Numeric` type is also `Integral`.
 
-## 5.2.3. Importing a class from another module
+## 5.2.3. Constraints are checked
+
+A signature is a promise the compiler holds the body to, whether or not the function is ever used:
+
+-   Every method the body uses at a type variable must follow from the
+    
+    **signature’s constraints or their superclasses. \`same**
+    
+    a → a → Bool\`
+    
+    **with a body that calls `==` is rejected; \`same**
+    
+    Eq a ⇒ a → a → Bool\` is accepted.
+    
+-   A body cannot be narrower than its signature. A function declared `a → a` whose body only works on `Int` is rejected, even if every use is at `Int`.
+-   A constraint needs its type: `Ord ⇒ a → a → Bool` is an error.
+-   A number literal can have a type variable’s type only under a class whose
+    
+    **values have literals: \`inc**
+    
+    Integral a ⇒ a → a; inc x = x + 1\` is
+    
+    **fine, \`one**
+    
+    a → a; one x = 1\` is not.
+    
+
+A type variable named in a local signature inside a function means the enclosing signature’s variable, not a new one.
+
+These checks cover the module you compile; imported modules are taken at their signatures' word.
+
+## 5.2.4. Instances with contexts
+
+An instance for a type with parameters may need instances at those parameters. Declare them before `⇒`:
+
+```morloc
+instance Sz a => Sz (List a) where
+    sz xs = fold (\n x -> n + sz x) 0 xs
+```
+
+Inside the body, `sz x` at `a` is allowed because of `Sz a`, and `Sz (List Int)` exists wherever `Sz Int` does.
+
+## 5.2.5. Importing a class from another module
 
 A class is exported and imported by its name. Its methods are not separately importable and may not appear in an export list:
 

@@ -212,6 +212,7 @@
 <li><a href="../features/where-and-let.html#_where">4.11.1. <code>where</code></a></li>
 <li><a href="../features/where-and-let.html#_let">4.11.2. <code>let</code></a></li>
 <li><a href="../features/where-and-let.html#_the_scope_rule_that_separates_them">4.11.3. The scope rule that separates them</a></li>
+<li><a href="../features/where-and-let.html#_when_bindings_are_evaluated">4.11.4. When bindings are evaluated</a></li>
 </ul>
 </li>
 <li><a href="../features/conditionals.html">4.12. Conditionals</a>
@@ -288,7 +289,9 @@
 <ul class="sectlevel3">
 <li><a href="../types/typeclasses.html#_one_class_many_languages">5.2.1. One class, many languages</a></li>
 <li><a href="../types/typeclasses.html#_superclasses">5.2.2. Superclasses</a></li>
-<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.3. Importing a class from another module</a></li>
+<li><a href="../types/typeclasses.html#_constraints_are_checked">5.2.3. Constraints are checked</a></li>
+<li><a href="../types/typeclasses.html#_instances_with_contexts">5.2.4. Instances with contexts</a></li>
+<li><a href="../types/typeclasses.html#_importing_a_class_from_another_module">5.2.5. Importing a class from another module</a></li>
 </ul>
 </li>
 <li><a href="../types/infix-operators.html">5.3. Infix operators</a>
@@ -374,6 +377,7 @@
 <li><a href="arguments.html#_options_flags_and_repeats">6.4.2. Options, flags, and repeats</a></li>
 <li><a href="arguments.html#_naming">6.4.3. Naming</a></li>
 <li><a href="arguments.html#_ending_option_parsing">6.4.4. Ending option parsing</a></li>
+<li><a href="arguments.html#parse-arguments">6.4.5. Reading files in other formats</a></li>
 </ul>
 </li>
 <li><a href="record-arguments.html">6.5. Record arguments</a>
@@ -407,7 +411,8 @@
 <li><a href="output-actions.html#_giving_a_formatter_arguments">6.10.2. Giving a formatter arguments</a></li>
 <li><a href="output-actions.html#_choosing_a_default">6.10.3. Choosing a default</a></li>
 <li><a href="output-actions.html#_media_types">6.10.4. Media types</a></li>
-<li><a href="output-actions.html#action-rules">6.10.5. Rules and rejections</a></li>
+<li><a href="output-actions.html#action-files">6.10.5. Several outputs in one run</a></li>
+<li><a href="output-actions.html#action-rules">6.10.6. Rules and rejections</a></li>
 </ul>
 </li>
 <li><a href="streaming-output.html">6.11. Streaming output with <code>@collect</code></a>
@@ -1079,6 +1084,196 @@ like a short option:</p>
 <p>Note what that costs: after <code>--</code>, the command’s own <code>-p</code> formatter is a
 positional too, so a search for the literal text <code>-p</code> cannot also ask for plain
 output.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="parse-arguments"><a class="anchor" href="#parse-arguments"></a>6.4.5. Reading files in other formats</h4>
+<div class="paragraph">
+<p><code>@parse</code> lets an argument be given as a file in a format Morloc does not read
+itself — a CSV, a FASTA file, a column of numbers — and names the function
+that reads it. The command stays typed over the values it computes on, and the
+file is read before the command runs.</p>
+</div>
+<div class="listingblock">
+<div class="title">stats.py</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">gzip</span>
+
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">read_csv</span><span class="tok-p">(</span><span class="tok-n">path</span><span class="tok-p">):</span>
+    <span class="tok-k">with</span> <span class="tok-nb">open</span><span class="tok-p">(</span><span class="tok-n">path</span><span class="tok-p">)</span> <span class="tok-k">as</span> <span class="tok-n">fh</span><span class="tok-p">:</span>
+        <span class="tok-k">return</span> <span class="tok-p">[</span><span class="tok-nb">float</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)</span> <span class="tok-k">for</span> <span class="tok-n">x</span> <span class="tok-ow">in</span> <span class="tok-n">fh</span><span class="tok-o">.</span><span class="tok-n">read</span><span class="tok-p">()</span><span class="tok-o">.</span><span class="tok-n">split</span><span class="tok-p">(</span><span class="tok-s2">","</span><span class="tok-p">)]</span>
+
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">read_lines</span><span class="tok-p">(</span><span class="tok-n">path</span><span class="tok-p">):</span>
+    <span class="tok-n">opener</span> <span class="tok-o">=</span> <span class="tok-n">gzip</span><span class="tok-o">.</span><span class="tok-n">open</span> <span class="tok-k">if</span> <span class="tok-n">path</span><span class="tok-o">.</span><span class="tok-n">endswith</span><span class="tok-p">(</span><span class="tok-s2">".gz"</span><span class="tok-p">)</span> <span class="tok-k">else</span> <span class="tok-nb">open</span>
+    <span class="tok-k">with</span> <span class="tok-n">opener</span><span class="tok-p">(</span><span class="tok-n">path</span><span class="tok-p">,</span> <span class="tok-s2">"rt"</span><span class="tok-p">)</span> <span class="tok-k">as</span> <span class="tok-n">fh</span><span class="tok-p">:</span>
+        <span class="tok-k">return</span> <span class="tok-p">[</span><span class="tok-nb">float</span><span class="tok-p">(</span><span class="tok-n">line</span><span class="tok-p">)</span> <span class="tok-k">for</span> <span class="tok-n">line</span> <span class="tok-ow">in</span> <span class="tok-n">fh</span> <span class="tok-k">if</span> <span class="tok-n">line</span><span class="tok-o">.</span><span class="tok-n">strip</span><span class="tok-p">()]</span>
+
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">average</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">):</span>
+    <span class="tok-k">return</span> <span class="tok-nb">sum</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span> <span class="tok-o">/</span> <span class="tok-nb">len</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="title">stats.loc</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">stats</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">mean</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"stats.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"read_csv"</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">readCsv</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">"read_lines"</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">readLines</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">"average"</span><span class="tok-p">)</span>
+
+<span class="tok-n">readCsv</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span>
+<span class="tok-n">readLines</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span>
+<span class="tok-n">average</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
+
+<span class="tok-cs">--' Average some numbers</span>
+<span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-o">::</span>
+<span class="tok-w">  </span><span class="tok-cs">--' the numbers to average</span>
+<span class="tok-w">  </span><span class="tok-cs">--' @metavar NUMS</span>
+<span class="tok-w">  </span><span class="tok-cs">--' @parse csv=readCsv .csv</span>
+<span class="tok-w">  </span><span class="tok-cs">--' @parse lines=readLines .txt .txt.gz</span>
+<span class="tok-w">  </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
+<span class="tok-w">  </span><span class="tok-nc">Real</span>
+<span class="tok-n">mean</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">average</span><span class="tok-w"> </span><span class="tok-n">xs</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Each <code>@parse</code> line declares a format: a name (lowercase letters, digits and
+<code>-</code>), the function that reads it, and any number of file extensions. A value
+that ends in one of the extensions is read by that format’s function. So is a
+value prefixed with the format’s name and a colon, whatever its extension. A
+value that selects no format is read as always:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./stats<span class="tok-w"> </span><span class="tok-s1">'[1,2,3]'</span>
+<span class="tok-go">2</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>scores.csv
+<span class="tok-go">3</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>scores.txt.gz
+<span class="tok-go">2.5</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>lines:readings
+<span class="tok-go">2.5</span>
+<span class="tok-gp">$ </span>seq<span class="tok-w"> </span><span class="tok-m">1</span><span class="tok-w"> </span><span class="tok-m">9</span><span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>./stats<span class="tok-w"> </span>lines:-
+<span class="tok-go">5</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The rules for choosing a format:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A prefix counts only when the text before the first <code>:</code> is a declared format
+name, or <code>morloc</code>. Anything else is part of the value, so paths and JSON that
+contain colons are unaffected. A file literally named <code>lines:x</code> is written
+<code>./lines:x</code>.</p>
+</li>
+<li>
+<p>Without a prefix, the longest declared extension the value ends with picks
+the format, ignoring case: <code>.txt.gz</code> wins over <code>.gz</code>, and <code>SCORES.CSV</code> is a
+CSV.</p>
+</li>
+<li>
+<p><code>morloc:&lt;path&gt;</code> reads the file as a Morloc value, for a file whose name
+happens to end in a declared extension:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>cat<span class="tok-w"> </span>old.csv
+<span class="tok-go">[10,20]</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>morloc:old.csv
+<span class="tok-go">15</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+</li>
+<li>
+<p><code>-</code> reads standard input; the function receives the path <code>/dev/stdin</code>. Only
+one argument per command may read stdin.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Formats are never guessed from a file’s contents. A function that accepts
+several variants — <code>read_lines</code> above takes plain and gzipped text — decides
+that itself.</p>
+</div>
+<div class="paragraph">
+<p>The function’s type follows from the argument’s:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Argument type</th>
+<th class="tableblock halign-left valign-top">Function type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>T</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str → &lt;IO&gt; T</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>?T</code> (an option)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str → &lt;IO&gt; T</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IStream a</code> or <code>IFile [a]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str → ([a] → &lt;IO&gt; ()) → &lt;IO&gt; ()</code>: it reads
+the file and hands each batch to the function it is given</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A stream argument is read into a temporary file as it arrives, so it is never
+held in memory, and the command receives exactly the batches the function
+produced (see <a href="../runs/random-access-and-streaming.html">Random access and streaming</a>). Temporary files go under
+<code>$MORLOC_TMPDIR</code>, else <code>$TMPDIR</code>, else <code>/tmp</code>, and are removed when the run
+ends, however it ends short of <code>kill -9</code>.</p>
+</div>
+<div class="paragraph">
+<p>If the function fails, the command does not run, and the run exits non-zero
+with the argument, the format and the path:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>cat<span class="tok-w"> </span>bad.csv
+<span class="tok-go">1,two,3</span>
+<span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>bad.csv
+<span class="tok-go">error: argument NUMS (format csv, path bad.csv): could not convert string to float: 'two'</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The function reports a failure the way any sourced function does: an exception
+in Python or C++, <code>rustmorloc::morloc_throw</code> in Rust. A Rust panic is treated
+as a bug and stops the pool.</p>
+</div>
+<div class="paragraph">
+<p>Help lists each argument’s formats:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./stats<span class="tok-w"> </span>-h
+<span class="tok-go">...</span>
+<span class="tok-go">Positional arguments:</span>
+<span class="tok-go">  1: NUMS  the numbers to average</span>
+<span class="tok-go">           type: [Real]</span>
+<span class="tok-go">           formats: csv (.csv), lines (.txt .txt.gz), morloc (the default)</span>
+<span class="tok-go">...</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p><code>@parse</code> belongs to the command line. A daemon, MCP or call-packet caller
+passes values, as before. It is not available on a <code>Str</code> argument (the function
+would be handed the string it is supposed to produce), on <code>@many</code>, <code>@unroll</code> or
+<code>@form list</code> arguments, on flags, or on an argument whose type has a type
+variable. The command or one of its format functions must be a foreign
+function: an all-Morloc command has no pool to read the file in.</p>
 </div>
 </div>
 </div></div>

@@ -15,7 +15,7 @@ Every docstring directive that affects the generated interface, grouped by where
 | Directive | Effect |
 | --- | --- |
 | `@name <name>` | Name the subcommand something other than the Morloc term. |
-| `@with <flags>=<term>` | Attach an output action whose result stays typed. See [Output actions](https://morloc-project.github.io/docs/clis/output-actions.md). |
+| `@with <flags>=<term>` | Attach an output action whose result stays typed. See [Output actions](https://morloc-project.github.io/docs/clis/output-actions.md). The flag writes to stdout, or with `=PATH` to a file; several may be named in one run (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)), and the command also takes `--no-stdout`. |
 | `@render <flags>=<term>` | Attach an output action whose result is written as final bytes. |
 | `@return <text>` | Describe the return value. The same as a docstring on the signature’s last type. |
 | `@epilogue` | Open a block printed verbatim at the foot of this subcommand’s help, after its argument and return blocks. Use it for the command’s own "Examples:" section. The top-level help shows only the module’s block. |
@@ -36,6 +36,7 @@ Every docstring directive that affects the generated interface, grouped by where
 | `@check.path r` / `w` / `x` / `rw` | Require the argument to be a path satisfying the mode. |
 | `@list.source`, `@list.form`, `@list.check.<kind>` | The same three, applied to each element of a `@form list` argument. |
 | `@unroll` | On a record argument: split it into one flag per field. `@unroll false` opts one use out. |
+| `@parse <name>=<function> [.ext …​]` | Accept the argument as a file in another format, read by `<function>` when the value ends in one of the extensions or is prefixed with `<name>:`. Repeat it once per format. See [Reading files in other formats](https://morloc-project.github.io/docs/clis/arguments.md#parse-arguments). |
 
 **Table 9. On a type, record, or record field definition**
 

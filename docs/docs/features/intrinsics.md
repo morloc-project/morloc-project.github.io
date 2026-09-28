@@ -24,7 +24,7 @@ Intrinsics are compiler-generated special functions. They are prefixed with `@` 
 | `@append` | `Str -> <IO> (Try Str (OStream a))` | Open a stream file for further writes, creating it if it is not there yet. Schema mismatch is an `Err` arm at open time, before any bytes are written. |
 | `@concat` | `[Str] -> Str -> <IO> (Try Str ())` | Byte-level concatenate compatible stream files into a destination via `sendfile`. The destination is replaced atomically and may itself be one of the sources. |
 | `@next` | `IStream a -> <IO> (Try Str [a])` | Pull the next sub-packet’s elements from an `IStream`. Yields `Ok []` at EOF. Mid-stream decode failures are an `Err` arm. |
-| `@stream` | `IFile a -> <IO> (IStream a)` | Derive a forward-walking `IStream` from an open `IFile`. The two share the underlying file but have independent cursors. |
+| `@stream` | `IFile [a] -> <IO> (IStream a)` | Derive a forward-walking `IStream` from an open `IFile`. The two share the underlying file but have independent cursors. |
 | `@stdin` | `<IO> (Try Str (IStream a))` | Open process stdin as a typed `IStream` of morloc binary packets. Element type set by inline ascription. See [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md). A second `@stdin` in the same nexus gives an `Err` arm via the uniqueness guard; read-time failures surface at `@next`. |
 | `@stdout` | `<IO> (OStream a)` | Open process stdout as a typed `OStream` of morloc binary packets. Element type set by inline ascription. |
 | `@stderr` | `<IO> (OStream a)` | Open process stderr as a typed `OStream` of morloc binary packets. Element type set by inline ascription. Useful for structured diagnostics that downstream tools can parse. |

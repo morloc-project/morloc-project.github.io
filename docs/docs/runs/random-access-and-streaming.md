@@ -87,7 +87,7 @@ drain path = do
   size a + size b + size c
 ```
 
-`@stream f` derives a fresh IStream from an open `IFile a`. The derived stream has its own slot, fd, and cursor, so walking it does not perturb the IFile’s random-access state. The underlying file is the same — closing the IFile invalidates the derived IStream’s next read, which returns a generation-mismatch error.
+`@stream f` derives a fresh `IStream a` from an open `IFile [a]`. The derived stream has its own slot, fd, and cursor, so walking it does not perturb the IFile’s random-access state. The underlying file is the same — closing the IFile invalidates the derived IStream’s next read, which returns a generation-mismatch error.
 
 `@open` also reads standard input, not just files. Opening the path `/dev/stdin` — the value a `--' @stdin` CLI argument takes when it is omitted, and the target of a `-` argument — routes an `IStream` to the process’s stdin, exactly like `@stdin`. Because a pipe is not seekable, `@open "/dev/stdin" :: IFile a` instead returns an `Err` arm without reading any bytes, so a reader can attempt fast random access first and fall back to a sequential `IStream` for stdin (see [Reading a stream from standard input](https://morloc-project.github.io/docs/clis/reading-stdin.md) for the CLI side). Compressed sub-packets are decompressed on demand at `@next`; a non-morloc input on stdin is rejected rather than mis-decoded.
 
