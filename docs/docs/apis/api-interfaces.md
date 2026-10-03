@@ -1,4 +1,4 @@
-# 7.4. Building API interfaces
+# 10.4. Building API interfaces
 
 Morloc Manual > Building APIs | https://morloc-project.github.io/docs/apis/api-interfaces.html | prev: https://morloc-project.github.io/docs/apis/data-transfer.md | next: https://morloc-project.github.io/docs/apis/mcp.md
 
@@ -15,7 +15,7 @@ This writes a `./combatd` launcher next to the ordinary `./combat` CLI (you can 
 > **Note**
 > `./combatd` is a thin wrapper around the shared runtime — it is equivalent to `morloc-nexus daemon ./combat`. Either form works; the dedicated executable is just the more convenient one to hand out and script against.
 
-## 7.4.1. HTTP protocol
+## 10.4.1. HTTP protocol
 
 To start `combat` as a daemon on HTTP port 8080:
 
@@ -134,7 +134,7 @@ Every response also carries an HTTP status code that reflects the class of outco
 
 The same status-code mapping applies whether you call a single daemon directly or hit the router; the router forwards classification through unchanged. Client errors (4xx) describe something the caller can fix; server errors (5xx) describe something the caller should retry or report. Unix-socket and TCP clients see the same classification via the JSON envelope’s `status` and `error` fields, though they don’t get the HTTP-level `Retry-After` hint on 503.
 
-## 7.4.2. TCP protocol
+## 10.4.2. TCP protocol
 
 HTTP adds overhead per request: headers, text parsing, and the full HTTP framing around each message. When your client is a program rather than a browser or `curl`, you can skip all of that. The TCP protocol uses a compact binary framing — just a 4-byte big-endian length prefix followed by the JSON payload. This makes it well suited for service-to-service communication, high-throughput automated pipelines, or any context where you control both ends of the connection and want minimal overhead.
 
@@ -193,7 +193,7 @@ print(call("localhost", 9001, "discover"))
 
 The request is a JSON object with a `method` field (`"call"`, `"discover"`, or `"health"`), an optional `command` field naming the function, and an optional `args` array.
 
-## 7.4.3. Unix socket protocol
+## 10.4.3. Unix socket protocol
 
 For processes running on the same machine, Unix domain sockets are the fastest option. They bypass the entire network stack — no TCP handshake, no port allocation, no loopback routing. This is how Morloc pools communicate with the nexus internally.
 
@@ -245,7 +245,7 @@ print(call("/tmp/combat.sock", "discover"))
 # {"status": "ok", "result": {"name": "combat", "commands": [...]}}
 ```
 
-## 7.4.4. Running all protocols at once
+## 10.4.4. Running all protocols at once
 
 You don’t have to choose. One daemon can listen through all three protocols at the same time:
 
@@ -276,7 +276,7 @@ $ cat ports.json
 
 The file is written atomically (via `rename`) only after every listener is bound, so a `stat`\-waiting client never sees a half-written file. Missing listeners are `null`, never absent — the schema is fixed.
 
-## 7.4.5. From single daemons to a router
+## 10.4.5. From single daemons to a router
 
 Everything above shows a single program running as a daemon. This is enough when you have one service, but Morloc programs are designed to be composed. You might have a `tavern` program that picks character classes and races, and a `combat` program that resolves attacks and damage. Each is its own compiled Morloc program with its own pools.
 
@@ -310,7 +310,7 @@ The following diagram illustrates how a client request flows through the router 
 
 Each daemon is a child process of the router, started lazily on first request. The router and its daemons communicate over Unix sockets using the same length-prefixed JSON protocol described above.
 
-## 7.4.6. Router mode
+## 10.4.6. Router mode
 
 ### Setup
 
@@ -391,7 +391,7 @@ $ curl -s -X POST localhost:9090/call/dungeon/explore -d '[]'
 
 A daemon started manually (e.g., `./combatd --http-port 8080`) is completely independent of the front-end. The front-end only knows about the programs you named (`--program`/`--mcp`/`--api`), whose manifests live under the `exe/` directory, and it starts its own daemon instances as child processes. If you start a daemon on your own and also serve the same program through the front-end, you will have two separate daemon processes — each with its own pool processes and its own state.
 
-## 7.4.7. Shutdown
+## 10.4.7. Shutdown
 
 Send `SIGTERM` (or `SIGINT`) to stop a daemon or router gracefully. The daemon sends `SIGTERM` to each pool process group, waits briefly for clean exit, then sends `SIGKILL` to any stragglers. Unix socket files are removed.
 
@@ -405,7 +405,7 @@ morloc-router: shutting down
 
 When a router shuts down, it terminates all the daemons it started. There is currently no way to stop an individual program’s daemon through the router API — the router manages their lifecycles internally. If you need to restart a specific program, restart the router.
 
-## 7.4.8. Summary
+## 10.4.8. Summary
 
 | Role | Invocation | Description |
 | --- | --- | --- |

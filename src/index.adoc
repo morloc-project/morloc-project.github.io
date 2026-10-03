@@ -617,6 +617,14 @@ include::{includedir}/types-kinds.asc[]
 include::{includedir}/features-tensors.asc[]
 include::{includedir}/features-tables.asc[]
 
+[[utilities]]
+== Utilities
+
+include::{includedir}/utilities-nexus-file.asc[]
+include::{includedir}/utilities-nexus-view.asc[]
+include::{includedir}/utilities-mim.asc[]
+include::{includedir}/utilities-morloc-eval.asc[]
+
 [[clis]]
 == Building CLIs
 
@@ -634,15 +642,6 @@ include::{includedir}/cli-composition.asc[]
 include::{includedir}/cli-introspection.asc[]
 include::{includedir}/cli-reference.asc[]
 
-[[apis]]
-== Building APIs
-
-include::{includedir}/interface-install.asc[]
-include::{includedir}/interface-expose.asc[]
-include::{includedir}/interface-data-transfer.asc[]
-include::{includedir}/interface-daemons.asc[]
-include::{includedir}/interface-mcp.asc[]
-
 [[runs]]
 == Managing Runs
 
@@ -653,19 +652,20 @@ include::{includedir}/runs-compression.asc[]
 include::{includedir}/runs-debugging.asc[]
 include::{includedir}/runs-streaming.asc[]
 
-[[utilities]]
-== Utilities
-
-include::{includedir}/utilities-nexus-file.asc[]
-include::{includedir}/utilities-nexus-view.asc[]
-include::{includedir}/utilities-mim.asc[]
-include::{includedir}/utilities-morloc-eval.asc[]
-
 [[modules]]
 == Modules and Libraries
 
 include::{includedir}/features-modules.asc[]
 include::{includedir}/ecosystem.asc[]
+
+[[apis]]
+== Deployment
+
+include::{includedir}/interface-install.asc[]
+include::{includedir}/interface-expose.asc[]
+include::{includedir}/interface-data-transfer.asc[]
+include::{includedir}/interface-daemons.asc[]
+include::{includedir}/interface-mcp.asc[]
 
 [[languages]]
 == Language Support

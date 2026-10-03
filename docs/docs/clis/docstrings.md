@@ -1,4 +1,4 @@
-# 6.3. Docstrings
+# 7.3. Docstrings
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/docstrings.html | prev: https://morloc-project.github.io/docs/clis/argument-zones.md | next: https://morloc-project.github.io/docs/clis/arguments.md
 
@@ -95,7 +95,7 @@ Return: Str
 
 An inline docstring on an argument wins over the one inherited from its type, so a signature can specialize a description where it matters and inherit it everywhere else.
 
-## 6.3.1. Directives
+## 7.3.1. Directives
 
 A docstring line is either **prose** or a **directive**. A directive begins with `@`:
 

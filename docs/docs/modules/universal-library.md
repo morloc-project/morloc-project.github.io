@@ -1,6 +1,6 @@
-# 10.3. The universal library
+# 9.3. The universal library
 
-Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/universal-library.html | prev: https://morloc-project.github.io/docs/modules/installing-modules.md | next: https://morloc-project.github.io/docs/languages/index.md
+Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/universal-library.html | prev: https://morloc-project.github.io/docs/modules/installing-modules.md | next: https://morloc-project.github.io/docs/apis/index.md
 
 A module may export types, typeclasses, and function signatures but no implementations. Such a module would be completely language agnostic. A powerful approach to building libraries in the Morloc ecosystem is to write one module that defines all types, then $n$ modules for language-specific implementations that import the type module, and then one module to import and merge all implementations. This is the approach taken by the `base` module and by other core libraries.
 

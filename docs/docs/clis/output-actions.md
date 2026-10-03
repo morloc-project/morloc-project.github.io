@@ -1,4 +1,4 @@
-# 6.10. Output actions
+# 7.10. Output actions
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/output-actions.html | prev: https://morloc-project.github.io/docs/clis/output-formats.md | next: https://morloc-project.github.io/docs/clis/streaming-output.md
 
@@ -54,7 +54,7 @@ The command’s declared return type is unchanged. Morloc code that composes `sc
 
 `@parse` is the same idea on the way in: it reads an argument from a file in another format before the command runs (see [Reading files in other formats](https://morloc-project.github.io/docs/clis/arguments.md#parse-arguments)). A command can use both; its arguments are read first, whatever output action is chosen.
 
-## 6.10.1. `@with` keeps a value; `@render` produces bytes
+## 7.10.1. `@with` keeps a value; `@render` produces bytes
 
 The two directives differ in what they do with the formatter’s result.
 
@@ -87,7 +87,7 @@ A third case falls out of the same rule: a formatter that returns `()` is a **si
 
 The table marks the framing too: `(raw bytes)` after a type means the row is a `@render` action, so those bytes go out as they are and `-f` does not apply to them.
 
-## 6.10.2. Giving a formatter arguments
+## 7.10.2. Giving a formatter arguments
 
 A formatter may take arguments besides the value it formats. `$1`, `$2`, …​ refer to the command’s own arguments by position, and `@value` refers to the value being formatted. Write them as a call:
 
@@ -153,9 +153,9 @@ fruit-2             2
 
 The value being formatted is appended last unless you place it yourself, so `tabulate($2)` applies `tabulate width rows`, while `tabulate(@value, $2)` would apply `tabulate rows width`.
 
-## 6.10.3. Choosing a default
+## 7.10.3. Choosing a default
 
-Mark one action `@default` and it fires when no action flag and no `-f` are given. That is how a command gets human-readable output by default while keeping its typed output one flag away:
+Mark one action `@default` and it writes to stdout when no action flag claims stdout and no `-f` is given (see [Several outputs in one run](#action-files) for actions given a path). That is how a command gets human-readable output by default while keeping its typed output one flag away:
 
 ```morloc
 --' Run a query
@@ -179,7 +179,7 @@ $ ./rep -f json @ fruit 12
 
 An explicit `-f` suppresses the default, which is what makes the typed output reachable again. At most one action per command may be `@default`.
 
-## 6.10.4. Media types
+## 7.10.4. Media types
 
 Bytes carry no label. A PNG and a CSV are both `[U8]` as far as the type system is concerned, and a caller that receives one has no way to tell which. `@mime` attaches a media type (RFC 6838 `type/subtype`) to a **type**, once:
 
@@ -259,7 +259,7 @@ It does more than label. The HTTP daemon returns the raw bytes with a matching `
 > 
 > The `ident` handler above exists for exactly this reason.
 
-## 6.10.5. Several outputs in one run
+## 7.10.5. Several outputs in one run
 
 An action flag takes an optional path, attached with `=`. `--json` writes to stdout as before; `--json=rows.json` writes to the file instead. Several actions may be named at once, each with its own path, and the command runs once to feed them all — the way to get a genome and its annotation table from one expensive run:
 
@@ -273,7 +273,7 @@ $ cat rows.json
 "[[\"fruit-0\", 0], [\"fruit-1\", 1], [\"fruit-2\", 2]]"
 ```
 
-Naming an action with a path never changes what stdout gets. Above, stdout still carries the `@default` table; with `-f`, it carries the typed value; with a bare action (no `=`), that action. `--no-stdout` sends nothing to stdout:
+An output goes to one place: a file or stdout, never both. Stdout gets a bare action (no `=`) if one is named, otherwise the `@default` action, unless `-f` is given or the `@default` action itself was given a path; then stdout gets the typed value. Above, stdout still carries the `@default` table. `./rep fruit 12 --table=table.txt` writes the table to the file and the typed value to stdout. `--no-stdout` sends nothing to stdout:
 
 ```console
 $ ./rep fruit 12 --table=table.txt --json=rows.json --no-stdout
@@ -290,14 +290,15 @@ Each file holds exactly what the action writes when run alone, `-f` and `-z` inc
 
 Only `=` attaches a path. `--json rows.json` is still the flag followed by a positional argument, and a short flag (`-j`) always means stdout, as does `--json=-`.
 
-What makes this possible is that the run saves the command’s output, and the actions read it back. Three things follow. An action that writes to stdout in such a run does so after the command finishes, not as it streams. An action whose handler is all-morloc code that reads a stream batch by batch (`@stream`, `@fold`) cannot run on saved output; name it on its own to run it. And an action on a streaming command with more than one `@collect`, or one inside a branch or a where-binding, runs only on saved output, so the daemon and MCP servers, which run one action per call, do not offer it.
+What makes this possible is that the run saves the command’s output, and the actions read it back. Two things follow. An action that writes to stdout in such a run does so after the command finishes, not as it streams. And an action on a streaming command that can stream from more than one `@collect` in a run, or from one in a where-binding, or that has a branch streaming nothing, runs only on saved output, so the daemon and MCP servers, which run one action per call, do not offer it. A command whose branches (guard or `match` arms) each end in one `@collect` is not such a command: its actions run directly.
 
 A `-f` that one of the outputs cannot take — `csv` for a value that is not a table, or `mpk` for a stream — is refused before the command runs.
 
-## 6.10.6. Rules and rejections
+## 7.10.6. Rules and rejections
 
 -   At most one action writes to stdout. Two bare action flags, or a bare one with `--no-stdout`, are rejected, as are one path given to two actions, a path that is also ``-o’s, and an empty `--act=``.
 -   A streaming command with actions must return `()`: its actions apply to what it streams.
+-   An action cannot refer with `$N` to a streamed `@parse` argument: the command consumes that stream as it reads it.
 -   Action directives belong in the signature preamble — the `--'` lines directly above `name ::` — not on argument docstrings, record fields, or type aliases.
 -   The command needs an explicit signature.
 -   Flag names must not collide with the command’s own `@arg` / `@true` / `@false` names, with each other, or with `-h` / `--help` or `--no-stdout`.

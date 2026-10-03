@@ -1,6 +1,6 @@
-# 7.5. Model Context Protocol (MCP)
+# 10.5. Model Context Protocol (MCP)
 
-Morloc Manual > Building APIs | https://morloc-project.github.io/docs/apis/mcp.html | prev: https://morloc-project.github.io/docs/apis/api-interfaces.md | next: https://morloc-project.github.io/docs/runs/index.md
+Morloc Manual > Building APIs | https://morloc-project.github.io/docs/apis/mcp.html | prev: https://morloc-project.github.io/docs/apis/api-interfaces.md | next: https://morloc-project.github.io/docs/languages/index.md
 
 The same compiled program that runs as a CLI tool or a daemon can also serve as an [MCP](https://modelcontextprotocol.io) server, exposing its exported functions as tools that an AI agent (Claude Desktop, an IDE assistant, or any MCP client) can call. The MCP machinery is already part of the shared runtime; there is no separate build. Any compiled program is served over MCP by running the runtime in `mcp` mode against its manifest:
 
@@ -17,7 +17,7 @@ The command launches the language pools (Python and R for `combat`) and then blo
 > **Note**
 > Each message is one complete JSON object on a single line; the server reads one line at a time, so a pretty-printed object split across several lines is parsed as separate broken fragments (each answered with a `-32700 invalid JSON` error). The transcripts below are indented only for readability — on the wire every object is a single line.
 
-## 7.5.1. The handshake
+## 10.5.1. The handshake
 
 An MCP session opens with a three-message handshake: the client sends `initialize`, the server replies with its capabilities, and the client confirms with an `initialized` notification. Only then may tools be listed or called.
 
@@ -37,7 +37,7 @@ An MCP session opens with a three-message handshake: the client sends `initializ
 
 The `notifications/initialized` message carries no `id` and receives no reply — that is what a JSON-RPC notification is. `ping` is answered at any point in the lifecycle; `tools/list` and `tools/call` are rejected until the handshake completes.
 
-## 7.5.2. Inspecting the tool surface
+## 10.5.2. Inspecting the tool surface
 
 Every exported function becomes one tool. You can dump the full tool list — the same payload `tools/list` returns — without starting a session, using the `--mcp-tools` flag. This is the MCP analogue of the daemon’s `/discover` endpoint:
 
@@ -78,7 +78,7 @@ $ ./combat --mcp-tools | jq '.tools[] | {name, inputSchema}'
 
 Each tool’s `description` comes from the function’s docstring, and each argument’s morloc type is rendered as a JSON Schema type (`Int` → `integer`, `Str` → `string`, `[a]` → `array`, a record → `object`, `?a` → a nullable union). An argument’s own `--'` docstring becomes the property `description` — so ``fighterDamage’s `*1*`` *is documented as \_Enemy Armor Class* even though the key itself is a positional index.
 
-## 7.5.3. How arguments map to properties
+## 10.5.3. How arguments map to properties
 
 MCP delivers arguments as a **named** object, so every morloc argument needs a name. How that name is chosen depends on the kind of argument:
 
@@ -92,7 +92,7 @@ MCP delivers arguments as a **named** object, so every morloc argument needs a n
 
 Because option and flag names can never begin with an underscore (the compiler reserves that), a `_N` positional key can never collide with one. Two positionals that happen to share a metavar are still distinct tools arguments, where an earlier design would have had to drop the command.
 
-## 7.5.4. Calling a tool
+## 10.5.4. Calling a tool
 
 `tools/call` names the tool and supplies its arguments by key. The server inverts the named arguments back into a positional call, dispatches it through the same machinery the CLI and daemon use, and returns the result.
 
@@ -114,7 +114,7 @@ A scalar or list return is placed in a single `text` content block. A record (Ma
 
 Omitted optional arguments fall back to their declared defaults, and an omitted record field is filled from its default — the client only has to supply what it wants to override.
 
-## 7.5.5. What is not exposed
+## 10.5.5. What is not exposed
 
 Some functions cannot be served correctly over a stdio JSON-RPC channel, so they are dropped from the tool surface (a note is written to stderr explaining why). The remaining tools are unaffected.
 
@@ -128,7 +128,7 @@ Some functions cannot be served correctly over a stdio JSON-RPC channel, so they
 > **Note**
 > Ordinary output from a function — a `print` in a Python pool, a `std::cout` in C++ — is **not** a problem. The server re-homes its own standard output before any pool starts, so stray writes land on stderr and can never corrupt the protocol stream.
 
-## 7.5.6. Errors
+## 10.5.6. Errors
 
 The server distinguishes a malformed **request** from a failed **execution**. A bad request is a JSON-RPC error; a function that runs and fails is a normal result flagged with `isError`, so the agent can read the message and react rather than seeing the whole call rejected.
 
@@ -145,7 +145,7 @@ The server distinguishes a malformed **request** from a failed **execution**. A 
      "error":{"code":-32602,"message":"unknown tool 'fireball'"}}
 ```
 
-## 7.5.7. Connecting an MCP client
+## 10.5.7. Connecting an MCP client
 
 Point an MCP client at the compiled program. Most clients take a command and its arguments; give them the runtime in `mcp` mode against the program’s absolute manifest path. For a Claude Desktop-style configuration:
 
@@ -172,7 +172,7 @@ MCP clients launch servers with a minimal `PATH`, so the `command` is an absolut
 
 The client launches the server, runs the handshake, calls `tools/list`, and surfaces `rollAdv`, `fighterDamage`, and `intro` to the model as callable tools. When the client disconnects (stdin closes) the server shuts its pools down and exits.
 
-## 7.5.8. Inside versus outside the container
+## 10.5.8. Inside versus outside the container
 
 The configuration above assumes the client can **launch** the program — it runs wherever morloc is installed. For a containerized deployment that means the agent runs **inside** the same container as morloc: it points at the program’s absolute path and speaks stdio directly, with nothing to bridge. This is the simplest and most direct way to expose a module, and it is the baseline the networked cases build on.
 
@@ -185,7 +185,7 @@ $ claude mcp add --transport http combat http://127.0.0.1:9000/mcp
 
 The same front-end also serves a plain JSON API (`POST /call/<module>/<command>` with positional arguments, discovered at `GET /discover`) for non-MCP HTTP clients on the same port. The HTTP transport, authentication, sessions, and the serving lifecycle (`install` → `expose` → `start`) are covered in the [Building APIs](https://morloc-project.github.io/docs/apis/index.md) and [`mim` (Morloc Installation Manager)](https://morloc-project.github.io/docs/utilities/mim.md) chapters.
 
-## 7.5.9. Summary
+## 10.5.9. Summary
 
 | Aspect | Detail |
 | --- | --- |

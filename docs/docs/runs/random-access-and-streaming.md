@@ -1,6 +1,6 @@
 # 8.7. Random access and streaming
 
-Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/random-access-and-streaming.html | prev: https://morloc-project.github.io/docs/runs/debugging.md | next: https://morloc-project.github.io/docs/utilities/index.md
+Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/random-access-and-streaming.html | prev: https://morloc-project.github.io/docs/runs/debugging.md | next: https://morloc-project.github.io/docs/modules/index.md
 
 Three abstract types describe a value that lives in a file rather than in memory:
 

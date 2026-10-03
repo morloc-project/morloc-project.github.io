@@ -1,4 +1,4 @@
-# 7.2. Exposing native resources
+# 10.2. Exposing native resources
 
 Morloc Manual > Building APIs | https://morloc-project.github.io/docs/apis/exposing-native-resources.html | prev: https://morloc-project.github.io/docs/apis/search-and-install.md | next: https://morloc-project.github.io/docs/apis/data-transfer.md
 

@@ -1,6 +1,6 @@
-# 9.4. morloc eval
+# 6.4. morloc eval
 
-Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/morloc-eval.html | prev: https://morloc-project.github.io/docs/utilities/mim.md | next: https://morloc-project.github.io/docs/modules/index.md
+Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/morloc-eval.html | prev: https://morloc-project.github.io/docs/utilities/mim.md | next: https://morloc-project.github.io/docs/clis/index.md
 
 Morloc has three subcommands that turn source into a result, and they serve distinct roles:
 
@@ -26,7 +26,7 @@ $ morloc eval add.loc
 
 Because an eval expression can only compose installed functions, `eval` is also the safe surface to expose over an API or daemon: it resolves only **installed** modules, never local-filesystem modules, so an untrusted caller cannot `source` arbitrary foreign code or reach a module they uploaded. A local import — a bare name that resolves on the filesystem, or a dot-prefixed name (`.utils`) — is rejected in eval mode; build programs that depend on local modules with `morloc make` instead. The `--allow-local-modules` flag re-enables local resolution for local development only and is insecure for server use.
 
-## 9.4.1. Imports in eval strings
+## 6.4.1. Imports in eval strings
 
 Morloc has no implicit prelude: every name an expression refers to must come from a module the eval string explicitly imports. Operators like `+` and `<>` are typeclass methods sourced from the standard library, so a typical eval string begins with one or more imports:
 
@@ -46,7 +46,7 @@ Undefined term: +
 hint: an eval expression has no implicit prelude; prefix the expression with 'import root-py;' (or the module that defines +) to bring it into scope
 ```
 
-## 9.4.2. The eval sandbox
+## 6.4.2. The eval sandbox
 
 The `morloc eval` CLI is **trusted**: on your own machine it may import any installed module and use any intrinsic, exactly like the examples above. When eval is exposed to untrusted callers — over a daemon or router — it is **sandboxed**, and two further gates apply on top of the base rules (installed-only, no `source`, no type/class/instance declarations):
 
@@ -75,7 +75,7 @@ error: module 'root-py' is not in the eval allow-list
 
 Served eval (over a daemon or router) is **always** sandboxed — there is no unsandboxed served mode. The operator sets the allow-list once when starting the server. Effects other than IO are not yet gated: a future effect disallow-list distinguishing read, write, and execute is planned; today the module allow-list and the IO-intrinsic ban are the sandbox.
 
-## 9.4.3. Single-line layout: braces and semicolons
+## 6.4.3. Single-line layout: braces and semicolons
 
 A Morloc source file relies on indentation to delimit blocks. An `eval` string is a single shell argument, so block structure must use the explicit-brace forms that the grammar provides as alternatives to the indentation-based forms. Two rules apply:
 
@@ -112,7 +112,7 @@ do { stmt1; stmt2; final_expr }
 
 These explicit-brace forms are not specific to `eval` — they are part of the Morloc grammar and may be used in source files too. They are simply the only practical way to write multi-binding blocks inside a single shell-quoted string.
 
-## 9.4.4. Saving an eval expression as a command
+## 6.4.4. Saving an eval expression as a command
 
 `--save NAME` installs the compiled expression as a reusable command:
 

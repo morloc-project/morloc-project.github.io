@@ -1,4 +1,4 @@
-# 6.11. Streaming output with `@collect`
+# 7.11. Streaming output with `@collect`
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/streaming-output.html | prev: https://morloc-project.github.io/docs/clis/output-actions.md | next: https://morloc-project.github.io/docs/clis/composing-tools.md
 
@@ -49,7 +49,7 @@ $ ./sift -f jsonl stream the notes
 {"path":"notes\/2026\/plan.txt","line":2,"text":"ship the manual"}
 ```
 
-## 6.11.1. Actions on a stream
+## 7.11.1. Actions on a stream
 
 The output actions of [Output actions](https://morloc-project.github.io/docs/clis/output-actions.md) work here too, with one extra dimension. On an ordinary command a formatter sees the return value; on a streaming command it can see either the whole gathered stream or each batch as it arrives. The `@stream` modifier chooses:
 
@@ -89,7 +89,7 @@ $ ./sift stream the notes -c
 4
 ```
 
-## 6.11.2. `@offset`: where a batch sits in the stream
+## 7.11.2. `@offset`: where a batch sits in the stream
 
 A `@stream` handler is called once per batch and has no memory between calls, so anything that depends on position has to be told. `@offset` supplies the number of elements already written:
 
@@ -114,7 +114,7 @@ $ ./sift -f jsonl stream the notes -N
 
 `@offset` is only meaningful under `@stream`; using it elsewhere is an error.
 
-## 6.11.3. `IFile`: the gathered stream as a file
+## 7.11.3. `IFile`: the gathered stream as a file
 
 A whole-stream handler may take its receiver as `IFile [a]` instead of `[a]`. The stream is staged to a temporary file and the handler gets a random-access handle rather than a materialized list — the way to write a whole-stream handler that does not need the whole stream in memory. The temporary file is removed when the handler returns.
 
@@ -135,7 +135,7 @@ $ ./sift stream the notes -n
 
 `IFile` and the rest of the random-access handles are covered in [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md).
 
-## 6.11.4. `@fold`: one accumulator instead of a list
+## 7.11.4. `@fold`: one accumulator instead of a list
 
 A gather holds the whole stream before the handler sees any of it. `@fold` keeps one accumulator instead, so peak memory does not grow with the stream. It takes three terms beside the handler:
 
@@ -177,7 +177,7 @@ The producer must drive its sink from a worker pool rather than a thread per bat
 
 `@combine` must also be associative, and commutative if the producer is threaded: accumulators are merged in the order the threads reached the sink, which is not reproducible between runs.
 
-## 6.11.5. Streaming rules
+## 7.11.5. Streaming rules
 
 The rules in [Rules and rejections](https://morloc-project.github.io/docs/clis/output-actions.md#action-rules) all apply. More are specific to streaming:
 
@@ -188,7 +188,7 @@ The rules in [Rules and rejections](https://morloc-project.github.io/docs/clis/o
 -   `@fold` and `@stream` are mutually exclusive: `@stream` emits one result per batch, `@fold` one for the whole stream.
 -   `@fold` requires a reachable `@collect`, and all three of `@fold`, `@init` and `@combine`.
 
-## 6.11.6. What the help says a stream produces
+## 7.11.6. What the help says a stream produces
 
 A streaming command’s `Return:` block describes **standard output**, not the `()` the function returns. The two coincide for every other command and come apart here, so the block is worth reading closely:
 

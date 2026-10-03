@@ -1,4 +1,4 @@
-# 7.3. Controlling data transfer
+# 10.3. Controlling data transfer
 
 Morloc Manual > Building APIs | https://morloc-project.github.io/docs/apis/data-transfer.html | prev: https://morloc-project.github.io/docs/apis/exposing-native-resources.md | next: https://morloc-project.github.io/docs/apis/api-interfaces.md
 
@@ -16,7 +16,7 @@ Three `morloc make` flags let you override the default policy when it is wrong f
 | `--no-shm` | Disable shared memory. Payloads above the inline threshold are written to a temp file and passed by path. |
 | `--tmpdir PATH` | Directory for the temp files produced under `--no-shm`. **When set, the files are NOT auto-deleted at end of eval** — useful for testing and debugging. Default (unset): `$TMPDIR` or `/tmp`, with auto-cleanup at end of every eval. |
 
-## 7.3.1. Combinations
+## 10.3.1. Combinations
 
 | Build flags | Behavior |
 | --- | --- |
@@ -25,7 +25,7 @@ Three `morloc make` flags let you override the default policy when it is wrong f
 | `--no-shm` | Inline `⇐ 64k`, temp files above. No `/dev/shm` traffic. |
 | `--inline-size 0 --no-shm` | Every cross-pool transfer is a temp file. Slowest mode, but works on systems with no shared memory at all. |
 
-## 7.3.2. Examples
+## 10.3.2. Examples
 
 Build for a container with no usable `/dev/shm`:
 

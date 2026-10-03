@@ -1,4 +1,4 @@
-# 6.13. The interface as data
+# 7.13. The interface as data
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/interface-as-data.html | prev: https://morloc-project.github.io/docs/clis/composing-tools.md | next: https://morloc-project.github.io/docs/clis/directive-reference.md
 
@@ -141,7 +141,7 @@ Every type appears three ways, because three different readers want it: `morloc`
 
 None of this is written by hand or kept in a sidecar file. It is derived from the same types and docstrings as the help text, on the same build, which is what makes it worth trusting: a description that can go stale is a description you have to verify, and this one cannot. Point a script at a directory of Morloc programs and you can build an accurate inventory of every command in it, with argument types, without knowing anything about any of them.
 
-## 6.13.1. Other views of the same commands
+## 7.13.1. Other views of the same commands
 
 Two more flags render the same information for model clients:
 

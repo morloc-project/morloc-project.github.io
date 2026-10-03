@@ -56,32 +56,31 @@
 - [5.7. Tensors](https://morloc-project.github.io/docs/types/tensors.md): The standard library’s tensor types carry their dimensions in the type, so the compiler can catch a shape mismatch — a 3x4 matrix where a 4x3 was wanted —...
 - [5.8. Tables](https://morloc-project.github.io/docs/types/tables.md): A Table is columnar data whose row count and column schema are part of its type:
 
-## 6. Building CLIs
+## 6. Utilities
 
-- [6. Building CLIs](https://morloc-project.github.io/docs/clis/index.md): A Morloc module compiles to a command line tool.
-- [6.1. The example program](https://morloc-project.github.io/docs/clis/example-program.md): The chapter uses one tool throughout: sift, which searches a directory tree for lines matching a pattern and reports what it finds.
-- [6.2. The two argument zones](https://morloc-project.github.io/docs/clis/argument-zones.md): Every Morloc program’s argv is split into two zones.
-- [6.3. Docstrings](https://morloc-project.github.io/docs/clis/docstrings.md): A docstring is a comment that the compiler keeps.
-- [6.4. Arguments](https://morloc-project.github.io/docs/clis/arguments.md): By default every argument in a signature is a positional, in the order it appears.
-- [6.5. Record arguments](https://morloc-project.github.io/docs/clis/record-arguments.md): A record argument is a natural fit for a group of related settings, but a caller does not want to write a JSON object to set one field.
-- [6.6. Sum type arguments](https://morloc-project.github.io/docs/clis/sum-type-arguments.md): A record says "all of these"; a data type says "one of these".
-- [6.7. Input shape](https://morloc-project.github.io/docs/clis/input-shape.md): The defaults from Arguments cover most arguments: a scalar is read from argv, a compound value is inline JSON or a file.
-- [6.8. Reading a stream from standard input](https://morloc-project.github.io/docs/clis/reading-stdin.md): A tool that reads standard input when you do not give it a file is the shape that makes pipelines work.
-- [6.9. Output formats](https://morloc-project.github.io/docs/clis/output-formats.md): A command’s return value is serialized and written to standard output.
-- [6.10. Output actions](https://morloc-project.github.io/docs/clis/output-actions.md): One typed function usually wants more than one presentation.
-- [6.11. Streaming output with @collect](https://morloc-project.github.io/docs/clis/streaming-output.md): Everything so far has treated a command’s output as one value: compute it, serialize it, write it.
-- [6.12. Composing tools](https://morloc-project.github.io/docs/clis/composing-tools.md): A module that compiles to a CLI is still a module.
-- [6.13. The interface as data](https://morloc-project.github.io/docs/clis/interface-as-data.md): -h is written for a person.
-- [6.14. Directive reference](https://morloc-project.github.io/docs/clis/directive-reference.md): Every docstring directive that affects the generated interface, grouped by where it may be written.
+- [6. Utilities](https://morloc-project.github.io/docs/utilities/index.md): The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: file (identifies a file) and view (loads and...
+- [6.1. morloc-nexus file](https://morloc-project.github.io/docs/utilities/nexus-file.md): morloc-nexus file plays the role of the UNIX file utility for Morloc-compatible data files.
+- [6.2. morloc-nexus view](https://morloc-project.github.io/docs/utilities/nexus-view.md): Reads a data file (morloc data-packet, morloc stream-packet, .json, .mpk, .arrow, .parquet, or .csv) and re-emits it in a chosen output format.
+- [6.3. mim (Morloc Installation Manager)](https://morloc-project.github.io/docs/utilities/mim.md)
+- [6.4. morloc eval](https://morloc-project.github.io/docs/utilities/morloc-eval.md): Morloc has three subcommands that turn source into a result, and they serve distinct roles:
 
-## 7. Building APIs
+## 7. Building CLIs
 
-- [7. Building APIs](https://morloc-project.github.io/docs/apis/index.md)
-- [7.1. Search and install](https://morloc-project.github.io/docs/apis/search-and-install.md): The docstrings are used for discoverability as well.
-- [7.2. Exposing native resources](https://morloc-project.github.io/docs/apis/exposing-native-resources.md): The dependencies field links against shared libraries.
-- [7.3. Controlling data transfer](https://morloc-project.github.io/docs/apis/data-transfer.md): When a Morloc value crosses a pool boundary, the runtime picks one of three routes for data transfer:
-- [7.4. Building API interfaces](https://morloc-project.github.io/docs/apis/api-interfaces.md): In addition to being CLI tools, compiled Morloc programs can run as long-lived daemons, accepting function calls over HTTP, TCP, or Unix sockets.
-- [7.5. Model Context Protocol (MCP)](https://morloc-project.github.io/docs/apis/mcp.md): The same compiled program that runs as a CLI tool or a daemon can also serve as an MCP server, exposing its exported functions as tools that an AI agent...
+- [7. Building CLIs](https://morloc-project.github.io/docs/clis/index.md): A Morloc module compiles to a command line tool.
+- [7.1. The example program](https://morloc-project.github.io/docs/clis/example-program.md): The chapter uses one tool throughout: sift, which searches a directory tree for lines matching a pattern and reports what it finds.
+- [7.2. The two argument zones](https://morloc-project.github.io/docs/clis/argument-zones.md): Every Morloc program’s argv is split into two zones.
+- [7.3. Docstrings](https://morloc-project.github.io/docs/clis/docstrings.md): A docstring is a comment that the compiler keeps.
+- [7.4. Arguments](https://morloc-project.github.io/docs/clis/arguments.md): By default every argument in a signature is a positional, in the order it appears.
+- [7.5. Record arguments](https://morloc-project.github.io/docs/clis/record-arguments.md): A record argument is a natural fit for a group of related settings, but a caller does not want to write a JSON object to set one field.
+- [7.6. Sum type arguments](https://morloc-project.github.io/docs/clis/sum-type-arguments.md): A record says "all of these"; a data type says "one of these".
+- [7.7. Input shape](https://morloc-project.github.io/docs/clis/input-shape.md): The defaults from Arguments cover most arguments: a scalar is read from argv, a compound value is inline JSON or a file.
+- [7.8. Reading a stream from standard input](https://morloc-project.github.io/docs/clis/reading-stdin.md): A tool that reads standard input when you do not give it a file is the shape that makes pipelines work.
+- [7.9. Output formats](https://morloc-project.github.io/docs/clis/output-formats.md): A command’s return value is serialized and written to standard output.
+- [7.10. Output actions](https://morloc-project.github.io/docs/clis/output-actions.md): One typed function usually wants more than one presentation.
+- [7.11. Streaming output with @collect](https://morloc-project.github.io/docs/clis/streaming-output.md): Everything so far has treated a command’s output as one value: compute it, serialize it, write it.
+- [7.12. Composing tools](https://morloc-project.github.io/docs/clis/composing-tools.md): A module that compiles to a CLI is still a module.
+- [7.13. The interface as data](https://morloc-project.github.io/docs/clis/interface-as-data.md): -h is written for a person.
+- [7.14. Directive reference](https://morloc-project.github.io/docs/clis/directive-reference.md): Every docstring directive that affects the generated interface, grouped by where it may be written.
 
 ## 8. Managing Runs
 
@@ -94,20 +93,21 @@
 - [8.6. Debugging](https://morloc-project.github.io/docs/runs/debugging.md): When a foreign function throws — a Python ZeroDivisionError, a C++ std::invalid_argument, an R stop(…​) — the default behavior of a morloc-built program is...
 - [8.7. Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md): Three abstract types describe a value that lives in a file rather than in memory:
 
-## 9. Utilities
+## 9. Modules and Libraries
 
-- [9. Utilities](https://morloc-project.github.io/docs/utilities/index.md): The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: file (identifies a file) and view (loads and...
-- [9.1. morloc-nexus file](https://morloc-project.github.io/docs/utilities/nexus-file.md): morloc-nexus file plays the role of the UNIX file utility for Morloc-compatible data files.
-- [9.2. morloc-nexus view](https://morloc-project.github.io/docs/utilities/nexus-view.md): Reads a data file (morloc data-packet, morloc stream-packet, .json, .mpk, .arrow, .parquet, or .csv) and re-emits it in a chosen output format.
-- [9.3. mim (Morloc Installation Manager)](https://morloc-project.github.io/docs/utilities/mim.md)
-- [9.4. morloc eval](https://morloc-project.github.io/docs/utilities/morloc-eval.md): Morloc has three subcommands that turn source into a result, and they serve distinct roles:
+- [9. Modules and Libraries](https://morloc-project.github.io/docs/modules/index.md)
+- [9.1. Importing modules](https://morloc-project.github.io/docs/modules/importing-modules.md): Every Morloc file is a module.
+- [9.2. Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md): The default Morloc modules are hosted on GitHub under the morloclib organization.
+- [9.3. The universal library](https://morloc-project.github.io/docs/modules/universal-library.md): A module may export types, typeclasses, and function signatures but no implementations.
 
-## 10. Modules and Libraries
+## 10. Building APIs
 
-- [10. Modules and Libraries](https://morloc-project.github.io/docs/modules/index.md)
-- [10.1. Importing modules](https://morloc-project.github.io/docs/modules/importing-modules.md): Every Morloc file is a module.
-- [10.2. Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md): The default Morloc modules are hosted on GitHub under the morloclib organization.
-- [10.3. The universal library](https://morloc-project.github.io/docs/modules/universal-library.md): A module may export types, typeclasses, and function signatures but no implementations.
+- [10. Building APIs](https://morloc-project.github.io/docs/apis/index.md)
+- [10.1. Search and install](https://morloc-project.github.io/docs/apis/search-and-install.md): The docstrings are used for discoverability as well.
+- [10.2. Exposing native resources](https://morloc-project.github.io/docs/apis/exposing-native-resources.md): The dependencies field links against shared libraries.
+- [10.3. Controlling data transfer](https://morloc-project.github.io/docs/apis/data-transfer.md): When a Morloc value crosses a pool boundary, the runtime picks one of three routes for data transfer:
+- [10.4. Building API interfaces](https://morloc-project.github.io/docs/apis/api-interfaces.md): In addition to being CLI tools, compiled Morloc programs can run as long-lived daemons, accepting function calls over HTTP, TCP, or Unix sockets.
+- [10.5. Model Context Protocol (MCP)](https://morloc-project.github.io/docs/apis/mcp.md): The same compiled program that runs as a CLI tool or a daemon can also serve as an MCP server, exposing its exported functions as tools that an AI agent...
 
 ## 11. Language Support
 

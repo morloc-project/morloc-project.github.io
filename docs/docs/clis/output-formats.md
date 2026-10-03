@@ -1,4 +1,4 @@
-# 6.9. Output formats
+# 7.9. Output formats
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/output-formats.html | prev: https://morloc-project.github.io/docs/clis/reading-stdin.md | next: https://morloc-project.github.io/docs/clis/output-actions.md
 
@@ -66,7 +66,7 @@ $ ./sift -p summarize hits.json
 
 `-z` compresses `-f packet` output; it is covered with the rest of the compression settings in [Compression](https://morloc-project.github.io/docs/runs/compression.md).
 
-## 6.9.1. Nothing to report
+## 7.9.1. Nothing to report
 
 A command that returns `()` or a top-level `Null` prints nothing at all. That matches the Unix convention that a tool with no result says nothing, and it is what you want when a Morloc command feeds `grep`, `xargs`, or a status check — a `()` carries no information, and a top-level `None` usually means "it ran and there was nothing to say".
 
@@ -126,7 +126,7 @@ $ ./nulls pair
 [5,null]
 ```
 
-## 6.9.2. Failure
+## 7.9.2. Failure
 
 Errors go to standard error and the process exits non-zero, so a Morloc command behaves in a `set -e` script or a `&&` chain the way any other tool does:
 

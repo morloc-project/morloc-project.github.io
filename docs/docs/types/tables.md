@@ -1,6 +1,6 @@
 # 5.8. Tables
 
-Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/tables.html | prev: https://morloc-project.github.io/docs/types/tensors.md | next: https://morloc-project.github.io/docs/clis/index.md
+Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/tables.html | prev: https://morloc-project.github.io/docs/types/tensors.md | next: https://morloc-project.github.io/docs/utilities/index.md
 
 > **Warning: Experimental Feature**
 > Typed tables work for the operations shown here, but the type-level side has holes, and two of them will bite you. `cbind` does not reject duplicate column names unless you write the result type out — otherwise it builds a table with a repeated key. A `getCol` on a column that is not in the schema passes `morloc typecheck` and then fails at code generation with an internal message pointing at the wrong line. Both are flagged where they come up below. The API will change.

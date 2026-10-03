@@ -1,4 +1,4 @@
-# 6.4. Arguments
+# 7.4. Arguments
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/arguments.html | prev: https://morloc-project.github.io/docs/clis/docstrings.md | next: https://morloc-project.github.io/docs/clis/record-arguments.md
 
@@ -91,7 +91,7 @@ $ ./sift scan the notes | ./sift summarize -
 
 Only one argument per command may claim stdin; a second `-` is an error rather than a silent read of zero bytes.
 
-## 6.4.1. When an argument is wrong
+## 7.4.1. When an argument is wrong
 
 An argument that looks like a path — it contains a `/`, or ends in a recognized data extension — but does not exist is reported as a missing file rather than parsed as inline data:
 
@@ -113,7 +113,7 @@ Failures exit non-zero, so a Morloc command is safe to put in a `set -e` script 
 > **Note**
 > Errors number arguments from zero (`argument #0`) while `--help` numbers positionals from one. `argument #0` is the argument printed as `1:`.
 
-## 6.4.2. Options, flags, and repeats
+## 7.4.2. Options, flags, and repeats
 
 An argument becomes an option instead of a positional when you give it a flag name with `@arg`. An option can be omitted, so it also needs a `@default`:
 
@@ -167,7 +167,7 @@ $ ./calc cat + a b c
 "a+b+c"
 ```
 
-## 6.4.3. Naming
+## 7.4.3. Naming
 
 `@name` gives a command a name of its own, independent of the Morloc term. `calc` exports `join` and calls the subcommand `cat`:
 
@@ -234,7 +234,7 @@ decode [('key', 'KEY'), ('ciphertext', 'CIPHERTEXT')]
 
 An unnamed positional is identified by index alone in both places, which is worth avoiding on anything a model or a script will call.
 
-## 6.4.4. Ending option parsing
+## 7.4.4. Ending option parsing
 
 A bare `--` ends option parsing: every token after it is a positional, even one that looks like a flag. This is rarely needed, since `-4.0` and `-7` are already treated as positionals, but it is the way to pass a string that looks like a short option:
 
@@ -245,7 +245,7 @@ $ ./sift scan -- -p notes
 
 Note what that costs: after `--`, the command’s own `-p` formatter is a positional too, so a search for the literal text `-p` cannot also ask for plain output.
 
-## 6.4.5. Reading files in other formats
+## 7.4.5. Reading files in other formats
 
 `@parse` lets an argument be given as a file in a format Morloc does not read itself — a CSV, a FASTA file, a column of numbers — and names the function that reads it. The command stays typed over the values it computes on, and the file is read before the command runs.
 
@@ -331,9 +331,11 @@ The function’s type follows from the argument’s:
 | `?T` (an option) | `Str → <IO> T` |
 | `IStream a` or `IFile [a]` | `Str → ([a] → <IO> ()) → <IO> ()`: it reads the file and hands each batch to the function it is given |
 
-A stream argument is read into a temporary file as it arrives, so it is never held in memory, and the command receives exactly the batches the function produced (see [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md)). Temporary files go under `$MORLOC_TMPDIR`, else `$TMPDIR`, else `/tmp`, and are removed when the run ends, however it ends short of `kill -9`.
+An `IStream` argument is read while the command runs: the function runs alongside the command, which receives exactly the batches the function produced, in order, each as soon as it is ready. The function keeps at most a few batches ahead of the command, so the input is never held in memory. A command that stops reading early — one that looks at the head of a large file, or takes a prefix of input that never ends — stops the function too.
 
-If the function fails, the command does not run, and the run exits non-zero with the argument, the format and the path:
+An `IFile [a]` argument, which the command may read in any order, is read into a temporary file first (see [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md)). Temporary files go under `$MORLOC_TMPDIR`, else `$TMPDIR`, else `/tmp`, and are removed when the run ends, however it ends short of `kill -9`.
+
+If the function fails, the run exits non-zero with the argument, the format and the path. For a value or `IFile` argument the command does not run:
 
 ```console
 $ cat bad.csv
@@ -342,7 +344,9 @@ $ ./stats bad.csv
 error: argument NUMS (format csv, path bad.csv): could not convert string to float: 'two'
 ```
 
-The function reports a failure the way any sourced function does: an exception in Python or C++, `rustmorloc::morloc_throw` in Rust. A Rust panic is treated as a bug and stops the pool.
+For an `IStream` argument the command has already started. It meets the failure at the batch where it happened, and the run fails even if the command handles that error. A failure in input the command stopped short of is not reported: that input was never read. Output the command wrote before the failure stays written. A stream read this way cannot be the command’s result.
+
+The function reports a failure the way any sourced function does: an exception in Python, R or C++, `rustmorloc::morloc_throw` in Rust. A Rust panic is treated as a bug and stops the pool.
 
 Help lists each argument’s formats:
 

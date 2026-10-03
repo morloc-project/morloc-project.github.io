@@ -1,8 +1,8 @@
-# 9.3. `mim` (Morloc Installation Manager)
+# 6.3. `mim` (Morloc Installation Manager)
 
 Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/mim.html | prev: https://morloc-project.github.io/docs/utilities/nexus-view.md | next: https://morloc-project.github.io/docs/utilities/morloc-eval.md
 
-## 9.3.1. System-scope environments
+## 6.3.1. System-scope environments
 
 `mim`, the Morloc Installation Manager, keeps environments in two parallel scopes: a per-user **local** scope (no privileges required) and a machine-wide **system** scope (root required). The `--system` flag selects the system scope on the subcommands that mutate it:
 
@@ -18,7 +18,7 @@ Read-only subcommands also accept `--system` for discovery rather than mutation:
 
 A regular (non-root) user can therefore find out whether a system-scope environment exists — and what it is configured with — without elevated privileges, by running `mim ls --system` or `mim info <name> --system`. Mutating subcommands will refuse to run without root and print a hint to re-invoke under `sudo`.
 
-## 9.3.2. Rebuilding and reconfiguring environments
+## 6.3.2. Rebuilding and reconfiguring environments
 
 Two verbs cover the environment lifecycle after creation, split by what they touch:
 
@@ -42,7 +42,7 @@ $ mim modify --env myenv --conda-packages-file tools.conda # set conda packages
 $ mim modify --env myenv --system-packages-file tools.apt  # set apt packages
 ```
 
-## 9.3.3. Packages
+## 6.3.3. Packages
 
 Beyond language runtimes, an environment can carry extra packages from two sources, each supplied as a file — one package per line, with `#` comments and blank lines ignored:
 
@@ -51,7 +51,7 @@ Beyond language runtimes, an environment can carry extra packages from two sourc
 
 Both flags are accepted by `new` and `modify`. The file is the **whole** list for that source: passing it **replaces** the environment’s stored packages for that source, so to add or remove one package you edit the file and re-apply. Changing either list triggers a rebuild at the current morloc version, and the stored list is updated only after the rebuild succeeds — a package that breaks the build leaves the previous list intact, so a typo never wedges the environment.
 
-## 9.3.4. Language toolchains
+## 6.3.4. Language toolchains
 
 `--lang` provisions a language runtime into an environment, at `new` or `modify` time. Each value is a language name or a `lang@version` pin, and the flag is repeatable or comma-separated — these are equivalent:
 
@@ -63,7 +63,7 @@ $ mim new myenv --lang py@3.12,r@4.3   # with version pins
 
 Most languages (python, R, C++, Rust) are provisioned from conda-forge and their versions are solved together with the rest of the environment. A language whose toolchain is not on conda-forge — currently **futhark** — is instead installed by a script when the container image is built, so it is supported only on the docker/podman backends; requesting it on the native or apptainer backends is an error. `--lang futhark` installs a fixed, tested futhark release.
 
-## 9.3.5. Development environments
+## 6.3.5. Development environments
 
 A **development environment** mounts a morloc source tree and provisions the **tooling** to build it, giving contributors (and coding agents) a uniform, reproducible place to build, edit, and test morloc itself. Point `--dev` at a morloc source checkout:
 
@@ -91,7 +91,7 @@ $ mim new --dev /path/to/morloc --engine podman \
     --conda-packages-file dev-tools.conda   # e.g. jq, ripgrep, hyperfine, nodejs
 ```
 
-## 9.3.6. Inspecting an environment
+## 6.3.6. Inspecting an environment
 
 `mim info <name>` describes an environment as four groups: its identity and materialization status, the **folders** it occupies on the host, the **environment variables** a `run`/`serve` process sees, and its **dependencies** — the language runtimes and package count from the solved world (`pixi.lock`):
 
@@ -124,7 +124,7 @@ Dependencies (locked):
 
 `mim info myenv --packages` lists every package in the solved world at its locked version; `--json` prints the whole description (packages included) as machine-readable JSON, and `--packages --json` prints just the package array.
 
-## 9.3.7. Checking environment health
+## 6.3.7. Checking environment health
 
 `mim doctor [<name>]` runs read-only health checks against an environment and exits non-zero if any check fails, so it fits a setup script or CI gate. On the native backend it verifies that the runtime is materialized and its conda toolchain is present, that the captured activation exports the compiler tools a build needs (`$CC`/`$CXX`/`$AR`/…​), that each provisioned language stack and `libmorloc` are in place and resolve their libraries, that the compiler/manager/agent versions are in step, and that the dependency world is solved and the data dir is writable:
 
@@ -136,7 +136,7 @@ $ mim doctor --env myenv
 
 Add `--deep` for slower checks (installed program launchers), `--json` for a machine-readable report, and `--strict` to treat warnings as failures.
 
-## 9.3.8. The environment home and dotfiles
+## 6.3.8. The environment home and dotfiles
 
 Under the Docker and Podman backends a container runs as your host user but does **not** mount your host `$HOME`. Each such environment instead owns a private home directory on the host, bind-mounted as `$HOME` inside the container. It is writable from both sides and survives runs, `update`, and `clean`. `mim info` prints its path under `Folders`:
 
@@ -173,7 +173,7 @@ $ mim modify --env myenv --dotfiles ~/dotfiles   # re-copy after edits
 > **Note**
 > This is a Docker/Podman feature. An Apptainer environment mounts your real host `$HOME` (so it already sees your host dotfiles) and the native backend runs against your real home, so `--dotfiles` is rejected on both. A `.bashrc` affects interactive shells only — it is not read by a non-interactive `morloc make`, so build-time settings belong elsewhere.
 
-## 9.3.9. Serving installed programs
+## 6.3.9. Serving installed programs
 
 Beyond managing environments, `mim` runs the **serving lifecycle** that presents compiled programs to AI assistants (over MCP) and to HTTP clients (over a JSON API). The first three steps are distinct on purpose — installing a program does not make it reachable, and declaring that it should be does not serve it until you ask. The fourth turns the environment you have been working in into something you can hand to someone else:
 

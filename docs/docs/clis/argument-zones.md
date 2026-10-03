@@ -1,4 +1,4 @@
-# 6.2. The two argument zones
+# 7.2. The two argument zones
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/argument-zones.html | prev: https://morloc-project.github.io/docs/clis/example-program.md | next: https://morloc-project.github.io/docs/clis/docstrings.md
 
@@ -44,7 +44,7 @@ $ ./sift -h @           # help for the nexus: -f, -o, -p, and the rest
 
 That last one introduces `@`, the explicit zone separator. You rarely need it, because a subcommand name already marks the boundary. It matters when there is no subcommand name to mark it.
 
-## 6.2.1. Programs with a single export
+## 7.2.1. Programs with a single export
 
 When a module exports exactly one term, naming it is optional — there is nothing to choose between. Take a one-command program:
 

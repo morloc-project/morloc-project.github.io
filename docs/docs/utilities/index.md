@@ -1,6 +1,6 @@
-# 9. Utilities
+# 6. Utilities
 
-Morloc Manual | https://morloc-project.github.io/docs/utilities/ | prev: https://morloc-project.github.io/docs/runs/random-access-and-streaming.md | next: https://morloc-project.github.io/docs/utilities/nexus-file.md
+Morloc Manual | https://morloc-project.github.io/docs/utilities/ | prev: https://morloc-project.github.io/docs/types/tables.md | next: https://morloc-project.github.io/docs/utilities/nexus-file.md
 
 The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: `file` (identifies a file) and `view` (loads and re-emits a file in a chosen format).
 

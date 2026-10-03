@@ -1,6 +1,6 @@
-# 6.14. Directive reference
+# 7.14. Directive reference
 
-Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/directive-reference.html | prev: https://morloc-project.github.io/docs/clis/interface-as-data.md | next: https://morloc-project.github.io/docs/apis/index.md
+Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/directive-reference.html | prev: https://morloc-project.github.io/docs/clis/interface-as-data.md | next: https://morloc-project.github.io/docs/runs/index.md
 
 Every docstring directive that affects the generated interface, grouped by where it may be written. A directive written in the wrong place is not an error; it is kept as prose and the build warns, so check this table when one appears to do nothing.
 

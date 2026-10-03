@@ -1,4 +1,4 @@
-# 6.5. Record arguments
+# 7.5. Record arguments
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/record-arguments.html | prev: https://morloc-project.github.io/docs/clis/arguments.md | next: https://morloc-project.github.io/docs/clis/sum-type-arguments.md
 
@@ -104,7 +104,7 @@ Positional arguments:
 ...
 ```
 
-## 6.5.1. Three ways to fill it
+## 7.5.1. Three ways to fill it
 
 The `@arg --options` on the record declares a **group flag**, which accepts the whole record at once. It coexists with the per-field flags, so a caller can use either or both.
 
@@ -149,7 +149,7 @@ The full precedence for each field, highest first:
 
 An explicit `null` in the bundle counts as present, so it overrides a default rather than falling through to it.
 
-## 6.5.2. What is rejected
+## 7.5.2. What is rejected
 
 Object form rejects unknown keys, which turns a typo into an error instead of a silently ignored setting:
 

@@ -1,4 +1,4 @@
-# 6.1. The example program
+# 7.1. The example program
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/example-program.html | prev: https://morloc-project.github.io/docs/clis/index.md | next: https://morloc-project.github.io/docs/clis/argument-zones.md
 

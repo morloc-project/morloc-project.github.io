@@ -1,4 +1,4 @@
-# 7.1. Search and install
+# 10.1. Search and install
 
 Morloc Manual > Building APIs | https://morloc-project.github.io/docs/apis/search-and-install.html | prev: https://morloc-project.github.io/docs/apis/index.md | next: https://morloc-project.github.io/docs/apis/exposing-native-resources.md
 
