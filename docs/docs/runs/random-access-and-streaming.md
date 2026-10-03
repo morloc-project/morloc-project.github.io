@@ -1,4 +1,4 @@
-# 8.7. Random access and streaming
+# 7.7. Random access and streaming
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/random-access-and-streaming.html | prev: https://morloc-project.github.io/docs/runs/debugging.md | next: https://morloc-project.github.io/docs/modules/index.md
 
@@ -12,7 +12,7 @@ Three abstract types describe a value that lives in a file rather than in memory
 
 All three are opened with the same `@open` intrinsic, which returns an integer handle that lives in a shared SHM registry, so the handle can be passed transparently across pool boundaries.
 
-## 8.7.1. Random access with IFile
+## 7.7.1. Random access with IFile
 
 `@open path` opens an existing morloc stream file for random access. The file’s element schema is read out of the header and must match the `IFile` parameter type; a mismatch errors at open time.
 
@@ -38,7 +38,7 @@ slice path = do
 
 A slice that spans multiple sub-packets decompresses each sub-packet once, in parallel, and copies just the selected elements into the result. The decompressed sub-packets are cached per handle so a second access to a nearby element is a pointer add rather than another zstd pass. `@flen f` returns the total element count without scanning the file.
 
-## 8.7.2. Sequential writing with OStream
+## 7.7.2. Sequential writing with OStream
 
 The line
 
@@ -70,7 +70,7 @@ writeMany path n = do
 
 `@concat paths dest` byte-level concatenates a list of compatible stream files into `dest` using `sendfile`, with no userspace copy. It builds beside `dest` and renames onto it, so `dest` may appear in `paths` — adding a batch to a log is the ordinary use — and a merge that fails leaves the old `dest` as it was. Refusing an aliased destination was the alternative; it would have forbidden that use and still left a failed merge free to delete a file it never created.
 
-## 8.7.3. Sequential reading with IStream
+## 7.7.3. Sequential reading with IStream
 
 `@open path` opens a stream file for forward reads. `@next s` returns the next sub-packet’s elements as a list; when the file is exhausted, `@next` returns `[]`. The cursor advances under the slot’s futex, so two pools holding the same IStream handle can take turns calling `@next` and each gets a distinct sub-packet.
 
@@ -91,7 +91,7 @@ drain path = do
 
 `@open` also reads standard input, not just files. Opening the path `/dev/stdin` — the value a `--' @stdin` CLI argument takes when it is omitted, and the target of a `-` argument — routes an `IStream` to the process’s stdin, exactly like `@stdin`. Because a pipe is not seekable, `@open "/dev/stdin" :: IFile a` instead returns an `Err` arm without reading any bytes, so a reader can attempt fast random access first and fall back to a sequential `IStream` for stdin (see [Reading a stream from standard input](https://morloc-project.github.io/docs/clis/reading-stdin.md) for the CLI side). Compressed sub-packets are decompressed on demand at `@next`; a non-morloc input on stdin is rejected rather than mis-decoded.
 
-## 8.7.4. Typed standard streams
+## 7.7.4. Typed standard streams
 
 `@stdin`, `@stdout`, and `@stderr` are nullary intrinsics that expose the process’s standard streams as typed morloc streams. Their element types are fixed by inline ascription at the open site, exactly like `@open`:
 
@@ -141,7 +141,7 @@ The compiler enforces that both sides agree on element type `Int`. `-f packet` i
 > **Warning**
 > `@stdin` / `@stdout` / `@stderr` carry morloc’s binary sub-packet format — the same wire format used on disk for `IFile` / `IStream` / `OStream`. It is **not** human-readable text. If a sourced foreign function writes to the same standard stream while morloc holds it open (`print` in Python, `std::cout <<` in C++, `cat` / `message` in R), those raw bytes interleave with the morloc packet stream and the reader’s next `@next` fails with a schema-decode error. Either use file-based `IFile` / `OStream` for structured output, or ensure no foreign code writes to a standard stream that morloc has opened.
 
-## 8.7.5. Environment variables
+## 7.7.5. Environment variables
 
 | Variable | Effect |
 | --- | --- |

@@ -66,7 +66,7 @@
 <meta property="og:url" content="https://morloc-project.github.io/docs/languages/futhark.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/languages/futhark.html">
 <link rel="prev" href="rust.html">
-<link rel="next" href="../install/index.html">
+<link rel="next" href="../internals/index.html">
 <link rel="alternate" type="text/markdown" href="futhark.md">
 </head>
 <body class="book toc2 toc-left">
@@ -358,387 +358,402 @@
 </li>
 </ul>
 </li>
-<li><a href="../utilities/index.html">6. Utilities</a>
+<li><a href="../clis/index.html">6. Building CLIs</a>
 <ul class="sectlevel2">
-<li><a href="../utilities/nexus-file.html">6.1. morloc-nexus file</a>
+<li><a href="../clis/example-program.html">6.1. The example program</a></li>
+<li><a href="../clis/argument-zones.html">6.2. The two argument zones</a>
 <ul class="sectlevel3">
-<li><a href="../utilities/nexus-file.html#stream-packets">6.1.1. Stream packets</a></li>
-<li><a href="../utilities/nexus-file.html#_options">6.1.2. Options</a></li>
-<li><a href="../utilities/nexus-file.html#_verbose_example">6.1.3. Verbose example</a></li>
+<li><a href="../clis/argument-zones.html#_programs_with_a_single_export">6.2.1. Programs with a single export</a></li>
 </ul>
 </li>
-<li><a href="../utilities/nexus-view.html">6.2. morloc-nexus view</a>
+<li><a href="../clis/docstrings.html">6.3. Docstrings</a>
 <ul class="sectlevel3">
-<li><a href="../utilities/nexus-view.html#_reading_from_stdin">6.2.1. Reading from stdin</a></li>
-<li><a href="../utilities/nexus-view.html#_schema_resolution">6.2.2. Schema resolution</a></li>
-<li><a href="../utilities/nexus-view.html#_pattern_extract_a_subset">6.2.3. <code>--pattern</code>: extract a subset</a></li>
-<li><a href="../utilities/nexus-view.html#_packet_shape_output_s_d_p">6.2.4. Packet-shape output: <code>-s</code> / <code>-d</code> / <code>-p</code></a></li>
-<li><a href="../utilities/nexus-view.html#_f_jsonl_line_delimited_json">6.2.5. <code>-f jsonl</code>: line-delimited JSON</a></li>
-<li><a href="../utilities/nexus-view.html#view-size-guardrails">6.2.6. Size guardrails and <code>--force</code></a></li>
-<li><a href="../utilities/nexus-view.html#footer-less-streams">6.2.7. Footer-less streams</a></li>
-<li><a href="../utilities/nexus-view.html#_options_2">6.2.8. Options</a></li>
+<li><a href="../clis/docstrings.html#_directives">6.3.1. Directives</a></li>
 </ul>
 </li>
-<li><a href="../utilities/mim.html">6.3. <code>mim</code> (Morloc Installation Manager)</a>
+<li><a href="../clis/arguments.html">6.4. Arguments</a>
 <ul class="sectlevel3">
-<li><a href="../utilities/mim.html#_system_scope_environments">6.3.1. System-scope environments</a></li>
-<li><a href="../utilities/mim.html#_rebuilding_and_reconfiguring_environments">6.3.2. Rebuilding and reconfiguring environments</a></li>
-<li><a href="../utilities/mim.html#mim-packages">6.3.3. Packages</a></li>
-<li><a href="../utilities/mim.html#mim-language-toolchains">6.3.4. Language toolchains</a></li>
-<li><a href="../utilities/mim.html#_development_environments">6.3.5. Development environments</a></li>
-<li><a href="../utilities/mim.html#_inspecting_an_environment">6.3.6. Inspecting an environment</a></li>
-<li><a href="../utilities/mim.html#_checking_environment_health">6.3.7. Checking environment health</a></li>
-<li><a href="../utilities/mim.html#_the_environment_home_and_dotfiles">6.3.8. The environment home and dotfiles</a></li>
-<li><a href="../utilities/mim.html#mim-serve">6.3.9. Serving installed programs</a></li>
+<li><a href="../clis/arguments.html#_when_an_argument_is_wrong">6.4.1. When an argument is wrong</a></li>
+<li><a href="../clis/arguments.html#_options_flags_and_repeats">6.4.2. Options, flags, and repeats</a></li>
+<li><a href="../clis/arguments.html#_naming">6.4.3. Naming</a></li>
+<li><a href="../clis/arguments.html#_ending_option_parsing">6.4.4. Ending option parsing</a></li>
+<li><a href="../clis/arguments.html#parse-arguments">6.4.5. Reading files in other formats</a></li>
 </ul>
 </li>
-<li><a href="../utilities/morloc-eval.html">6.4. morloc eval</a>
+<li><a href="../clis/record-arguments.html">6.5. Record arguments</a>
 <ul class="sectlevel3">
-<li><a href="../utilities/morloc-eval.html#_imports_in_eval_strings">6.4.1. Imports in eval strings</a></li>
-<li><a href="../utilities/morloc-eval.html#_the_eval_sandbox">6.4.2. The eval sandbox</a></li>
-<li><a href="../utilities/morloc-eval.html#_single_line_layout_braces_and_semicolons">6.4.3. Single-line layout: braces and semicolons</a></li>
-<li><a href="../utilities/morloc-eval.html#_saving_an_eval_expression_as_a_command">6.4.4. Saving an eval expression as a command</a></li>
+<li><a href="../clis/record-arguments.html#_three_ways_to_fill_it">6.5.1. Three ways to fill it</a></li>
+<li><a href="../clis/record-arguments.html#_what_is_rejected">6.5.2. What is rejected</a></li>
 </ul>
 </li>
+<li><a href="../clis/sum-type-arguments.html">6.6. Sum type arguments</a></li>
+<li><a href="../clis/input-shape.html">6.7. Input shape</a>
+<ul class="sectlevel3">
+<li><a href="../clis/input-shape.html#_a_worked_example">6.7.1. A worked example</a></li>
+<li><a href="../clis/input-shape.html#_shape_follows_the_wire_form">6.7.2. Shape follows the wire form</a></li>
 </ul>
 </li>
-<li><a href="../clis/index.html">7. Building CLIs</a>
+<li><a href="../clis/reading-stdin.html">6.8. Reading a stream from standard input</a>
+<ul class="sectlevel3">
+<li><a href="../clis/reading-stdin.html#_what_standard_input_may_carry">6.8.1. What standard input may carry</a></li>
+<li><a href="../clis/reading-stdin.html#_rules_for_stdin">6.8.2. Rules for <code>@stdin</code></a></li>
+</ul>
+</li>
+<li><a href="../clis/output-formats.html">6.9. Output formats</a>
+<ul class="sectlevel3">
+<li><a href="../clis/output-formats.html#_nothing_to_report">6.9.1. Nothing to report</a></li>
+<li><a href="../clis/output-formats.html#_failure">6.9.2. Failure</a></li>
+</ul>
+</li>
+<li><a href="../clis/output-actions.html">6.10. Output actions</a>
+<ul class="sectlevel3">
+<li><a href="../clis/output-actions.html#_with_keeps_a_value_render_produces_bytes">6.10.1. <code>@with</code> keeps a value; <code>@render</code> produces bytes</a></li>
+<li><a href="../clis/output-actions.html#_giving_a_formatter_arguments">6.10.2. Giving a formatter arguments</a></li>
+<li><a href="../clis/output-actions.html#_choosing_a_default">6.10.3. Choosing a default</a></li>
+<li><a href="../clis/output-actions.html#_media_types">6.10.4. Media types</a></li>
+<li><a href="../clis/output-actions.html#action-files">6.10.5. Several outputs in one run</a></li>
+<li><a href="../clis/output-actions.html#action-rules">6.10.6. Rules and rejections</a></li>
+</ul>
+</li>
+<li><a href="../clis/streaming-output.html">6.11. Streaming output with <code>@collect</code></a>
+<ul class="sectlevel3">
+<li><a href="../clis/streaming-output.html#_actions_on_a_stream">6.11.1. Actions on a stream</a></li>
+<li><a href="../clis/streaming-output.html#_offset_where_a_batch_sits_in_the_stream">6.11.2. <code>@offset</code>: where a batch sits in the stream</a></li>
+<li><a href="../clis/streaming-output.html#_ifile_the_gathered_stream_as_a_file">6.11.3. <code>IFile</code>: the gathered stream as a file</a></li>
+<li><a href="../clis/streaming-output.html#stream-fold">6.11.4. <code>@fold</code>: one accumulator instead of a list</a></li>
+<li><a href="../clis/streaming-output.html#_streaming_rules">6.11.5. Streaming rules</a></li>
+<li><a href="../clis/streaming-output.html#_what_the_help_says_a_stream_produces">6.11.6. What the help says a stream produces</a></li>
+</ul>
+</li>
+<li><a href="../clis/composing-tools.html">6.12. Composing tools</a>
+<ul class="sectlevel3">
+<li><a href="../clis/composing-tools.html#_grouping_commands">6.12.1. Grouping commands</a></li>
+<li><a href="../clis/composing-tools.html#_installing">6.12.2. Installing</a></li>
+</ul>
+</li>
+<li><a href="../clis/interface-as-data.html">6.13. The interface as data</a>
+<ul class="sectlevel3">
+<li><a href="../clis/interface-as-data.html#_other_views_of_the_same_commands">6.13.1. Other views of the same commands</a></li>
+</ul>
+</li>
+<li><a href="../clis/directive-reference.html">6.14. Directive reference</a></li>
+</ul>
+</li>
+<li><a href="../runs/index.html">7. Managing Runs</a>
 <ul class="sectlevel2">
-<li><a href="../clis/example-program.html">7.1. The example program</a></li>
-<li><a href="../clis/argument-zones.html">7.2. The two argument zones</a>
+<li><a href="../runs/logging.html">7.1. Logging</a>
 <ul class="sectlevel3">
-<li><a href="../clis/argument-zones.html#_programs_with_a_single_export">7.2.1. Programs with a single export</a></li>
+<li><a href="../runs/logging.html#_enabling_logging">7.1.1. Enabling logging</a></li>
+<li><a href="../runs/logging.html#_template_placeholders">7.1.2. Template placeholders</a></li>
+<li><a href="../runs/logging.html#_color_codes">7.1.3. Color codes</a></li>
+<li><a href="../runs/logging.html#_terminal_detection_and_no_color">7.1.4. Terminal detection and NO_COLOR</a></li>
+<li><a href="../runs/logging.html#_worked_example">7.1.5. Worked example</a></li>
 </ul>
 </li>
-<li><a href="../clis/docstrings.html">7.3. Docstrings</a>
+<li><a href="../runs/benchmarking.html">7.2. Benchmarking</a>
 <ul class="sectlevel3">
-<li><a href="../clis/docstrings.html#_directives">7.3.1. Directives</a></li>
+<li><a href="../runs/benchmarking.html#_the_summary_row">7.2.1. The summary row</a></li>
+<li><a href="../runs/benchmarking.html#_comparing_implementations">7.2.2. Comparing implementations</a></li>
 </ul>
 </li>
-<li><a href="../clis/arguments.html">7.4. Arguments</a>
+<li><a href="../runs/run-directory.html">7.3. Run directory</a>
 <ul class="sectlevel3">
-<li><a href="../clis/arguments.html#_when_an_argument_is_wrong">7.4.1. When an argument is wrong</a></li>
-<li><a href="../clis/arguments.html#_options_flags_and_repeats">7.4.2. Options, flags, and repeats</a></li>
-<li><a href="../clis/arguments.html#_naming">7.4.3. Naming</a></li>
-<li><a href="../clis/arguments.html#_ending_option_parsing">7.4.4. Ending option parsing</a></li>
-<li><a href="../clis/arguments.html#parse-arguments">7.4.5. Reading files in other formats</a></li>
+<li><a href="../runs/run-directory.html#rundir-activation">7.3.1. Activation knobs</a></li>
+<li><a href="../runs/run-directory.html#_summary_json">7.3.2. summary.json</a></li>
+<li><a href="../runs/run-directory.html#rundir-location">7.3.3. Where the directory lives</a></li>
+<li><a href="../runs/run-directory.html#_cleanup">7.3.4. Cleanup</a></li>
+<li><a href="../runs/run-directory.html#_prologue_and_epilogue">7.3.5. Prologue and epilogue</a></li>
+<li><a href="../runs/run-directory.html#_nested_invocations">7.3.6. Nested invocations</a></li>
 </ul>
 </li>
-<li><a href="../clis/record-arguments.html">7.5. Record arguments</a>
+<li><a href="../runs/caching.html">7.4. Caching</a>
 <ul class="sectlevel3">
-<li><a href="../clis/record-arguments.html#_three_ways_to_fill_it">7.5.1. Three ways to fill it</a></li>
-<li><a href="../clis/record-arguments.html#_what_is_rejected">7.5.2. What is rejected</a></li>
+<li><a href="../runs/caching.html#_declaring_a_cached_call">7.4.1. Declaring a cached call</a></li>
+<li><a href="../runs/caching.html#_what_goes_in_the_hash">7.4.2. What goes in the hash</a></li>
+<li><a href="../runs/caching.html#cache-layout">7.4.3. Storage layout</a></li>
+<li><a href="../runs/caching.html#_reading_and_writing">7.4.4. Reading and writing</a></li>
 </ul>
 </li>
-<li><a href="../clis/sum-type-arguments.html">7.6. Sum type arguments</a></li>
-<li><a href="../clis/input-shape.html">7.7. Input shape</a>
+<li><a href="../runs/compression.html">7.5. Compression</a>
 <ul class="sectlevel3">
-<li><a href="../clis/input-shape.html#_a_worked_example">7.7.1. A worked example</a></li>
-<li><a href="../clis/input-shape.html#_shape_follows_the_wire_form">7.7.2. Shape follows the wire form</a></li>
+<li><a href="../runs/compression.html#_compression_in_write">7.5.1. Compression in <code>@write</code></a></li>
+<li><a href="../runs/compression.html#_compression_in_morloc_nexus_run">7.5.2. Compression in <code>morloc-nexus run</code></a></li>
+<li><a href="../runs/compression.html#_compression_level_table">7.5.3. Compression-level table</a></li>
+<li><a href="../runs/compression.html#_algorithm_agnostic_surface">7.5.4. Algorithm-agnostic surface</a></li>
+<li><a href="../runs/compression.html#_caching_is_unaffected">7.5.5. Caching is unaffected</a></li>
 </ul>
 </li>
-<li><a href="../clis/reading-stdin.html">7.8. Reading a stream from standard input</a>
+<li><a href="../runs/debugging.html">7.6. Debugging</a>
 <ul class="sectlevel3">
-<li><a href="../clis/reading-stdin.html#_what_standard_input_may_carry">7.8.1. What standard input may carry</a></li>
-<li><a href="../clis/reading-stdin.html#_rules_for_stdin">7.8.2. Rules for <code>@stdin</code></a></li>
+<li><a href="../runs/debugging.html#_enabling_at_compile_time">7.6.1. Enabling at compile time</a></li>
+<li><a href="../runs/debugging.html#_a_failing_run">7.6.2. A failing run</a></li>
+<li><a href="../runs/debugging.html#debug-knobs">7.6.3. Runtime knobs</a></li>
+<li><a href="../runs/debugging.html#dump-location">7.6.4. Where dumps land</a></li>
+<li><a href="../runs/debugging.html#_content_addressed_dedup">7.6.5. Content-addressed dedup</a></li>
+<li><a href="../runs/debugging.html#_frame_status_markers">7.6.6. Frame status markers</a></li>
+<li><a href="../runs/debugging.html#_recovering_an_input_via_load">7.6.7. Recovering an input via <code>@load</code></a></li>
+<li><a href="../runs/debugging.html#_interaction_with_the_cache">7.6.8. Interaction with the cache</a></li>
 </ul>
 </li>
-<li><a href="../clis/output-formats.html">7.9. Output formats</a>
+<li><a href="../runs/random-access-and-streaming.html">7.7. Random access and streaming</a>
 <ul class="sectlevel3">
-<li><a href="../clis/output-formats.html#_nothing_to_report">7.9.1. Nothing to report</a></li>
-<li><a href="../clis/output-formats.html#_failure">7.9.2. Failure</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_random_access_with_ifile">7.7.1. Random access with IFile</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_sequential_writing_with_ostream">7.7.2. Sequential writing with OStream</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_sequential_reading_with_istream">7.7.3. Sequential reading with IStream</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_typed_standard_streams">7.7.4. Typed standard streams</a></li>
+<li><a href="../runs/random-access-and-streaming.html#stream-env-vars">7.7.5. Environment variables</a></li>
 </ul>
 </li>
-<li><a href="../clis/output-actions.html">7.10. Output actions</a>
-<ul class="sectlevel3">
-<li><a href="../clis/output-actions.html#_with_keeps_a_value_render_produces_bytes">7.10.1. <code>@with</code> keeps a value; <code>@render</code> produces bytes</a></li>
-<li><a href="../clis/output-actions.html#_giving_a_formatter_arguments">7.10.2. Giving a formatter arguments</a></li>
-<li><a href="../clis/output-actions.html#_choosing_a_default">7.10.3. Choosing a default</a></li>
-<li><a href="../clis/output-actions.html#_media_types">7.10.4. Media types</a></li>
-<li><a href="../clis/output-actions.html#action-files">7.10.5. Several outputs in one run</a></li>
-<li><a href="../clis/output-actions.html#action-rules">7.10.6. Rules and rejections</a></li>
 </ul>
 </li>
-<li><a href="../clis/streaming-output.html">7.11. Streaming output with <code>@collect</code></a>
-<ul class="sectlevel3">
-<li><a href="../clis/streaming-output.html#_actions_on_a_stream">7.11.1. Actions on a stream</a></li>
-<li><a href="../clis/streaming-output.html#_offset_where_a_batch_sits_in_the_stream">7.11.2. <code>@offset</code>: where a batch sits in the stream</a></li>
-<li><a href="../clis/streaming-output.html#_ifile_the_gathered_stream_as_a_file">7.11.3. <code>IFile</code>: the gathered stream as a file</a></li>
-<li><a href="../clis/streaming-output.html#stream-fold">7.11.4. <code>@fold</code>: one accumulator instead of a list</a></li>
-<li><a href="../clis/streaming-output.html#_streaming_rules">7.11.5. Streaming rules</a></li>
-<li><a href="../clis/streaming-output.html#_what_the_help_says_a_stream_produces">7.11.6. What the help says a stream produces</a></li>
-</ul>
-</li>
-<li><a href="../clis/composing-tools.html">7.12. Composing tools</a>
-<ul class="sectlevel3">
-<li><a href="../clis/composing-tools.html#_grouping_commands">7.12.1. Grouping commands</a></li>
-<li><a href="../clis/composing-tools.html#_installing">7.12.2. Installing</a></li>
-</ul>
-</li>
-<li><a href="../clis/interface-as-data.html">7.13. The interface as data</a>
-<ul class="sectlevel3">
-<li><a href="../clis/interface-as-data.html#_other_views_of_the_same_commands">7.13.1. Other views of the same commands</a></li>
-</ul>
-</li>
-<li><a href="../clis/directive-reference.html">7.14. Directive reference</a></li>
-</ul>
-</li>
-<li><a href="../runs/index.html">8. Managing Runs</a>
+<li><a href="../modules/index.html">8. Modules and Libraries</a>
 <ul class="sectlevel2">
-<li><a href="../runs/logging.html">8.1. Logging</a>
+<li><a href="../modules/importing-modules.html">8.1. Importing modules</a></li>
+<li><a href="../modules/installing-modules.html">8.2. Installing modules</a>
 <ul class="sectlevel3">
-<li><a href="../runs/logging.html#_enabling_logging">8.1.1. Enabling logging</a></li>
-<li><a href="../runs/logging.html#_template_placeholders">8.1.2. Template placeholders</a></li>
-<li><a href="../runs/logging.html#_color_codes">8.1.3. Color codes</a></li>
-<li><a href="../runs/logging.html#_terminal_detection_and_no_color">8.1.4. Terminal detection and NO_COLOR</a></li>
-<li><a href="../runs/logging.html#_worked_example">8.1.5. Worked example</a></li>
+<li><a href="../modules/installing-modules.html#configuring-cpp-build">8.2.1. Configuring the C++ build</a></li>
 </ul>
 </li>
-<li><a href="../runs/benchmarking.html">8.2. Benchmarking</a>
+<li><a href="../modules/universal-library.html">8.3. The universal library</a></li>
+<li><a href="../modules/exposing-native-resources.html">8.4. Exposing native resources</a></li>
+<li><a href="../modules/data-transfer.html">8.5. Controlling data transfer</a>
 <ul class="sectlevel3">
-<li><a href="../runs/benchmarking.html#_the_summary_row">8.2.1. The summary row</a></li>
-<li><a href="../runs/benchmarking.html#_comparing_implementations">8.2.2. Comparing implementations</a></li>
-</ul>
-</li>
-<li><a href="../runs/run-directory.html">8.3. Run directory</a>
-<ul class="sectlevel3">
-<li><a href="../runs/run-directory.html#rundir-activation">8.3.1. Activation knobs</a></li>
-<li><a href="../runs/run-directory.html#_summary_json">8.3.2. summary.json</a></li>
-<li><a href="../runs/run-directory.html#rundir-location">8.3.3. Where the directory lives</a></li>
-<li><a href="../runs/run-directory.html#_cleanup">8.3.4. Cleanup</a></li>
-<li><a href="../runs/run-directory.html#_prologue_and_epilogue">8.3.5. Prologue and epilogue</a></li>
-<li><a href="../runs/run-directory.html#_nested_invocations">8.3.6. Nested invocations</a></li>
-</ul>
-</li>
-<li><a href="../runs/caching.html">8.4. Caching</a>
-<ul class="sectlevel3">
-<li><a href="../runs/caching.html#_declaring_a_cached_call">8.4.1. Declaring a cached call</a></li>
-<li><a href="../runs/caching.html#_what_goes_in_the_hash">8.4.2. What goes in the hash</a></li>
-<li><a href="../runs/caching.html#cache-layout">8.4.3. Storage layout</a></li>
-<li><a href="../runs/caching.html#_reading_and_writing">8.4.4. Reading and writing</a></li>
-</ul>
-</li>
-<li><a href="../runs/compression.html">8.5. Compression</a>
-<ul class="sectlevel3">
-<li><a href="../runs/compression.html#_compression_in_write">8.5.1. Compression in <code>@write</code></a></li>
-<li><a href="../runs/compression.html#_compression_in_morloc_nexus_run">8.5.2. Compression in <code>morloc-nexus run</code></a></li>
-<li><a href="../runs/compression.html#_compression_level_table">8.5.3. Compression-level table</a></li>
-<li><a href="../runs/compression.html#_algorithm_agnostic_surface">8.5.4. Algorithm-agnostic surface</a></li>
-<li><a href="../runs/compression.html#_caching_is_unaffected">8.5.5. Caching is unaffected</a></li>
-</ul>
-</li>
-<li><a href="../runs/debugging.html">8.6. Debugging</a>
-<ul class="sectlevel3">
-<li><a href="../runs/debugging.html#_enabling_at_compile_time">8.6.1. Enabling at compile time</a></li>
-<li><a href="../runs/debugging.html#_a_failing_run">8.6.2. A failing run</a></li>
-<li><a href="../runs/debugging.html#debug-knobs">8.6.3. Runtime knobs</a></li>
-<li><a href="../runs/debugging.html#dump-location">8.6.4. Where dumps land</a></li>
-<li><a href="../runs/debugging.html#_content_addressed_dedup">8.6.5. Content-addressed dedup</a></li>
-<li><a href="../runs/debugging.html#_frame_status_markers">8.6.6. Frame status markers</a></li>
-<li><a href="../runs/debugging.html#_recovering_an_input_via_load">8.6.7. Recovering an input via <code>@load</code></a></li>
-<li><a href="../runs/debugging.html#_interaction_with_the_cache">8.6.8. Interaction with the cache</a></li>
-</ul>
-</li>
-<li><a href="../runs/random-access-and-streaming.html">8.7. Random access and streaming</a>
-<ul class="sectlevel3">
-<li><a href="../runs/random-access-and-streaming.html#_random_access_with_ifile">8.7.1. Random access with IFile</a></li>
-<li><a href="../runs/random-access-and-streaming.html#_sequential_writing_with_ostream">8.7.2. Sequential writing with OStream</a></li>
-<li><a href="../runs/random-access-and-streaming.html#_sequential_reading_with_istream">8.7.3. Sequential reading with IStream</a></li>
-<li><a href="../runs/random-access-and-streaming.html#_typed_standard_streams">8.7.4. Typed standard streams</a></li>
-<li><a href="../runs/random-access-and-streaming.html#stream-env-vars">8.7.5. Environment variables</a></li>
+<li><a href="../modules/data-transfer.html#_combinations">8.5.1. Combinations</a></li>
+<li><a href="../modules/data-transfer.html#_examples">8.5.2. Examples</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="../modules/index.html">9. Modules and Libraries</a>
+<li><a href="../apis/index.html">9. Deployment</a>
 <ul class="sectlevel2">
-<li><a href="../modules/importing-modules.html">9.1. Importing modules</a></li>
-<li><a href="../modules/installing-modules.html">9.2. Installing modules</a>
+<li><a href="../apis/deploy-environments.html">9.1. Creating Morloc environments</a>
 <ul class="sectlevel3">
-<li><a href="../modules/installing-modules.html#configuring-cpp-build">9.2.1. Configuring the C++ build</a></li>
+<li><a href="../apis/deploy-environments.html#_native_and_container_environments">9.1.1. Native and container environments</a></li>
+<li><a href="../apis/deploy-environments.html#_the_default_environment">9.1.2. The default environment</a></li>
+<li><a href="../apis/deploy-environments.html#_local_and_system_environments">9.1.3. Local and system environments</a></li>
+<li><a href="../apis/deploy-environments.html#_working_inside_an_environment_2">9.1.4. Working inside an environment</a></li>
+<li><a href="../apis/deploy-environments.html#_changing_an_environment">9.1.5. Changing an environment</a></li>
+<li><a href="../apis/deploy-environments.html#extra-container-flags">9.1.6. Extra container flags</a></li>
+<li><a href="../apis/deploy-environments.html#_removing_environments">9.1.7. Removing environments</a></li>
 </ul>
 </li>
-<li><a href="../modules/universal-library.html">9.3. The universal library</a></li>
+<li><a href="../apis/deploy-dependencies.html">9.2. Dependency management</a>
+<ul class="sectlevel3">
+<li><a href="../apis/deploy-dependencies.html#_the_smiles_example">9.2.1. The smiles example</a></li>
+<li><a href="../apis/deploy-dependencies.html#_declaring_dependencies">9.2.2. Declaring dependencies</a></li>
+<li><a href="../apis/deploy-dependencies.html#_installing_the_program">9.2.3. Installing the program</a></li>
+<li><a href="../apis/deploy-dependencies.html#_one_solved_world_per_environment">9.2.4. One solved world per environment</a></li>
+<li><a href="../apis/deploy-dependencies.html#_when_an_environment_is_rebuilt">9.2.5. When an environment is rebuilt</a></li>
 </ul>
 </li>
-<li><a href="../apis/index.html">10. Building APIs</a>
+<li><a href="../apis/deploy-serving.html">9.3. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../apis/deploy-serving.html#_choosing_what_to_serve">9.3.1. Choosing what to serve</a></li>
+<li><a href="../apis/deploy-serving.html#_starting_a_server">9.3.2. Starting a server</a></li>
+<li><a href="../apis/deploy-serving.html#_serving_to_other_machines">9.3.3. Serving to other machines</a></li>
+<li><a href="../apis/deploy-serving.html#_calling_the_json_api">9.3.4. Calling the JSON API</a></li>
+<li><a href="../apis/deploy-serving.html#_connecting_an_ai_assistant">9.3.5. Connecting an AI assistant</a></li>
+<li><a href="../apis/deploy-serving.html#_watching_and_stopping_servers">9.3.6. Watching and stopping servers</a></li>
+</ul>
+</li>
+<li><a href="../apis/deploy-eval.html">9.4. Eval</a>
+<ul class="sectlevel3">
+<li><a href="../apis/deploy-eval.html#_turning_eval_on">9.4.1. Turning eval on</a></li>
+<li><a href="../apis/deploy-eval.html#_evaluating_an_expression">9.4.2. Evaluating an expression</a></li>
+<li><a href="../apis/deploy-eval.html#_guard_rails">9.4.3. Guard-rails</a></li>
+<li><a href="../apis/deploy-eval.html#_trying_expressions_locally">9.4.4. Trying expressions locally</a></li>
+</ul>
+</li>
+<li><a href="../apis/deploy-freeze.html">9.5. Freezing</a>
+<ul class="sectlevel3">
+<li><a href="../apis/deploy-freeze.html#_building_the_image">9.5.1. Building the image</a></li>
+<li><a href="../apis/deploy-freeze.html#_what_goes_in">9.5.2. What goes in</a></li>
+<li><a href="../apis/deploy-freeze.html#_running_the_image">9.5.3. Running the image</a></li>
+<li><a href="../apis/deploy-freeze.html#_moving_the_image">9.5.4. Moving the image</a></li>
+<li><a href="../apis/deploy-freeze.html#_slim_images">9.5.5. Slim images</a></li>
+</ul>
+</li>
+<li><a href="../apis/execution-contexts.html">9.6. Running on a cluster</a>
+<ul class="sectlevel3">
+<li><a href="../apis/execution-contexts.html#_labeling_a_term">9.6.1. Labeling a term</a></li>
+<li><a href="../apis/execution-contexts.html#_describing_a_labels_resources">9.6.2. Describing a label’s resources</a></li>
+<li><a href="../apis/execution-contexts.html#_enabling_dispatch">9.6.3. Enabling dispatch</a></li>
+<li><a href="../apis/execution-contexts.html#dispatch-bridge">9.6.4. Running with the dispatch bridge</a></li>
+<li><a href="../apis/execution-contexts.html#_data_on_the_shared_filesystem">9.6.5. Data on the shared filesystem</a></li>
+<li><a href="../apis/execution-contexts.html#_checking_the_cluster_setup">9.6.6. Checking the cluster setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="current"><a href="index.html">10. Language Support</a>
 <ul class="sectlevel2">
-<li><a href="../apis/search-and-install.html">10.1. Search and install</a></li>
-<li><a href="../apis/exposing-native-resources.html">10.2. Exposing native resources</a></li>
-<li><a href="../apis/data-transfer.html">10.3. Controlling data transfer</a>
+<li><a href="build-parameters.html">10.1. Build parameters</a>
 <ul class="sectlevel3">
-<li><a href="../apis/data-transfer.html#_combinations">10.3.1. Combinations</a></li>
-<li><a href="../apis/data-transfer.html#_examples">10.3.2. Examples</a></li>
+<li><a href="build-parameters.html#_per_machine_defaults_with_morloc_config">10.1.1. Per-machine defaults with <code>morloc config</code></a></li>
+<li><a href="build-parameters.html#_per_session_defaults_with_morloc_lang_params">10.1.2. Per-session defaults with <code>MORLOC_LANG_PARAMS</code></a></li>
+<li><a href="build-parameters.html#_precedence">10.1.3. Precedence</a></li>
+<li><a href="build-parameters.html#_recognized_keys">10.1.4. Recognized keys</a></li>
+<li><a href="build-parameters.html#_build_parameters_vs_package_yaml">10.1.5. Build parameters vs. <code>package.yaml</code></a></li>
 </ul>
 </li>
-<li><a href="../apis/api-interfaces.html">10.4. Building API interfaces</a>
+<li><a href="cpp.html">10.2. C++</a>
 <ul class="sectlevel3">
-<li><a href="../apis/api-interfaces.html#_http_protocol">10.4.1. HTTP protocol</a></li>
-<li><a href="../apis/api-interfaces.html#_tcp_protocol">10.4.2. TCP protocol</a></li>
-<li><a href="../apis/api-interfaces.html#_unix_socket_protocol">10.4.3. Unix socket protocol</a></li>
-<li><a href="../apis/api-interfaces.html#_running_all_protocols_at_once">10.4.4. Running all protocols at once</a></li>
-<li><a href="../apis/api-interfaces.html#_from_single_daemons_to_a_router">10.4.5. From single daemons to a router</a></li>
-<li><a href="../apis/api-interfaces.html#_router_mode">10.4.6. Router mode</a></li>
-<li><a href="../apis/api-interfaces.html#_shutdown">10.4.7. Shutdown</a></li>
-<li><a href="../apis/api-interfaces.html#_summary">10.4.8. Summary</a></li>
+<li><a href="cpp.html#_library_dependencies_cpp_deps">10.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
+<li><a href="cpp.html#_link_flags_dependencies">10.2.2. Link flags (<code>dependencies</code>)</a></li>
 </ul>
 </li>
-<li><a href="../apis/mcp.html">10.5. Model Context Protocol (MCP)</a>
+<li><a href="python.html">10.3. Python</a>
 <ul class="sectlevel3">
-<li><a href="../apis/mcp.html#_the_handshake">10.5.1. The handshake</a></li>
-<li><a href="../apis/mcp.html#_inspecting_the_tool_surface">10.5.2. Inspecting the tool surface</a></li>
-<li><a href="../apis/mcp.html#_how_arguments_map_to_properties">10.5.3. How arguments map to properties</a></li>
-<li><a href="../apis/mcp.html#_calling_a_tool">10.5.4. Calling a tool</a></li>
-<li><a href="../apis/mcp.html#_what_is_not_exposed">10.5.5. What is not exposed</a></li>
-<li><a href="../apis/mcp.html#_errors">10.5.6. Errors</a></li>
-<li><a href="../apis/mcp.html#_connecting_an_mcp_client">10.5.7. Connecting an MCP client</a></li>
-<li><a href="../apis/mcp.html#_inside_versus_outside_the_container">10.5.8. Inside versus outside the container</a></li>
-<li><a href="../apis/mcp.html#_summary_2">10.5.9. Summary</a></li>
+<li><a href="python.html#py-deps">10.3.1. Dependencies (<code>py-deps</code>)</a></li>
+<li><a href="python.html#local-deps">10.3.2. Local packages (<code>local-deps</code>)</a></li>
+</ul>
+</li>
+<li><a href="r.html">10.4. R</a>
+<ul class="sectlevel3">
+<li><a href="r.html#r-deps">10.4.1. Dependencies (<code>r-deps</code>)</a></li>
+</ul>
+</li>
+<li><a href="rust.html">10.5. Rust</a>
+<ul class="sectlevel3">
+<li><a href="rust.html#_cargo_pools">10.5.1. Cargo pools</a></li>
+<li><a href="rust.html#rust-deps">10.5.2. Dependencies (<code>rust-deps</code>)</a></li>
+<li><a href="rust.html#_local_crates_local_deps">10.5.3. Local crates (<code>local-deps</code>)</a></li>
+<li><a href="rust.html#_one_resolution_per_environment">10.5.4. One resolution per environment</a></li>
+</ul>
+</li>
+<li class="current active"><a href="futhark.html">10.6. Futhark</a>
+<ul class="sectlevel3">
+<li><a href="futhark.html#_futhark_backends_and_gpu_devices">10.6.1. Futhark backends and GPU devices</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="current"><a href="index.html">11. Language Support</a>
+<li><a href="../internals/index.html">11. Build Architecture</a>
 <ul class="sectlevel2">
-<li><a href="build-parameters.html">11.1. Build parameters</a>
+<li><a href="../internals/architecture-overview.html">11.1. Architecture Overview</a></li>
+<li><a href="../internals/cross-language-calls.html">11.2. Cross-language function calls</a>
 <ul class="sectlevel3">
-<li><a href="build-parameters.html#_per_machine_defaults_with_morloc_config">11.1.1. Per-machine defaults with <code>morloc config</code></a></li>
-<li><a href="build-parameters.html#_per_session_defaults_with_morloc_lang_params">11.1.2. Per-session defaults with <code>MORLOC_LANG_PARAMS</code></a></li>
-<li><a href="build-parameters.html#_precedence">11.1.3. Precedence</a></li>
-<li><a href="build-parameters.html#_recognized_keys">11.1.4. Recognized keys</a></li>
-<li><a href="build-parameters.html#_build_parameters_vs_package_yaml">11.1.5. Build parameters vs. <code>package.yaml</code></a></li>
+<li><a href="../internals/cross-language-calls.html#_how_it_works">11.2.1. How it works</a></li>
+<li><a href="../internals/cross-language-calls.html#_what_the_generated_code_looks_like">11.2.2. What the generated code looks like</a></li>
+<li><a href="../internals/cross-language-calls.html#_performance_implications">11.2.3. Performance implications</a></li>
 </ul>
 </li>
-<li><a href="cpp.html">11.2. C++</a>
+<li><a href="../internals/protocols.html">11.3. Protocols</a>
 <ul class="sectlevel3">
-<li><a href="cpp.html#_library_dependencies_cpp_deps">11.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
-<li><a href="cpp.html#_link_flags_dependencies">11.2.2. Link flags (<code>dependencies</code>)</a></li>
+<li><a href="../internals/protocols.html#_the_manifest">11.3.1. The manifest</a></li>
+<li><a href="../internals/protocols.html#_packet_protocol">11.3.2. Packet protocol</a></li>
+<li><a href="../internals/protocols.html#_shared_memory">11.3.3. Shared memory</a></li>
+<li><a href="../internals/protocols.html#schema-strings">11.3.4. Schema strings</a></li>
+<li><a href="../internals/protocols.html#_voidstar_binary_format">11.3.5. Voidstar binary format</a></li>
 </ul>
 </li>
-<li><a href="python.html">11.3. Python</a>
+<li><a href="../internals/runtime-and-dev-builds.html">11.4. Runtime and Dev Builds</a>
 <ul class="sectlevel3">
-<li><a href="python.html#py-deps">11.3.1. Dependencies (<code>py-deps</code>)</a></li>
-<li><a href="python.html#local-deps">11.3.2. Local packages (<code>local-deps</code>)</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#build-modes">11.4.1. Build modes</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#_what_the_runtime_provides">11.4.2. What the runtime provides</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#_build_dependencies">11.4.3. Build dependencies</a></li>
+<li><a href="../internals/runtime-and-dev-builds.html#_container_images">11.4.4. Container images</a></li>
 </ul>
 </li>
-<li><a href="r.html">11.4. R</a>
+<li><a href="../internals/api-interfaces.html">11.5. Daemons and the serving router</a>
 <ul class="sectlevel3">
-<li><a href="r.html#r-deps">11.4.1. Dependencies (<code>r-deps</code>)</a></li>
+<li><a href="../internals/api-interfaces.html#_http_protocol">11.5.1. HTTP protocol</a></li>
+<li><a href="../internals/api-interfaces.html#_tcp_protocol">11.5.2. TCP protocol</a></li>
+<li><a href="../internals/api-interfaces.html#_unix_socket_protocol">11.5.3. Unix socket protocol</a></li>
+<li><a href="../internals/api-interfaces.html#_running_all_protocols_at_once">11.5.4. Running all protocols at once</a></li>
+<li><a href="../internals/api-interfaces.html#_the_serving_router">11.5.5. The serving router</a></li>
+<li><a href="../internals/api-interfaces.html#_shutdown">11.5.6. Shutdown</a></li>
+<li><a href="../internals/api-interfaces.html#_summary">11.5.7. Summary</a></li>
 </ul>
 </li>
-<li><a href="rust.html">11.5. Rust</a>
+<li><a href="../internals/mcp.html">11.6. Model Context Protocol (MCP)</a>
 <ul class="sectlevel3">
-<li><a href="rust.html#_cargo_pools">11.5.1. Cargo pools</a></li>
-<li><a href="rust.html#rust-deps">11.5.2. Dependencies (<code>rust-deps</code>)</a></li>
-<li><a href="rust.html#_local_crates_local_deps">11.5.3. Local crates (<code>local-deps</code>)</a></li>
-<li><a href="rust.html#_one_resolution_per_environment">11.5.4. One resolution per environment</a></li>
+<li><a href="../internals/mcp.html#_the_handshake">11.6.1. The handshake</a></li>
+<li><a href="../internals/mcp.html#_inspecting_the_tool_surface">11.6.2. Inspecting the tool surface</a></li>
+<li><a href="../internals/mcp.html#_how_arguments_map_to_properties">11.6.3. How arguments map to properties</a></li>
+<li><a href="../internals/mcp.html#_calling_a_tool">11.6.4. Calling a tool</a></li>
+<li><a href="../internals/mcp.html#_what_is_not_exposed">11.6.5. What is not exposed</a></li>
+<li><a href="../internals/mcp.html#_errors">11.6.6. Errors</a></li>
+<li><a href="../internals/mcp.html#_connecting_a_local_client">11.6.7. Connecting a local client</a></li>
+<li><a href="../internals/mcp.html#_mcp_over_http">11.6.8. MCP over HTTP</a></li>
+<li><a href="../internals/mcp.html#_summary_2">11.6.9. Summary</a></li>
 </ul>
 </li>
-<li class="current active"><a href="futhark.html">11.6. Futhark</a>
+<li><a href="../internals/morloc-eval.html">11.7. morloc eval</a>
 <ul class="sectlevel3">
-<li><a href="futhark.html#_futhark_backends_and_gpu_devices">11.6.1. Futhark backends and GPU devices</a></li>
+<li><a href="../internals/morloc-eval.html#_imports_in_eval_strings">11.7.1. Imports in eval strings</a></li>
+<li><a href="../internals/morloc-eval.html#_the_eval_sandbox">11.7.2. The eval sandbox</a></li>
+<li><a href="../internals/morloc-eval.html#_single_line_layout_braces_and_semicolons">11.7.3. Single-line layout: braces and semicolons</a></li>
+<li><a href="../internals/morloc-eval.html#_saving_an_eval_expression_as_a_command">11.7.4. Saving an eval expression as a command</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="../install/index.html">12. Installation, Versions, and Deployment</a>
+<li><a href="../utilities/index.html">12. Utilities</a>
 <ul class="sectlevel2">
-<li><a href="../install/container-engine.html">12.1. Choosing a container engine</a></li>
-<li><a href="../install/creating-an-environment.html">12.2. Creating an environment</a></li>
-<li><a href="../install/running-commands.html">12.3. Running commands</a></li>
-<li><a href="../install/managing-environments.html">12.4. Managing environments</a></li>
-<li><a href="../install/customizing-environments.html">12.5. Customizing environments</a></li>
-<li><a href="../install/extra-container-flags.html">12.6. Extra container flags</a></li>
-<li><a href="../install/serve-and-freeze.html">12.7. Deployment: serve and freeze</a>
+<li><a href="../utilities/nexus-file.html">12.1. morloc-nexus file</a>
 <ul class="sectlevel3">
-<li><a href="../install/serve-and-freeze.html#_local_serving_with_start">12.7.1. Local serving with <code>start</code></a></li>
-<li><a href="../install/serve-and-freeze.html#_portable_images_with_freeze">12.7.2. Portable images with <code>freeze</code></a></li>
+<li><a href="../utilities/nexus-file.html#stream-packets">12.1.1. Stream packets</a></li>
+<li><a href="../utilities/nexus-file.html#_options">12.1.2. Options</a></li>
+<li><a href="../utilities/nexus-file.html#_verbose_example">12.1.3. Verbose example</a></li>
 </ul>
 </li>
-<li><a href="../install/composable-function-services.html">12.8. Beyond fixed APIs: composable function services</a></li>
-<li><a href="../install/execution-contexts.html">12.9. Execution contexts</a>
+<li><a href="../utilities/nexus-view.html">12.2. morloc-nexus view</a>
 <ul class="sectlevel3">
-<li><a href="../install/execution-contexts.html#_the_remote_context_dispatching_as_a_separate_job">12.9.1. The <code>remote:</code> context: dispatching as a separate job</a></li>
-<li><a href="../install/execution-contexts.html#_enabling_dispatch_codegen">12.9.2. Enabling dispatch codegen</a></li>
-<li><a href="../install/execution-contexts.html#dispatch-bridge">12.9.3. Running with the dispatch bridge</a></li>
-<li><a href="../install/execution-contexts.html#_what_lands_on_the_shared_filesystem">12.9.4. What lands on the shared filesystem</a></li>
-<li><a href="../install/execution-contexts.html#_preconditions_and_the_doctor_check">12.9.5. Preconditions and the <code>doctor</code> check</a></li>
+<li><a href="../utilities/nexus-view.html#_reading_from_stdin">12.2.1. Reading from stdin</a></li>
+<li><a href="../utilities/nexus-view.html#_schema_resolution">12.2.2. Schema resolution</a></li>
+<li><a href="../utilities/nexus-view.html#_pattern_extract_a_subset">12.2.3. <code>--pattern</code>: extract a subset</a></li>
+<li><a href="../utilities/nexus-view.html#_packet_shape_output_s_d_p">12.2.4. Packet-shape output: <code>-s</code> / <code>-d</code> / <code>-p</code></a></li>
+<li><a href="../utilities/nexus-view.html#_f_jsonl_line_delimited_json">12.2.5. <code>-f jsonl</code>: line-delimited JSON</a></li>
+<li><a href="../utilities/nexus-view.html#view-size-guardrails">12.2.6. Size guardrails and <code>--force</code></a></li>
+<li><a href="../utilities/nexus-view.html#footer-less-streams">12.2.7. Footer-less streams</a></li>
+<li><a href="../utilities/nexus-view.html#_options_2">12.2.8. Options</a></li>
 </ul>
 </li>
-<li><a href="../install/system-wide-podman.html">12.10. System-wide environments with Podman</a></li>
 </ul>
 </li>
-<li><a href="../internals/index.html">13. Build Architecture</a>
+<li><a href="../future/index.html">13. Future Directions</a>
 <ul class="sectlevel2">
-<li><a href="../internals/architecture-overview.html">13.1. Architecture Overview</a></li>
-<li><a href="../internals/cross-language-calls.html">13.2. Cross-language function calls</a>
-<ul class="sectlevel3">
-<li><a href="../internals/cross-language-calls.html#_how_it_works">13.2.1. How it works</a></li>
-<li><a href="../internals/cross-language-calls.html#_what_the_generated_code_looks_like">13.2.2. What the generated code looks like</a></li>
-<li><a href="../internals/cross-language-calls.html#_performance_implications">13.2.3. Performance implications</a></li>
+<li><a href="../future/index.html#planes-of-libraries">13.1. Planes of libraries</a></li>
 </ul>
 </li>
-<li><a href="../internals/protocols.html">13.3. Protocols</a>
-<ul class="sectlevel3">
-<li><a href="../internals/protocols.html#_the_manifest">13.3.1. The manifest</a></li>
-<li><a href="../internals/protocols.html#_packet_protocol">13.3.2. Packet protocol</a></li>
-<li><a href="../internals/protocols.html#_shared_memory">13.3.3. Shared memory</a></li>
-<li><a href="../internals/protocols.html#schema-strings">13.3.4. Schema strings</a></li>
-<li><a href="../internals/protocols.html#_voidstar_binary_format">13.3.5. Voidstar binary format</a></li>
-</ul>
-</li>
-<li><a href="../internals/runtime-and-dev-builds.html">13.4. Runtime and Dev Builds</a>
-<ul class="sectlevel3">
-<li><a href="../internals/runtime-and-dev-builds.html#build-modes">13.4.1. Build modes</a></li>
-<li><a href="../internals/runtime-and-dev-builds.html#_what_the_runtime_provides">13.4.2. What the runtime provides</a></li>
-<li><a href="../internals/runtime-and-dev-builds.html#_build_dependencies">13.4.3. Build dependencies</a></li>
-<li><a href="../internals/runtime-and-dev-builds.html#_container_images">13.4.4. Container images</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="../future/index.html">14. Future Directions</a>
+<li><a href="../qa/index.html">14. Q&amp;A</a>
 <ul class="sectlevel2">
-<li><a href="../future/index.html#planes-of-libraries">14.1. Planes of libraries</a></li>
+<li><a href="../qa/one-language.html">14.1. I only use one language, is Morloc still useful?</a></li>
+<li><a href="../qa/bioinformatics-only.html">14.2. Is this just a bioinformatics workflow language?</a></li>
+<li><a href="../qa/per-function-environments.html">14.3. Does Morloc allow function-specific containerized environments?</a></li>
+<li><a href="../qa/object-oriented.html">14.4. What about object-oriented programming?</a></li>
+<li><a href="../qa/ai-relevance.html">14.5. Is Morloc still relevant when AI can program and translate?</a></li>
+<li><a href="../qa/not-a-human.html">14.6. I’m not a human, do I still need Morloc?</a></li>
+<li><a href="../qa/morlocks.html">14.7. Why is it named after Morlocks, weren’t they, like, bad?</a></li>
+<li><a href="../qa/more-questions.html">14.8. Wait! I have more questions!</a></li>
 </ul>
 </li>
-<li><a href="../qa/index.html">15. Q&amp;A</a>
+<li><a href="../env/index.html">15. Environmental Variable List</a>
 <ul class="sectlevel2">
-<li><a href="../qa/one-language.html">15.1. I only use one language, is Morloc still useful?</a></li>
-<li><a href="../qa/bioinformatics-only.html">15.2. Is this just a bioinformatics workflow language?</a></li>
-<li><a href="../qa/per-function-environments.html">15.3. Does Morloc allow function-specific containerized environments?</a></li>
-<li><a href="../qa/object-oriented.html">15.4. What about object-oriented programming?</a></li>
-<li><a href="../qa/ai-relevance.html">15.5. Is Morloc still relevant when AI can program and translate?</a></li>
-<li><a href="../qa/not-a-human.html">15.6. I’m not a human, do I still need Morloc?</a></li>
-<li><a href="../qa/morlocks.html">15.7. Why is it named after Morlocks, weren’t they, like, bad?</a></li>
-<li><a href="../qa/more-questions.html">15.8. Wait! I have more questions!</a></li>
+<li><a href="../env/index.html#env-installation">15.1. Installation and runtime setup</a></li>
+<li><a href="../env/index.html#env-module-installation">15.2. Module installation (setup-script environment)</a></li>
+<li><a href="../env/index.html#env-run-directory">15.3. Run directory, logging, and reporting</a></li>
+<li><a href="../env/index.html#env-debugging">15.4. Debugging</a></li>
+<li><a href="../env/index.html#env-caching">15.5. Caching</a></li>
+<li><a href="../env/index.html#env-data-transfer">15.6. Data transfer (packets and shared memory)</a></li>
+<li><a href="../env/index.html#env-streaming">15.7. Streaming and compression</a></li>
+<li><a href="../env/index.html#env-nexus-wiring">15.8. Nexus and inter-process wiring</a></li>
+<li><a href="../env/index.html#env-inspection-tools">15.9. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
+<li><a href="../env/index.html#env-string-safety">15.10. String safety</a></li>
 </ul>
 </li>
-<li><a href="../env/index.html">16. Environmental Variable List</a>
-<ul class="sectlevel2">
-<li><a href="../env/index.html#env-installation">16.1. Installation and runtime setup</a></li>
-<li><a href="../env/index.html#env-module-installation">16.2. Module installation (setup-script environment)</a></li>
-<li><a href="../env/index.html#env-run-directory">16.3. Run directory, logging, and reporting</a></li>
-<li><a href="../env/index.html#env-debugging">16.4. Debugging</a></li>
-<li><a href="../env/index.html#env-caching">16.5. Caching</a></li>
-<li><a href="../env/index.html#env-data-transfer">16.6. Data transfer (packets and shared memory)</a></li>
-<li><a href="../env/index.html#env-streaming">16.7. Streaming and compression</a></li>
-<li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
-<li><a href="../env/index.html#env-inspection-tools">16.9. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
-<li><a href="../env/index.html#env-string-safety">16.10. String safety</a></li>
-</ul>
-</li>
-<li><a href="../ai-policy/index.html">17. AI Policy</a></li>
-<li><a href="../contact/index.html">18. Contact</a></li>
+<li><a href="../ai-policy/index.html">16. AI Policy</a></li>
+<li><a href="../contact/index.html">17. Contact</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<nav class="breadcrumb" data-pagefind-ignore><a href="index.html">11. Language Support</a></nav>
+<nav class="breadcrumb" data-pagefind-ignore><a href="index.html">10. Language Support</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Futhark"><div class="sect2">
-<h3 id="futhark"><a class="anchor" href="#futhark"></a>11.6. Futhark</h3>
+<h3 id="futhark"><a class="anchor" href="#futhark"></a>10.6. Futhark</h3>
 <div class="sect3">
-<h4 id="_futhark_backends_and_gpu_devices"><a class="anchor" href="#_futhark_backends_and_gpu_devices"></a>11.6.1. Futhark backends and GPU devices</h4>
+<h4 id="_futhark_backends_and_gpu_devices"><a class="anchor" href="#_futhark_backends_and_gpu_devices"></a>10.6.1. Futhark backends and GPU devices</h4>
 <div class="paragraph">
 <p>Futhark kernels are the first structured consumer of build parameters. Two keys
 are recognized:</p>
@@ -774,8 +789,8 @@ a non-standard location, add the paths with the C++ escape hatch, e.g.
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="rust.html">Previous: 11.5. Rust</a>
-<a class="next" rel="next" href="../install/index.html">Next: 12. Installation, Versions, and Deployment</a>
+<a class="prev" rel="prev" href="rust.html">Previous: 10.5. Rust</a>
+<a class="next" rel="next" href="../internals/index.html">Next: 11. Build Architecture</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

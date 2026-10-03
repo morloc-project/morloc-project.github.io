@@ -1,4 +1,4 @@
-# 9.2. Installing modules
+# 8.2. Installing modules
 
 Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/installing-modules.html | prev: https://morloc-project.github.io/docs/modules/importing-modules.md | next: https://morloc-project.github.io/docs/modules/universal-library.md
 
@@ -78,7 +78,7 @@ Modules:
 
 Here `il` matches any module with a name including the ordered characters `i` and `l` — only `internal` in this case.
 
-## 9.2.1. Configuring the C++ build
+## 8.2.1. Configuring the C++ build
 
 When a Morloc program contains C sources, the compiler invokes \`g\` (or whatever `$CXX` resolves to) to build the C++ side of the program. Three optional `package.yaml` fields tune that build: two structured fields (`cpp-version` and `dependencies`) that translate into specific flag patterns, and one verbatim field (`cxx-flags`) that passes arbitrary flags through unchanged. For build steps that go beyond flag-tweaking, a fourth field — `setup` — runs a shell script at install time.
 

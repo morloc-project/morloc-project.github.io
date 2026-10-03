@@ -1,4 +1,4 @@
-# 7.8. Reading a stream from standard input
+# 6.8. Reading a stream from standard input
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/reading-stdin.html | prev: https://morloc-project.github.io/docs/clis/input-shape.md | next: https://morloc-project.github.io/docs/clis/output-formats.md
 
@@ -39,7 +39,7 @@ $ ./sift -f packet summarize hits.json | ./sift total -
 
 `-f packet` is what makes the middle form work. It is Morloc’s own framing: the bytes carry the value’s schema, so the reader checks that what arrived is what it asked for instead of trusting the pipeline.
 
-## 7.8.1. What standard input may carry
+## 6.8.1. What standard input may carry
 
 Morloc packets, and nothing else. A foreign format is refused rather than guessed at:
 
@@ -59,7 +59,7 @@ $ printf '' | ./sift total
 
 This is narrower than the `-` of [Arguments](https://morloc-project.github.io/docs/clis/arguments.md), which accepts JSON and MessagePack too. The difference is that `-` reads one **value** off stdin, while `@stdin` opens stdin as a **stream** that the command drains itself.
 
-## 7.8.2. Rules for `@stdin`
+## 6.8.2. Rules for `@stdin`
 
 At most one positional per command may read stdin, and it must be the last one. Both are compile errors. Given
 

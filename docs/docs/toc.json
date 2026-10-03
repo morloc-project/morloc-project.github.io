@@ -8,7 +8,7 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "d0d570d46f2528ecf724a3417376eee69ea700f7"
+  "source": "2c455ab8fe57550ca8f3ae59b1dfd6790a886ff4"
  },
  "pages": [
   {
@@ -1380,215 +1380,6 @@
   },
   {
    "number": "6.",
-   "title": "Utilities",
-   "id": "utilities",
-   "url": "https://morloc-project.github.io/docs/utilities/",
-   "md": "https://morloc-project.github.io/docs/utilities/index.md",
-   "chapter": "utilities",
-   "level": 1,
-   "summary": "The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: file (identifies a file) and view (loads and...",
-   "headings": []
-  },
-  {
-   "number": "6.1.",
-   "title": "morloc-nexus file",
-   "id": "nexus-file",
-   "url": "https://morloc-project.github.io/docs/utilities/nexus-file.html",
-   "md": "https://morloc-project.github.io/docs/utilities/nexus-file.md",
-   "chapter": "utilities",
-   "level": 2,
-   "summary": "morloc-nexus file plays the role of the UNIX file utility for Morloc-compatible data files.",
-   "headings": [
-    {
-     "id": "stream-packets",
-     "title": "Stream packets",
-     "number": "6.1.1."
-    },
-    {
-     "id": "_options",
-     "title": "Options",
-     "number": "6.1.2."
-    },
-    {
-     "id": "_verbose_example",
-     "title": "Verbose example",
-     "number": "6.1.3."
-    }
-   ]
-  },
-  {
-   "number": "6.2.",
-   "title": "morloc-nexus view",
-   "id": "nexus-view",
-   "url": "https://morloc-project.github.io/docs/utilities/nexus-view.html",
-   "md": "https://morloc-project.github.io/docs/utilities/nexus-view.md",
-   "chapter": "utilities",
-   "level": 2,
-   "summary": "Reads a data file (morloc data-packet, morloc stream-packet, .json, .mpk, .arrow, .parquet, or .csv) and re-emits it in a chosen output format.",
-   "headings": [
-    {
-     "id": "_reading_from_stdin",
-     "title": "Reading from stdin",
-     "number": "6.2.1."
-    },
-    {
-     "id": "_schema_resolution",
-     "title": "Schema resolution",
-     "number": "6.2.2."
-    },
-    {
-     "id": "_pattern_extract_a_subset",
-     "title": "--pattern: extract a subset",
-     "number": "6.2.3."
-    },
-    {
-     "id": "_packet_shape_output_s_d_p",
-     "title": "Packet-shape output: -s / -d / -p",
-     "number": "6.2.4."
-    },
-    {
-     "id": "_f_jsonl_line_delimited_json",
-     "title": "-f jsonl: line-delimited JSON",
-     "number": "6.2.5."
-    },
-    {
-     "id": "view-size-guardrails",
-     "title": "Size guardrails and --force",
-     "number": "6.2.6."
-    },
-    {
-     "id": "footer-less-streams",
-     "title": "Footer-less streams",
-     "number": "6.2.7."
-    },
-    {
-     "id": "_options_2",
-     "title": "Options",
-     "number": "6.2.8."
-    }
-   ]
-  },
-  {
-   "number": "6.3.",
-   "title": "mim (Morloc Installation Manager)",
-   "id": "mim",
-   "url": "https://morloc-project.github.io/docs/utilities/mim.html",
-   "md": "https://morloc-project.github.io/docs/utilities/mim.md",
-   "chapter": "utilities",
-   "level": 2,
-   "summary": "",
-   "headings": [
-    {
-     "id": "_system_scope_environments",
-     "title": "System-scope environments",
-     "number": "6.3.1."
-    },
-    {
-     "id": "_rebuilding_and_reconfiguring_environments",
-     "title": "Rebuilding and reconfiguring environments",
-     "number": "6.3.2."
-    },
-    {
-     "id": "mim-packages",
-     "title": "Packages",
-     "number": "6.3.3."
-    },
-    {
-     "id": "mim-language-toolchains",
-     "title": "Language toolchains",
-     "number": "6.3.4."
-    },
-    {
-     "id": "_development_environments",
-     "title": "Development environments",
-     "number": "6.3.5."
-    },
-    {
-     "id": "_inspecting_an_environment",
-     "title": "Inspecting an environment",
-     "number": "6.3.6."
-    },
-    {
-     "id": "_checking_environment_health",
-     "title": "Checking environment health",
-     "number": "6.3.7."
-    },
-    {
-     "id": "_the_environment_home_and_dotfiles",
-     "title": "The environment home and dotfiles",
-     "number": "6.3.8."
-    },
-    {
-     "id": "mim-serve",
-     "title": "Serving installed programs",
-     "number": "6.3.9."
-    },
-    {
-     "id": "_install",
-     "title": "install",
-     "number": ""
-    },
-    {
-     "id": "_view",
-     "title": "view",
-     "number": ""
-    },
-    {
-     "id": "mim-start",
-     "title": "start",
-     "number": ""
-    },
-    {
-     "id": "_status_stop_logs",
-     "title": "status, stop, logs",
-     "number": ""
-    },
-    {
-     "id": "_eval",
-     "title": "eval",
-     "number": ""
-    },
-    {
-     "id": "mim-freeze",
-     "title": "freeze",
-     "number": ""
-    }
-   ]
-  },
-  {
-   "number": "6.4.",
-   "title": "morloc eval",
-   "id": "morloc-eval",
-   "url": "https://morloc-project.github.io/docs/utilities/morloc-eval.html",
-   "md": "https://morloc-project.github.io/docs/utilities/morloc-eval.md",
-   "chapter": "utilities",
-   "level": 2,
-   "summary": "Morloc has three subcommands that turn source into a result, and they serve distinct roles:",
-   "headings": [
-    {
-     "id": "_imports_in_eval_strings",
-     "title": "Imports in eval strings",
-     "number": "6.4.1."
-    },
-    {
-     "id": "_the_eval_sandbox",
-     "title": "The eval sandbox",
-     "number": "6.4.2."
-    },
-    {
-     "id": "_single_line_layout_braces_and_semicolons",
-     "title": "Single-line layout: braces and semicolons",
-     "number": "6.4.3."
-    },
-    {
-     "id": "_saving_an_eval_expression_as_a_command",
-     "title": "Saving an eval expression as a command",
-     "number": "6.4.4."
-    }
-   ]
-  },
-  {
-   "number": "7.",
    "title": "Building CLIs",
    "id": "clis",
    "url": "https://morloc-project.github.io/docs/clis/",
@@ -1599,7 +1390,7 @@
    "headings": []
   },
   {
-   "number": "7.1.",
+   "number": "6.1.",
    "title": "The example program",
    "id": "example-program",
    "url": "https://morloc-project.github.io/docs/clis/example-program.html",
@@ -1610,7 +1401,7 @@
    "headings": []
   },
   {
-   "number": "7.2.",
+   "number": "6.2.",
    "title": "The two argument zones",
    "id": "argument-zones",
    "url": "https://morloc-project.github.io/docs/clis/argument-zones.html",
@@ -1622,12 +1413,12 @@
     {
      "id": "_programs_with_a_single_export",
      "title": "Programs with a single export",
-     "number": "7.2.1."
+     "number": "6.2.1."
     }
    ]
   },
   {
-   "number": "7.3.",
+   "number": "6.3.",
    "title": "Docstrings",
    "id": "docstrings",
    "url": "https://morloc-project.github.io/docs/clis/docstrings.html",
@@ -1639,12 +1430,12 @@
     {
      "id": "_directives",
      "title": "Directives",
-     "number": "7.3.1."
+     "number": "6.3.1."
     }
    ]
   },
   {
-   "number": "7.4.",
+   "number": "6.4.",
    "title": "Arguments",
    "id": "arguments",
    "url": "https://morloc-project.github.io/docs/clis/arguments.html",
@@ -1656,32 +1447,32 @@
     {
      "id": "_when_an_argument_is_wrong",
      "title": "When an argument is wrong",
-     "number": "7.4.1."
+     "number": "6.4.1."
     },
     {
      "id": "_options_flags_and_repeats",
      "title": "Options, flags, and repeats",
-     "number": "7.4.2."
+     "number": "6.4.2."
     },
     {
      "id": "_naming",
      "title": "Naming",
-     "number": "7.4.3."
+     "number": "6.4.3."
     },
     {
      "id": "_ending_option_parsing",
      "title": "Ending option parsing",
-     "number": "7.4.4."
+     "number": "6.4.4."
     },
     {
      "id": "parse-arguments",
      "title": "Reading files in other formats",
-     "number": "7.4.5."
+     "number": "6.4.5."
     }
    ]
   },
   {
-   "number": "7.5.",
+   "number": "6.5.",
    "title": "Record arguments",
    "id": "record-arguments",
    "url": "https://morloc-project.github.io/docs/clis/record-arguments.html",
@@ -1693,17 +1484,17 @@
     {
      "id": "_three_ways_to_fill_it",
      "title": "Three ways to fill it",
-     "number": "7.5.1."
+     "number": "6.5.1."
     },
     {
      "id": "_what_is_rejected",
      "title": "What is rejected",
-     "number": "7.5.2."
+     "number": "6.5.2."
     }
    ]
   },
   {
-   "number": "7.6.",
+   "number": "6.6.",
    "title": "Sum type arguments",
    "id": "sum-type-arguments",
    "url": "https://morloc-project.github.io/docs/clis/sum-type-arguments.html",
@@ -1714,7 +1505,7 @@
    "headings": []
   },
   {
-   "number": "7.7.",
+   "number": "6.7.",
    "title": "Input shape",
    "id": "input-shape",
    "url": "https://morloc-project.github.io/docs/clis/input-shape.html",
@@ -1726,17 +1517,17 @@
     {
      "id": "_a_worked_example",
      "title": "A worked example",
-     "number": "7.7.1."
+     "number": "6.7.1."
     },
     {
      "id": "_shape_follows_the_wire_form",
      "title": "Shape follows the wire form",
-     "number": "7.7.2."
+     "number": "6.7.2."
     }
    ]
   },
   {
-   "number": "7.8.",
+   "number": "6.8.",
    "title": "Reading a stream from standard input",
    "id": "reading-stdin",
    "url": "https://morloc-project.github.io/docs/clis/reading-stdin.html",
@@ -1748,17 +1539,17 @@
     {
      "id": "_what_standard_input_may_carry",
      "title": "What standard input may carry",
-     "number": "7.8.1."
+     "number": "6.8.1."
     },
     {
      "id": "_rules_for_stdin",
      "title": "Rules for @stdin",
-     "number": "7.8.2."
+     "number": "6.8.2."
     }
    ]
   },
   {
-   "number": "7.9.",
+   "number": "6.9.",
    "title": "Output formats",
    "id": "output-formats",
    "url": "https://morloc-project.github.io/docs/clis/output-formats.html",
@@ -1770,17 +1561,17 @@
     {
      "id": "_nothing_to_report",
      "title": "Nothing to report",
-     "number": "7.9.1."
+     "number": "6.9.1."
     },
     {
      "id": "_failure",
      "title": "Failure",
-     "number": "7.9.2."
+     "number": "6.9.2."
     }
    ]
   },
   {
-   "number": "7.10.",
+   "number": "6.10.",
    "title": "Output actions",
    "id": "output-actions",
    "url": "https://morloc-project.github.io/docs/clis/output-actions.html",
@@ -1792,37 +1583,37 @@
     {
      "id": "_with_keeps_a_value_render_produces_bytes",
      "title": "@with keeps a value; @render produces bytes",
-     "number": "7.10.1."
+     "number": "6.10.1."
     },
     {
      "id": "_giving_a_formatter_arguments",
      "title": "Giving a formatter arguments",
-     "number": "7.10.2."
+     "number": "6.10.2."
     },
     {
      "id": "_choosing_a_default",
      "title": "Choosing a default",
-     "number": "7.10.3."
+     "number": "6.10.3."
     },
     {
      "id": "_media_types",
      "title": "Media types",
-     "number": "7.10.4."
+     "number": "6.10.4."
     },
     {
      "id": "action-files",
      "title": "Several outputs in one run",
-     "number": "7.10.5."
+     "number": "6.10.5."
     },
     {
      "id": "action-rules",
      "title": "Rules and rejections",
-     "number": "7.10.6."
+     "number": "6.10.6."
     }
    ]
   },
   {
-   "number": "7.11.",
+   "number": "6.11.",
    "title": "Streaming output with @collect",
    "id": "streaming-output",
    "url": "https://morloc-project.github.io/docs/clis/streaming-output.html",
@@ -1834,37 +1625,37 @@
     {
      "id": "_actions_on_a_stream",
      "title": "Actions on a stream",
-     "number": "7.11.1."
+     "number": "6.11.1."
     },
     {
      "id": "_offset_where_a_batch_sits_in_the_stream",
      "title": "@offset: where a batch sits in the stream",
-     "number": "7.11.2."
+     "number": "6.11.2."
     },
     {
      "id": "_ifile_the_gathered_stream_as_a_file",
      "title": "IFile: the gathered stream as a file",
-     "number": "7.11.3."
+     "number": "6.11.3."
     },
     {
      "id": "stream-fold",
      "title": "@fold: one accumulator instead of a list",
-     "number": "7.11.4."
+     "number": "6.11.4."
     },
     {
      "id": "_streaming_rules",
      "title": "Streaming rules",
-     "number": "7.11.5."
+     "number": "6.11.5."
     },
     {
      "id": "_what_the_help_says_a_stream_produces",
      "title": "What the help says a stream produces",
-     "number": "7.11.6."
+     "number": "6.11.6."
     }
    ]
   },
   {
-   "number": "7.12.",
+   "number": "6.12.",
    "title": "Composing tools",
    "id": "composing-tools",
    "url": "https://morloc-project.github.io/docs/clis/composing-tools.html",
@@ -1876,17 +1667,17 @@
     {
      "id": "_grouping_commands",
      "title": "Grouping commands",
-     "number": "7.12.1."
+     "number": "6.12.1."
     },
     {
      "id": "_installing",
      "title": "Installing",
-     "number": "7.12.2."
+     "number": "6.12.2."
     }
    ]
   },
   {
-   "number": "7.13.",
+   "number": "6.13.",
    "title": "The interface as data",
    "id": "interface-as-data",
    "url": "https://morloc-project.github.io/docs/clis/interface-as-data.html",
@@ -1898,12 +1689,12 @@
     {
      "id": "_other_views_of_the_same_commands",
      "title": "Other views of the same commands",
-     "number": "7.13.1."
+     "number": "6.13.1."
     }
    ]
   },
   {
-   "number": "7.14.",
+   "number": "6.14.",
    "title": "Directive reference",
    "id": "directive-reference",
    "url": "https://morloc-project.github.io/docs/clis/directive-reference.html",
@@ -1914,7 +1705,7 @@
    "headings": []
   },
   {
-   "number": "8.",
+   "number": "7.",
    "title": "Managing Runs",
    "id": "runs",
    "url": "https://morloc-project.github.io/docs/runs/",
@@ -1925,7 +1716,7 @@
    "headings": []
   },
   {
-   "number": "8.1.",
+   "number": "7.1.",
    "title": "Logging",
    "id": "logging",
    "url": "https://morloc-project.github.io/docs/runs/logging.html",
@@ -1937,32 +1728,32 @@
     {
      "id": "_enabling_logging",
      "title": "Enabling logging",
-     "number": "8.1.1."
+     "number": "7.1.1."
     },
     {
      "id": "_template_placeholders",
      "title": "Template placeholders",
-     "number": "8.1.2."
+     "number": "7.1.2."
     },
     {
      "id": "_color_codes",
      "title": "Color codes",
-     "number": "8.1.3."
+     "number": "7.1.3."
     },
     {
      "id": "_terminal_detection_and_no_color",
      "title": "Terminal detection and NO_COLOR",
-     "number": "8.1.4."
+     "number": "7.1.4."
     },
     {
      "id": "_worked_example",
      "title": "Worked example",
-     "number": "8.1.5."
+     "number": "7.1.5."
     }
    ]
   },
   {
-   "number": "8.2.",
+   "number": "7.2.",
    "title": "Benchmarking",
    "id": "benchmarking",
    "url": "https://morloc-project.github.io/docs/runs/benchmarking.html",
@@ -1974,17 +1765,17 @@
     {
      "id": "_the_summary_row",
      "title": "The summary row",
-     "number": "8.2.1."
+     "number": "7.2.1."
     },
     {
      "id": "_comparing_implementations",
      "title": "Comparing implementations",
-     "number": "8.2.2."
+     "number": "7.2.2."
     }
    ]
   },
   {
-   "number": "8.3.",
+   "number": "7.3.",
    "title": "Run directory",
    "id": "run-directory",
    "url": "https://morloc-project.github.io/docs/runs/run-directory.html",
@@ -1996,37 +1787,37 @@
     {
      "id": "rundir-activation",
      "title": "Activation knobs",
-     "number": "8.3.1."
+     "number": "7.3.1."
     },
     {
      "id": "_summary_json",
      "title": "summary.json",
-     "number": "8.3.2."
+     "number": "7.3.2."
     },
     {
      "id": "rundir-location",
      "title": "Where the directory lives",
-     "number": "8.3.3."
+     "number": "7.3.3."
     },
     {
      "id": "_cleanup",
      "title": "Cleanup",
-     "number": "8.3.4."
+     "number": "7.3.4."
     },
     {
      "id": "_prologue_and_epilogue",
      "title": "Prologue and epilogue",
-     "number": "8.3.5."
+     "number": "7.3.5."
     },
     {
      "id": "_nested_invocations",
      "title": "Nested invocations",
-     "number": "8.3.6."
+     "number": "7.3.6."
     }
    ]
   },
   {
-   "number": "8.4.",
+   "number": "7.4.",
    "title": "Caching",
    "id": "caching",
    "url": "https://morloc-project.github.io/docs/runs/caching.html",
@@ -2038,27 +1829,27 @@
     {
      "id": "_declaring_a_cached_call",
      "title": "Declaring a cached call",
-     "number": "8.4.1."
+     "number": "7.4.1."
     },
     {
      "id": "_what_goes_in_the_hash",
      "title": "What goes in the hash",
-     "number": "8.4.2."
+     "number": "7.4.2."
     },
     {
      "id": "cache-layout",
      "title": "Storage layout",
-     "number": "8.4.3."
+     "number": "7.4.3."
     },
     {
      "id": "_reading_and_writing",
      "title": "Reading and writing",
-     "number": "8.4.4."
+     "number": "7.4.4."
     }
    ]
   },
   {
-   "number": "8.5.",
+   "number": "7.5.",
    "title": "Compression",
    "id": "compression",
    "url": "https://morloc-project.github.io/docs/runs/compression.html",
@@ -2070,32 +1861,32 @@
     {
      "id": "_compression_in_write",
      "title": "Compression in @write",
-     "number": "8.5.1."
+     "number": "7.5.1."
     },
     {
      "id": "_compression_in_morloc_nexus_run",
      "title": "Compression in morloc-nexus run",
-     "number": "8.5.2."
+     "number": "7.5.2."
     },
     {
      "id": "_compression_level_table",
      "title": "Compression-level table",
-     "number": "8.5.3."
+     "number": "7.5.3."
     },
     {
      "id": "_algorithm_agnostic_surface",
      "title": "Algorithm-agnostic surface",
-     "number": "8.5.4."
+     "number": "7.5.4."
     },
     {
      "id": "_caching_is_unaffected",
      "title": "Caching is unaffected",
-     "number": "8.5.5."
+     "number": "7.5.5."
     }
    ]
   },
   {
-   "number": "8.6.",
+   "number": "7.6.",
    "title": "Debugging",
    "id": "debugging",
    "url": "https://morloc-project.github.io/docs/runs/debugging.html",
@@ -2107,47 +1898,47 @@
     {
      "id": "_enabling_at_compile_time",
      "title": "Enabling at compile time",
-     "number": "8.6.1."
+     "number": "7.6.1."
     },
     {
      "id": "_a_failing_run",
      "title": "A failing run",
-     "number": "8.6.2."
+     "number": "7.6.2."
     },
     {
      "id": "debug-knobs",
      "title": "Runtime knobs",
-     "number": "8.6.3."
+     "number": "7.6.3."
     },
     {
      "id": "dump-location",
      "title": "Where dumps land",
-     "number": "8.6.4."
+     "number": "7.6.4."
     },
     {
      "id": "_content_addressed_dedup",
      "title": "Content-addressed dedup",
-     "number": "8.6.5."
+     "number": "7.6.5."
     },
     {
      "id": "_frame_status_markers",
      "title": "Frame status markers",
-     "number": "8.6.6."
+     "number": "7.6.6."
     },
     {
      "id": "_recovering_an_input_via_load",
      "title": "Recovering an input via @load",
-     "number": "8.6.7."
+     "number": "7.6.7."
     },
     {
      "id": "_interaction_with_the_cache",
      "title": "Interaction with the cache",
-     "number": "8.6.8."
+     "number": "7.6.8."
     }
    ]
   },
   {
-   "number": "8.7.",
+   "number": "7.7.",
    "title": "Random access and streaming",
    "id": "random-access-and-streaming",
    "url": "https://morloc-project.github.io/docs/runs/random-access-and-streaming.html",
@@ -2159,32 +1950,32 @@
     {
      "id": "_random_access_with_ifile",
      "title": "Random access with IFile",
-     "number": "8.7.1."
+     "number": "7.7.1."
     },
     {
      "id": "_sequential_writing_with_ostream",
      "title": "Sequential writing with OStream",
-     "number": "8.7.2."
+     "number": "7.7.2."
     },
     {
      "id": "_sequential_reading_with_istream",
      "title": "Sequential reading with IStream",
-     "number": "8.7.3."
+     "number": "7.7.3."
     },
     {
      "id": "_typed_standard_streams",
      "title": "Typed standard streams",
-     "number": "8.7.4."
+     "number": "7.7.4."
     },
     {
      "id": "stream-env-vars",
      "title": "Environment variables",
-     "number": "8.7.5."
+     "number": "7.7.5."
     }
    ]
   },
   {
-   "number": "9.",
+   "number": "8.",
    "title": "Modules and Libraries",
    "id": "modules",
    "url": "https://morloc-project.github.io/docs/modules/",
@@ -2195,7 +1986,7 @@
    "headings": []
   },
   {
-   "number": "9.1.",
+   "number": "8.1.",
    "title": "Importing modules",
    "id": "importing-modules",
    "url": "https://morloc-project.github.io/docs/modules/importing-modules.html",
@@ -2206,7 +1997,7 @@
    "headings": []
   },
   {
-   "number": "9.2.",
+   "number": "8.2.",
    "title": "Installing modules",
    "id": "installing-modules",
    "url": "https://morloc-project.github.io/docs/modules/installing-modules.html",
@@ -2218,12 +2009,12 @@
     {
      "id": "configuring-cpp-build",
      "title": "Configuring the C++ build",
-     "number": "9.2.1."
+     "number": "8.2.1."
     }
    ]
   },
   {
-   "number": "9.3.",
+   "number": "8.3.",
    "title": "The universal library",
    "id": "universal-library",
    "url": "https://morloc-project.github.io/docs/modules/universal-library.html",
@@ -2234,206 +2025,293 @@
    "headings": []
   },
   {
-   "number": "10.",
-   "title": "Building APIs",
-   "id": "apis",
-   "url": "https://morloc-project.github.io/docs/apis/",
-   "md": "https://morloc-project.github.io/docs/apis/index.md",
-   "chapter": "apis",
-   "level": 1,
-   "summary": "",
-   "headings": []
-  },
-  {
-   "number": "10.1.",
-   "title": "Search and install",
-   "id": "search-and-install",
-   "url": "https://morloc-project.github.io/docs/apis/search-and-install.html",
-   "md": "https://morloc-project.github.io/docs/apis/search-and-install.md",
-   "chapter": "apis",
-   "level": 2,
-   "summary": "The docstrings are used for discoverability as well.",
-   "headings": []
-  },
-  {
-   "number": "10.2.",
+   "number": "8.4.",
    "title": "Exposing native resources",
    "id": "exposing-native-resources",
-   "url": "https://morloc-project.github.io/docs/apis/exposing-native-resources.html",
-   "md": "https://morloc-project.github.io/docs/apis/exposing-native-resources.md",
-   "chapter": "apis",
+   "url": "https://morloc-project.github.io/docs/modules/exposing-native-resources.html",
+   "md": "https://morloc-project.github.io/docs/modules/exposing-native-resources.md",
+   "chapter": "modules",
    "level": 2,
    "summary": "The dependencies field links against shared libraries.",
    "headings": []
   },
   {
-   "number": "10.3.",
+   "number": "8.5.",
    "title": "Controlling data transfer",
    "id": "data-transfer",
-   "url": "https://morloc-project.github.io/docs/apis/data-transfer.html",
-   "md": "https://morloc-project.github.io/docs/apis/data-transfer.md",
-   "chapter": "apis",
+   "url": "https://morloc-project.github.io/docs/modules/data-transfer.html",
+   "md": "https://morloc-project.github.io/docs/modules/data-transfer.md",
+   "chapter": "modules",
    "level": 2,
    "summary": "When a Morloc value crosses a pool boundary, the runtime picks one of three routes for data transfer:",
    "headings": [
     {
      "id": "_combinations",
      "title": "Combinations",
-     "number": "10.3.1."
+     "number": "8.5.1."
     },
     {
      "id": "_examples",
      "title": "Examples",
-     "number": "10.3.2."
+     "number": "8.5.2."
     }
    ]
   },
   {
-   "number": "10.4.",
-   "title": "Building API interfaces",
-   "id": "api-interfaces",
-   "url": "https://morloc-project.github.io/docs/apis/api-interfaces.html",
-   "md": "https://morloc-project.github.io/docs/apis/api-interfaces.md",
+   "number": "9.",
+   "title": "Deployment",
+   "id": "apis",
+   "url": "https://morloc-project.github.io/docs/apis/",
+   "md": "https://morloc-project.github.io/docs/apis/index.md",
+   "chapter": "apis",
+   "level": 1,
+   "summary": "The entry point to the Morloc ecosystem is mim (Morloc Installation manager).",
+   "headings": []
+  },
+  {
+   "number": "9.1.",
+   "title": "Creating Morloc environments",
+   "id": "deploy-environments",
+   "url": "https://morloc-project.github.io/docs/apis/deploy-environments.html",
+   "md": "https://morloc-project.github.io/docs/apis/deploy-environments.md",
    "chapter": "apis",
    "level": 2,
-   "summary": "In addition to being CLI tools, compiled Morloc programs can run as long-lived daemons, accepting function calls over HTTP, TCP, or Unix sockets.",
+   "summary": "An environment is a named, self-contained Morloc installation: the Morloc compiler and runtime, a solved toolchain of language runtimes and packages, and a...",
    "headings": [
     {
-     "id": "_http_protocol",
-     "title": "HTTP protocol",
-     "number": "10.4.1."
+     "id": "_native_and_container_environments",
+     "title": "Native and container environments",
+     "number": "9.1.1."
     },
     {
-     "id": "_tcp_protocol",
-     "title": "TCP protocol",
-     "number": "10.4.2."
+     "id": "_the_default_environment",
+     "title": "The default environment",
+     "number": "9.1.2."
     },
     {
-     "id": "_unix_socket_protocol",
-     "title": "Unix socket protocol",
-     "number": "10.4.3."
+     "id": "_local_and_system_environments",
+     "title": "Local and system environments",
+     "number": "9.1.3."
     },
     {
-     "id": "_running_all_protocols_at_once",
-     "title": "Running all protocols at once",
-     "number": "10.4.4."
-    },
-    {
-     "id": "_ephemeral_ports",
-     "title": "Ephemeral ports",
+     "id": "system-wide-podman",
+     "title": "System environments and container images",
      "number": ""
     },
     {
-     "id": "_from_single_daemons_to_a_router",
-     "title": "From single daemons to a router",
-     "number": "10.4.5."
+     "id": "_working_inside_an_environment_2",
+     "title": "Working inside an environment",
+     "number": "9.1.4."
     },
     {
-     "id": "_router_mode",
-     "title": "Router mode",
-     "number": "10.4.6."
+     "id": "_changing_an_environment",
+     "title": "Changing an environment",
+     "number": "9.1.5."
     },
     {
-     "id": "_setup",
-     "title": "Setup",
-     "number": ""
+     "id": "extra-container-flags",
+     "title": "Extra container flags",
+     "number": "9.1.6."
     },
     {
-     "id": "_starting_the_router",
-     "title": "Starting the router",
-     "number": ""
-    },
-    {
-     "id": "_discovery",
-     "title": "Discovery",
-     "number": ""
-    },
-    {
-     "id": "_calling_functions",
-     "title": "Calling functions",
-     "number": ""
-    },
-    {
-     "id": "_error_handling",
-     "title": "Error handling",
-     "number": ""
-    },
-    {
-     "id": "_independent_daemons_vs_router_managed_daemons",
-     "title": "Independent daemons vs router-managed daemons",
-     "number": ""
-    },
-    {
-     "id": "_shutdown",
-     "title": "Shutdown",
-     "number": "10.4.7."
-    },
-    {
-     "id": "_summary",
-     "title": "Summary",
-     "number": "10.4.8."
+     "id": "_removing_environments",
+     "title": "Removing environments",
+     "number": "9.1.7."
     }
    ]
   },
   {
-   "number": "10.5.",
-   "title": "Model Context Protocol (MCP)",
-   "id": "mcp",
-   "url": "https://morloc-project.github.io/docs/apis/mcp.html",
-   "md": "https://morloc-project.github.io/docs/apis/mcp.md",
+   "number": "9.2.",
+   "title": "Dependency management",
+   "id": "deploy-dependencies",
+   "url": "https://morloc-project.github.io/docs/apis/deploy-dependencies.html",
+   "md": "https://morloc-project.github.io/docs/apis/deploy-dependencies.md",
    "chapter": "apis",
    "level": 2,
-   "summary": "The same compiled program that runs as a CLI tool or a daemon can also serve as an MCP server, exposing its exported functions as tools that an AI agent...",
+   "summary": "A Morloc program usually depends on packages from its languages' ecosystems: NumPy, a CRAN library, a Rust crate.",
    "headings": [
     {
-     "id": "_the_handshake",
-     "title": "The handshake",
-     "number": "10.5.1."
+     "id": "_the_smiles_example",
+     "title": "The smiles example",
+     "number": "9.2.1."
     },
     {
-     "id": "_inspecting_the_tool_surface",
-     "title": "Inspecting the tool surface",
-     "number": "10.5.2."
+     "id": "_declaring_dependencies",
+     "title": "Declaring dependencies",
+     "number": "9.2.2."
     },
     {
-     "id": "_how_arguments_map_to_properties",
-     "title": "How arguments map to properties",
-     "number": "10.5.3."
+     "id": "_installing_the_program",
+     "title": "Installing the program",
+     "number": "9.2.3."
     },
     {
-     "id": "_calling_a_tool",
-     "title": "Calling a tool",
-     "number": "10.5.4."
+     "id": "_one_solved_world_per_environment",
+     "title": "One solved world per environment",
+     "number": "9.2.4."
     },
     {
-     "id": "_what_is_not_exposed",
-     "title": "What is not exposed",
-     "number": "10.5.5."
-    },
-    {
-     "id": "_errors",
-     "title": "Errors",
-     "number": "10.5.6."
-    },
-    {
-     "id": "_connecting_an_mcp_client",
-     "title": "Connecting an MCP client",
-     "number": "10.5.7."
-    },
-    {
-     "id": "_inside_versus_outside_the_container",
-     "title": "Inside versus outside the container",
-     "number": "10.5.8."
-    },
-    {
-     "id": "_summary_2",
-     "title": "Summary",
-     "number": "10.5.9."
+     "id": "_when_an_environment_is_rebuilt",
+     "title": "When an environment is rebuilt",
+     "number": "9.2.5."
     }
    ]
   },
   {
-   "number": "11.",
+   "number": "9.3.",
+   "title": "Serving",
+   "id": "deploy-serving",
+   "url": "https://morloc-project.github.io/docs/apis/deploy-serving.html",
+   "md": "https://morloc-project.github.io/docs/apis/deploy-serving.md",
+   "chapter": "apis",
+   "level": 2,
+   "summary": "An installed program is a command line tool inside its environment.",
+   "headings": [
+    {
+     "id": "_choosing_what_to_serve",
+     "title": "Choosing what to serve",
+     "number": "9.3.1."
+    },
+    {
+     "id": "_starting_a_server",
+     "title": "Starting a server",
+     "number": "9.3.2."
+    },
+    {
+     "id": "_serving_to_other_machines",
+     "title": "Serving to other machines",
+     "number": "9.3.3."
+    },
+    {
+     "id": "_calling_the_json_api",
+     "title": "Calling the JSON API",
+     "number": "9.3.4."
+    },
+    {
+     "id": "_connecting_an_ai_assistant",
+     "title": "Connecting an AI assistant",
+     "number": "9.3.5."
+    },
+    {
+     "id": "_watching_and_stopping_servers",
+     "title": "Watching and stopping servers",
+     "number": "9.3.6."
+    }
+   ]
+  },
+  {
+   "number": "9.4.",
+   "title": "Eval",
+   "id": "deploy-eval",
+   "url": "https://morloc-project.github.io/docs/apis/deploy-eval.html",
+   "md": "https://morloc-project.github.io/docs/apis/deploy-eval.md",
+   "chapter": "apis",
+   "level": 2,
+   "summary": "A served view answers a fixed set of calls: smiles mw, smiles formula, and so on.",
+   "headings": [
+    {
+     "id": "_turning_eval_on",
+     "title": "Turning eval on",
+     "number": "9.4.1."
+    },
+    {
+     "id": "_evaluating_an_expression",
+     "title": "Evaluating an expression",
+     "number": "9.4.2."
+    },
+    {
+     "id": "_guard_rails",
+     "title": "Guard-rails",
+     "number": "9.4.3."
+    },
+    {
+     "id": "_trying_expressions_locally",
+     "title": "Trying expressions locally",
+     "number": "9.4.4."
+    }
+   ]
+  },
+  {
+   "number": "9.5.",
+   "title": "Freezing",
+   "id": "deploy-freeze",
+   "url": "https://morloc-project.github.io/docs/apis/deploy-freeze.html",
+   "md": "https://morloc-project.github.io/docs/apis/deploy-freeze.md",
+   "chapter": "apis",
+   "level": 2,
+   "summary": "An environment is meant to change: you install programs, add packages, and rebuild.",
+   "headings": [
+    {
+     "id": "_building_the_image",
+     "title": "Building the image",
+     "number": "9.5.1."
+    },
+    {
+     "id": "_what_goes_in",
+     "title": "What goes in",
+     "number": "9.5.2."
+    },
+    {
+     "id": "_running_the_image",
+     "title": "Running the image",
+     "number": "9.5.3."
+    },
+    {
+     "id": "_moving_the_image",
+     "title": "Moving the image",
+     "number": "9.5.4."
+    },
+    {
+     "id": "_slim_images",
+     "title": "Slim images",
+     "number": "9.5.5."
+    }
+   ]
+  },
+  {
+   "number": "9.6.",
+   "title": "Running on a cluster",
+   "id": "execution-contexts",
+   "url": "https://morloc-project.github.io/docs/apis/execution-contexts.html",
+   "md": "https://morloc-project.github.io/docs/apis/execution-contexts.md",
+   "chapter": "apis",
+   "level": 2,
+   "summary": "A server answers requests on one machine.",
+   "headings": [
+    {
+     "id": "_labeling_a_term",
+     "title": "Labeling a term",
+     "number": "9.6.1."
+    },
+    {
+     "id": "_describing_a_labels_resources",
+     "title": "Describing a label’s resources",
+     "number": "9.6.2."
+    },
+    {
+     "id": "_enabling_dispatch",
+     "title": "Enabling dispatch",
+     "number": "9.6.3."
+    },
+    {
+     "id": "dispatch-bridge",
+     "title": "Running with the dispatch bridge",
+     "number": "9.6.4."
+    },
+    {
+     "id": "_data_on_the_shared_filesystem",
+     "title": "Data on the shared filesystem",
+     "number": "9.6.5."
+    },
+    {
+     "id": "_checking_the_cluster_setup",
+     "title": "Checking the cluster setup",
+     "number": "9.6.6."
+    }
+   ]
+  },
+  {
+   "number": "10.",
    "title": "Language Support",
    "id": "languages",
    "url": "https://morloc-project.github.io/docs/languages/",
@@ -2444,7 +2322,7 @@
    "headings": []
   },
   {
-   "number": "11.1.",
+   "number": "10.1.",
    "title": "Build parameters",
    "id": "build-parameters",
    "url": "https://morloc-project.github.io/docs/languages/build-parameters.html",
@@ -2456,32 +2334,32 @@
     {
      "id": "_per_machine_defaults_with_morloc_config",
      "title": "Per-machine defaults with morloc config",
-     "number": "11.1.1."
+     "number": "10.1.1."
     },
     {
      "id": "_per_session_defaults_with_morloc_lang_params",
      "title": "Per-session defaults with MORLOC_LANG_PARAMS",
-     "number": "11.1.2."
+     "number": "10.1.2."
     },
     {
      "id": "_precedence",
      "title": "Precedence",
-     "number": "11.1.3."
+     "number": "10.1.3."
     },
     {
      "id": "_recognized_keys",
      "title": "Recognized keys",
-     "number": "11.1.4."
+     "number": "10.1.4."
     },
     {
      "id": "_build_parameters_vs_package_yaml",
      "title": "Build parameters vs. package.yaml",
-     "number": "11.1.5."
+     "number": "10.1.5."
     }
    ]
   },
   {
-   "number": "11.2.",
+   "number": "10.2.",
    "title": "C++",
    "id": "cpp",
    "url": "https://morloc-project.github.io/docs/languages/cpp.html",
@@ -2493,17 +2371,17 @@
     {
      "id": "_library_dependencies_cpp_deps",
      "title": "Library dependencies (cpp-deps)",
-     "number": "11.2.1."
+     "number": "10.2.1."
     },
     {
      "id": "_link_flags_dependencies",
      "title": "Link flags (dependencies)",
-     "number": "11.2.2."
+     "number": "10.2.2."
     }
    ]
   },
   {
-   "number": "11.3.",
+   "number": "10.3.",
    "title": "Python",
    "id": "python",
    "url": "https://morloc-project.github.io/docs/languages/python.html",
@@ -2515,7 +2393,7 @@
     {
      "id": "py-deps",
      "title": "Dependencies (py-deps)",
-     "number": "11.3.1."
+     "number": "10.3.1."
     },
     {
      "id": "_conda_channels",
@@ -2525,12 +2403,12 @@
     {
      "id": "local-deps",
      "title": "Local packages (local-deps)",
-     "number": "11.3.2."
+     "number": "10.3.2."
     }
    ]
   },
   {
-   "number": "11.4.",
+   "number": "10.4.",
    "title": "R",
    "id": "r",
    "url": "https://morloc-project.github.io/docs/languages/r.html",
@@ -2542,12 +2420,12 @@
     {
      "id": "r-deps",
      "title": "Dependencies (r-deps)",
-     "number": "11.4.1."
+     "number": "10.4.1."
     }
    ]
   },
   {
-   "number": "11.5.",
+   "number": "10.5.",
    "title": "Rust",
    "id": "rust",
    "url": "https://morloc-project.github.io/docs/languages/rust.html",
@@ -2559,27 +2437,27 @@
     {
      "id": "_cargo_pools",
      "title": "Cargo pools",
-     "number": "11.5.1."
+     "number": "10.5.1."
     },
     {
      "id": "rust-deps",
      "title": "Dependencies (rust-deps)",
-     "number": "11.5.2."
+     "number": "10.5.2."
     },
     {
      "id": "_local_crates_local_deps",
      "title": "Local crates (local-deps)",
-     "number": "11.5.3."
+     "number": "10.5.3."
     },
     {
      "id": "_one_resolution_per_environment",
      "title": "One resolution per environment",
-     "number": "11.5.4."
+     "number": "10.5.4."
     }
    ]
   },
   {
-   "number": "11.6.",
+   "number": "10.6.",
    "title": "Futhark",
    "id": "futhark",
    "url": "https://morloc-project.github.io/docs/languages/futhark.html",
@@ -2591,170 +2469,12 @@
     {
      "id": "_futhark_backends_and_gpu_devices",
      "title": "Futhark backends and GPU devices",
-     "number": "11.6.1."
+     "number": "10.6.1."
     }
    ]
   },
   {
-   "number": "12.",
-   "title": "Installation, Versions, and Deployment",
-   "id": "install",
-   "url": "https://morloc-project.github.io/docs/install/",
-   "md": "https://morloc-project.github.io/docs/install/index.md",
-   "chapter": "install",
-   "level": 1,
-   "summary": "mim is distributed as a static binary for x86 Linux, Linux ARM, and Apple Silicon macOS.",
-   "headings": []
-  },
-  {
-   "number": "12.1.",
-   "title": "Choosing a container engine",
-   "id": "container-engine",
-   "url": "https://morloc-project.github.io/docs/install/container-engine.html",
-   "md": "https://morloc-project.github.io/docs/install/container-engine.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "There is no separate setup step.",
-   "headings": []
-  },
-  {
-   "number": "12.2.",
-   "title": "Creating an environment",
-   "id": "creating-an-environment",
-   "url": "https://morloc-project.github.io/docs/install/creating-an-environment.html",
-   "md": "https://morloc-project.github.io/docs/install/creating-an-environment.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "An environment is a self-contained Morloc installation: a base container image (or, on the native backend, none), a pinned Morloc compiler and runtime, a...",
-   "headings": []
-  },
-  {
-   "number": "12.3.",
-   "title": "Running commands",
-   "id": "running-commands",
-   "url": "https://morloc-project.github.io/docs/install/running-commands.html",
-   "md": "https://morloc-project.github.io/docs/install/running-commands.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "run executes a command inside an environment (the default when no --env is given); shell drops you into an interactive shell:",
-   "headings": []
-  },
-  {
-   "number": "12.4.",
-   "title": "Managing environments",
-   "id": "managing-environments",
-   "url": "https://morloc-project.github.io/docs/install/managing-environments.html",
-   "md": "https://morloc-project.github.io/docs/install/managing-environments.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "You can keep multiple named environments and act on any of them with --env:",
-   "headings": []
-  },
-  {
-   "number": "12.5.",
-   "title": "Customizing environments",
-   "id": "customizing-environments",
-   "url": "https://morloc-project.github.io/docs/install/customizing-environments.html",
-   "md": "https://morloc-project.github.io/docs/install/customizing-environments.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "An environment’s contents are declared, not scripted: there is no user Dockerfile.",
-   "headings": []
-  },
-  {
-   "number": "12.6.",
-   "title": "Extra container flags",
-   "id": "extra-container-flags",
-   "url": "https://morloc-project.github.io/docs/install/extra-container-flags.html",
-   "md": "https://morloc-project.github.io/docs/install/extra-container-flags.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "Anything a container engine needs beyond what mim passes on its own — a GPU device, a proxy, a bind mount, a hostname — goes in an engine flag file: a YAML...",
-   "headings": []
-  },
-  {
-   "number": "12.7.",
-   "title": "Deployment: serve and freeze",
-   "id": "serve-and-freeze",
-   "url": "https://morloc-project.github.io/docs/install/serve-and-freeze.html",
-   "md": "https://morloc-project.github.io/docs/install/serve-and-freeze.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "Once a program is installed in an environment (mim install, or morloc make --install inside it) there are two ways to put it in front of other machines and...",
-   "headings": [
-    {
-     "id": "_local_serving_with_start",
-     "title": "Local serving with start",
-     "number": "12.7.1."
-    },
-    {
-     "id": "_portable_images_with_freeze",
-     "title": "Portable images with freeze",
-     "number": "12.7.2."
-    }
-   ]
-  },
-  {
-   "number": "12.8.",
-   "title": "Beyond fixed APIs: composable function services",
-   "id": "composable-function-services",
-   "url": "https://morloc-project.github.io/docs/install/composable-function-services.html",
-   "md": "https://morloc-project.github.io/docs/install/composable-function-services.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "A conventional API exposes a fixed set of endpoints.",
-   "headings": []
-  },
-  {
-   "number": "12.9.",
-   "title": "Execution contexts",
-   "id": "execution-contexts",
-   "url": "https://morloc-project.github.io/docs/install/execution-contexts.html",
-   "md": "https://morloc-project.github.io/docs/install/execution-contexts.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "A term in morloc can be annotated with a label that associates the term with a computational context.",
-   "headings": [
-    {
-     "id": "_the_remote_context_dispatching_as_a_separate_job",
-     "title": "The remote: context: dispatching as a separate job",
-     "number": "12.9.1."
-    },
-    {
-     "id": "_enabling_dispatch_codegen",
-     "title": "Enabling dispatch codegen",
-     "number": "12.9.2."
-    },
-    {
-     "id": "dispatch-bridge",
-     "title": "Running with the dispatch bridge",
-     "number": "12.9.3."
-    },
-    {
-     "id": "_what_lands_on_the_shared_filesystem",
-     "title": "What lands on the shared filesystem",
-     "number": "12.9.4."
-    },
-    {
-     "id": "_preconditions_and_the_doctor_check",
-     "title": "Preconditions and the doctor check",
-     "number": "12.9.5."
-    }
-   ]
-  },
-  {
-   "number": "12.10.",
-   "title": "System-wide environments with Podman",
-   "id": "system-wide-podman",
-   "url": "https://morloc-project.github.io/docs/install/system-wide-podman.html",
-   "md": "https://morloc-project.github.io/docs/install/system-wide-podman.md",
-   "chapter": "install",
-   "level": 2,
-   "summary": "Podman stores images per-user.",
-   "headings": []
-  },
-  {
-   "number": "13.",
+   "number": "11.",
    "title": "Build Architecture",
    "id": "internals",
    "url": "https://morloc-project.github.io/docs/internals/",
@@ -2765,7 +2485,7 @@
    "headings": []
   },
   {
-   "number": "13.1.",
+   "number": "11.1.",
    "title": "Architecture Overview",
    "id": "architecture-overview",
    "url": "https://morloc-project.github.io/docs/internals/architecture-overview.html",
@@ -2776,7 +2496,7 @@
    "headings": []
   },
   {
-   "number": "13.2.",
+   "number": "11.2.",
    "title": "Cross-language function calls",
    "id": "cross-language-calls",
    "url": "https://morloc-project.github.io/docs/internals/cross-language-calls.html",
@@ -2788,22 +2508,22 @@
     {
      "id": "_how_it_works",
      "title": "How it works",
-     "number": "13.2.1."
+     "number": "11.2.1."
     },
     {
      "id": "_what_the_generated_code_looks_like",
      "title": "What the generated code looks like",
-     "number": "13.2.2."
+     "number": "11.2.2."
     },
     {
      "id": "_performance_implications",
      "title": "Performance implications",
-     "number": "13.2.3."
+     "number": "11.2.3."
     }
    ]
   },
   {
-   "number": "13.3.",
+   "number": "11.3.",
    "title": "Protocols",
    "id": "protocols",
    "url": "https://morloc-project.github.io/docs/internals/protocols.html",
@@ -2815,12 +2535,12 @@
     {
      "id": "_the_manifest",
      "title": "The manifest",
-     "number": "13.3.1."
+     "number": "11.3.1."
     },
     {
      "id": "_packet_protocol",
      "title": "Packet protocol",
-     "number": "13.3.2."
+     "number": "11.3.2."
     },
     {
      "id": "_packet_types",
@@ -2835,7 +2555,7 @@
     {
      "id": "_shared_memory",
      "title": "Shared memory",
-     "number": "13.3.3."
+     "number": "11.3.3."
     },
     {
      "id": "_volumes",
@@ -2860,17 +2580,17 @@
     {
      "id": "schema-strings",
      "title": "Schema strings",
-     "number": "13.3.4."
+     "number": "11.3.4."
     },
     {
      "id": "_voidstar_binary_format",
      "title": "Voidstar binary format",
-     "number": "13.3.5."
+     "number": "11.3.5."
     }
    ]
   },
   {
-   "number": "13.4.",
+   "number": "11.4.",
    "title": "Runtime and Dev Builds",
    "id": "runtime-and-dev-builds",
    "url": "https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.html",
@@ -2882,27 +2602,258 @@
     {
      "id": "build-modes",
      "title": "Build modes",
-     "number": "13.4.1."
+     "number": "11.4.1."
     },
     {
      "id": "_what_the_runtime_provides",
      "title": "What the runtime provides",
-     "number": "13.4.2."
+     "number": "11.4.2."
     },
     {
      "id": "_build_dependencies",
      "title": "Build dependencies",
-     "number": "13.4.3."
+     "number": "11.4.3."
     },
     {
      "id": "_container_images",
      "title": "Container images",
-     "number": "13.4.4."
+     "number": "11.4.4."
     }
    ]
   },
   {
-   "number": "14.",
+   "number": "11.5.",
+   "title": "Daemons and the serving router",
+   "id": "api-interfaces",
+   "url": "https://morloc-project.github.io/docs/internals/api-interfaces.html",
+   "md": "https://morloc-project.github.io/docs/internals/api-interfaces.md",
+   "chapter": "internals",
+   "level": 2,
+   "summary": "This section is for readers who want to run Morloc programs as services without mim, or who want to know what mim start runs underneath.",
+   "headings": [
+    {
+     "id": "_http_protocol",
+     "title": "HTTP protocol",
+     "number": "11.5.1."
+    },
+    {
+     "id": "_tcp_protocol",
+     "title": "TCP protocol",
+     "number": "11.5.2."
+    },
+    {
+     "id": "_unix_socket_protocol",
+     "title": "Unix socket protocol",
+     "number": "11.5.3."
+    },
+    {
+     "id": "_running_all_protocols_at_once",
+     "title": "Running all protocols at once",
+     "number": "11.5.4."
+    },
+    {
+     "id": "_ephemeral_ports",
+     "title": "Ephemeral ports",
+     "number": ""
+    },
+    {
+     "id": "_the_serving_router",
+     "title": "The serving router",
+     "number": "11.5.5."
+    },
+    {
+     "id": "_shutdown",
+     "title": "Shutdown",
+     "number": "11.5.6."
+    },
+    {
+     "id": "_summary",
+     "title": "Summary",
+     "number": "11.5.7."
+    }
+   ]
+  },
+  {
+   "number": "11.6.",
+   "title": "Model Context Protocol (MCP)",
+   "id": "mcp",
+   "url": "https://morloc-project.github.io/docs/internals/mcp.html",
+   "md": "https://morloc-project.github.io/docs/internals/mcp.md",
+   "chapter": "internals",
+   "level": 2,
+   "summary": "This section describes how a Morloc program speaks MCP, for readers writing a client, debugging one, or serving a program without mim.",
+   "headings": [
+    {
+     "id": "_the_handshake",
+     "title": "The handshake",
+     "number": "11.6.1."
+    },
+    {
+     "id": "_inspecting_the_tool_surface",
+     "title": "Inspecting the tool surface",
+     "number": "11.6.2."
+    },
+    {
+     "id": "_how_arguments_map_to_properties",
+     "title": "How arguments map to properties",
+     "number": "11.6.3."
+    },
+    {
+     "id": "_calling_a_tool",
+     "title": "Calling a tool",
+     "number": "11.6.4."
+    },
+    {
+     "id": "_what_is_not_exposed",
+     "title": "What is not exposed",
+     "number": "11.6.5."
+    },
+    {
+     "id": "_errors",
+     "title": "Errors",
+     "number": "11.6.6."
+    },
+    {
+     "id": "_connecting_a_local_client",
+     "title": "Connecting a local client",
+     "number": "11.6.7."
+    },
+    {
+     "id": "_mcp_over_http",
+     "title": "MCP over HTTP",
+     "number": "11.6.8."
+    },
+    {
+     "id": "_summary_2",
+     "title": "Summary",
+     "number": "11.6.9."
+    }
+   ]
+  },
+  {
+   "number": "11.7.",
+   "title": "morloc eval",
+   "id": "morloc-eval",
+   "url": "https://morloc-project.github.io/docs/internals/morloc-eval.html",
+   "md": "https://morloc-project.github.io/docs/internals/morloc-eval.md",
+   "chapter": "internals",
+   "level": 2,
+   "summary": "Morloc has three subcommands that turn source into a result, and they serve distinct roles:",
+   "headings": [
+    {
+     "id": "_imports_in_eval_strings",
+     "title": "Imports in eval strings",
+     "number": "11.7.1."
+    },
+    {
+     "id": "_the_eval_sandbox",
+     "title": "The eval sandbox",
+     "number": "11.7.2."
+    },
+    {
+     "id": "_single_line_layout_braces_and_semicolons",
+     "title": "Single-line layout: braces and semicolons",
+     "number": "11.7.3."
+    },
+    {
+     "id": "_saving_an_eval_expression_as_a_command",
+     "title": "Saving an eval expression as a command",
+     "number": "11.7.4."
+    }
+   ]
+  },
+  {
+   "number": "12.",
+   "title": "Utilities",
+   "id": "utilities",
+   "url": "https://morloc-project.github.io/docs/utilities/",
+   "md": "https://morloc-project.github.io/docs/utilities/index.md",
+   "chapter": "utilities",
+   "level": 1,
+   "summary": "The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: file (identifies a file) and view (loads and...",
+   "headings": []
+  },
+  {
+   "number": "12.1.",
+   "title": "morloc-nexus file",
+   "id": "nexus-file",
+   "url": "https://morloc-project.github.io/docs/utilities/nexus-file.html",
+   "md": "https://morloc-project.github.io/docs/utilities/nexus-file.md",
+   "chapter": "utilities",
+   "level": 2,
+   "summary": "morloc-nexus file plays the role of the UNIX file utility for Morloc-compatible data files.",
+   "headings": [
+    {
+     "id": "stream-packets",
+     "title": "Stream packets",
+     "number": "12.1.1."
+    },
+    {
+     "id": "_options",
+     "title": "Options",
+     "number": "12.1.2."
+    },
+    {
+     "id": "_verbose_example",
+     "title": "Verbose example",
+     "number": "12.1.3."
+    }
+   ]
+  },
+  {
+   "number": "12.2.",
+   "title": "morloc-nexus view",
+   "id": "nexus-view",
+   "url": "https://morloc-project.github.io/docs/utilities/nexus-view.html",
+   "md": "https://morloc-project.github.io/docs/utilities/nexus-view.md",
+   "chapter": "utilities",
+   "level": 2,
+   "summary": "Reads a data file (morloc data-packet, morloc stream-packet, .json, .mpk, .arrow, .parquet, or .csv) and re-emits it in a chosen output format.",
+   "headings": [
+    {
+     "id": "_reading_from_stdin",
+     "title": "Reading from stdin",
+     "number": "12.2.1."
+    },
+    {
+     "id": "_schema_resolution",
+     "title": "Schema resolution",
+     "number": "12.2.2."
+    },
+    {
+     "id": "_pattern_extract_a_subset",
+     "title": "--pattern: extract a subset",
+     "number": "12.2.3."
+    },
+    {
+     "id": "_packet_shape_output_s_d_p",
+     "title": "Packet-shape output: -s / -d / -p",
+     "number": "12.2.4."
+    },
+    {
+     "id": "_f_jsonl_line_delimited_json",
+     "title": "-f jsonl: line-delimited JSON",
+     "number": "12.2.5."
+    },
+    {
+     "id": "view-size-guardrails",
+     "title": "Size guardrails and --force",
+     "number": "12.2.6."
+    },
+    {
+     "id": "footer-less-streams",
+     "title": "Footer-less streams",
+     "number": "12.2.7."
+    },
+    {
+     "id": "_options_2",
+     "title": "Options",
+     "number": "12.2.8."
+    }
+   ]
+  },
+  {
+   "number": "13.",
    "title": "Future Directions",
    "id": "future",
    "url": "https://morloc-project.github.io/docs/future/",
@@ -2914,12 +2865,12 @@
     {
      "id": "planes-of-libraries",
      "title": "Planes of libraries",
-     "number": "14.1."
+     "number": "13.1."
     }
    ]
   },
   {
-   "number": "15.",
+   "number": "14.",
    "title": "Q&A",
    "id": "qa",
    "url": "https://morloc-project.github.io/docs/qa/",
@@ -2930,7 +2881,7 @@
    "headings": []
   },
   {
-   "number": "15.1.",
+   "number": "14.1.",
    "title": "I only use one language, is Morloc still useful?",
    "id": "one-language",
    "url": "https://morloc-project.github.io/docs/qa/one-language.html",
@@ -2941,7 +2892,7 @@
    "headings": []
   },
   {
-   "number": "15.2.",
+   "number": "14.2.",
    "title": "Is this just a bioinformatics workflow language?",
    "id": "bioinformatics-only",
    "url": "https://morloc-project.github.io/docs/qa/bioinformatics-only.html",
@@ -2952,7 +2903,7 @@
    "headings": []
   },
   {
-   "number": "15.3.",
+   "number": "14.3.",
    "title": "Does Morloc allow function-specific containerized environments?",
    "id": "per-function-environments",
    "url": "https://morloc-project.github.io/docs/qa/per-function-environments.html",
@@ -2963,7 +2914,7 @@
    "headings": []
   },
   {
-   "number": "15.4.",
+   "number": "14.4.",
    "title": "What about object-oriented programming?",
    "id": "object-oriented",
    "url": "https://morloc-project.github.io/docs/qa/object-oriented.html",
@@ -2974,7 +2925,7 @@
    "headings": []
   },
   {
-   "number": "15.5.",
+   "number": "14.5.",
    "title": "Is Morloc still relevant when AI can program and translate?",
    "id": "ai-relevance",
    "url": "https://morloc-project.github.io/docs/qa/ai-relevance.html",
@@ -2985,7 +2936,7 @@
    "headings": []
   },
   {
-   "number": "15.6.",
+   "number": "14.6.",
    "title": "I’m not a human, do I still need Morloc?",
    "id": "not-a-human",
    "url": "https://morloc-project.github.io/docs/qa/not-a-human.html",
@@ -2996,7 +2947,7 @@
    "headings": []
   },
   {
-   "number": "15.7.",
+   "number": "14.7.",
    "title": "Why is it named after Morlocks, weren’t they, like, bad?",
    "id": "morlocks",
    "url": "https://morloc-project.github.io/docs/qa/morlocks.html",
@@ -3007,7 +2958,7 @@
    "headings": []
   },
   {
-   "number": "15.8.",
+   "number": "14.8.",
    "title": "Wait! I have more questions!",
    "id": "more-questions",
    "url": "https://morloc-project.github.io/docs/qa/more-questions.html",
@@ -3018,7 +2969,7 @@
    "headings": []
   },
   {
-   "number": "16.",
+   "number": "15.",
    "title": "Environmental Variable List",
    "id": "env",
    "url": "https://morloc-project.github.io/docs/env/",
@@ -3030,57 +2981,57 @@
     {
      "id": "env-installation",
      "title": "Installation and runtime setup",
-     "number": "16.1."
+     "number": "15.1."
     },
     {
      "id": "env-module-installation",
      "title": "Module installation (setup-script environment)",
-     "number": "16.2."
+     "number": "15.2."
     },
     {
      "id": "env-run-directory",
      "title": "Run directory, logging, and reporting",
-     "number": "16.3."
+     "number": "15.3."
     },
     {
      "id": "env-debugging",
      "title": "Debugging",
-     "number": "16.4."
+     "number": "15.4."
     },
     {
      "id": "env-caching",
      "title": "Caching",
-     "number": "16.5."
+     "number": "15.5."
     },
     {
      "id": "env-data-transfer",
      "title": "Data transfer (packets and shared memory)",
-     "number": "16.6."
+     "number": "15.6."
     },
     {
      "id": "env-streaming",
      "title": "Streaming and compression",
-     "number": "16.7."
+     "number": "15.7."
     },
     {
      "id": "env-nexus-wiring",
      "title": "Nexus and inter-process wiring",
-     "number": "16.8."
+     "number": "15.8."
     },
     {
      "id": "env-inspection-tools",
      "title": "Nexus inspection tools (view / file)",
-     "number": "16.9."
+     "number": "15.9."
     },
     {
      "id": "env-string-safety",
      "title": "String safety",
-     "number": "16.10."
+     "number": "15.10."
     }
    ]
   },
   {
-   "number": "17.",
+   "number": "16.",
    "title": "AI Policy",
    "id": "ai-policy",
    "url": "https://morloc-project.github.io/docs/ai-policy/",
@@ -3091,7 +3042,7 @@
    "headings": []
   },
   {
-   "number": "18.",
+   "number": "17.",
    "title": "Contact",
    "id": "contact",
    "url": "https://morloc-project.github.io/docs/contact/",

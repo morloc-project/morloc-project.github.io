@@ -1,4 +1,4 @@
-# 8.3. Run directory
+# 7.3. Run directory
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/run-directory.html | prev: https://morloc-project.github.io/docs/runs/benchmarking.md | next: https://morloc-project.github.io/docs/runs/caching.md
 
@@ -26,7 +26,7 @@ The directory layout, after a run with `--log-dir runs/` and at least one labele
 
 The run id is `{utc-iso8601-second}-{8-hex-random}` — lexically sortable, so `ls` orders runs chronologically. The top-level `log` is the prologue / epilogue / per-label-line tee; per-label `log` files hold only the per-label start / pass / fail emissions for that label.
 
-## 8.3.1. Activation knobs
+## 7.3.1. Activation knobs
 
 | Knob | Effect |
 | --- | --- |
@@ -34,7 +34,7 @@ The run id is `{utc-iso8601-second}-{8-hex-random}` — lexically sortable, 
 | `--summary FILE` (or `MORLOC_SUMMARY=FILE`) | Writes the structured `summary.json` to `FILE`. Independent of `--log-dir`: an orchestrator that just wants a completion sentinel can use this alone without committing to a rundir of log files. When both are set, the explicit `--summary` path wins. |
 | `--quiet` (or `MORLOC_QUIET=1`) | Suppress **all** morloc-emitted log lines — prologue, epilogue, per -label start / pass / fail — at the source. Lines are never generated, so they neither hit stderr nor tee into the rundir’s `log` file. `summary.json` is still written when `--log-dir` or `--summary` is active: the sentinel survives the silence. |
 
-## 8.3.2. summary.json
+## 7.3.2. summary.json
 
 Presence of `summary.json` means the run reached a clean exit (good or bad). The fields are minimal and stable:
 
@@ -67,7 +67,7 @@ esac
 
 SIGKILL / OOM / kernel panic bypass the writer; the wrapper should have a timeout fallback for those.
 
-## 8.3.3. Where the directory lives
+## 7.3.3. Where the directory lives
 
 Resolution order, highest precedence first:
 
@@ -78,11 +78,11 @@ Resolution order, highest precedence first:
 
 There is no fallback default base directory: persistent logging is strictly opt-in. A `MORLOC_RUN_DIR` set without the matching `MORLOC_RUN_PARENT_PID` is treated as stale and ignored.
 
-## 8.3.4. Cleanup
+## 7.3.4. Cleanup
 
 Morloc never deletes a past run directory. Old runs accumulate under the base until you remove them. A simple housekeeping cron (or a one-off `find <log-base> -mtime +30 -delete`) is sufficient.
 
-## 8.3.5. Prologue and epilogue
+## 7.3.5. Prologue and epilogue
 
 Two top-level YAML keys add run-scope log entries. They behave like the per-label `log-template`: always emitted to stderr when defined, tee’d to the rundir’s `log` when `--log-dir` is active, suppressed entirely under `--quiet`.
 
@@ -112,7 +112,7 @@ Available placeholders:
 | `{error}` | Error packet contents (may be multi-line). Runtime (`fail` epilogue only). |
 | `{c:red}` / `{c:bold}` / `{c:reset}` / …​ | ANSI color codes. Compile time. The runtime strips them when stderr is not a TTY or `NO_COLOR` is set. |
 
-## 8.3.6. Nested invocations
+## 7.3.6. Nested invocations
 
 If a morloc-built program launches another morloc-built program, the child **inherits** the parent’s run directory when the parent activated one. Both programs' logs land under the same run id, so the user’s `tail -f` / `grep` tooling sees the full workflow as one entity rather than two. Pool processes are children of the nexus and use the same mechanism, which is why every pool’s log emission ends up in the expected per-label log file.
 

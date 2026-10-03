@@ -1,8 +1,8 @@
-# 11.6. Futhark
+# 10.6. Futhark
 
-Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/futhark.html | prev: https://morloc-project.github.io/docs/languages/rust.md | next: https://morloc-project.github.io/docs/install/index.md
+Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/futhark.html | prev: https://morloc-project.github.io/docs/languages/rust.md | next: https://morloc-project.github.io/docs/internals/index.md
 
-## 11.6.1. Futhark backends and GPU devices
+## 10.6.1. Futhark backends and GPU devices
 
 Futhark kernels are the first structured consumer of build parameters. Two keys are recognized:
 

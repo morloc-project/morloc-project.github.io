@@ -1,4 +1,4 @@
-# 18. Contact
+# 17. Contact
 
 Morloc Manual | https://morloc-project.github.io/docs/contact/ | prev: https://morloc-project.github.io/docs/ai-policy/index.md
 

@@ -1,1 +1,20 @@
-{}
+{
+	"utilities/mim.html": "apis/deploy-environments.html",
+	"utilities/morloc-eval.html": "internals/morloc-eval.html",
+	"apis/search-and-install.html": "apis/deploy-dependencies.html",
+	"apis/api-interfaces.html": "internals/api-interfaces.html",
+	"apis/mcp.html": "internals/mcp.html",
+	"apis/exposing-native-resources.html": "modules/exposing-native-resources.html",
+	"apis/data-transfer.html": "modules/data-transfer.html",
+	"install/": "apis/",
+	"install/container-engine.html": "apis/deploy-environments.html",
+	"install/creating-an-environment.html": "apis/deploy-environments.html",
+	"install/running-commands.html": "apis/deploy-environments.html",
+	"install/managing-environments.html": "apis/deploy-environments.html",
+	"install/customizing-environments.html": "apis/deploy-environments.html",
+	"install/extra-container-flags.html": "apis/deploy-environments.html",
+	"install/serve-and-freeze.html": "apis/deploy-serving.html",
+	"install/composable-function-services.html": "apis/deploy-eval.html",
+	"install/execution-contexts.html": "apis/execution-contexts.html",
+	"install/system-wide-podman.html": "apis/deploy-environments.html"
+}

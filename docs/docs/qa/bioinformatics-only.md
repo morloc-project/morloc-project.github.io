@@ -1,4 +1,4 @@
-# 15.2. Is this just a bioinformatics workflow language?
+# 14.2. Is this just a bioinformatics workflow language?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/bioinformatics-only.html | prev: https://morloc-project.github.io/docs/qa/one-language.md | next: https://morloc-project.github.io/docs/qa/per-function-environments.md
 

@@ -1,4 +1,4 @@
-# 7.12. Composing tools
+# 6.12. Composing tools
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/composing-tools.html | prev: https://morloc-project.github.io/docs/clis/streaming-output.md | next: https://morloc-project.github.io/docs/clis/interface-as-data.md
 
@@ -80,7 +80,7 @@ That pipeline is worth a second look. Three processes, two language runtimes, an
 
 Subtraction works the same way. A toolbox that lists three of \`sift’s five exports is a tool with three commands; nothing of the other two is compiled in. There is no plugin mechanism here because none is needed — the export list is the mechanism.
 
-## 7.12.1. Grouping commands
+## 6.12.1. Grouping commands
 
 A toolbox grows, and a flat list of twenty commands is a bad interface. Group them with `--*` annotations in the export list:
 
@@ -142,7 +142,7 @@ $ ./tools find scan the notes | ./tools report summarize -
 
 Grouping is optional per export. Write `--* group:` with no name to close the current group; exports after it are ungrouped and appear at the top level alongside the groups.
 
-## 7.12.2. Installing
+## 6.12.2. Installing
 
 `morloc make --install` puts the built program on your `PATH` instead of leaving it in the current directory:
 

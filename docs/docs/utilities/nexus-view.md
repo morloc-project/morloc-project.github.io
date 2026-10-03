@@ -1,6 +1,6 @@
-# 6.2. morloc-nexus view
+# 12.2. morloc-nexus view
 
-Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/nexus-view.html | prev: https://morloc-project.github.io/docs/utilities/nexus-file.md | next: https://morloc-project.github.io/docs/utilities/mim.md
+Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/nexus-view.html | prev: https://morloc-project.github.io/docs/utilities/nexus-file.md | next: https://morloc-project.github.io/docs/future/index.md
 
 Reads a data file (morloc data-packet, morloc stream-packet, `.json`, `.mpk`, `.arrow`, `.parquet`, or `.csv`) and re-emits it in a chosen output format. The intended use is ad-hoc inspection (`view foo.packet | jq | less`), one-shot format conversion (`view foo.json -f mpk --schema "as" -o foo.mpk`), and slicing large files down to a subset without materialising the whole thing (`view foo.packet --pattern ".[100:200]" -f json`).
 
@@ -17,7 +17,7 @@ $ morloc-nexus view data.json -f mpk --schema "as" -o data.mpk
 
 Before loading, `view` runs the same classifier `morloc-nexus file` uses, so a truncated or oversize morloc packet is rejected up-front with a clear error instead of decoding garbage from a partial payload.
 
-## 6.2.1. Reading from stdin
+## 12.2.1. Reading from stdin
 
 A single `-` argument reads from stdin. For stream-packet input (the IFile / OStream / IStream shape), `view -` iterates sub-packet by sub-packet and emits one element (or one line, for `-f jsonl`) at a time, so a multi-gigabyte stream can be viewed in constant memory. For data-packet input, or when the selected output form requires a full-value load (e.g. `-f arrow`), stdin is drained to a `$TMPDIR` temp file and the normal file path runs. The temp file is deleted on exit.
 
@@ -25,7 +25,7 @@ A single `-` argument reads from stdin. For stream-packet input (the IFile / OSt
 $ ./producer | morloc-nexus view - -f jsonl | head -5
 ```
 
-## 6.2.2. Schema resolution
+## 12.2.2. Schema resolution
 
 `view` always loads through the typed loader, so a schema is required:
 
@@ -33,7 +33,7 @@ $ ./producer | morloc-nexus view - -f jsonl | head -5
 2.  Otherwise, the schema embedded in a morloc-packet’s metadata (data or stream).
 3.  Otherwise, `view` exits with an error directing the user to `--schema`.
 
-## 6.2.3. `--pattern`: extract a subset
+## 12.2.3. `--pattern`: extract a subset
 
 `--pattern STR` applies a morloc pattern chain to the input before emission. The grammar is the same one morloc source uses for bracket accessors: field access (`.foo`), tuple/positional index (`.0`, `.1`), bracket index and slice (`.[i]`, `.[a:b]`, `.[a:b:c]`), grouped projection (`.(.a;.b)`), and broadcast tails after a slice (`.[:].name`, `.[:].[0]`, `.[:].(.name;.age)`).
 
@@ -53,7 +53,7 @@ $ morloc-nexus view timeseries.stream --pattern ".[100000:100010]" -f jsonl
 
 The pattern dispatches through the same IFile walker `IFile a` values use in morloc code (`mlc_ifile_walk`) — for a data packet, a single mmap + slice; for a stream packet with a valid footer, `log2(K)` seeks over `K` sub-packets. For footer-less streams, `view` forward-scans the file to reconstruct the sub-packet index before dispatch (see [Footer-less streams](#footer-less-streams) below).
 
-## 6.2.4. Packet-shape output: `-s` / `-d` / `-p`
+## 12.2.4. Packet-shape output: `-s` / `-d` / `-p`
 
 Three mutually exclusive flags control the packet shape when the output form is a morloc packet:
 
@@ -71,14 +71,14 @@ The four conversion arms all preserve typed semantics through the runtime’s au
 -   **STREAM → STREAM** drains the input via IStream `@next` and rewrites via OStream `@write`, so recompression, schema override, and footer normalisation all flow through the canonical writers. When `--compression-level` matches the source, a fast path verbatim-copies sub-packet payloads and only rewrites the footer.
 -   **STREAM → DATA** materialises the whole stream to memory via the IFile walker and re-emits as a data packet. Gated by the size guardrail below.
 
-## 6.2.5. `-f jsonl`: line-delimited JSON
+## 12.2.5. `-f jsonl`: line-delimited JSON
 
 `jsonl` output emits one JSON value per input element, one per line. JSON emission is element-by-element in all cases, so peak per-line memory is one element’s JSON body regardless of input size. Input buffering depends on the source:
 
 -   stdin (`view - -f jsonl`) reads one sub-packet at a time and serialises its elements before reading the next, so a multi-GB producer streams through in constant memory.
 -   File-based stream input goes through the buffered loader: the whole list is materialised, then emitted line-by-line. Combine with `--pattern .[a:b]` (or `-f jsonl` on stdin) for a constant-memory shape on multi-GB inputs.
 
-## 6.2.6. Size guardrails and `--force`
+## 12.2.6. Size guardrails and `--force`
 
 Two guardrails refuse large operations without an explicit `--force`:
 
@@ -89,7 +89,7 @@ Two guardrails refuse large operations without an explicit `--force`:
 
 For footer-less stream input the projected size falls back to the compressed file’s on-disk length as a conservative lower bound, so a partially-written multi-GB stream still hits the guardrail rather than silently OOM’ing the buffered path.
 
-## 6.2.7. Footer-less streams
+## 12.2.7. Footer-less streams
 
 A stream file whose final footer is missing (writer crashed before `@close`, `program > out.stream` interrupted, etc.) is still usable through `view`. The classifier reports the missing footer, and:
 
@@ -97,7 +97,7 @@ A stream file whose final footer is missing (writer crashed before `@close`, `pr
 -   `view -d` (buffered materialisation) succeeds subject to the size guardrail.
 -   `view --pattern PATTERN` forward-scans the file to recover a sub-packet-offset index, then dispatches the walker as normal.
 
-## 6.2.8. Options
+## 12.2.8. Options
 
 | `-f`, `--output-form FORM` | Output format: `json` (default), `jsonl`, `mpk`, `voidstar`, `packet`, `arrow`, `parquet`, `csv`. Same set as `run -f` plus `jsonl`. |
 | --- | --- |

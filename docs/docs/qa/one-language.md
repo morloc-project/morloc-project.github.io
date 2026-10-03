@@ -1,4 +1,4 @@
-# 15.1. I only use one language, is Morloc still useful?
+# 14.1. I only use one language, is Morloc still useful?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/one-language.html | prev: https://morloc-project.github.io/docs/qa/index.md | next: https://morloc-project.github.io/docs/qa/bioinformatics-only.md
 

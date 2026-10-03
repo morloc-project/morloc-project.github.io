@@ -55,7 +55,7 @@ $ ./sums --mcp-tools
 
 The same program serves over HTTP, TCP, and Unix sockets, and answers `--json-help` with a machine-readable description of every command. None of these is a separate build or a separate description. They are renderings of the types the compiler already checked, so they cannot drift from the functions: rename an argument or change a return type and every one of them moves on the next build.
 
-[Building CLIs](https://morloc-project.github.io/docs/clis/index.md) covers the command line view, [Building APIs](https://morloc-project.github.io/docs/apis/index.md) the network and MCP views, and [The interface as data](https://morloc-project.github.io/docs/clis/interface-as-data.md) the introspection formats.
+[Building CLIs](https://morloc-project.github.io/docs/clis/index.md) covers the command line view, [Deployment](https://morloc-project.github.io/docs/apis/index.md) the network and MCP views, and [The interface as data](https://morloc-project.github.io/docs/clis/interface-as-data.md) the introspection formats.
 
 ## 2.2. Values cross boundaries, not file formats
 
@@ -104,7 +104,7 @@ $ ./kmers countKmers 3 GATTACAGATTACA | ./kmers entropy -
 
 Same answer, and nobody wrote a format. Composing is the faster of the two and the one to reach for; the piped form pays for a pipe. What makes the piped form work at all is that the wire form falls out of the same declaration that generated each command’s interface, so two programs built by different people, in different languages, at different times meet at the seam having agreed on nothing but a type.
 
-The wire form is the compiler’s business, not yours. A compiled Morloc program runs one **pool** per language — a process holding all of that language’s functions — and the compiler decides how a value moves between them: small values ride inside the packet, large ones go through shared memory with only a pointer on the socket, and the reader can ask for JSON or MessagePack instead. Data too large for memory need not be a value at all: `IFile`, `IStream`, and `OStream` describe data that lives in a file, indexed or walked in order, and a handle to one crosses a pool boundary like any other argument. See [Controlling data transfer](https://morloc-project.github.io/docs/apis/data-transfer.md) and [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md).
+The wire form is the compiler’s business, not yours. A compiled Morloc program runs one **pool** per language — a process holding all of that language’s functions — and the compiler decides how a value moves between them: small values ride inside the packet, large ones go through shared memory with only a pointer on the socket, and the reader can ask for JSON or MessagePack instead. Data too large for memory need not be a value at all: `IFile`, `IStream`, and `OStream` describe data that lives in a file, indexed or walked in order, and a handle to one crosses a pool boundary like any other argument. See [Controlling data transfer](https://morloc-project.github.io/docs/modules/data-transfer.md) and [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md).
 
 ## 2.3. A signature and its implementations are separate things
 
@@ -189,7 +189,7 @@ labeled-groups:
 
 Every call into `expensive_step@slowfn` is now memoized to disk. The freshness check is content-based rather than mtime-based: editing an unrelated comment does not invalidate the cache, copying the program to a new path does not either, and two machines that build byte-identical pool sources share it. The same group config carries `log: true`, and a label may cover a complex term rather than a single call, so an entire branch of the execution tree can be cached, logged, or — this is the part still in development — dispatched to a remote worker.
 
-Failure is handled in the same spirit. A build flag wraps every foreign call so that anything which throws dumps its arguments to disk and records the chain of calls that reached it, which makes a failure inspectable without reproducing it. Builds without the flag pay nothing. See [Caching](https://morloc-project.github.io/docs/runs/caching.md), [Logging](https://morloc-project.github.io/docs/runs/logging.md), [Debugging](https://morloc-project.github.io/docs/runs/debugging.md), and [Execution contexts](https://morloc-project.github.io/docs/install/execution-contexts.md).
+Failure is handled in the same spirit. A build flag wraps every foreign call so that anything which throws dumps its arguments to disk and records the chain of calls that reached it, which makes a failure inspectable without reproducing it. Builds without the flag pay nothing. See [Caching](https://morloc-project.github.io/docs/runs/caching.md), [Logging](https://morloc-project.github.io/docs/runs/logging.md), [Debugging](https://morloc-project.github.io/docs/runs/debugging.md), and [Running on a cluster](https://morloc-project.github.io/docs/apis/execution-contexts.md).
 
 ## 2.7. One environment, solved once
 

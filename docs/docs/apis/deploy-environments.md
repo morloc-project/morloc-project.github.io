@@ -1,0 +1,190 @@
+# 9.1. Creating Morloc environments
+
+Morloc Manual > Deployment | https://morloc-project.github.io/docs/apis/deploy-environments.html | prev: https://morloc-project.github.io/docs/apis/index.md | next: https://morloc-project.github.io/docs/apis/deploy-dependencies.md
+
+An **environment** is a named, self-contained Morloc installation: the Morloc compiler and runtime, a solved toolchain of language runtimes and packages, and a data directory holding the programs you install. Every deployment starts by making one. This section covers how to create an environment, choose where it lives, work inside it, change it, and remove it.
+
+If you do not have `mim` yet, install it as described in [Installing `mim`](https://morloc-project.github.io/docs/getting-started/installing.md#installing-mim):
+
+```console
+$ curl -fsSL https://raw.githubusercontent.com/morloc-project/morloc-manager/main/scripts/install.sh | sh
+```
+
+## 9.1.1. Native and container environments
+
+`mim` builds an environment in one of two ways, called **backends**.
+
+-   **Native**: the toolchain is installed with pixi (a conda-forge and PyPI package manager) into a private directory under your home, and programs run directly on your host. No container engine is needed. This is the default wherever it works: glibc Linux on x86-64 or ARM, Apple Silicon macOS, and NixOS with `nix` available.
+-   **Container**: the same toolchain is built into a container image with Docker or Podman, and every command runs in a container started from it. Your current directory is mounted at `/work` inside it.
+
+Both behave the same for writing, building, and serving programs. The difference that matters for deployment is the last step: only a container environment can be frozen into a portable image ([Freezing](https://morloc-project.github.io/docs/apis/deploy-freeze.md)). Since this chapter ends with a freeze, the running example uses Podman:
+
+```console
+$ mim new --engine podman --set-default smiles
+```
+
+`--engine` takes `podman`, `docker`, `apptainer` (or its older name `singularity`), or `none` for the native backend. Apptainer is experimental (see [Installing Morloc](https://morloc-project.github.io/docs/getting-started/installing.md)). Leave `--engine` off and `mim` picks the native backend on hosts that support it, or the one container engine it finds installed. If it finds several, it asks you to name one. The first choice you make is remembered for later environments.
+
+The name, `smiles` here, is optional. Without one, the environment is named after the Morloc version it tracks: `latest`, or `v0.105.2` when you pin a version with `--morloc-version 0.105.2`.
+
+The first `mim new` is slow. It downloads the Morloc compiler, solves the toolchain, and, for a container environment, builds an image (named `localhost/morloc-env:<name>`). Later environments reuse the downloaded compiler, and rebuilding with unchanged requirements skips the solve.
+
+## 9.1.2. The default environment
+
+Every `mim` command acts on one environment: the one named with `--env`, or otherwise the **default**. The first environment you create becomes the default on its own; `--set-default` makes any later one the default as it is created. To change it afterwards:
+
+```console
+$ mim modify --env smiles --set-default
+```
+
+There is no activation step and no environment variable that selects an environment. Keep the default stable and reach for `--env` when you need another one, so a bare command in your shell history always means the same thing.
+
+```console
+$ mim ls                  # every environment; the default is marked
+$ mim info smiles         # backend, version, folders, solved languages
+$ mim info smiles --packages   # every package in the solved toolchain
+$ mim doctor --env smiles      # health checks; non-zero exit on failure
+```
+
+## 9.1.3. Local and system environments
+
+An environment lives in one of two **scopes**:
+
+| Scope | Configuration | Data |
+| --- | --- | --- |
+| local (default) | `~/.config/morloc/environments/<name>/` | `~/.local/share/morloc/environments/<name>/` |
+| system (`--system`) | `/etc/morloc/environments/<name>/` | `/usr/local/share/morloc/environments/<name>/` |
+
+A local environment belongs to you and needs no privileges. `$XDG_CONFIG_HOME` and `$XDG_DATA_HOME` move the two local directories if you set them.
+
+A system environment is shared by every user on the machine. Creating, changing, and removing one requires root, so those commands run under `sudo`. Using it does not: any user can `run` and `shell` in it, and can make it their personal default without `sudo`.
+
+```console
+$ sudo mim new --system --engine podman shared
+$ mim modify --env shared --set-default         # your own default
+$ sudo mim modify --env shared --set-default --system   # everyone's default
+```
+
+When a local and a system environment share a name, `--env` finds the local one. `mim info <name> --system` describes the system one.
+
+### System environments and container images
+
+Docker keeps one image store for the whole machine, so a system environment built with Docker is visible to every user. Podman keeps a store per user, so an image built by root under `sudo` is invisible to rootless Podman until you add root’s store as an extra, read-only one. Add this line to the `[storage.options]` section of `/etc/containers/storage.conf`:
+
+```
+additionalimagestores = ["/var/lib/containers/storage"]
+```
+
+On some distributions, Fedora and Debian among them, a shared store can cause storage locking conflicts, which is why `mim` suggests Docker for system environments.
+
+## 9.1.4. Working inside an environment
+
+`mim run` executes one command in an environment, and `mim shell` opens an interactive shell in it. Everything after `--` is the command:
+
+```console
+$ mim run -- morloc --version
+$ mim run --env shared -- morloc --version
+$ mim shell
+```
+
+Inside, `morloc`, the language runtimes, and every program installed in the environment are on the `PATH`. Your current directory is the working directory: mounted at `/work` in a container, used as-is on the native backend. A shell’s prompt is tagged with the environment’s name, and `exit` leaves it.
+
+A container does not see your host’s environment variables. Pass the ones a command needs with `--env-var`, or a file of them with `--env-file`:
+
+```console
+$ mim run --env-var OMP_NUM_THREADS=4 -- printenv OMP_NUM_THREADS   # set a value
+$ mim run --env-var http_proxy -- printenv http_proxy              # copy the host's value
+```
+
+On a host with SELinux enforcing (Fedora, RHEL), `mim` relabels the mounted directory with the `:z` suffix so the container may read it. Relabeling some directories would be unsafe, so `mim` refuses to run from `/`, or from `/tmp` or `/var/tmp` and anything below them. Run from your home directory itself and it skips the working-directory mount with a warning. Work in a project directory such as `~/smiles-project`.
+
+## 9.1.5. Changing an environment
+
+`mim modify` changes an environment’s settings. Some changes take effect at once; others alter the toolchain and rebuild the environment at its current Morloc version. A rebuild that fails rolls the settings back, so a typo never leaves the environment broken.
+
+| Flag | Effect |
+| --- | --- |
+| `--set-default`, `--unset-default` | Change the default. No rebuild. |
+| `--env-name <new>` | Rename (container environments only). No rebuild. |
+| `--dotfiles <dir>` | Copy a directory into the container’s home directory. No rebuild. |
+| `--lang py,r@4.3` | Keep these language toolchains installed, optionally pinned. Futhark is Docker and Podman only. Rebuilds. |
+| `--conda-packages-file <file>` | Extra conda-forge packages, one per line, such as `jq` or `samtools`. Rebuilds. |
+| `--system-packages-file <file>` | Extra apt packages, container environments only. Rebuilds. |
+| `--base heavy\|light` | The container’s base image: `heavy` is `ubuntu:24.04` (the default), `light` is the smaller `debian:bookworm-slim`. Rebuilds. |
+| `--flagfile <file>` | Extra container engine flags (below). No rebuild; build flags apply at the next rebuild. |
+
+Each flag that sets something has a `--no-` form that clears it, such as `--no-conda-packages-file`. A package file is the whole list for its source: to add one package, edit the file and pass it again.
+
+`mim update` rebuilds the environment. Without flags it keeps the Morloc version it has; it never moves the version by surprise.
+
+```console
+$ mim update --env smiles                         # rebuild, same version
+$ mim update --env smiles --latest                # move to the newest release
+$ mim update --env smiles --morloc-version 0.105.2
+$ mim update --env smiles --reinit                # discard the solve and start over
+```
+
+Moving the Morloc version does not recompile the programs already installed; reinstall them afterwards ([Dependency management](https://morloc-project.github.io/docs/apis/deploy-dependencies.md)).
+
+## 9.1.6. Extra container flags
+
+Anything a container engine needs beyond what `mim` passes on its own — a GPU device, a proxy, a bind mount, a hostname — goes in an **engine flag file**. It is a YAML document divided by **phase**, the engine command an environment runs: `build` (the image build, at `new`, `update`, a `modify` that rebuilds, and `freeze`), `run` (`run`, `shell`, `install`), and `start` (the serving container). Under each phase, an engine section (`docker`, `podman`, `apptainer`) lists the flags that engine gets, and `all` lists flags every engine gets:
+
+**flags.yaml**
+
+```yaml
+build:
+  all:
+    - --build-arg=HTTP_PROXY=http://proxy.example.com:3128
+  podman:
+    - --no-cache
+
+run:
+  all:
+    - --volume=/data/reference:/ref:ro     # a host directory every program can read
+  apptainer:
+    - --nv                                 # NVIDIA GPU passthrough
+  podman:
+    - --device=/dev/dri
+
+start:
+  all:
+    - --hostname=morloc-serve
+```
+
+Every section is optional. The schema is strict: an unknown phase or engine name, such as a misspelt `podmann:`, is an error rather than ignored. Each entry passes through the shell before it reaches the engine, so `$HOME`, `~`, and globs expand, an unquoted space splits an entry into two arguments, and a value containing a space must be quoted as it would be in a shell.
+
+Install the file when creating the environment, or later with `modify`:
+
+```console
+$ mim new gpu --engine podman --flagfile flags.yaml
+$ mim modify --env gpu --flagfile flags.yaml   # replace it
+$ mim modify --env gpu --no-flagfile           # remove it
+```
+
+The file is validated and copied whole, comments included, to the environment’s configuration directory as `env.flags.yaml`, replacing any previous one. `mim info <name>` names it and shows the flags each phase gets for the environment’s engine. The `build` section is part of what decides whether the image is up to date, so changing it makes the next `update` rebuild.
+
+For each command the flags are `<phase>.all` followed by `<phase>.<engine>`, then any one-off flags from the command line. Two command-line overrides exist, and neither changes the stored file:
+
+-   `-x <flag>` (`--engine-arg`) adds one flag for this command and can be repeated. On `run`, `shell`, and `install` it joins the `run` phase, on `start` the `start` phase, and on `new` and `update` the `build` phase; `update -x` always rebuilds.
+-   `--flagfile <file>` on `run`, `shell`, `install`, and `start` uses that file instead of the stored one, for this command only. This is how a second server for the same environment comes up with different flags.
+
+```console
+$ mim run -x --device=/dev/dri -- ./prog render     # one extra flag, this run only
+$ mim start --flagfile alt.yaml -p 9090:9090        # a second server, other flags
+```
+
+`--platform` is refused in the file and on the command line, because the environment’s architecture (`mim new --arch`) decides it and the toolchain was solved for that architecture. The native backend has no engine to pass flags to, so `--flagfile` and `-x` are errors there.
+
+## 9.1.7. Removing environments
+
+`mim rm` removes environments by name. For a container environment it also stops its server, removes its image, and removes the volume that held its toolchain. If you remove the default, the default is cleared and `mim` tells you how to set a new one.
+
+```console
+$ mim rm smiles
+$ sudo mim rm shared --system
+```
+
+`mim nuke` removes every environment in a scope after asking for confirmation. Pass `--yes` to skip the question in a script, `--system` for the system scope, and `--images` to also delete the base images the environments were built from. Those base images, such as `ubuntu:24.04`, may be used by other things on your machine.
+
+Neither command touches the Morloc compilers `mim` has downloaded, its copy of pixi, or the shared package cache, so a later `mim new` does not start from nothing.

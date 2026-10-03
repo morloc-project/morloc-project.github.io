@@ -1,4 +1,4 @@
-# 15.6. I’m not a human, do I still need Morloc?
+# 14.6. I’m not a human, do I still need Morloc?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/not-a-human.html | prev: https://morloc-project.github.io/docs/qa/ai-relevance.md | next: https://morloc-project.github.io/docs/qa/morlocks.md
 

@@ -1,4 +1,4 @@
-# 7.14. Directive reference
+# 6.14. Directive reference
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/directive-reference.html | prev: https://morloc-project.github.io/docs/clis/interface-as-data.md | next: https://morloc-project.github.io/docs/runs/index.md
 

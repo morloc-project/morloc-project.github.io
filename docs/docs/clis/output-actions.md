@@ -1,4 +1,4 @@
-# 7.10. Output actions
+# 6.10. Output actions
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/output-actions.html | prev: https://morloc-project.github.io/docs/clis/output-formats.md | next: https://morloc-project.github.io/docs/clis/streaming-output.md
 
@@ -54,7 +54,7 @@ The command’s declared return type is unchanged. Morloc code that composes `sc
 
 `@parse` is the same idea on the way in: it reads an argument from a file in another format before the command runs (see [Reading files in other formats](https://morloc-project.github.io/docs/clis/arguments.md#parse-arguments)). A command can use both; its arguments are read first, whatever output action is chosen.
 
-## 7.10.1. `@with` keeps a value; `@render` produces bytes
+## 6.10.1. `@with` keeps a value; `@render` produces bytes
 
 The two directives differ in what they do with the formatter’s result.
 
@@ -87,7 +87,7 @@ A third case falls out of the same rule: a formatter that returns `()` is a **si
 
 The table marks the framing too: `(raw bytes)` after a type means the row is a `@render` action, so those bytes go out as they are and `-f` does not apply to them.
 
-## 7.10.2. Giving a formatter arguments
+## 6.10.2. Giving a formatter arguments
 
 A formatter may take arguments besides the value it formats. `$1`, `$2`, …​ refer to the command’s own arguments by position, and `@value` refers to the value being formatted. Write them as a call:
 
@@ -153,7 +153,7 @@ fruit-2             2
 
 The value being formatted is appended last unless you place it yourself, so `tabulate($2)` applies `tabulate width rows`, while `tabulate(@value, $2)` would apply `tabulate rows width`.
 
-## 7.10.3. Choosing a default
+## 6.10.3. Choosing a default
 
 Mark one action `@default` and it writes to stdout when no action flag claims stdout and no `-f` is given (see [Several outputs in one run](#action-files) for actions given a path). That is how a command gets human-readable output by default while keeping its typed output one flag away:
 
@@ -179,7 +179,7 @@ $ ./rep -f json @ fruit 12
 
 An explicit `-f` suppresses the default, which is what makes the typed output reachable again. At most one action per command may be `@default`.
 
-## 7.10.4. Media types
+## 6.10.4. Media types
 
 Bytes carry no label. A PNG and a CSV are both `[U8]` as far as the type system is concerned, and a caller that receives one has no way to tell which. `@mime` attaches a media type (RFC 6838 `type/subtype`) to a **type**, once:
 
@@ -243,7 +243,7 @@ Return:
   A PNG image
 ```
 
-It does more than label. The HTTP daemon returns the raw bytes with a matching `Content-Type` instead of a JSON envelope, and the MCP server delivers them as an inline image block rather than an array of numbers — see [Building API interfaces](https://morloc-project.github.io/docs/apis/api-interfaces.md) and [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/apis/mcp.md). A media-typed return must reduce to `Str` or a byte array (`[U8]`), or a list of either; anything else is rejected at compile time.
+It does more than label. The HTTP daemon returns the raw bytes with a matching `Content-Type` instead of a JSON envelope, and the MCP server delivers them as an inline image block rather than an array of numbers — see [Daemons and the serving router](https://morloc-project.github.io/docs/internals/api-interfaces.md) and [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/internals/mcp.md). A media-typed return must reduce to `Str` or a byte array (`[U8]`), or a list of either; anything else is rejected at compile time.
 
 > **Note**
 > `@mime` does not yet change what the CLI writes. Without an action flag the bytes still come out as a JSON array of numbers, so a `@render` sink is currently how you get a file (`reports/0029`):
@@ -259,7 +259,7 @@ It does more than label. The HTTP daemon returns the raw bytes with a matching `
 > 
 > The `ident` handler above exists for exactly this reason.
 
-## 7.10.5. Several outputs in one run
+## 6.10.5. Several outputs in one run
 
 An action flag takes an optional path, attached with `=`. `--json` writes to stdout as before; `--json=rows.json` writes to the file instead. Several actions may be named at once, each with its own path, and the command runs once to feed them all — the way to get a genome and its annotation table from one expensive run:
 
@@ -294,7 +294,7 @@ What makes this possible is that the run saves the command’s output, and the a
 
 A `-f` that one of the outputs cannot take — `csv` for a value that is not a table, or `mpk` for a stream — is refused before the command runs.
 
-## 7.10.6. Rules and rejections
+## 6.10.6. Rules and rejections
 
 -   At most one action writes to stdout. Two bare action flags, or a bare one with `--no-stdout`, are rejected, as are one path given to two actions, a path that is also ``-o’s, and an empty `--act=``.
 -   A streaming command with actions must return `()`: its actions apply to what it streams.

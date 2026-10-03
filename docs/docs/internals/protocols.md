@@ -1,4 +1,4 @@
-# 13.3. Protocols
+# 11.3. Protocols
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/protocols.html | prev: https://morloc-project.github.io/docs/internals/cross-language-calls.md | next: https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.md
 
@@ -7,7 +7,7 @@ Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/inter
 
 This section describes the binary formats used for communication between the nexus and pools: the manifest, the packet protocol, the shared memory layout, and the voidstar data format.
 
-## 13.3.1. The manifest
+## 11.3.1. The manifest
 
 The manifest is a standalone `manifest.json` file written into the program’s `<name>-build/` directory. The launcher script that `morloc make` produces is a thin wrapper carrying no embedded payload; it execs the shared `morloc-nexus` runtime against an absolute path to this file, so the launcher can be freely moved as long as its build directory stays put. The manifest describes the program’s structure. Key fields:
 
@@ -35,7 +35,7 @@ Each **command** entry:
 -   `arg_schemas` / `return_schema` — Schema strings describing argument and return types (see [Schema strings](#schema-strings))
 -   `args` — CLI argument descriptors
 
-## 13.3.2. Packet protocol
+## 11.3.2. Packet protocol
 
 All communication uses a binary packet protocol over Unix domain sockets. Every packet starts with a 32-byte packed header:
 
@@ -99,13 +99,15 @@ Between the header and payload (in the `offset` region), packets can carry metad
 | `type` | uint8\_t | 1 | `0x01`\=SCHEMA\_STRING, `0x02`\=XXHASH |
 | `size` | uint32\_t | 4 | Payload size in bytes |
 
-## 13.3.3. Shared memory
+## 11.3.3. Shared memory
 
 Pools share data through POSIX shared memory segments rather than copying over sockets. Only relative pointers (8 bytes) travel over the wire.
 
 ### Volumes
 
-Shared memory is organized as multiple volumes (`/dev/shm/morloc-<hash>_0`, `morloc-<hash>_1`, etc.). The nexus creates the first volume (64 KB). New volumes are created automatically when space runs out (up to 32 volumes). If `/dev/shm` is too small (common in Docker), volumes fall back to files in the temporary directory. Under Apptainer/Singularity the host’s `/dev/shm` is shared into the container at host size, so this fallback is rarely triggered.
+Shared memory is organized as POSIX shared-memory volumes named `/mlc-<pid>-<hash>-<generation>-<index>`. The nexus creates the first volume (64 KB); any process of the program creates more when space runs out, at random indices up to 32767. If shared memory is too small (common in Docker), a volume falls back to a file in the run’s temporary directory. Under Apptainer/Singularity the host’s `/dev/shm` is shared into the container at host size, so this fallback is rarely triggered.
+
+macOS offers no way to list shared-memory objects, so on every platform each volume is recorded by an empty marker file `<name>.shm` in the run’s temporary directory. The nexus removes every recorded volume when it exits, and the next nexus to start removes the volumes and directory of any run whose nexus died without cleaning up.
 
 ### Pointer types
 
@@ -143,7 +145,7 @@ Shared memory is organized as multiple volumes (`/dev/shm/morloc-<hash>_0`, `mor
 
 Blocks use reference counting. `shmalloc` allocates with first-fit and lazy coalescing. `shfree` decrements the reference count; blocks are merged during the next allocation scan.
 
-## 13.3.4. Schema strings
+## 11.3.4. Schema strings
 
 Schema strings are a compact encoding of a data type’s binary layout. They appear in the manifest and in packet metadata.
 
@@ -166,7 +168,7 @@ Compounds:
 | `t<N><elems>` | Tuple. `t2i4f8` = (int32, float64). |
 | `m<N><fields>` | Record with length-prefixed keys. `m2<3>agei4<4>names` = \\{age: int32, name: string}. |
 
-## 13.3.5. Voidstar binary format
+## 11.3.5. Voidstar binary format
 
 Every Morloc general type maps unambiguously to a binary form that consists of several fixed-width literal types, a list container, and a tuple container. The literal types include a unit type, a boolean, signed integers (8, 16, 32, and 64 bit), unsigned integers (8, 16, 32, and 64 bit), and IEEE floats (32 and 64 bit). The list container is represented by a 64-bit size integer and a pointer to an unboxed vector. The tuple is represented as a set of values in contiguous memory. These basic types are listed below:
 

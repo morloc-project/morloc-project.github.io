@@ -1,4 +1,4 @@
-# 7.13. The interface as data
+# 6.13. The interface as data
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/interface-as-data.html | prev: https://morloc-project.github.io/docs/clis/composing-tools.md | next: https://morloc-project.github.io/docs/clis/directive-reference.md
 
@@ -141,7 +141,7 @@ Every type appears three ways, because three different readers want it: `morloc`
 
 None of this is written by hand or kept in a sidecar file. It is derived from the same types and docstrings as the help text, on the same build, which is what makes it worth trusting: a description that can go stale is a description you have to verify, and this one cannot. Point a script at a directory of Morloc programs and you can build an accurate inventory of every command in it, with argument types, without knowing anything about any of them.
 
-## 7.13.1. Other views of the same commands
+## 6.13.1. Other views of the same commands
 
 Two more flags render the same information for model clients:
 
@@ -157,4 +157,4 @@ $ ./sift --mcp-tools > tools.json
 morloc mcp: excluding command 'total' from the tool surface (reads from @stdin)
 ```
 
-The MCP surface is covered in [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/apis/mcp.md), and the same module served over HTTP, TCP, and Unix sockets in [Building API interfaces](https://morloc-project.github.io/docs/apis/api-interfaces.md). They are worth reading together with this section, because they are the same point from three directions: the command line is one view of a typed library, not the thing the library is built on. A CLI, an HTTP endpoint, and an MCP tool are three renderings of one set of functions, and none of them is written by hand.
+The MCP surface is covered in [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/internals/mcp.md), and the same module served over HTTP, TCP, and Unix sockets in [Daemons and the serving router](https://morloc-project.github.io/docs/internals/api-interfaces.md). They are worth reading together with this section, because they are the same point from three directions: the command line is one view of a typed library, not the thing the library is built on. A CLI, an HTTP endpoint, and an MCP tool are three renderings of one set of functions, and none of them is written by hand.

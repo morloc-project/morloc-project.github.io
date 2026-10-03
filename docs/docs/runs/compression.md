@@ -1,4 +1,4 @@
-# 8.5. Compression
+# 7.5. Compression
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/compression.html | prev: https://morloc-project.github.io/docs/runs/caching.md | next: https://morloc-project.github.io/docs/runs/debugging.md
 
@@ -6,7 +6,7 @@ Morloc data packets carry a compression byte in their header, so any packet writ
 
 The pipeline is end-to-end: a compressed packet on disk is recognized by `@load` and by every `IFile` / `IStream` open, so the user never has to call a decompress step. Pool processes never see compressed bytes — decompression happens at the I/O boundary.
 
-## 8.5.1. Compression in `@write`
+## 7.5.1. Compression in `@write`
 
 `@write` takes a compression preset as its first argument. The preset is an integer in the range `0..=9`; `0` writes the sub-packet uncompressed and the other values map to zstd presets that trade speed for ratio.
 
@@ -26,7 +26,7 @@ The level is set per `@write` call, not per stream: each call chooses its own pr
 
 The other save intrinsics (`@savem` for raw MessagePack, `@savej` for raw JSON) do not produce packets and so do not take a compression level. Compressing those file shapes is a separate feature and is not covered here.
 
-## 8.5.2. Compression in `morloc-nexus run`
+## 7.5.2. Compression in `morloc-nexus run`
 
 A nexus run that writes its result as a packet (`-f packet -o foo.packet`) can compress that packet with `-z N`:
 
@@ -40,7 +40,7 @@ A stream written to `@stdout` is different: each sub-packet already carries the 
 
 A packet written with `-z N` on one host is readable by `@load` (and by any future packet-reading surface) on any other host without an additional flag. The compression byte in the header is the only signal needed.
 
-## 8.5.3. Compression-level table
+## 7.5.3. Compression-level table
 
 The 0—​9 range is deliberately algorithm-agnostic: it spans "no compression" through "fast" through "archive-grade" without committing the user to a specific codec. Under the hood every non-zero level currently maps to a zstd preset, with long-range mode enabled for the top tiers:
 
@@ -59,13 +59,13 @@ The 0—​9 range is deliberately algorithm-agnostic: it spans "no compression"
 
 Multithreaded compression kicks in automatically once a payload exceeds 1 MiB. The worker count scales with payload size up to the number of cores available (capped at 16); below 1 MiB the encoder is single-threaded so small-packet latency is unaffected. Decompression is single-threaded by zstd’s frame-format design and needs no tuning.
 
-## 8.5.4. Algorithm-agnostic surface
+## 7.5.4. Algorithm-agnostic surface
 
 The compression level is an *abstract* knob. The morloc nexus produces and consumes its own compressed packets, so the underlying algorithm is an implementation detail. zstd is the current choice (modern Pareto winner on speed vs. ratio), but a future release may switch to a different codec without changing the `-z 0..9` semantics or the `@write` signature. The packet header records the algorithm it was written with, so old packets remain readable across algorithm changes.
 
 The intent of preset N is stable: `1` is "fastest", `9` is "maximum ratio", and intermediate values increase ratio monotonically. The exact zstd levels in the table above may shift between releases as codec defaults evolve, but the user-facing meaning will not.
 
-## 8.5.5. Caching is unaffected
+## 7.5.5. Caching is unaffected
 
 Cache keys are content-based and hash the **uncompressed** value (see [Caching](https://morloc-project.github.io/docs/runs/caching.md)). This is deliberate:
 

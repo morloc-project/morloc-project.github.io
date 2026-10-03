@@ -9,7 +9,7 @@ From here:
 -   [Syntax and Features](https://morloc-project.github.io/docs/features/index.md) is the language proper — records, pattern matching, effects, optionals, and the rest.
 -   [Advanced Types](https://morloc-project.github.io/docs/types/index.md) covers typeclasses, polymorphism, and how one term takes many implementations.
 -   [Building CLIs](https://morloc-project.github.io/docs/clis/index.md) goes deeper on the command line interface you saw above, including how to control argument shapes and output formats.
--   [Building APIs](https://morloc-project.github.io/docs/apis/index.md) is the same library served over HTTP and MCP.
+-   [Deployment](https://morloc-project.github.io/docs/apis/index.md) is the same library served over HTTP and MCP.
 -   [Modules and Libraries](https://morloc-project.github.io/docs/modules/index.md) explains the standard library and how to publish your own modules.
 
 `mim demos` fetches example programs published for your Morloc version. Every demo in a bundle is known to build and pass on that version, so nothing there fails for reasons unrelated to what you are learning:

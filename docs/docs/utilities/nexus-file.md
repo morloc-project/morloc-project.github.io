@@ -1,4 +1,4 @@
-# 6.1. morloc-nexus file
+# 12.1. morloc-nexus file
 
 Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/nexus-file.html | prev: https://morloc-project.github.io/docs/utilities/index.md | next: https://morloc-project.github.io/docs/utilities/nexus-view.md
 
@@ -21,7 +21,7 @@ empty.bin: empty
 
 For morloc packets, classification is magic-byte based and seek-only, so even a multi-gigabyte CALL or STREAM packet costs a few hundred bytes of I/O. The on-disk file size is checked against the size declared in the packet header by default; truncated or oversize packets are reported and exit non-zero.
 
-## 6.1.1. Stream packets
+## 12.1.1. Stream packets
 
 Stream-packet output carries the footer’s summary when one is present. `state=final` marks a cleanly closed stream (final footer + end-of-file tail present); `state=temp` marks an intermediate mid-stream footer written by an in-progress `@close`; `state=missing` marks a stream whose writer exited before writing a footer.
 
@@ -29,7 +29,7 @@ For `state=missing` files, `morloc-nexus file` runs a bounded forward scan of th
 
 For the remaining formats, classification reads up to one kilobyte of the file and feeds it through the same parsers the runtime uses on real ingest.
 
-## 6.1.2. Options
+## 12.1.2. Options
 
 | `-F`, `--no-file` | Suppress the `<path>:` prefix. |
 | --- | --- |
@@ -40,7 +40,7 @@ For the remaining formats, classification reads up to one kilobyte of the file a
 | `--validate` | After classifying, fully load each file through the exact same loader the `run` subcommand uses, then discard the result. Appends `validated=yes`, `validated=no error="<msg>"`, or `validated=structure-only`. If `file --validate` passes, `run` (or `view`) reading the same file will not fail at the load stage. |
 | `--schema STRING` | Morloc schema used by `--validate` for inputs that don’t embed one. Ignored without `--validate`. |
 
-## 6.1.3. Verbose example
+## 12.1.3. Verbose example
 
 ```console
 $ morloc-nexus file -v people.csv

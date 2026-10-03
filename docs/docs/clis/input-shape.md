@@ -1,4 +1,4 @@
-# 7.7. Input shape
+# 6.7. Input shape
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/input-shape.html | prev: https://morloc-project.github.io/docs/clis/sum-type-arguments.md | next: https://morloc-project.github.io/docs/clis/reading-stdin.md
 
@@ -53,7 +53,7 @@ Which combinations are legal depends on the argument’s wire type. The tables b
 | --- | --- |
 | *(default, the only valid case)* | argv is JSON, or a path to a file holding JSON / MessagePack / a packet. No outer modifiers are allowed. |
 
-## 7.7.1. A worked example
+## 6.7.1. A worked example
 
 ``sift’s `scanAll`` uses two of these. The pattern list is a file with one pattern per line, and the search root must be a directory that exists:
 
@@ -106,7 +106,7 @@ $ ./sift scan the nosuchdir
 Error: argument #1: check.path: r requires path 'nosuchdir' to exist and be readable
 ```
 
-## 7.7.2. Shape follows the wire form
+## 6.7.2. Shape follows the wire form
 
 Shape is classified against an argument’s **wire form**, not its source-level type name. A type declared with `Packable [(a, b)] T` crosses the language boundary as a list of pairs, so the CLI treats it as `[(a, b)]` and every list modifier is available.
 

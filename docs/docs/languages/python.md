@@ -1,8 +1,8 @@
-# 11.3. Python
+# 10.3. Python
 
 Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/python.html | prev: https://morloc-project.github.io/docs/languages/cpp.md | next: https://morloc-project.github.io/docs/languages/r.md
 
-## 11.3.1. Dependencies (`py-deps`)
+## 10.3.1. Dependencies (`py-deps`)
 
 Declare a module’s Python dependencies in its `package.yaml` under `py-deps`. Every entry must state its `source` — the package database it is drawn from — because Python packages split across two incompatible worlds:
 
@@ -32,7 +32,7 @@ The `channel` field implies `source: conda` (channels are a conda-only concept),
 
 `channel` is valid only on a conda dependency: pairing it with `source: pypi` is a build error. And because a package has a single database of record, two modules that draw the same package from **different** channels is a build error naming both modules — unlike differing version constraints, which are simply intersected.
 
-## 11.3.2. Local packages (`local-deps`)
+## 10.3.2. Local packages (`local-deps`)
 
 A Python package that lives in your project tree rather than in a package database — typically the helper package you are writing alongside the Morloc program — is declared under `local-deps`. The section is keyed by language, and each entry gives a path relative to the module’s directory:
 

@@ -1,4 +1,4 @@
-# 9.1. Importing modules
+# 8.1. Importing modules
 
 Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/importing-modules.html | prev: https://morloc-project.github.io/docs/modules/index.md | next: https://morloc-project.github.io/docs/modules/installing-modules.md
 

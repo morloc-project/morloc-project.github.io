@@ -1,10 +1,10 @@
-# 13.2. Cross-language function calls
+# 11.2. Cross-language function calls
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/cross-language-calls.html | prev: https://morloc-project.github.io/docs/internals/architecture-overview.md | next: https://morloc-project.github.io/docs/internals/protocols.md
 
 When a Morloc program composes functions from different languages, the compiler must bridge the language boundary. A key design principle is that **Morloc never serializes functions**. Functions cannot be meaningfully transmitted between language runtimes — there is no way to pickle a C++ template instantiation into something Python can call directly. Instead, Morloc generates **wrapper functions** that make IPC calls to the foreign language pool.
 
-## 13.2.1. How it works
+## 11.2.1. How it works
 
 Each function in a compiled Morloc program is assigned a unique integer identifier called a **manifold ID** (mid). Every pool maintains a dispatch table mapping manifold IDs to concrete function implementations. When a function needs to call a function in another language, it does not call it directly — it sends a call packet containing the target manifold ID and serialized arguments over a Unix domain socket to the foreign pool, which dispatches the call and returns the result.
 
@@ -34,7 +34,7 @@ When `pmap` is compiled in the Python pool, it receives `sum` not as a C++ funct
 
 From Python’s perspective, this wrapper is an ordinary Python callable. It can be passed to `multiprocessing.Pool.map`, stored in a list, or used anywhere a function is expected — because it *is* a regular Python function. The cross-language call is hidden inside it.
 
-## 13.2.2. What the generated code looks like
+## 11.2.2. What the generated code looks like
 
 The Python pool contains a wrapper like this (simplified):
 
@@ -59,7 +59,7 @@ uint8_t* local_dispatch(uint32_t mid, const uint8_t** args) {
 }
 ```
 
-## 13.2.3. Performance implications
+## 11.2.3. Performance implications
 
 Intra-pool calls (functions in the same language) are direct native function calls — no serialization, no sockets, no dispatch table lookup. The only overhead is that functions may be wrapped in thin wrapper functions, but even this can be eliminated with the `%inline` pragma, which inlines the function body at the call site.
 

@@ -1,4 +1,4 @@
-# 13.1. Architecture Overview
+# 11.1. Architecture Overview
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/architecture-overview.html | prev: https://morloc-project.github.io/docs/internals/index.md | next: https://morloc-project.github.io/docs/internals/cross-language-calls.md
 

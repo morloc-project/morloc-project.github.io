@@ -1,0 +1,99 @@
+# 9.3. Serving
+
+Morloc Manual > Deployment | https://morloc-project.github.io/docs/apis/deploy-serving.html | prev: https://morloc-project.github.io/docs/apis/deploy-dependencies.md | next: https://morloc-project.github.io/docs/apis/deploy-eval.md
+
+An installed program is a command line tool inside its environment. **Serving** makes its functions callable from outside: by an AI assistant over the Model Context Protocol (MCP), and by any HTTP client over a JSON API. Both come from the same exported functions, types, and docstrings that produce the command line interface, so there is nothing more to write. Serving takes two commands: `mim view` declares what to serve, and `mim start` serves it.
+
+## 9.3.1. Choosing what to serve
+
+A **view** is the set of installed modules that answer on an adapter. MCP and the JSON API each have their own view. Installing a program never makes it reachable on its own; you add it to a view:
+
+```console
+$ mim view add smiles --as mcp,api   # serve smiles on both adapters
+$ mim view                           # show the environment's views
+$ mim view rm smiles                 # take smiles out of every view
+```
+
+`--as` takes `mcp`, `api`, or both, comma-separated. A module must be installed before it can be added. Views are stored with the environment’s configuration and take effect the next time the environment is served.
+
+## 9.3.2. Starting a server
+
+```console
+$ mim start -p 8005:8005
+```
+
+`mim start` launches one server for the environment and returns. For a container environment the server runs in a container named `morloc-serve-<user>-<env>`; on the native backend it is a background process. It answers on one port:
+
+| Path | Purpose |
+| --- | --- |
+| `POST /mcp` | The MCP endpoint, for AI assistants |
+| `POST /call/<module>/<command>` | Call one function with JSON arguments |
+| `GET /discover` | List the modules on the API and their commands |
+| `GET /discover/<module>` | Describe one module’s commands and arguments |
+| `GET /health` | Liveness check |
+
+`-p` maps a host port to the server’s port and is written `HOST:CONTAINER`, `8005:8005` here. Without it, `mim` serves on 9000 when MCP is in the view (8080 otherwise) and moves to the next free port if that one is taken; it prints the port it chose.
+
+By default the server listens on the host’s loopback address, `127.0.0.1`. Only programs on the same machine can reach it, so it needs no password. Once a server is running, edits to the views apply only after you replace it with `--force`:
+
+```console
+$ mim start -p 8005:8005 --force
+```
+
+## 9.3.3. Serving to other machines
+
+To reach the server from elsewhere, `--expose` binds it on every interface (`0.0.0.0`). An exposed server must be protected by a **token**, a shared secret that every client sends with each request:
+
+```console
+$ export MORLOC_MCP_TOKEN=$(openssl rand -hex 16)
+$ mim start -p 8005:8005 --expose --allow-plaintext
+```
+
+`mim` never generates a token and never writes one to disk. You choose it, and pass it either as `--auth-token <token>` or, to keep it out of your shell history and process list, in `MORLOC_MCP_TOKEN`. Every request to `/mcp`, `/call`, and `/discover` must then carry the header `Authorization: Bearer <token>`; a request without it gets `401` and `{"error":"unauthorized"}`. `/health` stays open so monitoring works without the secret.
+
+`--allow-plaintext` is required with `--expose` because the server speaks plain HTTP: the token and the data travel unencrypted. A token stops strangers who find the port; it does not stop anyone who can watch the network. For use over an untrusted network, keep the default loopback bind and reach the server through an SSH tunnel, or put a TLS proxy in front of it.
+
+`--allow-no-auth` serves an exposed server with no token at all. It exists for a trusted private network or a gateway that already checks callers, and is a bad idea anywhere else.
+
+## 9.3.4. Calling the JSON API
+
+`/call/<module>/<command>` takes the function’s arguments as a JSON array, in order, and returns the result in a JSON envelope:
+
+```console
+$ curl -s http://localhost:8005/call/smiles/mw \
+    -H "Authorization: Bearer $MORLOC_MCP_TOKEN" \
+    -d '["NC1=NC=NC2=C1N=CN2"]'
+{"status":"ok","result":135.13}
+```
+
+A failed call returns `{"status":"error","error":"…​"}` with HTTP status 500. `/discover` lists every module in the API view with its commands, and `/discover/smiles` gives each command’s arguments, types, and docstrings, so a client can find out what to call without reading the source.
+
+## 9.3.5. Connecting an AI assistant
+
+When the MCP view is not empty, `mim start` prints a client configuration entry on standard output, and its status messages on standard error. The entry has this shape:
+
+```json
+{"mcpServers":{"smiles":{"url":"http://<host>:8005/mcp","headers":{"Authorization":"Bearer <token>"}}}}
+```
+
+Redirect it to a file to hand it to an MCP client that reads this format. Treat the file as a secret, since it contains the token, and keep it out of version control. For an exposed server, `<host>` is the machine’s hostname; replace it with an address your clients can resolve.
+
+To add the server to Claude Code:
+
+```console
+$ claude mcp add --transport http smiles http://<host>:8005/mcp \
+    --header "Authorization: Bearer $MORLOC_MCP_TOKEN"
+```
+
+Each exported function becomes one MCP tool, named `<module>*<command>*` *(`smiles`*`mw`), with the docstrings as its description and the argument types as its input schema. The protocol details — the handshake, how arguments map to tool properties, and what is not exposed — are in [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/internals/mcp.md).
+
+## 9.3.6. Watching and stopping servers
+
+```console
+$ mim status            # every running server: env, mode, modules, URL
+$ mim logs              # the default environment's server log
+$ mim logs -f           # follow it
+$ mim stop              # stop the default environment's server
+```
+
+`mim status` lists the servers of all your environments, with what each serves (`mcp+api` here) and its URL, marked `(token)` when one is required. `logs` and `stop` act on the default environment, or the one named with `--env`.

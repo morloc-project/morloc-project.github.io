@@ -1,4 +1,4 @@
-# 8.2. Benchmarking
+# 7.2. Benchmarking
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/benchmarking.html | prev: https://morloc-project.github.io/docs/runs/logging.md | next: https://morloc-project.github.io/docs/runs/run-directory.md
 
@@ -20,7 +20,7 @@ Timing is per-manifold, so process startup and pool spawn are outside the measur
 
 Only successful calls are recorded. A call that raised did not do the work being measured, and folding its duration into the mean would report a number that describes nothing.
 
-## 8.2.1. The summary row
+## 7.2.1. The summary row
 
 The row shape is the program-wide `benchmark-template`, whose one subfield is `summary`. Unlike `log-template` it is not per-label: the nexus aggregates every label’s timings and renders them through a single template.
 
@@ -60,7 +60,7 @@ Rows are ordered by `{group}`, then `{name}`, then `{lang}` — not by arriv
 
 Setting `benchmark: true` while nulling `summary` is rejected at compile time: the timings would be collected and never reported.
 
-## 8.2.2. Comparing implementations
+## 7.2.2. Comparing implementations
 
 Because labels are per-call-site, the same work measured under two labels yields two rows. That is the shape of an A/B comparison — one run, one input, the same warm pools:
 

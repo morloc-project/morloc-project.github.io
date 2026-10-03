@@ -25,7 +25,7 @@ This produces two things next to your source:
 
 **`hello`**
 
-a launcher script, named after the **source file**. Override the name with `-o`. (Installing a program is different — it takes the module’s name instead. See [Search and install](https://morloc-project.github.io/docs/apis/search-and-install.md).)
+a launcher script, named after the **source file**. Override the name with `-o`. (Installing a program is different — it takes the module’s name instead. See [Dependency management](https://morloc-project.github.io/docs/apis/deploy-dependencies.md).)
 
 **`hello-build/`**
 
@@ -59,6 +59,6 @@ General Options:
 Return: Str
 ```
 
-You wrote no argument parser, no usage text, and no type annotation. The docstring became the summary and `Str` was inferred. This is the first thing worth noticing about Morloc: the command line interface is not something you build, it is a **view** of the library you wrote. The same library also has API and MCP views, covered in [Building APIs](https://morloc-project.github.io/docs/apis/index.md).
+You wrote no argument parser, no usage text, and no type annotation. The docstring became the summary and `Str` was inferred. This is the first thing worth noticing about Morloc: the command line interface is not something you build, it is a **view** of the library you wrote. The same library also has API and MCP views, covered in [Deployment](https://morloc-project.github.io/docs/apis/index.md).
 
 The `@` in the usage line sits where a subcommand name would go. It is the separator between the options the runtime provides and the ones your function declares, and it shows up here because `hw` has a single export and there is no name to mark that boundary. [The two argument zones](https://morloc-project.github.io/docs/clis/argument-zones.md) covers it; you can ignore it until then.

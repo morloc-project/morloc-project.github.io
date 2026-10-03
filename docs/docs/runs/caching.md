@@ -1,4 +1,4 @@
-# 8.4. Caching
+# 7.4. Caching
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/caching.html | prev: https://morloc-project.github.io/docs/runs/run-directory.md | next: https://morloc-project.github.io/docs/runs/compression.md
 
@@ -8,7 +8,7 @@ The freshness check is content-based, not time-based. Morloc has **no** notion o
 
 The build parameters passed with `-X` (see the build parameters section) also participate in the key, since they can change the compiled output without changing the pool source — switching a Futhark backend or adding a compiler flag is treated as a distinct build rather than a cache hit.
 
-## 8.4.1. Declaring a cached call
+## 7.4.1. Declaring a cached call
 
 ```yaml
 labeled-groups:
@@ -21,7 +21,7 @@ foo xs = expensive_step@slowfn xs
 
 Every call into `expensive_step@slowfn` is memoized under the `expensive_step` cache label. The same group config also controls per-step logging (`log: true`); the two flags are independent and may be combined.
 
-## 8.4.2. What goes in the hash
+## 7.4.2. What goes in the hash
 
 A cached entry is keyed by:
 
@@ -37,7 +37,7 @@ where:
 
 The freshness test is therefore: same code + same code dependencies + same input values → cache hit. Anything else → miss.
 
-## 8.4.3. Storage layout
+## 7.4.3. Storage layout
 
 The cache lives under one of these directories, in resolution order:
 
@@ -67,7 +67,7 @@ Inside, two file types coexist:
 
 The content-addressed split gives natural deduplication: a Python pool and an R pool that both cache the same dataset (say, a genome pulled from an external database) write the data once. A source edit that produces the same return value writes a new `.packet` pointer but reuses the existing `.dat`.
 
-## 8.4.4. Reading and writing
+## 7.4.4. Reading and writing
 
 On lookup, the runtime reads the `.packet` file and returns its bytes; the language pool’s `get_value` follows the FILE-source pointer through to the dat file. The on-disk format is opaque to the language pool — it sees only bytes that round-trip through the standard packet API, so future format changes (inline-small optimization, compression, alternative backends) require no recompile of pool code.
 

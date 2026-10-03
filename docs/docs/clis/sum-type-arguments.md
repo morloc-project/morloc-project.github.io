@@ -1,4 +1,4 @@
-# 7.6. Sum type arguments
+# 6.6. Sum type arguments
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/sum-type-arguments.html | prev: https://morloc-project.github.io/docs/clis/record-arguments.md | next: https://morloc-project.github.io/docs/clis/input-shape.md
 

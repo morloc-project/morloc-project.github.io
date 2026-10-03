@@ -87,7 +87,7 @@ $ podman machine start
 Apptainer (formerly Singularity) is the usual container engine on HPC clusters. It runs rootless, has no daemon, and uses a single-file image format (`.sif`) that lives on the shared filesystem, which makes it a natural fit for SLURM-style job dispatch. The historical fork SingularityCE is treated as equivalent; either binary is detected automatically.
 
 > **Warning: Experimental Feature**
-> Apptainer support is in development and is the least tested of the backends. Creating an environment with `--engine apptainer` is not currently expected to work: the image build emits a Dockerfile, which Apptainer cannot consume. Use the native backend, or Docker/Podman, until this is finished. The SLURM dispatch described in [Execution contexts](https://morloc-project.github.io/docs/install/execution-contexts.md) depends on Apptainer and is blocked behind the same work.
+> Apptainer support is in development and is the least tested of the backends. Creating an environment with `--engine apptainer` is not currently expected to work: the image build emits a Dockerfile, which Apptainer cannot consume. Use the native backend, or Docker/Podman, until this is finished. The SLURM dispatch described in [Running on a cluster](https://morloc-project.github.io/docs/apis/execution-contexts.md) works with Docker or Podman meanwhile.
 
 ## 3.1.3. Creating an environment
 

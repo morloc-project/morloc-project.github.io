@@ -1,4 +1,4 @@
-# 8. Managing Runs
+# 7. Managing Runs
 
 Morloc Manual | https://morloc-project.github.io/docs/runs/ | prev: https://morloc-project.github.io/docs/clis/directive-reference.md | next: https://morloc-project.github.io/docs/runs/logging.md
 

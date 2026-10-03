@@ -1,6 +1,6 @@
-# 7. Building CLIs
+# 6. Building CLIs
 
-Morloc Manual | https://morloc-project.github.io/docs/clis/ | prev: https://morloc-project.github.io/docs/utilities/morloc-eval.md | next: https://morloc-project.github.io/docs/clis/example-program.md
+Morloc Manual | https://morloc-project.github.io/docs/clis/ | prev: https://morloc-project.github.io/docs/types/tables.md | next: https://morloc-project.github.io/docs/clis/example-program.md
 
 A Morloc module compiles to a command line tool. Every exported term becomes a subcommand, its type becomes the subcommand’s arguments and return value, and its docstring becomes the help text. You saw the smallest version of this in [Your first program](https://morloc-project.github.io/docs/getting-started/first-program.md): a two-line module, and `./hello -h` printed a usage statement nobody wrote.
 

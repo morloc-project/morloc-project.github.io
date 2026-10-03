@@ -1,8 +1,8 @@
-# 11.4. R
+# 10.4. R
 
 Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/r.html | prev: https://morloc-project.github.io/docs/languages/python.md | next: https://morloc-project.github.io/docs/languages/rust.md
 
-## 11.4.1. Dependencies (`r-deps`)
+## 10.4.1. Dependencies (`r-deps`)
 
 Declare a module’s R dependencies in its `package.yaml` under `r-deps`, using the canonical CRAN package name and a version constraint:
 

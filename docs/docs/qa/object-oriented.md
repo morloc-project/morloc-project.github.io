@@ -1,4 +1,4 @@
-# 15.4. What about object-oriented programming?
+# 14.4. What about object-oriented programming?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/object-oriented.html | prev: https://morloc-project.github.io/docs/qa/per-function-environments.md | next: https://morloc-project.github.io/docs/qa/ai-relevance.md
 

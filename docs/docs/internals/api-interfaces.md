@@ -1,0 +1,208 @@
+# 11.5. Daemons and the serving router
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/api-interfaces.html | prev: https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.md | next: https://morloc-project.github.io/docs/internals/mcp.md
+
+This section is for readers who want to run Morloc programs as services without `mim`, or who want to know what `mim start` runs underneath. It assumes you have read [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). The examples use the `smiles` program from [Dependency management](https://morloc-project.github.io/docs/apis/deploy-dependencies.md), run inside its environment (`mim shell`).
+
+Every compiled program wraps the shared `morloc-nexus` runtime, and the nexus can run a program as a long-lived **daemon**: the language pools start once and stay up, and calls arrive over HTTP, TCP, or a Unix socket. The **router** is a second nexus mode that serves several installed programs behind one HTTP port, with both the JSON API and MCP. `mim start` launches the router.
+
+To get a dedicated daemon executable, build the program with `--daemon-out`:
+
+```console
+$ morloc make --daemon-out smilesd main.loc
+```
+
+This writes a `./smilesd` launcher next to the ordinary CLI launcher. `./smilesd` is equivalent to `morloc-nexus daemon ./smiles`; either form takes the listener options below.
+
+## 11.5.1. HTTP protocol
+
+```console
+$ ./smilesd --http-port 8080 &
+morloc-daemon: listening on http://0.0.0.0:8080
+```
+
+The daemon starts each language pool as a child process in its own process group, and handles concurrent requests on a thread pool. If a pool crashes, the daemon restarts it.
+
+> **Warning**
+> The daemon’s HTTP listener binds every interface and has no authentication. Run it only where the network is trusted, or front it with something that checks callers. The router, below, binds loopback by default and supports a bearer token.
+
+The endpoints:
+
+| Request | Effect |
+| --- | --- |
+| `GET /health` | Liveness of each pool: `{"status":"ok","result":{"pools":[true]}}` |
+| `GET /discover` | The program’s name, Morloc version, and every command with its argument and return types |
+| `POST /call/<command>` | Call a command; the body is a JSON array of positional arguments, or `{"args":[…​]}` |
+| `POST /eval`, `POST /typecheck` | Evaluate, or only typecheck, an expression sent as `{"expr":"…​"}` |
+| `POST /bind`, `GET /bindings`, `DELETE /bindings/<name>` | Save an evaluated expression under a name, list saved ones, remove one |
+
+A call returns the same envelope as the router:
+
+```console
+$ curl -s -X POST localhost:8080/call/mw -d '["NC1=NC=NC2=C1N=CN2"]'
+{"status":"ok","result":135.13}
+```
+
+In the `/discover` reply, each command carries a `type` of `"remote"` (dispatched to a language pool) or `"pure"` (evaluated by the nexus itself, such as a composition that never crosses a language boundary). The return and each argument carry the Morloc type and its wire `schema`, and each argument a `kind`: `pos`, `opt`, `flag`, or `grp`.
+
+`/eval` and `/typecheck` run under the same sandbox as served eval ([Eval](https://morloc-project.github.io/docs/apis/deploy-eval.md)). The modules an expression may import are set when the daemon starts, and the default is none, which leaves only literals and pure intrinsics:
+
+```console
+$ ./smilesd --http-port 8080 --eval-allowed-modules smiles,root-py &
+$ curl -s -X POST localhost:8080/eval \
+    -d '{"expr":"import root-py; import smiles (mw); map mw [\"CCO\"]"}'
+```
+
+`--eval-timeout` sets the CPU budget of each `/eval` and `/typecheck` request, 30 seconds by default. Calls to `/call` dispatch to compiled pools and have no such limit.
+
+Every response carries an HTTP status that matches the outcome, so clients with retry or branching logic (`curl --fail`, axios, fetch) work without parsing the body. The JSON body is always present too.
+
+| Code | Meaning | When |
+| --- | --- | --- |
+| `200` | OK | Success. The body’s `result` field carries the return value. |
+| `204` | No Content | The answer to a CORS preflight `OPTIONS` request, with the `Access-Control-Allow-*` headers and an empty body. |
+| `400` | Bad Request | A malformed request: a missing field, unparseable JSON, the wrong number of arguments, a value that does not match its schema, or a string with an embedded NUL byte. |
+| `404` | Not Found | An unknown path, command, or binding name. |
+| `408` | Request Timeout | An `/eval` or `/typecheck` expression used more CPU than `--eval-timeout`. |
+| `500` | Internal Server Error | A server-side failure: a pool socket error, a fork failure, or an error from the evaluated code. |
+| `503` | Service Unavailable | A crashed pool is being restarted. Sent with `Retry-After: 1`, so retrying clients back off and try again. |
+
+TCP and Unix-socket clients get the same classification in the envelope’s `status` and `error` fields, without the HTTP status or `Retry-After`.
+
+## 11.5.2. TCP protocol
+
+HTTP adds headers and text parsing to every request. When the client is a program you control, the TCP protocol skips that: each message is a 4-byte big-endian length followed by a JSON payload. It suits service-to-service calls and high-throughput pipelines.
+
+```console
+$ ./smilesd --port 9001 &
+morloc-daemon: listening on tcp://127.0.0.1:9001
+```
+
+`curl` cannot speak this framing. A minimal Python client:
+
+**tcp\_client.py**
+
+```python
+import socket, struct, json
+
+def recvall(s, n):
+    data = b''
+    while len(data) < n:
+        chunk = s.recv(n - len(data))
+        if not chunk:
+            raise RuntimeError("Connection closed")
+        data += chunk
+    return data
+
+def call(host, port, method, command=None, args=None):
+    msg = {"method": method}
+    if command: msg["command"] = command
+    if args is not None: msg["args"] = args
+
+    payload = json.dumps(msg).encode()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
+    # send 4-byte big-endian length, then the JSON payload
+    s.sendall(struct.pack('>I', len(payload)) + payload)
+
+    # read the 4-byte response length, then the response
+    resp_len = struct.unpack('>I', recvall(s, 4))[0]
+    resp = recvall(s, resp_len)
+    s.close()
+    return json.loads(resp)
+
+print(call("localhost", 9001, "call", "mw", ["CCO"]))
+print(call("localhost", 9001, "health"))
+print(call("localhost", 9001, "discover"))
+```
+
+A request is a JSON object with a `method` (`"call"`, `"discover"`, `"health"`, `"eval"`, or `"typecheck"`), an optional `command` naming the function, and an optional `args` array. The server handles one request per connection.
+
+## 11.5.3. Unix socket protocol
+
+For a client on the same machine, a Unix domain socket skips the network stack entirely. This is also how the nexus talks to its own pools.
+
+```console
+$ ./smilesd --socket /tmp/smiles.sock &
+morloc-daemon: listening on unix:///tmp/smiles.sock
+```
+
+The framing is the same as TCP: a 4-byte big-endian length and a JSON payload, at most 64 MB, with a 30 second timeout per operation. The client above works with one change, connecting with `socket.AF_UNIX` to the socket path instead of `AF_INET` to a host and port.
+
+## 11.5.4. Running all protocols at once
+
+One daemon can listen on all three at once. The requests share one set of pools and are dispatched identically; only the framing differs.
+
+```console
+$ ./smilesd --http-port 8080 --port 9001 --socket /tmp/smiles.sock
+morloc-daemon: listening on unix:///tmp/smiles.sock
+morloc-daemon: listening on tcp://127.0.0.1:9001
+morloc-daemon: listening on http://0.0.0.0:8080
+```
+
+### Ephemeral ports
+
+Pass `0` as a port and the operating system picks a free one, which suits tests and orchestrators running many daemons. The chosen ports appear in the listening lines, and `--port-file` writes them as JSON:
+
+```console
+$ ./smilesd --http-port 0 --port 0 --port-file ports.json &
+$ cat ports.json
+{"http":39381,"tcp":46217,"unix":null}
+```
+
+The file is written atomically, by rename, after every listener is bound, so a client waiting for it never reads a partial file. A listener that is not running is `null`, never missing.
+
+## 11.5.5. The serving router
+
+The router (`morloc-nexus router`) is the process `mim start` runs. It serves the programs you name, from an environment’s installed-program directory, behind one HTTP port: MCP at `/mcp`, the JSON API at `/call/<module>/<command>`, `/discover`, `/health`, and `/eval` when enabled.
+
+```
+                  Client
+                    |
+                    | HTTP: POST /call/smiles/mw
+                    v
+             +--------------+
+             |    Router    |  morloc-nexus router --http-port 9090
+             |  (HTTP only) |  reads each named program's manifest
+             +--------------+
+              /            \
+    Unix socket            Unix socket
+            /                \
+  +-----------+         +-----------+
+  |  smiles   |         |  another  |
+  |  daemon   |         |  daemon   |
+  +-----------+         +-----------+
+       |                 /        \
+       v                v          v
+    Python           Python        R
+     pool             pool        pool
+```
+
+The router runs no user code itself. It starts a daemon for a program, as a child process in its own process group, on the first call for that program, and forwards each call to it over a Unix socket using the protocol above. If a daemon crashes, the router restarts it on the next call, so a failing call takes down only its own program’s daemon.
+
+Run directly, the router needs the program directory and the programs to serve. `--program` serves one on both adapters, and `--mcp` and `--api` serve it on one:
+
+```console
+$ morloc-nexus router --fdb $MORLOC_HOME/exe --http-port 9090 --program smiles
+```
+
+It listens on `127.0.0.1` unless `--http-host` says otherwise. Authentication follows the rules in [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md): `--auth-token` or `MORLOC_MCP_TOKEN` requires a bearer token on everything but `/health`, and a non-loopback bind with no token is refused unless `--allow-no-auth` is given. `--eval` with `--eval-allowed-modules` enables `/eval`, which stays locked without a token unless `--eval-allow-no-auth` is given.
+
+Two router behaviours differ from a lone daemon. Its `/health` reports only that the router is up, `{"status":"ok"}`, without checking each program. And any error from a forwarded call, whatever its cause, comes back as `500` with `{"status":"error","error":"…​"}`. A program not on the API view is `404` with `{"error":"module not exposed on the API"}`.
+
+A daemon you start yourself is independent of the router. If you start `./smilesd` and also serve `smiles` through a router, there are two daemons with separate pools and state.
+
+## 11.5.6. Shutdown
+
+`SIGTERM` or `SIGINT` stops a daemon or router. A daemon signals each pool’s process group, waits briefly, kills any that remain, and removes its socket files and temporary data. A router stops every daemon it started. There is no way to stop one program’s daemon through the router; restart the router instead.
+
+## 11.5.7. Summary
+
+| Role | Invocation | Description |
+| --- | --- | --- |
+| Daemon | `./<name>d`, built with `morloc make --daemon-out` | One program as a persistent service |
+| Daemon listeners | `--http-port`, `--port`, `--socket`, `--port-file` | HTTP, TCP, and Unix socket; `0` picks a free port |
+| Daemon eval | `--eval-allowed-modules`, `--eval-timeout` | Sandboxed `/eval` and `/typecheck` |
+| Router | `morloc-nexus router --program <name>…​` | Named programs behind one HTTP port, MCP and JSON API; launched by `mim start` |
+| Router auth | `--auth-token` / `MORLOC_MCP_TOKEN`, `--http-host`, `--allow-no-auth` | Bearer token; loopback by default |
+| Router eval | `--eval`, `--eval-allowed-modules`, `--eval-allow-no-auth` | Sandboxed `/eval` and the MCP `eval` tool |
