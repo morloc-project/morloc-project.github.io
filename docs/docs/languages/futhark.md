@@ -1,6 +1,6 @@
 # 10.6. Futhark
 
-Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/futhark.html | prev: https://morloc-project.github.io/docs/languages/rust.md | next: https://morloc-project.github.io/docs/internals/index.md
+Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/futhark.html | prev: https://morloc-project.github.io/docs/languages/rust.md | next: https://morloc-project.github.io/docs/utilities/index.md
 
 ## 10.6.1. Futhark backends and GPU devices
 

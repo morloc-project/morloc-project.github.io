@@ -1,0 +1,5 @@
+# 12.2. Runtime bootstrap
+
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md
+
+**STUB**: Specifies what initialization (`morloc init`) produces: the compiled runtime library, the nexus binary, the per-language bindings and their headers, and where each is placed. Defines the inputs each artifact depends on and the conditions that force a rebuild, so a stale runtime is never paired with a newer compiler. Covers the build modes (release versus development) and what an installation must provide before any program can be compiled.

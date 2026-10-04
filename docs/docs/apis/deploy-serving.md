@@ -85,7 +85,7 @@ $ claude mcp add --transport http smiles http://<host>:8005/mcp \
     --header "Authorization: Bearer $MORLOC_MCP_TOKEN"
 ```
 
-Each exported function becomes one MCP tool, named `<module>*<command>*` *(`smiles`*`mw`), with the docstrings as its description and the argument types as its input schema. The protocol details — the handshake, how arguments map to tool properties, and what is not exposed — are in [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/internals/mcp.md).
+Each exported function becomes one MCP tool, named `<module>*<command>*` *(`smiles`*`mw`), with the docstrings as its description and the argument types as its input schema. The protocol details — the handshake, how arguments map to tool properties, and what is not exposed — are in [Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md).
 
 ## 9.3.6. Watching and stopping servers
 

@@ -1,0 +1,5 @@
+# 13.9. Error propagation
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-errors.html | prev: https://morloc-project.github.io/docs/build-architecture/build-workers.md | next: https://morloc-project.github.io/docs/build-architecture/build-streaming.md
+
+**STUB**: Specifies how a failure travels through a program. Covers a foreign exception in one pool, a runtime fault such as a failed allocation, and a crashed process. Each becomes an error packet, crosses process boundaries with its context intact, and reaches the caller, either as a `Try` value or as the CLI’s error output and exit code. Defines what information is preserved at each hop.

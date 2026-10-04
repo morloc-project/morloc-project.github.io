@@ -243,7 +243,7 @@ Return:
   A PNG image
 ```
 
-It does more than label. The HTTP daemon returns the raw bytes with a matching `Content-Type` instead of a JSON envelope, and the MCP server delivers them as an inline image block rather than an array of numbers — see [Daemons and the serving router](https://morloc-project.github.io/docs/internals/api-interfaces.md) and [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/internals/mcp.md). A media-typed return must reduce to `Str` or a byte array (`[U8]`), or a list of either; anything else is rejected at compile time.
+It does more than label. The HTTP daemon returns the raw bytes with a matching `Content-Type` instead of a JSON envelope, and the MCP server delivers them as an inline image block rather than an array of numbers — see [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). A media-typed return must reduce to `Str` or a byte array (`[U8]`), or a list of either; anything else is rejected at compile time.
 
 > **Note**
 > `@mime` does not yet change what the CLI writes. Without an action flag the bytes still come out as a JSON array of numbers, so a `@render` sink is currently how you get a file (`reports/0029`):

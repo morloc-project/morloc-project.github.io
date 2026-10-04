@@ -3,849 +3,1049 @@
  "pages": [
   {
    "url": "ai-policy/",
-   "bytes": 50990,
+   "bytes": 50038,
    "mdBytes": 1514,
-   "links": 451,
+   "links": 444,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "apis/",
-   "bytes": 49911,
+   "bytes": 48959,
    "mdBytes": 888,
-   "links": 453,
+   "links": 446,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "apis/deploy-dependencies.html",
-   "bytes": 68771,
+   "bytes": 67819,
    "mdBytes": 7845,
-   "links": 471,
+   "links": 464,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "apis/deploy-environments.html",
-   "bytes": 78905,
+   "bytes": 77953,
    "mdBytes": 12883,
-   "links": 477,
+   "links": 470,
    "headings": 8,
    "coverage": 1
   },
   {
    "url": "apis/deploy-eval.html",
-   "bytes": 62749,
-   "mdBytes": 6429,
-   "links": 463,
+   "bytes": 61616,
+   "mdBytes": 6259,
+   "links": 455,
    "headings": 4,
    "coverage": 1
   },
   {
    "url": "apis/deploy-freeze.html",
-   "bytes": 60635,
+   "bytes": 59683,
    "mdBytes": 5976,
-   "links": 466,
+   "links": 459,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "apis/deploy-serving.html",
-   "bytes": 63992,
+   "bytes": 63040,
    "mdBytes": 6237,
-   "links": 467,
+   "links": 460,
    "headings": 6,
    "coverage": 1
   },
   {
    "url": "apis/execution-contexts.html",
-   "bytes": 69851,
+   "bytes": 68899,
    "mdBytes": 6857,
-   "links": 468,
+   "links": 461,
    "headings": 6,
    "coverage": 1
   },
   {
+   "url": "build-architecture/",
+   "bytes": 48918,
+   "mdBytes": 817,
+   "links": 444,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-artifacts.html",
+   "bytes": 48925,
+   "mdBytes": 688,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-collect.html",
+   "bytes": 49055,
+   "mdBytes": 738,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-errors.html",
+   "bytes": 48919,
+   "mdBytes": 702,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-lifecycle.html",
+   "bytes": 48932,
+   "mdBytes": 716,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-overview.html",
+   "bytes": 48921,
+   "mdBytes": 720,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-packets.html",
+   "bytes": 48833,
+   "mdBytes": 636,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-runs.html",
+   "bytes": 48938,
+   "mdBytes": 644,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-shm.html",
+   "bytes": 48929,
+   "mdBytes": 722,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-streaming.html",
+   "bytes": 48984,
+   "mdBytes": 725,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-tables.html",
+   "bytes": 48874,
+   "mdBytes": 625,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-voidstar.html",
+   "bytes": 48977,
+   "mdBytes": 708,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "build-architecture/build-workers.html",
+   "bytes": 48839,
+   "mdBytes": 641,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
    "url": "clis/",
-   "bytes": 50751,
+   "bytes": 49799,
    "mdBytes": 1688,
-   "links": 452,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "clis/argument-zones.html",
-   "bytes": 60799,
+   "bytes": 59847,
    "mdBytes": 3833,
-   "links": 464,
+   "links": 457,
    "headings": 1,
    "coverage": 1
   },
   {
    "url": "clis/arguments.html",
-   "bytes": 90313,
+   "bytes": 89361,
    "mdBytes": 13831,
-   "links": 487,
+   "links": 480,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "clis/composing-tools.html",
-   "bytes": 68334,
+   "bytes": 67382,
    "mdBytes": 6339,
-   "links": 466,
+   "links": 459,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "clis/directive-reference.html",
-   "bytes": 62272,
+   "bytes": 61320,
    "mdBytes": 5847,
-   "links": 459,
+   "links": 452,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "clis/docstrings.html",
-   "bytes": 63932,
+   "bytes": 62980,
    "mdBytes": 5491,
-   "links": 462,
+   "links": 455,
    "headings": 1,
    "coverage": 1
   },
   {
    "url": "clis/example-program.html",
-   "bytes": 90991,
+   "bytes": 90039,
    "mdBytes": 8085,
-   "links": 461,
+   "links": 454,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "clis/input-shape.html",
-   "bytes": 69776,
+   "bytes": 68824,
    "mdBytes": 7658,
-   "links": 465,
+   "links": 458,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "clis/interface-as-data.html",
-   "bytes": 72313,
-   "mdBytes": 5832,
-   "links": 461,
+   "bytes": 71227,
+   "mdBytes": 5676,
+   "links": 453,
    "headings": 1,
    "coverage": 1
   },
   {
    "url": "clis/output-actions.html",
-   "bytes": 88201,
-   "mdBytes": 13225,
-   "links": 481,
+   "bytes": 87152,
+   "mdBytes": 13106,
+   "links": 473,
    "headings": 6,
    "coverage": 1
   },
   {
    "url": "clis/output-formats.html",
-   "bytes": 66265,
+   "bytes": 65313,
    "mdBytes": 5228,
-   "links": 469,
+   "links": 462,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "clis/reading-stdin.html",
-   "bytes": 63561,
+   "bytes": 62609,
    "mdBytes": 4663,
-   "links": 463,
+   "links": 456,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "clis/record-arguments.html",
-   "bytes": 65769,
+   "bytes": 64817,
    "mdBytes": 6442,
-   "links": 465,
+   "links": 458,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "clis/streaming-output.html",
-   "bytes": 79332,
+   "bytes": 78380,
    "mdBytes": 10428,
-   "links": 478,
+   "links": 471,
    "headings": 6,
    "coverage": 1
   },
   {
    "url": "clis/sum-type-arguments.html",
-   "bytes": 55126,
+   "bytes": 54174,
    "mdBytes": 2332,
-   "links": 455,
+   "links": 448,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/",
+   "bytes": 48804,
+   "mdBytes": 733,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-calls.html",
+   "bytes": 48886,
+   "mdBytes": 661,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-codegen.html",
+   "bytes": 48856,
+   "mdBytes": 659,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-effects.html",
+   "bytes": 48763,
+   "mdBytes": 611,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-interface.html",
+   "bytes": 48927,
+   "mdBytes": 723,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-libmorloc.html",
+   "bytes": 49000,
+   "mdBytes": 775,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-onboarding.html",
+   "bytes": 48872,
+   "mdBytes": 659,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-parsing.html",
+   "bytes": 48864,
+   "mdBytes": 663,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-pipeline.html",
+   "bytes": 48837,
+   "mdBytes": 651,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-realization.html",
+   "bytes": 48863,
+   "mdBytes": 682,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-serialization.html",
+   "bytes": 48947,
+   "mdBytes": 713,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-sharing.html",
+   "bytes": 48839,
+   "mdBytes": 634,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "compiler-architecture/compiler-types.html",
+   "bytes": 48824,
+   "mdBytes": 672,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "contact/",
-   "bytes": 50116,
+   "bytes": 49164,
    "mdBytes": 658,
-   "links": 454,
+   "links": 447,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "ecosystem-architecture/",
+   "bytes": 49253,
+   "mdBytes": 1039,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "ecosystem-architecture/eco-bootstrap.html",
+   "bytes": 49073,
+   "mdBytes": 772,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "ecosystem-architecture/eco-freezing.html",
+   "bytes": 49087,
+   "mdBytes": 748,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "ecosystem-architecture/eco-modules.html",
+   "bytes": 48998,
+   "mdBytes": 695,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "ecosystem-architecture/eco-overview.html",
+   "bytes": 49150,
+   "mdBytes": 874,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "ecosystem-architecture/eco-serving.html",
+   "bytes": 49203,
+   "mdBytes": 885,
+   "links": 445,
+   "headings": 0,
+   "coverage": 1
+  },
+  {
+   "url": "ecosystem-architecture/eco-solving.html",
+   "bytes": 49136,
+   "mdBytes": 823,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "env/",
-   "bytes": 81118,
-   "mdBytes": 12085,
-   "links": 488,
+   "bytes": 80164,
+   "mdBytes": 12083,
+   "links": 481,
    "headings": 10,
    "coverage": 1
   },
   {
    "url": "features/",
-   "bytes": 48152,
+   "bytes": 47200,
    "mdBytes": 239,
-   "links": 451,
+   "links": 444,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "features/booleans.html",
-   "bytes": 71799,
+   "bytes": 70847,
    "mdBytes": 4411,
-   "links": 471,
+   "links": 464,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "features/conditionals.html",
-   "bytes": 63699,
+   "bytes": 62747,
    "mdBytes": 2600,
-   "links": 467,
+   "links": 460,
    "headings": 3,
    "coverage": 1
   },
   {
    "url": "features/effects.html",
-   "bytes": 126033,
+   "bytes": 125081,
    "mdBytes": 23551,
-   "links": 514,
+   "links": 507,
    "headings": 16,
    "coverage": 1
   },
   {
    "url": "features/floats.html",
-   "bytes": 82210,
+   "bytes": 81258,
    "mdBytes": 10097,
-   "links": 479,
+   "links": 472,
    "headings": 9,
    "coverage": 1
   },
   {
    "url": "features/foreign-functions.html",
-   "bytes": 92333,
+   "bytes": 91381,
    "mdBytes": 10520,
-   "links": 481,
+   "links": 474,
    "headings": 6,
    "coverage": 1
   },
   {
    "url": "features/functions.html",
-   "bytes": 70764,
+   "bytes": 69812,
    "mdBytes": 5206,
-   "links": 474,
+   "links": 467,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "features/integers.html",
-   "bytes": 104565,
+   "bytes": 103613,
    "mdBytes": 13917,
-   "links": 496,
+   "links": 489,
    "headings": 13,
    "coverage": 1
   },
   {
    "url": "features/intrinsics.html",
-   "bytes": 127283,
+   "bytes": 126331,
    "mdBytes": 26061,
-   "links": 496,
+   "links": 489,
    "headings": 12,
    "coverage": 1
   },
   {
    "url": "features/optionals.html",
-   "bytes": 81016,
+   "bytes": 80064,
    "mdBytes": 7165,
-   "links": 476,
+   "links": 469,
    "headings": 6,
    "coverage": 1
   },
   {
    "url": "features/pattern-matching.html",
-   "bytes": 103796,
+   "bytes": 102844,
    "mdBytes": 13547,
-   "links": 499,
+   "links": 492,
    "headings": 10,
    "coverage": 1
   },
   {
    "url": "features/patterns.html",
-   "bytes": 87150,
+   "bytes": 86198,
    "mdBytes": 7969,
-   "links": 471,
+   "links": 464,
    "headings": 6,
    "coverage": 1
   },
   {
    "url": "features/records.html",
-   "bytes": 69206,
+   "bytes": 68254,
    "mdBytes": 3892,
-   "links": 468,
+   "links": 461,
    "headings": 3,
    "coverage": 1
   },
   {
    "url": "features/recursion.html",
-   "bytes": 92164,
+   "bytes": 91212,
    "mdBytes": 6902,
-   "links": 487,
+   "links": 480,
    "headings": 7,
    "coverage": 1
   },
   {
    "url": "features/strings.html",
-   "bytes": 67845,
+   "bytes": 66893,
    "mdBytes": 6476,
-   "links": 473,
+   "links": 466,
    "headings": 4,
    "coverage": 1
   },
   {
    "url": "features/sum-types.html",
-   "bytes": 140744,
+   "bytes": 139792,
    "mdBytes": 24902,
-   "links": 500,
+   "links": 493,
    "headings": 8,
    "coverage": 1
   },
   {
    "url": "features/tuples-and-lists.html",
-   "bytes": 55818,
+   "bytes": 54866,
    "mdBytes": 2732,
-   "links": 463,
+   "links": 456,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "features/where-and-let.html",
-   "bytes": 60842,
+   "bytes": 59890,
    "mdBytes": 3372,
-   "links": 466,
+   "links": 459,
    "headings": 4,
    "coverage": 1
   },
   {
    "url": "future/",
-   "bytes": 55174,
-   "mdBytes": 4318,
-   "links": 452,
+   "bytes": 54265,
+   "mdBytes": 4338,
+   "links": 445,
    "headings": 1,
    "coverage": 1
   },
   {
    "url": "getting-started/",
-   "bytes": 49146,
+   "bytes": 48194,
    "mdBytes": 228,
-   "links": 451,
+   "links": 444,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "getting-started/abstract-modules.html",
-   "bytes": 58491,
+   "bytes": 57539,
    "mdBytes": 3446,
-   "links": 460,
+   "links": 453,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "getting-started/editor-support.html",
-   "bytes": 53910,
+   "bytes": 52958,
    "mdBytes": 2562,
-   "links": 459,
+   "links": 452,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "getting-started/first-program.html",
-   "bytes": 54922,
+   "bytes": 53970,
    "mdBytes": 3006,
-   "links": 459,
+   "links": 452,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "getting-started/installing.html",
-   "bytes": 66976,
+   "bytes": 66024,
    "mdBytes": 8859,
-   "links": 471,
+   "links": 464,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "getting-started/mixing-languages.html",
-   "bytes": 55040,
-   "mdBytes": 1585,
-   "links": 456,
+   "bytes": 54097,
+   "mdBytes": 1594,
+   "links": 449,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "getting-started/parallelism.html",
-   "bytes": 57451,
+   "bytes": 56499,
    "mdBytes": 1680,
-   "links": 456,
+   "links": 449,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "getting-started/sourcing.html",
-   "bytes": 57055,
+   "bytes": 56103,
    "mdBytes": 2454,
-   "links": 457,
+   "links": 450,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "getting-started/troubleshooting.html",
-   "bytes": 59620,
+   "bytes": 58668,
    "mdBytes": 5289,
-   "links": 457,
+   "links": 450,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "getting-started/where-to-go-next.html",
-   "bytes": 52401,
+   "bytes": 51449,
    "mdBytes": 2077,
-   "links": 458,
-   "headings": 0,
-   "coverage": 1
-  },
-  {
-   "url": "internals/",
-   "bytes": 48920,
-   "mdBytes": 239,
    "links": 451,
    "headings": 0,
    "coverage": 1
   },
   {
-   "url": "internals/api-interfaces.html",
-   "bytes": 80956,
-   "mdBytes": 11963,
-   "links": 474,
-   "headings": 8,
-   "coverage": 1
-  },
-  {
-   "url": "internals/architecture-overview.html",
-   "bytes": 52477,
-   "mdBytes": 3033,
-   "links": 452,
-   "headings": 0,
-   "coverage": 1
-  },
-  {
-   "url": "internals/cross-language-calls.html",
-   "bytes": 60638,
-   "mdBytes": 4855,
-   "links": 458,
-   "headings": 3,
-   "coverage": 1
-  },
-  {
-   "url": "internals/mcp.html",
-   "bytes": 70596,
-   "mdBytes": 10209,
-   "links": 471,
-   "headings": 9,
-   "coverage": 1
-  },
-  {
-   "url": "internals/morloc-eval.html",
-   "bytes": 66757,
-   "mdBytes": 8648,
-   "links": 469,
-   "headings": 4,
-   "coverage": 1
-  },
-  {
-   "url": "internals/protocols.html",
-   "bytes": 117618,
-   "mdBytes": 11640,
-   "links": 466,
-   "headings": 11,
-   "coverage": 1
-  },
-  {
-   "url": "internals/runtime-and-dev-builds.html",
-   "bytes": 54397,
-   "mdBytes": 2958,
-   "links": 458,
-   "headings": 4,
-   "coverage": 1
-  },
-  {
    "url": "intro/",
-   "bytes": 59720,
+   "bytes": 58768,
    "mdBytes": 3116,
-   "links": 456,
+   "links": 449,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "languages/",
-   "bytes": 49157,
+   "bytes": 48205,
    "mdBytes": 238,
-   "links": 451,
+   "links": 444,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "languages/build-parameters.html",
-   "bytes": 61383,
+   "bytes": 60431,
    "mdBytes": 4861,
-   "links": 463,
+   "links": 456,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "languages/cpp.html",
-   "bytes": 53447,
+   "bytes": 52495,
    "mdBytes": 2317,
-   "links": 458,
+   "links": 451,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "languages/futhark.html",
-   "bytes": 51334,
+   "bytes": 50373,
    "mdBytes": 1288,
-   "links": 454,
+   "links": 447,
    "headings": 1,
    "coverage": 1
   },
   {
    "url": "languages/python.html",
-   "bytes": 60021,
+   "bytes": 59069,
    "mdBytes": 4840,
-   "links": 464,
+   "links": 457,
    "headings": 3,
    "coverage": 1
   },
   {
    "url": "languages/r.html",
-   "bytes": 52443,
+   "bytes": 51491,
    "mdBytes": 1691,
-   "links": 456,
+   "links": 449,
    "headings": 1,
    "coverage": 1
   },
   {
    "url": "languages/rust.html",
-   "bytes": 57400,
+   "bytes": 56448,
    "mdBytes": 4366,
-   "links": 464,
+   "links": 457,
    "headings": 4,
    "coverage": 1
   },
   {
    "url": "modules/",
-   "bytes": 49377,
+   "bytes": 48425,
    "mdBytes": 248,
-   "links": 451,
+   "links": 444,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "modules/data-transfer.html",
-   "bytes": 56514,
+   "bytes": 55562,
    "mdBytes": 2885,
-   "links": 457,
+   "links": 450,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "modules/exposing-native-resources.html",
-   "bytes": 63834,
+   "bytes": 62882,
    "mdBytes": 3451,
-   "links": 458,
+   "links": 451,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "modules/importing-modules.html",
-   "bytes": 72903,
+   "bytes": 71951,
    "mdBytes": 6580,
-   "links": 466,
+   "links": 459,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "modules/installing-modules.html",
-   "bytes": 70186,
+   "bytes": 69234,
    "mdBytes": 8372,
-   "links": 462,
+   "links": 455,
    "headings": 1,
    "coverage": 1
   },
   {
    "url": "modules/universal-library.html",
-   "bytes": 50795,
+   "bytes": 49843,
    "mdBytes": 1353,
-   "links": 452,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "qa/",
-   "bytes": 49332,
+   "bytes": 48380,
    "mdBytes": 196,
-   "links": 451,
+   "links": 444,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "qa/ai-relevance.html",
-   "bytes": 56384,
+   "bytes": 55432,
    "mdBytes": 6326,
-   "links": 452,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "qa/bioinformatics-only.html",
-   "bytes": 50315,
+   "bytes": 49363,
    "mdBytes": 700,
-   "links": 453,
+   "links": 446,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "qa/more-questions.html",
-   "bytes": 49781,
+   "bytes": 48829,
    "mdBytes": 301,
-   "links": 452,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "qa/morlocks.html",
-   "bytes": 50138,
+   "bytes": 49186,
    "mdBytes": 612,
-   "links": 452,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "qa/not-a-human.html",
-   "bytes": 50210,
+   "bytes": 49258,
    "mdBytes": 675,
-   "links": 452,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "qa/object-oriented.html",
-   "bytes": 50952,
+   "bytes": 50000,
    "mdBytes": 1303,
-   "links": 452,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "qa/one-language.html",
-   "bytes": 52056,
+   "bytes": 51104,
    "mdBytes": 2238,
-   "links": 452,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "qa/per-function-environments.html",
-   "bytes": 52633,
+   "bytes": 51681,
    "mdBytes": 2783,
-   "links": 453,
+   "links": 446,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "runs/",
-   "bytes": 49491,
+   "bytes": 48539,
    "mdBytes": 565,
-   "links": 451,
+   "links": 444,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "runs/benchmarking.html",
-   "bytes": 61739,
+   "bytes": 60787,
    "mdBytes": 3868,
-   "links": 461,
+   "links": 454,
    "headings": 2,
    "coverage": 1
   },
   {
    "url": "runs/caching.html",
-   "bytes": 58100,
+   "bytes": 57148,
    "mdBytes": 5260,
-   "links": 459,
+   "links": 452,
    "headings": 4,
    "coverage": 1
   },
   {
    "url": "runs/compression.html",
-   "bytes": 63303,
+   "bytes": 62351,
    "mdBytes": 5869,
-   "links": 460,
+   "links": 453,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "runs/debugging.html",
-   "bytes": 66969,
+   "bytes": 66017,
    "mdBytes": 8240,
-   "links": 465,
+   "links": 458,
    "headings": 8,
    "coverage": 1
   },
   {
    "url": "runs/logging.html",
-   "bytes": 79752,
+   "bytes": 78800,
    "mdBytes": 8355,
-   "links": 471,
+   "links": 464,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "runs/random-access-and-streaming.html",
-   "bytes": 82510,
+   "bytes": 81558,
    "mdBytes": 9503,
-   "links": 468,
+   "links": 461,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "runs/run-directory.html",
-   "bytes": 67436,
+   "bytes": 66484,
    "mdBytes": 7362,
-   "links": 462,
+   "links": 455,
    "headings": 6,
    "coverage": 1
   },
   {
    "url": "types/",
-   "bytes": 48927,
+   "bytes": 47975,
    "mdBytes": 224,
-   "links": 451,
+   "links": 444,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "types/infix-operators.html",
-   "bytes": 72474,
+   "bytes": 71522,
    "mdBytes": 4794,
-   "links": 471,
+   "links": 464,
    "headings": 4,
    "coverage": 1
   },
   {
    "url": "types/kinds.html",
-   "bytes": 120331,
+   "bytes": 119379,
    "mdBytes": 18112,
-   "links": 494,
+   "links": 487,
    "headings": 8,
    "coverage": 1
   },
   {
    "url": "types/newtype.html",
-   "bytes": 100365,
+   "bytes": 99413,
    "mdBytes": 13381,
-   "links": 488,
+   "links": 481,
    "headings": 9,
    "coverage": 1
   },
   {
    "url": "types/packable.html",
-   "bytes": 84175,
+   "bytes": 83223,
    "mdBytes": 7055,
-   "links": 471,
+   "links": 464,
    "headings": 3,
    "coverage": 1
   },
   {
    "url": "types/tables.html",
-   "bytes": 134240,
+   "bytes": 133288,
    "mdBytes": 18947,
-   "links": 499,
+   "links": 492,
    "headings": 8,
    "coverage": 1
   },
   {
    "url": "types/tensors.html",
-   "bytes": 90564,
+   "bytes": 89612,
    "mdBytes": 9766,
-   "links": 479,
+   "links": 472,
    "headings": 6,
    "coverage": 1
   },
   {
    "url": "types/term-polymorphism.html",
-   "bytes": 82313,
+   "bytes": 81361,
    "mdBytes": 6975,
-   "links": 472,
+   "links": 465,
    "headings": 3,
    "coverage": 1
   },
   {
    "url": "types/typeclasses.html",
-   "bytes": 79118,
+   "bytes": 78166,
    "mdBytes": 7879,
-   "links": 471,
+   "links": 464,
    "headings": 5,
    "coverage": 1
   },
   {
    "url": "utilities/",
-   "bytes": 50872,
-   "mdBytes": 750,
-   "links": 452,
+   "bytes": 49908,
+   "mdBytes": 746,
+   "links": 445,
    "headings": 0,
    "coverage": 1
   },
   {
    "url": "utilities/nexus-file.html",
-   "bytes": 59399,
+   "bytes": 58447,
    "mdBytes": 4951,
-   "links": 457,
+   "links": 450,
    "headings": 3,
    "coverage": 1
   },
   {
    "url": "utilities/nexus-view.html",
-   "bytes": 67052,
-   "mdBytes": 8523,
-   "links": 464,
+   "bytes": 66137,
+   "mdBytes": 8539,
+   "links": 457,
    "headings": 8,
    "coverage": 1
   },
   {
    "url": "why/",
-   "bytes": 80814,
+   "bytes": 79862,
    "mdBytes": 16774,
-   "links": 486,
+   "links": 479,
    "headings": 10,
    "coverage": 1
   }

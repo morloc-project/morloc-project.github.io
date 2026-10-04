@@ -85,4 +85,4 @@ $ morloc eval --eval-allowed-modules root-py -e 'import root-cpp; 1 + 2'
 module 'root-cpp' is not in the eval allow-list
 ```
 
-Inside the environment, `mim run — morloc eval --eval-allowed-modules smiles,root-py heavy.loc` evaluates the file above the way the server would. Without `--eval-allowed-modules`, `morloc eval` is the unrestricted local command described in [morloc eval](https://morloc-project.github.io/docs/internals/morloc-eval.md), which also covers writing `where`, `let`, and `do` blocks on one line with braces.
+Inside the environment, `mim run — morloc eval --eval-allowed-modules smiles,root-py heavy.loc` evaluates the file above the way the server would. Without `--eval-allowed-modules`, `morloc eval` runs unrestricted, as a local command.

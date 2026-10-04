@@ -1,0 +1,7 @@
+# 12. Ecosystem Architecture
+
+Morloc Manual | https://morloc-project.github.io/docs/ecosystem-architecture/ | prev: https://morloc-project.github.io/docs/utilities/nexus-view.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md
+
+This chapter specifies how the parts of the Morloc ecosystem fit together: the compiler, the runtime library, the nexus, and the environment manager. It defines where each part is installed, how a program’s dependencies (Morloc modules and foreign packages) are resolved and locked, how an environment is frozen into a portable artifact, and how a compiled program is served to other programs and agents. The [Deployment](https://morloc-project.github.io/docs/apis/index.md) chapter shows how to use these tools; this chapter specifies what they do.
+
+This chapter and the two that follow are written as a specification. They describe behavior, formats and guarantees rather than any particular implementation, so they should remain true of any conforming reimplementation.

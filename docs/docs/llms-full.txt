@@ -790,7 +790,7 @@ $ ./report report 21
 "The current temperature is 21.0C (69.80000000000001F)"
 ```
 
-A Python function called a C++ function, and you wrote no binding code. All of the interop — serializing the argument, starting both pools, passing a callable reference across the process boundary — is generated. [Build Architecture](https://morloc-project.github.io/docs/internals/index.md) covers how.
+A Python function called a C++ function, and you wrote no binding code. All of the interop — serializing the argument, starting both pools, passing a callable reference across the process boundary — is generated. [Build Architecture](https://morloc-project.github.io/docs/build-architecture/index.md) covers how.
 
 
 ---
@@ -10013,7 +10013,7 @@ Return:
   A PNG image
 ```
 
-It does more than label. The HTTP daemon returns the raw bytes with a matching `Content-Type` instead of a JSON envelope, and the MCP server delivers them as an inline image block rather than an array of numbers — see [Daemons and the serving router](https://morloc-project.github.io/docs/internals/api-interfaces.md) and [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/internals/mcp.md). A media-typed return must reduce to `Str` or a byte array (`[U8]`), or a list of either; anything else is rejected at compile time.
+It does more than label. The HTTP daemon returns the raw bytes with a matching `Content-Type` instead of a JSON envelope, and the MCP server delivers them as an inline image block rather than an array of numbers — see [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). A media-typed return must reduce to `Str` or a byte array (`[U8]`), or a list of either; anything else is rejected at compile time.
 
 > **Note**
 > `@mime` does not yet change what the CLI writes. Without an action flag the bytes still come out as a JSON array of numbers, so a `@render` sink is currently how you get a file (`reports/0029`):
@@ -10642,7 +10642,7 @@ $ ./sift --mcp-tools > tools.json
 morloc mcp: excluding command 'total' from the tool surface (reads from @stdin)
 ```
 
-The MCP surface is covered in [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/internals/mcp.md), and the same module served over HTTP, TCP, and Unix sockets in [Daemons and the serving router](https://morloc-project.github.io/docs/internals/api-interfaces.md). They are worth reading together with this section, because they are the same point from three directions: the command line is one view of a typed library, not the thing the library is built on. A CLI, an HTTP endpoint, and an MCP tool are three renderings of one set of functions, and none of them is written by hand.
+Serving the same module over MCP and HTTP is covered in [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). It is worth reading together with this section, because they are the same point from three directions: the command line is one view of a typed library, not the thing the library is built on. A CLI, an HTTP endpoint, and an MCP tool are three renderings of one set of functions, and none of them is written by hand.
 
 
 ---
@@ -12571,7 +12571,7 @@ $ claude mcp add --transport http smiles http://<host>:8005/mcp \
     --header "Authorization: Bearer $MORLOC_MCP_TOKEN"
 ```
 
-Each exported function becomes one MCP tool, named `<module>*<command>*` *(`smiles`*`mw`), with the docstrings as its description and the argument types as its input schema. The protocol details — the handshake, how arguments map to tool properties, and what is not exposed — are in [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/internals/mcp.md).
+Each exported function becomes one MCP tool, named `<module>*<command>*` *(`smiles`*`mw`), with the docstrings as its description and the argument types as its input schema. The protocol details — the handshake, how arguments map to tool properties, and what is not exposed — are in [Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md).
 
 ## 9.3.6. Watching and stopping servers
 
@@ -12676,7 +12676,7 @@ $ morloc eval --eval-allowed-modules root-py -e 'import root-cpp; 1 + 2'
 module 'root-cpp' is not in the eval allow-list
 ```
 
-Inside the environment, `mim run — morloc eval --eval-allowed-modules smiles,root-py heavy.loc` evaluates the file above the way the server would. Without `--eval-allowed-modules`, `morloc eval` is the unrestricted local command described in [morloc eval](https://morloc-project.github.io/docs/internals/morloc-eval.md), which also covers writing `where`, `let`, and `do` blocks on one line with braces.
+Inside the environment, `mim run — morloc eval --eval-allowed-modules smiles,root-py heavy.loc` evaluates the file above the way the server would. Without `--eval-allowed-modules`, `morloc eval` runs unrestricted, as a local command.
 
 
 ---
@@ -13248,7 +13248,7 @@ The pool’s release profile is set by the `rust:lto` and `rust:opt-level` build
 
 # 10.6. Futhark
 
-Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/futhark.html | prev: https://morloc-project.github.io/docs/languages/rust.md | next: https://morloc-project.github.io/docs/internals/index.md
+Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/futhark.html | prev: https://morloc-project.github.io/docs/languages/rust.md | next: https://morloc-project.github.io/docs/utilities/index.md
 
 ## 10.6.1. Futhark backends and GPU devices
 
@@ -13267,917 +13267,11 @@ A GPU build runs on the single selected device, and calls into the Futhark conte
 
 ---
 
-<!-- https://morloc-project.github.io/docs/internals/ -->
-
-# 11. Build Architecture
-
-Morloc Manual | https://morloc-project.github.io/docs/internals/ | prev: https://morloc-project.github.io/docs/languages/futhark.md | next: https://morloc-project.github.io/docs/internals/architecture-overview.md
-
-
----
-
-<!-- https://morloc-project.github.io/docs/internals/architecture-overview.html -->
-
-# 11.1. Architecture Overview
-
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/architecture-overview.html | prev: https://morloc-project.github.io/docs/internals/index.md | next: https://morloc-project.github.io/docs/internals/cross-language-calls.md
-
-A compiled Morloc program has two kinds of components: one **nexus** and one or more **pools**.
-
-The **nexus** is a pre-compiled Rust binary that serves as the CLI entry point. It reads a JSON manifest describing the program’s structure, parses command-line arguments, and orchestrates execution. The nexus starts pool daemons, sends them call packets over Unix domain sockets, and prints the result. When done, it tears everything down.
-
-**Pools** are language-specific daemons — one per language used in the program. A pool contains all functions from its language, compiled into a single unit. Pools listen on Unix sockets for call packets, dispatch to the appropriate function, and return results. All pools support **concurrency**, starting with one worker and growing dynamically as needed. C++ pools use OS threads for true parallelism; Python and R pools use worker processes to handle concurrent requests.
-
-Data moves between pools via Unix domain sockets. For **small values** (up to 64 KB), the serialized data is embedded directly in the packet — no shared memory is needed. For **large values**, data is placed in a shared memory region and only an 8-byte pointer travels over the socket. Pools can also call each other directly for cross-language ("foreign") calls, without routing through the nexus.
-
-![Diagram](https://morloc-project.github.io/docs/static/img/diag-334e01bb4d909869bdcac4a7598ffe360d9cb326f8bc9851cdfc985982e49b6d.svg)
-
-Here are the runtime rules you should be able to count on. Any violations should be considered bugs.
-
-1.  **STDOUT and STDERR pass through.** Any output written to stdout or stderr by user functions is never intercepted or buffered by the Morloc runtime. It passes directly to the terminal.
-2.  **Errors become tracebacks.** All exceptions raised by user functions are caught by the pool and returned as error packets. As the error propagates back through foreign calls to the nexus, each layer appends context, building a full cross-language traceback that the user can read.
-3.  **Intra-pool calls are near-native.** Calls between functions within the same pool go through a simple dispatch table — there is no serialization, no socket overhead, and no IPC. Performance should be nearly native.
-4.  **Inter-pool calls cost socket time plus marshalling.** A call between pools (or between the nexus and a pool) pays only the few microseconds of Unix socket round-trip plus the cost of data marshalling. In the best case, the data in shared memory can be directly used between programs and marshalling cost is zero. In practice, copies are often needed — for example, Python demands ownership of its strings even when the data could in principle be shared directly.
-
-
----
-
-<!-- https://morloc-project.github.io/docs/internals/cross-language-calls.html -->
-
-# 11.2. Cross-language function calls
-
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/cross-language-calls.html | prev: https://morloc-project.github.io/docs/internals/architecture-overview.md | next: https://morloc-project.github.io/docs/internals/protocols.md
-
-When a Morloc program composes functions from different languages, the compiler must bridge the language boundary. A key design principle is that **Morloc never serializes functions**. Functions cannot be meaningfully transmitted between language runtimes — there is no way to pickle a C++ template instantiation into something Python can call directly. Instead, Morloc generates **wrapper functions** that make IPC calls to the foreign language pool.
-
-## 11.2.1. How it works
-
-Each function in a compiled Morloc program is assigned a unique integer identifier called a **manifold ID** (mid). Every pool maintains a dispatch table mapping manifold IDs to concrete function implementations. When a function needs to call a function in another language, it does not call it directly — it sends a call packet containing the target manifold ID and serialized arguments over a Unix domain socket to the foreign pool, which dispatches the call and returns the result.
-
-The compiler generates all of this automatically. Consider a program where Python’s `pmap` calls a C++ `sum` function:
-
-```morloc
-module foo (sumOfSums)
-
-import root-cpp
-import root-py
-
-source Py from "foo.py" ("pmap")
-source Cpp from "foo.hpp" ("sum")
-
-pmap :: (a -> b) -> [a] -> [b]
-sum :: [Real] -> Real
-
-sumOfSums = sum . pmap sum
-```
-
-When `pmap` is compiled in the Python pool, it receives `sum` not as a C++ function pointer, but as a **Python wrapper function** generated by the compiler. This wrapper:
-
-1.  Serializes its arguments into the binary wire format
-2.  Sends a call packet (with the C++ `sum` manifold ID) over the Unix socket to the C++ pool
-3.  Reads the result packet back
-4.  Deserializes the result into a Python value
-
-From Python’s perspective, this wrapper is an ordinary Python callable. It can be passed to `multiprocessing.Pool.map`, stored in a list, or used anywhere a function is expected — because it *is* a regular Python function. The cross-language call is hidden inside it.
-
-## 11.2.2. What the generated code looks like
-
-The Python pool contains a wrapper like this (simplified):
-
-```python
-def m1384(x):
-    packed = morloc.put_value(x, "<list>a<float>f8")
-    result = morloc.foreign_call(cpp_socket_path, 1384, [packed])
-    return morloc.get_value(result, "<float>f8")
-```
-
-Here `1384` is the manifold ID assigned to `sum`, and `cpp_socket_path` is the path to the C++ pool’s Unix domain socket. The `morloc.foreign_call` function handles the IPC: it sends a call packet, waits for the response, and returns the raw result packet. The `put_value` and `get_value` functions handle serialization and deserialization using a compact binary schema string.
-
-On the C++ side, the pool’s dispatch table routes the manifold ID to the actual `sum` implementation:
-
-```c++
-// compiler-generated dispatch
-uint8_t* local_dispatch(uint32_t mid, const uint8_t** args) {
-    switch(mid) {
-        case 1384: return m1384(args[0]);  // calls sum
-        // ...
-    }
-}
-```
-
-## 11.2.3. Performance implications
-
-Intra-pool calls (functions in the same language) are direct native function calls — no serialization, no sockets, no dispatch table lookup. The only overhead is that functions may be wrapped in thin wrapper functions, but even this can be eliminated with the `%inline` pragma, which inlines the function body at the call site.
-
-Inter-pool calls (cross-language) pay the cost of:
-
--   Serializing the arguments (proportional to data size)
--   A Unix socket round-trip (microseconds for small payloads)
--   Deserializing the result
-
-In special cases, serialization can be avoided entirely. When data has the same binary representation in both languages, only a pointer to shared memory needs to cross the socket — no copying or conversion. Currently this zero-copy path is supported for Arrow tables; support for fixed-size numeric vectors and tensors is planned.
-
-For higher-order functions like `pmap`, each invocation of the wrapped function is a separate IPC round-trip. If `pmap sum` is called on a list of 1000 elements, that is 1000 cross-language calls. This is the expected cost of language interop — the alternative would be to batch the data and send it all at once, but that would require changing the function’s interface.
-
-When performance matters, the best strategy is to keep hot loops within a single language. The compiler’s implementation selection algorithm already optimizes for this: given multiple implementations of a function, it prefers the one that avoids cross-language calls.
-
-
----
-
-<!-- https://morloc-project.github.io/docs/internals/protocols.html -->
-
-# 11.3. Protocols
-
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/protocols.html | prev: https://morloc-project.github.io/docs/internals/cross-language-calls.md | next: https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.md
-
-> **Note**
-> This section is primarily of interest to users extending the Morloc ecosystem (e.g., adding a new language backend) or debugging at the binary level.
-
-This section describes the binary formats used for communication between the nexus and pools: the manifest, the packet protocol, the shared memory layout, and the voidstar data format.
-
-## 11.3.1. The manifest
-
-The manifest is a standalone `manifest.json` file written into the program’s `<name>-build/` directory. The launcher script that `morloc make` produces is a thin wrapper carrying no embedded payload; it execs the shared `morloc-nexus` runtime against an absolute path to this file, so the launcher can be freely moved as long as its build directory stays put. The manifest describes the program’s structure. Key fields:
-
-| Field | Description |
-| --- | --- |
-| `version` | Manifest format version (currently `1`) |
-| `name` | Program name |
-| `build_dir` | Absolute path to the build directory |
-| `pools` | Array of pool descriptors (see below) |
-| `commands` | Array of exported commands (see below) |
-
-Each **pool** entry:
-
--   `lang` — Language name (e.g., `"python3"`, `"cpp"`)
--   `exec` — Command-line tokens to launch the pool, with the pool path relative to `build_dir` (e.g., `["python3", "pools/python3/pool.py"]`)
--   `socket` — Unix domain socket basename (e.g., `"pipe-python3"`)
-
-Each **command** entry:
-
--   `name` — CLI subcommand name
--   `type` — `"remote"` (dispatched to a pool) or `"pure"` (evaluated in the nexus)
--   `mid` — Manifold index identifying the function in the pool
--   `pool` — Index into the `pools` array
--   `needed_pools` — Indices of all pools that must be running
--   `arg_schemas` / `return_schema` — Schema strings describing argument and return types (see [Schema strings](#schema-strings))
--   `args` — CLI argument descriptors
-
-## 11.3.2. Packet protocol
-
-All communication uses a binary packet protocol over Unix domain sockets. Every packet starts with a 32-byte packed header:
-
-![Diagram](https://morloc-project.github.io/docs/static/img/diag-3a8a4214514fb5bdcf108374d4bfe4f885ff06efcf232eb8b10a5c35ca7a2853.svg)
-
-**Table 12. Packet header fields**
-
-| Field | Type | Width | Description |
-| --- | --- | --- | --- |
-| `magic` | uint32\_t | 4 | Constant `0x0707f86d` (little-endian) |
-| `plain` | uint16\_t | 2 | Plain membership (reserved, always 0) |
-| `version` | uint16\_t | 2 | Format version (currently 0) |
-| `flavor` | uint16\_t | 2 | Metadata convention (reserved) |
-| `mode` | uint16\_t | 2 | Evaluation mode (reserved) |
-| `command` | union | 8 | Type-specific command data (see below) |
-| `offset` | uint32\_t | 4 | Bytes of metadata between header and payload |
-| `length` | uint64\_t | 8 | Payload length in bytes |
-
-Total packet size is always `32 + offset + length`.
-
-### Packet types
-
-The `command` field’s first byte is a type tag:
-
-**Data packet** (`0x00`) — Carries data or error messages:
-
-| Field | Type | Width | Description |
-| --- | --- | --- | --- |
-| `type` | uint8\_t | 1 | `0x00` |
-| `source` | uint8\_t | 1 | `0x00`\=MESG (inline), `0x01`\=FILE (path), `0x02`\=RPTR (shared memory pointer) |
-| `format` | uint8\_t | 1 | `0x00`\=JSON, `0x01`\=MSGPACK, `0x02`\=TEXT, `0x03`\=DATA, `0x04`\=VOIDSTAR |
-| `compression` | uint8\_t | 1 | Reserved, always 0 |
-| `encryption` | uint8\_t | 1 | Reserved, always 0 |
-| `status` | uint8\_t | 1 | `0x00`\=PASS, `0x01`\=FAIL |
-| `padding` | uint8\_t | 2 | Zero |
-
-For small data (up to 64 KB serialized), the most common combination is `source=MESG, format=VOIDSTAR` — the voidstar binary is embedded directly in the packet payload, avoiding shared memory entirely. For large data, the combination is `source=RPTR, format=VOIDSTAR` — only an 8-byte relative pointer travels over the socket, and the data lives in shared memory.
-
-When `status=FAIL`, the packet carries a UTF-8 error message (`source=MESG, format=TEXT`).
-
-**Call packet** (`0x01`) — Instructs a pool to execute a function:
-
-| Field | Type | Width | Description |
-| --- | --- | --- | --- |
-| `type` | uint8\_t | 1 | `0x01` |
-| `entrypoint` | uint8\_t | 1 | `0x00`\=LOCAL, `0x01`\=REMOTE\_SFS |
-| `padding` | uint8\_t | 2 | Zero |
-| `midx` | uint32\_t | 4 | Manifold index (which function to call) |
-
-The payload is a contiguous sequence of data packets, one per argument.
-
-**Ping packet** (`0x02`) — Header-only, no payload. The nexus pings pools to check readiness; the pool echoes it back as a pong.
-
-### Metadata blocks
-
-Between the header and payload (in the `offset` region), packets can carry metadata blocks. Each has an 8-byte header:
-
-| Field | Type | Width | Description |
-| --- | --- | --- | --- |
-| `magic` | char\[3\] | 3 | Constant `"mmh"` |
-| `type` | uint8\_t | 1 | `0x01`\=SCHEMA\_STRING, `0x02`\=XXHASH |
-| `size` | uint32\_t | 4 | Payload size in bytes |
-
-## 11.3.3. Shared memory
-
-Pools share data through POSIX shared memory segments rather than copying over sockets. Only relative pointers (8 bytes) travel over the wire.
-
-### Volumes
-
-Shared memory is organized as POSIX shared-memory volumes named `/mlc-<pid>-<hash>-<generation>-<index>`. The nexus creates the first volume (64 KB); any process of the program creates more when space runs out, at random indices up to 32767. If shared memory is too small (common in Docker), a volume falls back to a file in the run’s temporary directory. Under Apptainer/Singularity the host’s `/dev/shm` is shared into the container at host size, so this fallback is rarely triggered.
-
-macOS offers no way to list shared-memory objects, so on every platform each volume is recorded by an empty marker file `<name>.shm` in the run’s temporary directory. The nexus removes every recorded volume when it exits, and the next nexus to start removes the volumes and directory of any run whose nexus died without cleaning up.
-
-### Pointer types
-
-| Type | Description |
-| --- | --- |
-| `absptr_t` (`void*`) | Virtual address in the current process. Different per process. |
-| `volptr_t` (`ssize_t`) | Offset within a single volume (0 = first byte after the header). |
-| `relptr_t` (`ssize_t`) | Global offset across all volumes. **This is the pointer type shared between processes** — it appears in data packets and in voidstar data structures. |
-
-```
-             volume 0 (size=20)        volume 1
-         ---xxxxxx........----xxxxxx............---->
- relptr           0      7          8         19
-```
-
-### Volume header (`shm_t`)
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `magic` | unsigned int | Constant `0xFECA0DF0` |
-| `volume_name` | char\[256\] | Volume identifier |
-| `volume_index` | int | Index in the pool (0, 1, 2, …​) |
-| `volume_size` | size\_t | Usable data capacity (excludes header) |
-| `relative_offset` | size\_t | Sum of all prior volumes' sizes |
-| `rwlock` | pthread\_rwlock\_t | Process-shared read-write lock |
-| `cursor` | volptr\_t | Current free block (allocator hint) |
-
-### Block header (`block_header_t`, packed)
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `magic` | unsigned int | Constant `0x0CB10DF0` |
-| `reference_count` | atomic unsigned int | Active references (0 = free) |
-| `size` | size\_t | Payload size in bytes (excludes header) |
-
-Blocks use reference counting. `shmalloc` allocates with first-fit and lazy coalescing. `shfree` decrements the reference count; blocks are merged during the next allocation scan.
-
-## 11.3.4. Schema strings
-
-Schema strings are a compact encoding of a data type’s binary layout. They appear in the manifest and in packet metadata.
-
-Primitives:
-
-| Schema | Type |
-| --- | --- |
-| `z` | nil (1 byte) |
-| `b` | bool (1 byte) |
-| `i1`/`i2`/`i4`/`i8` | signed int (1/2/4/8 bytes) |
-| `u1`/`u2`/`u4`/`u8` | unsigned int (1/2/4/8 bytes) |
-| `f4`/`f8` | float (4/8 bytes) |
-| `s` | variable-length UTF-8 string |
-
-Compounds:
-
-| Pattern | Description |
-| --- | --- |
-| `a<elem>` | Array. `ai4` = array of int32. |
-| `t<N><elems>` | Tuple. `t2i4f8` = (int32, float64). |
-| `m<N><fields>` | Record with length-prefixed keys. `m2<3>agei4<4>names` = \\{age: int32, name: string}. |
-
-## 11.3.5. Voidstar binary format
-
-Every Morloc general type maps unambiguously to a binary form that consists of several fixed-width literal types, a list container, and a tuple container. The literal types include a unit type, a boolean, signed integers (8, 16, 32, and 64 bit), unsigned integers (8, 16, 32, and 64 bit), and IEEE floats (32 and 64 bit). The list container is represented by a 64-bit size integer and a pointer to an unboxed vector. The tuple is represented as a set of values in contiguous memory. These basic types are listed below:
-
-**Table 13. Morloc primitives**
-
-| Type | Domain | Schema | Width (bytes) |
-| --- | --- | --- | --- |
-| Unit | `()` | z | 1 |
-| Bool | `True` \| `False` | b | 1 |
-| U8 | $[0,2^{8})$ | u1 | 1 |
-| U16 | $[0,2^{16})$ | u2 | 2 |
-| U32 | $[0,2^{32})$ | u4 | 4 |
-| U64 | $[0,2^{64})$ | u8 | 8 |
-| I8 | $[-2^{7},2^{7})$ | i1 | 1 |
-| I16 | $[-2^{15},2^{15})$ | i2 | 2 |
-| I32 | $[-2^{31},2^{31})$ | i4 | 4 |
-| I64 | $[-2^{63},2^{63})$ | i8 | 8 |
-| F32 | IEEE float | f4 | 4 |
-| F64 | IEEE double | f8 | 8 |
-| List x | lists | a{x} | $16 + n \Vert a \Vert$ |
-| Tuple2 x1 x2 | 2-ples | t2{x1}{x2} | $\Vert a \Vert + \Vert b \Vert$ |
-| TupleX  $\ t_i\ ...\ t_k$ | k-ples | $tkt_1\ ...\ t_k$ | $\sum_i^k \Vert t_i \Vert$ |
-| $\{ f_1 :: t_1,\ ... \ , f_k :: t_k \}$ | records | $mk \Vert f_1 \Vert f_1 t_1\ ...\ \Vert f_k \Vert f_k t_k$ | $\sum_i^k \Vert t_i \Vert$ |
-
-All basic types may be written to a schema that is used internally to direct conversions between Morloc binary and native basic types. The schema values are shown in the table above. For example, the type `[(Bool, [I8])]` would have the schema `at2bai1`. You will not usually have to worry about these schemas, since they are mostly used internally. They are worth knowing, though, since they appear in low-level tests, generated source code, and binary data packets.
-
-Here is an example of how the type `([U8], Bool)`, with the value `([3,4,5],True)`, might be laid out in memory:
-
-```
----
-03 00 00 00 00 00 00 00 -- first tuple element, specifies list length (little-endian)
-30 00 00 00 00 00 00 00 -- first tuple element, pointer to list
-01 00 00 00 00 00 00 00 -- second tuple element, with 0-padding
-03 04 05                -- 8-bit values of 3, 4, and 5
----
-```
-
-Records and tables (described in detail earlier) are represented as tuples in voidstar format — field names are stored only in the type schemas. The `table` annotation is not just syntactic sugar for a record of lists; it is preserved through the compiler to the translator, where language-specific serialization functions may have special handling for tables.
-
-```morloc
-record Person = Person { name :: Str, age :: U8 }
-table People = People { name :: Str, age :: Int }
-
-alice = { name = "Alice", age = 27 }
-students = { name = ["Alice", "Bob"], age = [27, 25] }
-```
-
-The Morloc type signatures can be translated to schema strings that may be parsed by a foundational Morloc C library into a type structure. Every supported language in the Morloc ecosystem must provide a library that wraps this Morloc C library and translates to/from Morloc binary given the Morloc type schema.
-
-
----
-
-<!-- https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.html -->
-
-# 11.4. Runtime and Dev Builds
-
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.html | prev: https://morloc-project.github.io/docs/internals/protocols.md | next: https://morloc-project.github.io/docs/internals/api-interfaces.md
-
-The Morloc runtime — the shared library (`libmorloc.so`) and the nexus binary (`morloc-nexus`) — is written in Rust. Language-specific pools and extensions still use their own compilers (g++ for C++, etc.), but they link against the Rust-built `libmorloc.so` through a stable C ABI defined in a single header (`morloc.h`).
-
-## 11.4.1. Build modes
-
-`morloc init -f` installs the runtime by building it from source. It reads one environment variable:
-
-| Variable | Purpose |
-| --- | --- |
-| `MORLOC_RUST_DIR` | Path to the `data/rust/` Cargo workspace. `morloc init` runs `cargo build --release` there and copies the artifacts into place. Requires a working Rust toolchain (`cargo`). |
-
-`libmorloc.so` and `morloc-nexus` are deliberately **not** shipped as prebuilt binaries. A Morloc release publishes the compiler per platform plus the platform-independent Rust workspace as `morloc-rust-src.tar.gz`; the runtime is then built from that source with the environment’s own toolchain, so the library every pool links is ABI-coherent with the compilers that built those pools.
-
-Under `mim` this is automatic: `mim` unpacks the release’s Rust source into its runtime store, points `MORLOC_RUST_DIR` at it, and provisions `cargo` through the environment’s conda toolchain. You only set the variable by hand when building from a source checkout:
-
-```console
-export MORLOC_RUST_DIR=/path/to/compiler/data/rust
-morloc init -f
-```
-
-## 11.4.2. What the runtime provides
-
-The Rust workspace produces two artifacts:
-
-**`libmorloc.so`**
-
-Shared library linked by every pool. Provides the IPC layer (Unix domain sockets), shared-memory allocator, packet codec, JSON/MessagePack serialization, and worker-pool concurrency primitives.
-
-**`morloc-nexus`**
-
-Pre-compiled CLI entry point. Reads a program’s `manifest.json` file, parses command-line arguments, starts pool daemons, dispatches calls, and prints results.
-
-## 11.4.3. Build dependencies
-
-| Tool | When needed |
-| --- | --- |
-| `cargo` | Always — `morloc init` builds the runtime from source. Provisioned by `mim` through the environment’s conda toolchain; install via [rustup](https://rustup.rs) only for an unmanaged build. |
-| `gcc` / `g++` | Still required for C++ pool compilation and Python/R language extensions. No longer needed for the runtime itself. |
-
-## 11.4.4. Container images
-
-An environment’s container image is generated by `mim` from the same requirements the native backend solves; there is no hand-authored base image to pull. The generated image stages the release’s Rust source and sets `MORLOC_RUST_DIR` itself, so users of `mim` never set it manually on either backend.
-
-
----
-
-<!-- https://morloc-project.github.io/docs/internals/api-interfaces.html -->
-
-# 11.5. Daemons and the serving router
-
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/api-interfaces.html | prev: https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.md | next: https://morloc-project.github.io/docs/internals/mcp.md
-
-This section is for readers who want to run Morloc programs as services without `mim`, or who want to know what `mim start` runs underneath. It assumes you have read [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). The examples use the `smiles` program from [Dependency management](https://morloc-project.github.io/docs/apis/deploy-dependencies.md), run inside its environment (`mim shell`).
-
-Every compiled program wraps the shared `morloc-nexus` runtime, and the nexus can run a program as a long-lived **daemon**: the language pools start once and stay up, and calls arrive over HTTP, TCP, or a Unix socket. The **router** is a second nexus mode that serves several installed programs behind one HTTP port, with both the JSON API and MCP. `mim start` launches the router.
-
-To get a dedicated daemon executable, build the program with `--daemon-out`:
-
-```console
-$ morloc make --daemon-out smilesd main.loc
-```
-
-This writes a `./smilesd` launcher next to the ordinary CLI launcher. `./smilesd` is equivalent to `morloc-nexus daemon ./smiles`; either form takes the listener options below.
-
-## 11.5.1. HTTP protocol
-
-```console
-$ ./smilesd --http-port 8080 &
-morloc-daemon: listening on http://0.0.0.0:8080
-```
-
-The daemon starts each language pool as a child process in its own process group, and handles concurrent requests on a thread pool. If a pool crashes, the daemon restarts it.
-
-> **Warning**
-> The daemon’s HTTP listener binds every interface and has no authentication. Run it only where the network is trusted, or front it with something that checks callers. The router, below, binds loopback by default and supports a bearer token.
-
-The endpoints:
-
-| Request | Effect |
-| --- | --- |
-| `GET /health` | Liveness of each pool: `{"status":"ok","result":{"pools":[true]}}` |
-| `GET /discover` | The program’s name, Morloc version, and every command with its argument and return types |
-| `POST /call/<command>` | Call a command; the body is a JSON array of positional arguments, or `{"args":[…​]}` |
-| `POST /eval`, `POST /typecheck` | Evaluate, or only typecheck, an expression sent as `{"expr":"…​"}` |
-| `POST /bind`, `GET /bindings`, `DELETE /bindings/<name>` | Save an evaluated expression under a name, list saved ones, remove one |
-
-A call returns the same envelope as the router:
-
-```console
-$ curl -s -X POST localhost:8080/call/mw -d '["NC1=NC=NC2=C1N=CN2"]'
-{"status":"ok","result":135.13}
-```
-
-In the `/discover` reply, each command carries a `type` of `"remote"` (dispatched to a language pool) or `"pure"` (evaluated by the nexus itself, such as a composition that never crosses a language boundary). The return and each argument carry the Morloc type and its wire `schema`, and each argument a `kind`: `pos`, `opt`, `flag`, or `grp`.
-
-`/eval` and `/typecheck` run under the same sandbox as served eval ([Eval](https://morloc-project.github.io/docs/apis/deploy-eval.md)). The modules an expression may import are set when the daemon starts, and the default is none, which leaves only literals and pure intrinsics:
-
-```console
-$ ./smilesd --http-port 8080 --eval-allowed-modules smiles,root-py &
-$ curl -s -X POST localhost:8080/eval \
-    -d '{"expr":"import root-py; import smiles (mw); map mw [\"CCO\"]"}'
-```
-
-`--eval-timeout` sets the CPU budget of each `/eval` and `/typecheck` request, 30 seconds by default. Calls to `/call` dispatch to compiled pools and have no such limit.
-
-Every response carries an HTTP status that matches the outcome, so clients with retry or branching logic (`curl --fail`, axios, fetch) work without parsing the body. The JSON body is always present too.
-
-| Code | Meaning | When |
-| --- | --- | --- |
-| `200` | OK | Success. The body’s `result` field carries the return value. |
-| `204` | No Content | The answer to a CORS preflight `OPTIONS` request, with the `Access-Control-Allow-*` headers and an empty body. |
-| `400` | Bad Request | A malformed request: a missing field, unparseable JSON, the wrong number of arguments, a value that does not match its schema, or a string with an embedded NUL byte. |
-| `404` | Not Found | An unknown path, command, or binding name. |
-| `408` | Request Timeout | An `/eval` or `/typecheck` expression used more CPU than `--eval-timeout`. |
-| `500` | Internal Server Error | A server-side failure: a pool socket error, a fork failure, or an error from the evaluated code. |
-| `503` | Service Unavailable | A crashed pool is being restarted. Sent with `Retry-After: 1`, so retrying clients back off and try again. |
-
-TCP and Unix-socket clients get the same classification in the envelope’s `status` and `error` fields, without the HTTP status or `Retry-After`.
-
-## 11.5.2. TCP protocol
-
-HTTP adds headers and text parsing to every request. When the client is a program you control, the TCP protocol skips that: each message is a 4-byte big-endian length followed by a JSON payload. It suits service-to-service calls and high-throughput pipelines.
-
-```console
-$ ./smilesd --port 9001 &
-morloc-daemon: listening on tcp://127.0.0.1:9001
-```
-
-`curl` cannot speak this framing. A minimal Python client:
-
-**tcp\_client.py**
-
-```python
-import socket, struct, json
-
-def recvall(s, n):
-    data = b''
-    while len(data) < n:
-        chunk = s.recv(n - len(data))
-        if not chunk:
-            raise RuntimeError("Connection closed")
-        data += chunk
-    return data
-
-def call(host, port, method, command=None, args=None):
-    msg = {"method": method}
-    if command: msg["command"] = command
-    if args is not None: msg["args"] = args
-
-    payload = json.dumps(msg).encode()
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
-    # send 4-byte big-endian length, then the JSON payload
-    s.sendall(struct.pack('>I', len(payload)) + payload)
-
-    # read the 4-byte response length, then the response
-    resp_len = struct.unpack('>I', recvall(s, 4))[0]
-    resp = recvall(s, resp_len)
-    s.close()
-    return json.loads(resp)
-
-print(call("localhost", 9001, "call", "mw", ["CCO"]))
-print(call("localhost", 9001, "health"))
-print(call("localhost", 9001, "discover"))
-```
-
-A request is a JSON object with a `method` (`"call"`, `"discover"`, `"health"`, `"eval"`, or `"typecheck"`), an optional `command` naming the function, and an optional `args` array. The server handles one request per connection.
-
-## 11.5.3. Unix socket protocol
-
-For a client on the same machine, a Unix domain socket skips the network stack entirely. This is also how the nexus talks to its own pools.
-
-```console
-$ ./smilesd --socket /tmp/smiles.sock &
-morloc-daemon: listening on unix:///tmp/smiles.sock
-```
-
-The framing is the same as TCP: a 4-byte big-endian length and a JSON payload, at most 64 MB, with a 30 second timeout per operation. The client above works with one change, connecting with `socket.AF_UNIX` to the socket path instead of `AF_INET` to a host and port.
-
-## 11.5.4. Running all protocols at once
-
-One daemon can listen on all three at once. The requests share one set of pools and are dispatched identically; only the framing differs.
-
-```console
-$ ./smilesd --http-port 8080 --port 9001 --socket /tmp/smiles.sock
-morloc-daemon: listening on unix:///tmp/smiles.sock
-morloc-daemon: listening on tcp://127.0.0.1:9001
-morloc-daemon: listening on http://0.0.0.0:8080
-```
-
-### Ephemeral ports
-
-Pass `0` as a port and the operating system picks a free one, which suits tests and orchestrators running many daemons. The chosen ports appear in the listening lines, and `--port-file` writes them as JSON:
-
-```console
-$ ./smilesd --http-port 0 --port 0 --port-file ports.json &
-$ cat ports.json
-{"http":39381,"tcp":46217,"unix":null}
-```
-
-The file is written atomically, by rename, after every listener is bound, so a client waiting for it never reads a partial file. A listener that is not running is `null`, never missing.
-
-## 11.5.5. The serving router
-
-The router (`morloc-nexus router`) is the process `mim start` runs. It serves the programs you name, from an environment’s installed-program directory, behind one HTTP port: MCP at `/mcp`, the JSON API at `/call/<module>/<command>`, `/discover`, `/health`, and `/eval` when enabled.
-
-```
-                  Client
-                    |
-                    | HTTP: POST /call/smiles/mw
-                    v
-             +--------------+
-             |    Router    |  morloc-nexus router --http-port 9090
-             |  (HTTP only) |  reads each named program's manifest
-             +--------------+
-              /            \
-    Unix socket            Unix socket
-            /                \
-  +-----------+         +-----------+
-  |  smiles   |         |  another  |
-  |  daemon   |         |  daemon   |
-  +-----------+         +-----------+
-       |                 /        \
-       v                v          v
-    Python           Python        R
-     pool             pool        pool
-```
-
-The router runs no user code itself. It starts a daemon for a program, as a child process in its own process group, on the first call for that program, and forwards each call to it over a Unix socket using the protocol above. If a daemon crashes, the router restarts it on the next call, so a failing call takes down only its own program’s daemon.
-
-Run directly, the router needs the program directory and the programs to serve. `--program` serves one on both adapters, and `--mcp` and `--api` serve it on one:
-
-```console
-$ morloc-nexus router --fdb $MORLOC_HOME/exe --http-port 9090 --program smiles
-```
-
-It listens on `127.0.0.1` unless `--http-host` says otherwise. Authentication follows the rules in [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md): `--auth-token` or `MORLOC_MCP_TOKEN` requires a bearer token on everything but `/health`, and a non-loopback bind with no token is refused unless `--allow-no-auth` is given. `--eval` with `--eval-allowed-modules` enables `/eval`, which stays locked without a token unless `--eval-allow-no-auth` is given.
-
-Two router behaviours differ from a lone daemon. Its `/health` reports only that the router is up, `{"status":"ok"}`, without checking each program. And any error from a forwarded call, whatever its cause, comes back as `500` with `{"status":"error","error":"…​"}`. A program not on the API view is `404` with `{"error":"module not exposed on the API"}`.
-
-A daemon you start yourself is independent of the router. If you start `./smilesd` and also serve `smiles` through a router, there are two daemons with separate pools and state.
-
-## 11.5.6. Shutdown
-
-`SIGTERM` or `SIGINT` stops a daemon or router. A daemon signals each pool’s process group, waits briefly, kills any that remain, and removes its socket files and temporary data. A router stops every daemon it started. There is no way to stop one program’s daemon through the router; restart the router instead.
-
-## 11.5.7. Summary
-
-| Role | Invocation | Description |
-| --- | --- | --- |
-| Daemon | `./<name>d`, built with `morloc make --daemon-out` | One program as a persistent service |
-| Daemon listeners | `--http-port`, `--port`, `--socket`, `--port-file` | HTTP, TCP, and Unix socket; `0` picks a free port |
-| Daemon eval | `--eval-allowed-modules`, `--eval-timeout` | Sandboxed `/eval` and `/typecheck` |
-| Router | `morloc-nexus router --program <name>…​` | Named programs behind one HTTP port, MCP and JSON API; launched by `mim start` |
-| Router auth | `--auth-token` / `MORLOC_MCP_TOKEN`, `--http-host`, `--allow-no-auth` | Bearer token; loopback by default |
-| Router eval | `--eval`, `--eval-allowed-modules`, `--eval-allow-no-auth` | Sandboxed `/eval` and the MCP `eval` tool |
-
-
----
-
-<!-- https://morloc-project.github.io/docs/internals/mcp.html -->
-
-# 11.6. Model Context Protocol (MCP)
-
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/mcp.html | prev: https://morloc-project.github.io/docs/internals/api-interfaces.md | next: https://morloc-project.github.io/docs/internals/morloc-eval.md
-
-This section describes how a Morloc program speaks [MCP](https://modelcontextprotocol.io), for readers writing a client, debugging one, or serving a program without `mim`. For serving with `mim`, see [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). The examples use the `smiles` program from [Dependency management](https://morloc-project.github.io/docs/apis/deploy-dependencies.md).
-
-MCP support is part of the shared runtime; there is no separate build. Any compiled program is served over MCP by running the runtime in `mcp` mode against it:
-
-```console
-$ morloc-nexus mcp ./smiles            # or: morloc-nexus mcp smiles-build/manifest.json
-```
-
-MCP is a JSON-RPC 2.0 protocol. In this form it is spoken over the program’s standard input and output: the server reads requests on stdin and writes responses on stdout, and every other byte — pool output, log lines, diagnostics — goes to stderr so the protocol stream stays clean. This is the **local** transport: the client launches the server as a child process on the same machine.
-
-The same command serves MCP over HTTP instead when given a port, which is the way to reach one program from another machine without `mim`:
-
-```console
-$ morloc-nexus mcp ./smiles --http-port 9000
-```
-
-It takes `--http-host`, `--auth-token`, and `--allow-no-auth` with the same meaning as for the router ([Daemons and the serving router](https://morloc-project.github.io/docs/internals/api-interfaces.md)). The router behind `mim start` serves MCP over HTTP for several programs at once.
-
-The stdio server launches the language pools and then waits for messages. It is normally started **by** an MCP client, but the transport is line-delimited JSON, so you can drive it by hand.
-
-> **Note**
-> Each message is one complete JSON object on a single line. A pretty-printed object split across lines is parsed as broken fragments, each answered with a `-32700` error. The transcripts below are indented only for readability.
-
-## 11.6.1. The handshake
-
-A session opens with three messages: the client sends `initialize`, the server replies with its capabilities, and the client confirms with an `initialized` notification. Only then may tools be listed or called.
-
-**client → server, then server → client**
-
-```
---> {"jsonrpc":"2.0","id":1,"method":"initialize",
-     "params":{"protocolVersion":"2025-06-18","capabilities":{},
-               "clientInfo":{"name":"demo","version":"0"}}}
-<-- {"jsonrpc":"2.0","id":1,"result":{
-      "protocolVersion":"2025-06-18",
-      "capabilities":{"tools":{"listChanged":false}},
-      "serverInfo":{"name":"smiles","version":"<morloc version>"}}}
-
---> {"jsonrpc":"2.0","method":"notifications/initialized"}
-```
-
-The server answers with the protocol version the client asked for, and names itself after the program with the Morloc version that compiled it. The `initialized` notification carries no `id` and gets no reply. `ping` is answered at any point; `tools/list` and `tools/call` are rejected with `-32600` until the handshake completes.
-
-## 11.6.2. Inspecting the tool surface
-
-Every exported function becomes one tool. The `--mcp-tools` flag prints the payload `tools/list` returns, without starting a session:
-
-```console
-$ ./smiles --mcp-tools | jq '.tools[] | {name, inputSchema}'
-```
-
-Each tool’s `description` comes from the function’s docstring, and each argument’s Morloc type is rendered as a JSON Schema type (`Int` → `integer`, `Str` → `string`, `[a]` → `array`, a record → `object`, `?a` → a nullable union). An argument’s own `--'` docstring becomes its property’s `description`.
-
-## 11.6.3. How arguments map to properties
-
-MCP delivers arguments as a **named** object, so every argument needs a key. The key depends on the kind of argument:
-
-| Morloc argument | MCP property name |
-| --- | --- |
-| A positional argument | The name given by `@name` in the argument’s docstring; otherwise its 1-based position, `_1`, `_2`, and so on. `smiles__mw` takes `_1`. |
-| An option (`--' arg: -f/--factor`) | The long name (`factor`), or the short character if there is no long form. |
-| A flag (`--' true: --clean` / `--' false: --no-clean`) | The flag’s name, typed as a `boolean`. |
-| An unrolled record (`--' unroll: true`) | One property per field, keyed by the field name. |
-| A record passed whole (`--' arg: --config`) | One `object` property named for the record type, lowercased. |
-| An unrolled `data` value | Its `@name`, or else its type’s name, lowercased. |
-
-A command with `@render` or `@with` output actions ([Output actions](https://morloc-project.github.io/docs/clis/output-actions.md)) also takes an optional `_render` property naming one of them; `"raw"`, the default, returns the command’s own value. A name given with `@name` may not start with an underscore, so these generated keys never collide with an author’s.
-
-## 11.6.4. Calling a tool
-
-`tools/call` names the tool and supplies its arguments by key. The server turns the named arguments back into a positional call, dispatches it through the same machinery the CLI and daemon use, and returns the result.
-
-```
---> {"jsonrpc":"2.0","id":2,"method":"tools/call",
-     "params":{"name":"mw","arguments":{"_1":"CCO"}}}
-```
-
-A scalar or list return is placed in a single `text` content block. A record return also fills `structuredContent` and the tool’s `outputSchema`, so a client that understands structured output gets the typed object as well as the text.
-
-Omitted optional arguments take their declared defaults, and an omitted record field is filled from its default; the client supplies only what it overrides.
-
-## 11.6.5. What is not exposed
-
-Some functions cannot be served over a JSON channel, so they are left out of the tool list, with a note on stderr saying why. The other tools are unaffected.
-
-| Excluded when the function…​ | …​because |
-| --- | --- |
-| reads from `@stdin` (`--' stdin: true`) | on the stdio transport, stdin is the JSON-RPC input stream. |
-| has an Arrow `Table` argument or return | a `Table` has no JSON representation in either direction. |
-| has a stream argument or return (`IFile`, `IStream`, `OStream`), including a stream written to `@stdout` | a live handle cannot be sent as a JSON value. |
-| would publish two properties with the same key | the arguments could not be told apart. |
-
-> **Note**
-> Ordinary printing from a function — a `print` in a Python pool, a `std::cout` in C++ — does not corrupt the protocol. The server moves its own standard output aside before any pool starts, so stray writes land on stderr.
-
-## 11.6.6. Errors
-
-A malformed **request** is a JSON-RPC error. A function that runs and fails is a normal result flagged with `isError`, so the agent can read the message and react.
-
-| Condition | Response |
-| --- | --- |
-| Unparseable message | JSON-RPC error `-32700` |
-| A tool method before the handshake | JSON-RPC error `-32600` |
-| Unknown method | JSON-RPC error `-32601` (method not found) |
-| Unknown tool, or missing, unexpected, or wrong-typed arguments | JSON-RPC error `-32602` (invalid params) |
-| The function raises (`@throw`), a pool errors, or a call fails | A result with `"isError": true` and the message in a `text` block |
-
-```
---> {"jsonrpc":"2.0","id":4,"method":"tools/call",
-     "params":{"name":"fireball","arguments":{}}}
-<-- {"jsonrpc":"2.0","id":4,
-     "error":{"code":-32602,"message":"unknown tool 'fireball'"}}
-```
-
-## 11.6.7. Connecting a local client
-
-A client that launches the server needs a command and its arguments: the runtime in `mcp` mode against the program’s absolute manifest path. The launcher prints that entry for you, as JSON on stdout:
-
-```console
-$ ./smiles --mcp-config > smiles.mcp.json
-```
-
-It has this shape:
-
-```json
-{
-  "mcpServers": {
-    "smiles": {
-      "command": "/absolute/path/to/morloc-nexus",
-      "args": ["mcp", "/absolute/path/to/smiles-build/manifest.json"]
-    }
-  }
-}
-```
-
-The `command` is an absolute path because MCP clients launch servers with a minimal `PATH`. For Claude Code, `claude mcp add smiles — /absolute/path/to/morloc-nexus mcp /absolute/path/to/smiles-build/manifest.json` registers the same entry. The client launches the server, runs the handshake, and lists the tools. When the client disconnects, closing stdin, the server stops its pools and exits.
-
-A client can launch the program only where Morloc is installed: on the same host for a native environment, or inside the same container. An agent anywhere else reaches the program over HTTP.
-
-## 11.6.8. MCP over HTTP
-
-Over HTTP, from `mim start`, the router, or `mcp --http-port`, the same messages travel in the bodies of `POST /mcp` requests, using MCP’s Streamable HTTP transport. Two things change:
-
--   **Sessions.** The reply to `initialize` carries an `Mcp-Session-Id` header, and every later request must send it back. A request without it is `400`; an unknown or expired one is `404`, and the client re-initializes. A session expires after an hour. `DELETE /mcp` ends one.
--   **Tool names.** Because one endpoint can serve several programs, each tool is named `<module>*<command>*`*: `smiles`*`mw` rather than `mw`.
-
-## 11.6.9. Summary
-
-| Aspect | Detail |
-| --- | --- |
-| Local server | `morloc-nexus mcp <program>`; client entry from `./prog --mcp-config` |
-| Networked server | `mim start`, the router, or `morloc-nexus mcp <program> --http-port <n>` |
-| Transport | JSON-RPC 2.0 over stdio, or Streamable HTTP with `Mcp-Session-Id`; protocol version `2025-06-18` |
-| Tools | One per exported function, named `<command>` on stdio and `<module>__<command>` over HTTP |
-| Positional keys | the `@name`, else `_1`, `_2`, …​ |
-| Option and flag keys | the long (or short) option name |
-| Return | `text` block; records also get `structuredContent` and `outputSchema` |
-| Static preview | `./prog --mcp-tools` prints the `tools/list` payload |
-
-
----
-
-<!-- https://morloc-project.github.io/docs/internals/morloc-eval.html -->
-
-# 11.7. morloc eval
-
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/internals/morloc-eval.html | prev: https://morloc-project.github.io/docs/internals/mcp.md | next: https://morloc-project.github.io/docs/utilities/index.md
-
-Morloc has three subcommands that turn source into a result, and they serve distinct roles:
-
--   `morloc make` — compile a **module** into an executable (the nexus and its language pools). This is the full language: a module may `source` foreign code, declare types, typeclasses, and instances, import local modules, and export zero, one, or many terms.
--   `morloc typecheck` — type-check a **module** without compiling or running it. Same full language as `make`; it only reports the inferred types of the exported terms.
--   `morloc eval` — compile and run a single **expression**. An expression **composes functions that are already installed on the system**; it cannot introduce new ones. An eval expression may import installed modules and use `let`/`where`/`do`, but it may not `source` foreign code or declare types, typeclasses, instances, or module structure.
-
-The dividing line is **module vs expression**. `make` and `typecheck` consume a module, which can define and source new functionality and export any number of terms. `eval` consumes one expression assembled purely from already-installed pieces, producing exactly one result. Use `eval` for quick experiments, shell pipelines, and for exposing a fixed set of installed functions to callers who may only **compose** them — never to introduce new code.
-
-Pass the expression inline with `-e`, or name a file containing it as the positional argument. The two are interchangeable: writing an `-e` string to a file and running `morloc eval file` gives the same result — the file is treated as expression text, not as a module.
-
-```console
-$ morloc eval -e "import root-py; 1 + 2"
-3
-
-$ morloc eval -e 'import root-py; "foo" <> "bar"'
-"foobar"
-
-$ printf 'import root-py\n1 + 2\n' > add.loc
-$ morloc eval add.loc
-3
-```
-
-Because an eval expression can only compose installed functions, `eval` is also the safe surface to expose over an API or daemon: it resolves only **installed** modules, never local-filesystem modules, so an untrusted caller cannot `source` arbitrary foreign code or reach a module they uploaded. A dot-prefixed import (`.utils`) is rejected in eval mode, and a bare name is looked up only among installed modules, so a module that exists only as a local file is reported as not found. Build programs that depend on local modules with `morloc make` instead. The `--allow-local-modules` flag re-enables local resolution for local development only; the sandbox described below always turns it off.
-
-## 11.7.1. Imports in eval strings
-
-Morloc has no implicit prelude: every name an expression refers to must come from a module the eval string explicitly imports. Operators like `+` and `<>` are typeclass methods sourced from the standard library, so a typical eval string begins with one or more imports:
-
-```console
-$ morloc eval -e "import root-py; import root-cpp; 1 + 2"
-3
-```
-
-As described above, only installed modules may be imported (named bare, like `root-py`); local imports are rejected in eval mode. See [Importing modules](https://morloc-project.github.io/docs/modules/importing-modules.md) for the full import rules.
-
-If no import brings the required operator or function into scope, the compiler reports an undefined-term error with a hint pointing at the fix:
-
-```console
-$ morloc eval -e "1 + 2"
-<expr>:1:3: error:
-Undefined term: +
-hint: an eval expression has no implicit prelude; prefix the expression with 'import root-py;' (or the module that defines +) to bring it into scope
-```
-
-## 11.7.2. The eval sandbox
-
-The `morloc eval` CLI is **trusted**: on your own machine it may import any installed module and use any intrinsic, exactly like the examples above. When eval is exposed to untrusted callers — over a daemon or router ([Daemons and the serving router](https://morloc-project.github.io/docs/internals/api-interfaces.md)) — it is **sandboxed**, and two further gates apply on top of the base rules (installed-only, no `source`, no type/class/instance declarations):
-
--   **Module allow-list.** The expression’s top-level imports are limited to a curated list. An empty list allows no imports, so only pure, module-free expressions run: literals and the pure intrinsics such as `@show`/`@hash`/`@lang`. Nothing else is in scope — not even `+`, which is a typeclass method that must be imported. Matching is on the resolved module name, so `import M as N` is checked against `M`.
--   **IO-intrinsic ban.** An IO intrinsic (`@open`, `@save`, `@write`, `@stdin`, …​) may not be written **directly** in the expression. An IO intrinsic reached **through** a function exported by an allow-listed module is fine: a server exposes the IO surface it chooses as named functions, never a raw filesystem primitive. Pure intrinsics remain usable.
-
-Together these give the operator term-level control: allow-list a curated module that re-exports exactly the functions callers may compose (the standard re-export idiom — a `public` facade), and eval can reach only those.
-
-Two flags drive the gates:
-
-| Flag | Effect |
-| --- | --- |
-| `--eval-allowed-modules a,b` | Restrict top-level imports to `a` and `b` (comma-separated). Implies `--eval-sandbox`. An empty list permits no imports. |
-| `--eval-sandbox` | Enable the gates without granting any modules (an empty allow-list). Mainly for previewing the sandbox from the CLI. |
-
-On the CLI these let you preview how an expression behaves once served:
-
-```console
-$ morloc eval --eval-allowed-modules root-py -e 'import root-py; 1 + 2'
-3
-$ morloc eval --eval-allowed-modules root-py -e 'import root-py; @write "x" 1'
-IO intrinsics may not be used directly in a sandboxed eval expression; wrap the intrinsic in an exported function of an allow-listed module instead
-$ morloc eval --eval-allowed-modules base -e 'import root-py; 1 + 2'
-module 'root-py' is not in the eval allow-list
-```
-
-Served eval (over a daemon or router) is **always** sandboxed — there is no unsandboxed served mode. The operator sets the allow-list once when starting the server; with `mim` that is `mim view eval --allow`, and the router additionally requires a bearer token for eval on an exposed endpoint (see [Eval](https://morloc-project.github.io/docs/apis/deploy-eval.md)). Effects other than IO are not yet gated: a future effect disallow-list distinguishing read, write, and execute is planned; today the module allow-list and the IO-intrinsic ban are the sandbox.
-
-## 11.7.3. Single-line layout: braces and semicolons
-
-A Morloc source file relies on indentation to delimit blocks. An `eval` string is a single shell argument, so block structure must use the explicit-brace forms that the grammar provides as alternatives to the indentation-based forms. Two rules apply:
-
--   Top-level items (imports and the trailing expression) are separated by a literal `;`. The eval preprocessor rewrites every top-level `;` to a newline before handing the string to the parser, which is the same effect as starting a new top-level line in a file.
--   Block bindings inside `where`, `let`, and `do` are written with literal braces and semicolons: `where { a = 1; b = 2 }`, `let { a = 1; b = 2 } in expr`, `do { stmt1; stmt2; expr }`. Semicolons inside `{…​}` are preserved by the preprocessor and consumed by the parser as item separators.
-
-A `where` clause that would normally span multiple indented lines in a source file:
-
-```morloc
-result = a + b where
-    a = 10
-    b = 20
-```
-
-becomes, on the command line:
-
-```console
-$ morloc eval -e 'import root-py; a + b where { a = 10; b = 20 }'
-30
-```
-
-Likewise for `let`:
-
-```console
-$ morloc eval -e 'import root-py; let { a = 10; b = 20 } in a + b'
-30
-```
-
-A `do`\-block (see [Effects and delayed evaluation](https://morloc-project.github.io/docs/features/effects.md)) uses the same brace-and-semicolon form:
-
-```morloc
-do { stmt1; stmt2; final_expr }
-```
-
-These explicit-brace forms are not specific to `eval` — they are part of the Morloc grammar and may be used in source files too. They are simply the only practical way to write multi-binding blocks inside a single shell-quoted string.
-
-## 11.7.4. Saving an eval expression as a command
-
-`--save NAME` installs the compiled expression as a reusable command:
-
-```console
-$ morloc eval --save adder -e "import root-py; 1 + 2"
-$ adder
-3
-```
-
-The installed command behaves like any other Morloc executable.
-
-
----
-
 <!-- https://morloc-project.github.io/docs/utilities/ -->
 
-# 12. Utilities
+# 11. Utilities
 
-Morloc Manual | https://morloc-project.github.io/docs/utilities/ | prev: https://morloc-project.github.io/docs/internals/morloc-eval.md | next: https://morloc-project.github.io/docs/utilities/nexus-file.md
+Morloc Manual | https://morloc-project.github.io/docs/utilities/ | prev: https://morloc-project.github.io/docs/languages/futhark.md | next: https://morloc-project.github.io/docs/utilities/nexus-file.md
 
 The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: `file` (identifies a file) and `view` (loads and re-emits a file in a chosen format).
 
@@ -14196,7 +13290,7 @@ $ morloc-nexus view result.packet -f json | jq '.' | less
 
 <!-- https://morloc-project.github.io/docs/utilities/nexus-file.html -->
 
-# 12.1. morloc-nexus file
+# 11.1. morloc-nexus file
 
 Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/nexus-file.html | prev: https://morloc-project.github.io/docs/utilities/index.md | next: https://morloc-project.github.io/docs/utilities/nexus-view.md
 
@@ -14219,7 +13313,7 @@ empty.bin: empty
 
 For morloc packets, classification is magic-byte based and seek-only, so even a multi-gigabyte CALL or STREAM packet costs a few hundred bytes of I/O. The on-disk file size is checked against the size declared in the packet header by default; truncated or oversize packets are reported and exit non-zero.
 
-## 12.1.1. Stream packets
+## 11.1.1. Stream packets
 
 Stream-packet output carries the footer’s summary when one is present. `state=final` marks a cleanly closed stream (final footer + end-of-file tail present); `state=temp` marks an intermediate mid-stream footer written by an in-progress `@close`; `state=missing` marks a stream whose writer exited before writing a footer.
 
@@ -14227,7 +13321,7 @@ For `state=missing` files, `morloc-nexus file` runs a bounded forward scan of th
 
 For the remaining formats, classification reads up to one kilobyte of the file and feeds it through the same parsers the runtime uses on real ingest.
 
-## 12.1.2. Options
+## 11.1.2. Options
 
 | `-F`, `--no-file` | Suppress the `<path>:` prefix. |
 | --- | --- |
@@ -14238,7 +13332,7 @@ For the remaining formats, classification reads up to one kilobyte of the file a
 | `--validate` | After classifying, fully load each file through the exact same loader the `run` subcommand uses, then discard the result. Appends `validated=yes`, `validated=no error="<msg>"`, or `validated=structure-only`. If `file --validate` passes, `run` (or `view`) reading the same file will not fail at the load stage. |
 | `--schema STRING` | Morloc schema used by `--validate` for inputs that don’t embed one. Ignored without `--validate`. |
 
-## 12.1.3. Verbose example
+## 11.1.3. Verbose example
 
 ```console
 $ morloc-nexus file -v people.csv
@@ -14271,9 +13365,9 @@ log.stream: stream-packet schema="ad8" state=final status=closed subpackets=42 e
 
 <!-- https://morloc-project.github.io/docs/utilities/nexus-view.html -->
 
-# 12.2. morloc-nexus view
+# 11.2. morloc-nexus view
 
-Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/nexus-view.html | prev: https://morloc-project.github.io/docs/utilities/nexus-file.md | next: https://morloc-project.github.io/docs/future/index.md
+Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/nexus-view.html | prev: https://morloc-project.github.io/docs/utilities/nexus-file.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/index.md
 
 Reads a data file (morloc data-packet, morloc stream-packet, `.json`, `.mpk`, `.arrow`, `.parquet`, or `.csv`) and re-emits it in a chosen output format. The intended use is ad-hoc inspection (`view foo.packet | jq | less`), one-shot format conversion (`view foo.json -f mpk --schema "as" -o foo.mpk`), and slicing large files down to a subset without materialising the whole thing (`view foo.packet --pattern ".[100:200]" -f json`).
 
@@ -14290,7 +13384,7 @@ $ morloc-nexus view data.json -f mpk --schema "as" -o data.mpk
 
 Before loading, `view` runs the same classifier `morloc-nexus file` uses, so a truncated or oversize morloc packet is rejected up-front with a clear error instead of decoding garbage from a partial payload.
 
-## 12.2.1. Reading from stdin
+## 11.2.1. Reading from stdin
 
 A single `-` argument reads from stdin. For stream-packet input (the IFile / OStream / IStream shape), `view -` iterates sub-packet by sub-packet and emits one element (or one line, for `-f jsonl`) at a time, so a multi-gigabyte stream can be viewed in constant memory. For data-packet input, or when the selected output form requires a full-value load (e.g. `-f arrow`), stdin is drained to a `$TMPDIR` temp file and the normal file path runs. The temp file is deleted on exit.
 
@@ -14298,7 +13392,7 @@ A single `-` argument reads from stdin. For stream-packet input (the IFile / OSt
 $ ./producer | morloc-nexus view - -f jsonl | head -5
 ```
 
-## 12.2.2. Schema resolution
+## 11.2.2. Schema resolution
 
 `view` always loads through the typed loader, so a schema is required:
 
@@ -14306,7 +13400,7 @@ $ ./producer | morloc-nexus view - -f jsonl | head -5
 2.  Otherwise, the schema embedded in a morloc-packet’s metadata (data or stream).
 3.  Otherwise, `view` exits with an error directing the user to `--schema`.
 
-## 12.2.3. `--pattern`: extract a subset
+## 11.2.3. `--pattern`: extract a subset
 
 `--pattern STR` applies a morloc pattern chain to the input before emission. The grammar is the same one morloc source uses for bracket accessors: field access (`.foo`), tuple/positional index (`.0`, `.1`), bracket index and slice (`.[i]`, `.[a:b]`, `.[a:b:c]`), grouped projection (`.(.a;.b)`), and broadcast tails after a slice (`.[:].name`, `.[:].[0]`, `.[:].(.name;.age)`).
 
@@ -14326,7 +13420,7 @@ $ morloc-nexus view timeseries.stream --pattern ".[100000:100010]" -f jsonl
 
 The pattern dispatches through the same IFile walker `IFile a` values use in morloc code (`mlc_ifile_walk`) — for a data packet, a single mmap + slice; for a stream packet with a valid footer, `log2(K)` seeks over `K` sub-packets. For footer-less streams, `view` forward-scans the file to reconstruct the sub-packet index before dispatch (see [Footer-less streams](#footer-less-streams) below).
 
-## 12.2.4. Packet-shape output: `-s` / `-d` / `-p`
+## 11.2.4. Packet-shape output: `-s` / `-d` / `-p`
 
 Three mutually exclusive flags control the packet shape when the output form is a morloc packet:
 
@@ -14344,14 +13438,14 @@ The four conversion arms all preserve typed semantics through the runtime’s au
 -   **STREAM → STREAM** drains the input via IStream `@next` and rewrites via OStream `@write`, so recompression, schema override, and footer normalisation all flow through the canonical writers. When `--compression-level` matches the source, a fast path verbatim-copies sub-packet payloads and only rewrites the footer.
 -   **STREAM → DATA** materialises the whole stream to memory via the IFile walker and re-emits as a data packet. Gated by the size guardrail below.
 
-## 12.2.5. `-f jsonl`: line-delimited JSON
+## 11.2.5. `-f jsonl`: line-delimited JSON
 
 `jsonl` output emits one JSON value per input element, one per line. JSON emission is element-by-element in all cases, so peak per-line memory is one element’s JSON body regardless of input size. Input buffering depends on the source:
 
 -   stdin (`view - -f jsonl`) reads one sub-packet at a time and serialises its elements before reading the next, so a multi-GB producer streams through in constant memory.
 -   File-based stream input goes through the buffered loader: the whole list is materialised, then emitted line-by-line. Combine with `--pattern .[a:b]` (or `-f jsonl` on stdin) for a constant-memory shape on multi-GB inputs.
 
-## 12.2.6. Size guardrails and `--force`
+## 11.2.6. Size guardrails and `--force`
 
 Two guardrails refuse large operations without an explicit `--force`:
 
@@ -14362,7 +13456,7 @@ Two guardrails refuse large operations without an explicit `--force`:
 
 For footer-less stream input the projected size falls back to the compressed file’s on-disk length as a conservative lower bound, so a partially-written multi-GB stream still hits the guardrail rather than silently OOM’ing the buffered path.
 
-## 12.2.7. Footer-less streams
+## 11.2.7. Footer-less streams
 
 A stream file whose final footer is missing (writer crashed before `@close`, `program > out.stream` interrupted, etc.) is still usable through `view`. The classifier reports the missing footer, and:
 
@@ -14370,7 +13464,7 @@ A stream file whose final footer is missing (writer crashed before `@close`, `pr
 -   `view -d` (buffered materialisation) succeeds subject to the size guardrail.
 -   `view --pattern PATTERN` forward-scans the file to recover a sub-packet-offset index, then dispatches the walker as normal.
 
-## 12.2.8. Options
+## 11.2.8. Options
 
 | `-f`, `--output-form FORM` | Output format: `json` (default), `jsonl`, `mpk`, `voidstar`, `packet`, `arrow`, `parquet`, `csv`. Same set as `run -f` plus `jsonl`. |
 | --- | --- |
@@ -14386,13 +13480,378 @@ A stream file whose final footer is missing (writer crashed before `@close`, `pr
 
 ---
 
+<!-- https://morloc-project.github.io/docs/ecosystem-architecture/ -->
+
+# 12. Ecosystem Architecture
+
+Morloc Manual | https://morloc-project.github.io/docs/ecosystem-architecture/ | prev: https://morloc-project.github.io/docs/utilities/nexus-view.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md
+
+This chapter specifies how the parts of the Morloc ecosystem fit together: the compiler, the runtime library, the nexus, and the environment manager. It defines where each part is installed, how a program’s dependencies (Morloc modules and foreign packages) are resolved and locked, how an environment is frozen into a portable artifact, and how a compiled program is served to other programs and agents. The [Deployment](https://morloc-project.github.io/docs/apis/index.md) chapter shows how to use these tools; this chapter specifies what they do.
+
+This chapter and the two that follow are written as a specification. They describe behavior, formats and guarantees rather than any particular implementation, so they should remain true of any conforming reimplementation.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html -->
+
+# 12.1. Overview
+
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/index.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md
+
+**STUB**: Introduces the four parts of the ecosystem: the compiler, the runtime library, the nexus, and the environment manager (`mim`). Explains what each one owns, which part invokes which, and at what point in a program’s life (install, build, run, serve). Specifies the on-disk layout of an installation and names every manifest and lock file, with a sentence on each one’s role. States how versions of the parts must agree, including the ABI version check that rejects a mismatched runtime. Ends with a map linking each concern to the section that specifies it.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html -->
+
+# 12.2. Runtime bootstrap
+
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md
+
+**STUB**: Specifies what initialization (`morloc init`) produces: the compiled runtime library, the nexus binary, the per-language bindings and their headers, and where each is placed. Defines the inputs each artifact depends on and the conditions that force a rebuild, so a stale runtime is never paired with a newer compiler. Covers the build modes (release versus development) and what an installation must provide before any program can be compiled.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.html -->
+
+# 12.3. Module resolution
+
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md
+
+**STUB**: Specifies how an `import` is resolved to a module: the search order, the precedence of local and installed modules, and how ambiguity is reported. Defines what installing a module means, how modules are named and versioned, and how a module declares the foreign packages (Python, R, C++, Rust) it requires. Explains how those declarations feed the environment solver.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html -->
+
+# 12.4. Environment solving
+
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md
+
+**STUB**: Specifies the contract between the compiler and the environment solver: which events trigger solving (build, install, sync), what the compiler asks for, and what it receives back. Defines how foreign packages for each language are provided to an environment, how the solved result is locked, and the guarantees the lock gives (reproducibility, and when a lock is reused or invalidated). Describes where environments and locks live and how concurrent operations on one environment are kept safe.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html -->
+
+# 12.5. Freezing and execution environments
+
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md
+
+**STUB**: Specifies freezing: turning an environment and its installed programs into a portable artifact that runs on another machine. Defines what a frozen artifact contains, what it may assume of the host, and which features a slim artifact gives up. Covers container execution and cluster execution (resource labels and job submission), and the requirements an execution environment must meet to run a program.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html -->
+
+# 12.6. Serving
+
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md | next: https://morloc-project.github.io/docs/build-architecture/index.md
+
+**STUB**: Specifies how a compiled program is served beyond the command line: the daemon, the router that fronts several programs, and the transports (HTTP, TCP and Unix sockets, MCP over stdio). Defines the mapping from one manifest command to a CLI subcommand, an HTTP endpoint and an MCP tool, including how argument types become input schemas, how docstrings become descriptions, and which commands are excluded and why. Specifies remote evaluation of expressions and the security model: authentication, allow-lists, sandboxing and resource limits, with the threat each one addresses.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/ -->
+
+# 13. Build Architecture
+
+Morloc Manual | https://morloc-project.github.io/docs/build-architecture/ | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md | next: https://morloc-project.github.io/docs/build-architecture/build-overview.md
+
+This chapter specifies what `morloc make` produces and how the result runs. A compiled program is a manifest describing its commands, one pool per language holding the generated code, and a launcher. At run time the nexus reads the manifest, starts the pools, and routes calls and data between them. The chapter defines the process lifecycle, the protocol the processes speak, the shared memory and binary formats that data travels in, the worker and streaming models, and the data flow through the CLI’s collection, parsing and rendering stages.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-overview.html -->
+
+# 13.1. Runtime overview
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-overview.html | prev: https://morloc-project.github.io/docs/build-architecture/index.md | next: https://morloc-project.github.io/docs/build-architecture/build-artifacts.md
+
+**STUB**: Gives the high-level picture of a running program. The nexus is the entry point that parses the request, reads the manifest, and dispatches calls. Pools are one long-lived process per language that execute the generated code. Explains how a call travels from the nexus into a pool, between pools, and back, and when data moves inline versus through shared memory. Serves as the map for the rest of the chapter.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-artifacts.html -->
+
+# 13.2. Compilation artifacts
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-artifacts.html | prev: https://morloc-project.github.io/docs/build-architecture/build-overview.md | next: https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md
+
+**STUB**: Specifies exactly what `morloc make` produces: the build directory layout, the per-language pool trees, and the launchers (CLI, MCP, daemon) that exec the shared nexus. Gives the complete manifest format field by field, how it is versioned, and which compatibility promises it makes. Defines what installing a built program does and where installed programs live.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-lifecycle.html -->
+
+# 13.3. Process lifecycle
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-lifecycle.html | prev: https://morloc-project.github.io/docs/build-architecture/build-artifacts.md | next: https://morloc-project.github.io/docs/build-architecture/build-packets.md
+
+**STUB**: Specifies the life of a program’s processes. Covers nexus startup, how pools are spawned and when each is considered ready, and the handshake between them. Covers orderly shutdown, signal handling, and what happens when the parent dies on any platform. Defines how temporary files and shared memory are cleaned up on every exit path, and the exit codes a program can return with their meanings.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-packets.html -->
+
+# 13.4. Packet protocol
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-packets.html | prev: https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md | next: https://morloc-project.github.io/docs/build-architecture/build-shm.md
+
+**STUB**: Specifies the packet protocol that the nexus and pools speak: the fixed header, every packet type, metadata blocks, and how a payload is carried either inline or by reference to shared memory. Defines error packets, the transport between processes, and the framing and ordering rules a conforming implementation must follow.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-shm.html -->
+
+# 13.5. Shared memory layout
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-shm.html | prev: https://morloc-project.github.io/docs/build-architecture/build-packets.md | next: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md
+
+**STUB**: Specifies the shared memory that pools use to exchange large values without copying. Defines volumes, the volume header, block headers, and the three pointer forms (pool-relative, volume-relative, absolute) with the rules for converting between them. Covers allocation, reference counting and release, how volumes are created and attached safely by concurrent processes, and how file locking protects them.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-voidstar.html -->
+
+# 13.6. Voidstar format and schema strings
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-voidstar.html | prev: https://morloc-project.github.io/docs/build-architecture/build-shm.md | next: https://morloc-project.github.io/docs/build-architecture/build-tables.md
+
+**STUB**: Specifies voidstar, the language-neutral binary layout every serialized value takes: the layout of each primitive, string, array, tuple, record, optional and sum type, along with alignment and the rules for nested data. Defines the schema string grammar that describes a layout, and how a schema and a buffer together let any language read a value with no other type information.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-tables.html -->
+
+# 13.7. Tables and tensors on the wire
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-tables.html | prev: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md | next: https://morloc-project.github.io/docs/build-architecture/build-workers.md
+
+**STUB**: Specifies how tables and tensors cross language boundaries. Tables travel as Arrow columnar data; this section defines how a schema constrains them, and when they are passed with no copy. Tensors travel as dimension and data pairs; this section defines how dimensions are represented and checked.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-workers.html -->
+
+# 13.8. Worker model
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-workers.html | prev: https://morloc-project.github.io/docs/build-architecture/build-tables.md | next: https://morloc-project.github.io/docs/build-architecture/build-errors.md
+
+**STUB**: Specifies concurrency inside a running program: the threads in the nexus, the worker pool inside each language process, and how workers are created, scaled, and parked. Defines the locks and their scope, the guarantees about ordering of calls and replies, and how parallel calls from one pool into another are kept from deadlocking.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-errors.html -->
+
+# 13.9. Error propagation
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-errors.html | prev: https://morloc-project.github.io/docs/build-architecture/build-workers.md | next: https://morloc-project.github.io/docs/build-architecture/build-streaming.md
+
+**STUB**: Specifies how a failure travels through a program. Covers a foreign exception in one pool, a runtime fault such as a failed allocation, and a crashed process. Each becomes an error packet, crosses process boundaries with its context intact, and reaches the caller, either as a `Try` value or as the CLI’s error output and exit code. Defines what information is preserved at each hop.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-streaming.html -->
+
+# 13.10. Streaming and memory mapping
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-streaming.html | prev: https://morloc-project.github.io/docs/build-architecture/build-errors.md | next: https://morloc-project.github.io/docs/build-architecture/build-collect.md
+
+**STUB**: Specifies streams: values too large or too long-lived to hold in memory at once. Defines the stream file format, how it is divided into chunks, and how the chunks are compressed, including write-behind compression. Covers how readers map a stream into memory and access it at random, which element types and variants a stream may hold, and the guarantees for a stream that is still being written.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-collect.html -->
+
+# 13.11. Collect, fold, parse and render
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-collect.html | prev: https://morloc-project.github.io/docs/build-architecture/build-streaming.md | next: https://morloc-project.github.io/docs/build-architecture/build-runs.md
+
+**STUB**: Specifies the CLI’s data-flow directives: `@collect` and `@fold`, which gather a stream into a value, and `@parse` and `@render`, which convert between external formats and typed values. Defines buffering and when data is materialized versus streamed. Covers how parsers and formatters are chosen, how several renders write to separate named outputs, and the full path data takes from input file to output.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-runs.html -->
+
+# 13.12. Run directory, caching and logging
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-runs.html | prev: https://morloc-project.github.io/docs/build-architecture/build-collect.md | next: https://morloc-project.github.io/docs/compiler-architecture/index.md
+
+**STUB**: Specifies the state a run keeps outside the process. Defines the run directory layout and its activation rules, how cache keys are computed and when a cached result is reused or invalidated, and the format and levels of the run log. States the concurrency guarantees when several runs share a cache or a run directory.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/ -->
+
+# 14. Compiler Architecture
+
+Morloc Manual | https://morloc-project.github.io/docs/compiler-architecture/ | prev: https://morloc-project.github.io/docs/build-architecture/build-runs.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-pipeline.md
+
+This chapter specifies how the compiler turns Morloc source into the artifacts described in [Build Architecture](https://morloc-project.github.io/docs/build-architecture/index.md). It follows the pipeline from parsing through typechecking, realization, serialization and code generation, and then specifies how a new language is brought into Morloc. It ends with the public API of the runtime library, the contract every language binding is written against.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-pipeline.html -->
+
+# 14.1. Pipeline overview
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-pipeline.html | prev: https://morloc-project.github.io/docs/compiler-architecture/index.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.md
+
+**STUB**: Lists every compiler stage in order: lexing, parsing, module loading, desugaring, typechecking, realization, serialization planning, code generation, and manifest emission. For each stage, states its input, its output, and the invariants it establishes for the stages after it. Serves as the map for the rest of the chapter.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.html -->
+
+# 14.2. Parsing and module loading
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-pipeline.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-types.md
+
+**STUB**: Specifies the concrete syntax: lexical rules, the layout (indentation) rule, the grammar, and how docstrings are attached to the declarations they describe. Defines how a module’s imports are loaded into a module graph, how names are resolved and shadowed across modules, and which errors are reported at this stage.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-types.html -->
+
+# 14.3. Type system
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-types.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.md
+
+**STUB**: Specifies the type system: the typing rules, polymorphism and how quantifiers are inferred, typeclasses and instance resolution (including how overlap is rejected), records and rows, kinds, and dimension-indexed types. Defines how a general (language-neutral) type maps to a concrete type in each language, and what makes two types equivalent.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.html -->
+
+# 14.4. Effects
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-types.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.md
+
+**STUB**: Specifies effects. An effectful type denotes a suspended computation, and effects are never erased. Defines when a suspension is forced, how effects compose through application and `do` blocks, and how effectful code is lowered so its evaluation order is preserved across languages.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.html -->
+
+# 14.5. Realization
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-sharing.md
+
+**STUB**: Specifies realization: choosing, for every call in a program, which language implementation to use when several are available. Defines the search space, the cost model (including the cost of crossing between languages), how ties are broken, and the guarantees about the result. Explains how realization decides how the program is split into pools.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-sharing.html -->
+
+# 14.6. Term sharing and inlining
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-sharing.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.md
+
+**STUB**: Specifies how the compiler keeps generated code proportional to the source. Defines let-sharing, inline-by-name, and the conditions for each, and shows how naive substitution would duplicate terms exponentially and how sharing prevents that while preserving evaluation semantics.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.html -->
+
+# 14.7. Serialization
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-sharing.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.md
+
+**STUB**: Specifies how generated code serializes values at language boundaries. Covers how packers and unpackers come from `Packable` instances and how they are paired across languages. Covers how functions are passed between languages through defunctionalization, and how recursive data types are serialized. Defines the wire form a type must have so that every language agrees on it.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.html -->
+
+# 14.8. Cross-language calls and tail calls
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.md
+
+**STUB**: Specifies how a call in one language reaches a function in another: the stub generated on the calling side, the dispatch on the receiving side, and how arguments and results cross the boundary. Defines how tail calls, including mutually recursive ones that cross languages, run in constant stack space.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.html -->
+
+# 14.9. Code generation
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.md
+
+**STUB**: Specifies code generation. Covers how each pool’s source is assembled from templates, how records and other user types are emitted as native type definitions in each language, how intrinsics are implemented, and how the manifest is emitted. States the properties generated code must have regardless of the target language.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.html -->
+
+# 14.10. Interface generation
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.md
+
+**STUB**: Specifies how exported functions become a program’s external interface. Covers how signatures, docstrings, and argument annotations are turned into the manifest’s command schema: names, positional and optional arguments, defaults, help text, and input and output formats. This schema is the single source from which the CLI, the HTTP API, and the MCP tools are all derived.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.html -->
+
+# 14.11. Language onboarding
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.md
+
+**STUB**: Specifies what it takes to add a language to Morloc: the language description the compiler reads, the type mappings and build parameters it declares, the runtime pieces the language must provide (pool loop, packers, binding to the runtime library), and the behavior a binding must exhibit to count as conforming.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.html -->
+
+# 14.12. Runtime library API
+
+Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.md | next: https://morloc-project.github.io/docs/future/index.md
+
+**STUB**: Specifies the C ABI that language bindings are written against: the ABI version and the rule for when it changes, the error-reporting convention every fallible function follows, and memory ownership across the boundary. Lists the binding-facing types and functions in collapsible tables grouped by purpose: shared memory, schemas, packing and unpacking, packets, Arrow, caching, intrinsics, and utilities. Functions used only by the nexus are out of scope.
+
+
+---
+
 <!-- https://morloc-project.github.io/docs/future/ -->
 
-# 13. Future Directions
+# 15. Future Directions
 
-Morloc Manual | https://morloc-project.github.io/docs/future/ | prev: https://morloc-project.github.io/docs/utilities/nexus-view.md | next: https://morloc-project.github.io/docs/qa/index.md
+Morloc Manual | https://morloc-project.github.io/docs/future/ | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.md | next: https://morloc-project.github.io/docs/qa/index.md
 
-## 13.1. Planes of libraries
+## 15.1. Planes of libraries
 
 > **Important**
 > The infrastructure for "planes" is not yet constructed, so the following is speculative
@@ -14450,7 +13909,7 @@ Overall, planes help you find code that matches your needs and values—​wheth
 
 <!-- https://morloc-project.github.io/docs/qa/ -->
 
-# 14. Q&A
+# 16. Q&A
 
 Morloc Manual | https://morloc-project.github.io/docs/qa/ | prev: https://morloc-project.github.io/docs/future/index.md | next: https://morloc-project.github.io/docs/qa/one-language.md
 
@@ -14459,7 +13918,7 @@ Morloc Manual | https://morloc-project.github.io/docs/qa/ | prev: https://morloc
 
 <!-- https://morloc-project.github.io/docs/qa/one-language.html -->
 
-# 14.1. I only use one language, is Morloc still useful?
+# 16.1. I only use one language, is Morloc still useful?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/one-language.html | prev: https://morloc-project.github.io/docs/qa/index.md | next: https://morloc-project.github.io/docs/qa/bioinformatics-only.md
 
@@ -14484,7 +13943,7 @@ The primary goal of Morloc is to support the development of composable, typed un
 
 <!-- https://morloc-project.github.io/docs/qa/bioinformatics-only.html -->
 
-# 14.2. Is this just a bioinformatics workflow language?
+# 16.2. Is this just a bioinformatics workflow language?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/bioinformatics-only.html | prev: https://morloc-project.github.io/docs/qa/one-language.md | next: https://morloc-project.github.io/docs/qa/per-function-environments.md
 
@@ -14495,7 +13954,7 @@ No. The Morloc [paper](https://peerj.com/articles/cs-3435/), is focused on bioin
 
 <!-- https://morloc-project.github.io/docs/qa/per-function-environments.html -->
 
-# 14.3. Does Morloc allow function-specific containerized environments?
+# 16.3. Does Morloc allow function-specific containerized environments?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/per-function-environments.html | prev: https://morloc-project.github.io/docs/qa/bioinformatics-only.md | next: https://morloc-project.github.io/docs/qa/object-oriented.md
 
@@ -14514,7 +13973,7 @@ The reproducibility of Morloc workflows may be ensured by running the entire Mor
 
 <!-- https://morloc-project.github.io/docs/qa/object-oriented.html -->
 
-# 14.4. What about object-oriented programming?
+# 16.4. What about object-oriented programming?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/object-oriented.html | prev: https://morloc-project.github.io/docs/qa/per-function-environments.md | next: https://morloc-project.github.io/docs/qa/ai-relevance.md
 
@@ -14527,7 +13986,7 @@ Objects that have a clear "plain old data" representation can be handled by Morl
 
 <!-- https://morloc-project.github.io/docs/qa/ai-relevance.html -->
 
-# 14.5. Is Morloc still relevant when AI can program and translate?
+# 16.5. Is Morloc still relevant when AI can program and translate?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/ai-relevance.html | prev: https://morloc-project.github.io/docs/qa/object-oriented.md | next: https://morloc-project.github.io/docs/qa/not-a-human.md
 
@@ -14560,7 +14019,7 @@ Of course, the future is impossible to predict, especially where AI is concerned
 
 <!-- https://morloc-project.github.io/docs/qa/not-a-human.html -->
 
-# 14.6. I’m not a human, do I still need Morloc?
+# 16.6. I’m not a human, do I still need Morloc?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/not-a-human.html | prev: https://morloc-project.github.io/docs/qa/ai-relevance.md | next: https://morloc-project.github.io/docs/qa/morlocks.md
 
@@ -14571,7 +14030,7 @@ Yes, you are still a programmer and writing endless glue code to stitch things t
 
 <!-- https://morloc-project.github.io/docs/qa/morlocks.html -->
 
-# 14.7. Why is it named after Morlocks, weren’t they, like, bad?
+# 16.7. Why is it named after Morlocks, weren’t they, like, bad?
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/morlocks.html | prev: https://morloc-project.github.io/docs/qa/not-a-human.md | next: https://morloc-project.github.io/docs/qa/more-questions.md
 
@@ -14582,7 +14041,7 @@ While the Morlocks of Wellian fame are best known for their culinary preferences
 
 <!-- https://morloc-project.github.io/docs/qa/more-questions.html -->
 
-# 14.8. Wait! I have more questions!
+# 16.8. Wait! I have more questions!
 
 Morloc Manual > Q&A | https://morloc-project.github.io/docs/qa/more-questions.html | prev: https://morloc-project.github.io/docs/qa/morlocks.md | next: https://morloc-project.github.io/docs/env/index.md
 
@@ -14593,7 +14052,7 @@ Great! Look me up on Discord (link below) and we can chat.
 
 <!-- https://morloc-project.github.io/docs/env/ -->
 
-# 15. Environmental Variable List
+# 17. Environmental Variable List
 
 Morloc Manual | https://morloc-project.github.io/docs/env/ | prev: https://morloc-project.github.io/docs/qa/more-questions.md | next: https://morloc-project.github.io/docs/ai-policy/index.md
 
@@ -14604,17 +14063,17 @@ Every environment variable that morloc reads or sets lives in the `MORLOC_` name
 
 The tables below group the variables by topic. The **Introduced in** column links to the manual section that introduces the variable; a `(pending)` entry marks a variable that is described here but does not yet have a dedicated home elsewhere in the manual.
 
-## 15.1. Installation and runtime setup
+## 17.1. Installation and runtime setup
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
 | `MORLOC_HOME` | Morloc install root; base for `bin/`, `include/`, `lib/`, and the module tree. | `~/.local/share/morloc` | [Exposing native resources](https://morloc-project.github.io/docs/modules/exposing-native-resources.md) |
-| `MORLOC_RUST_DIR` | Path to the `data/rust/` Cargo workspace; `morloc init` compiles the runtime from source (requires `cargo`). Set by `mim` to the Rust source unpacked from the Morloc release. | *(search)* | [Build modes](https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.md#build-modes) |
+| `MORLOC_RUST_DIR` | Path to the `data/rust/` Cargo workspace; `morloc init` compiles the runtime from source (requires `cargo`). Set by `mim` to the Rust source unpacked from the Morloc release. | *(search)* | [Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md) |
 | `MORLOC_LANG_PARAMS` | `;`\-separated `LANG:KEY=VALUE` build parameters, layered between the per-machine build config and `-X` on the command line. | *(none)* | [Build parameters](https://morloc-project.github.io/docs/languages/build-parameters.md) |
 | `MORLOC_BIN_LINK_DIR` | Directory where `morloc init` symlinks `morloc-nexus` and `mim`. An empty value suppresses symlinking; `mim` sets it inside containers so links land in a morloc-owned `bin/` instead of clobbering `~/.local/bin`. | `~/.local/bin` if present, else none | (pending) |
 | `MORLOC_NEXUS` | Explicit path to the `morloc-nexus` binary. First entry in the resolution chain (then `$MORLOC_HOME/bin`, `$PATH`, `~/.local/bin`) used when a pool must re-invoke the nexus, e.g. for SLURM dispatch. | *(resolution chain)* | (pending) |
 
-## 15.2. Module installation (setup-script environment)
+## 17.2. Module installation (setup-script environment)
 
 Set by the compiler for a module’s `setup` script child process and read by that script.
 
@@ -14629,7 +14088,7 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_EXPOSE_PY_DIR` | Destination directory a `setup` script should copy exposed Python resources into. | *(derived from plane/module)* | (pending) |
 | `MORLOC_EXPOSE_R_DIR` | Destination directory a `setup` script should copy exposed R resources into. | *(derived from plane/module)* | (pending) |
 
-## 15.3. Run directory, logging, and reporting
+## 17.3. Run directory, logging, and reporting
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -14641,7 +14100,7 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_RUN_BASE` | Parent directory of the active run directory. Published by the runtime for child pools; informational only (a child reconstructs its run from `MORLOC_RUN_DIR`). | *(only when active)* | (pending) |
 | `MORLOC_TRACE` | Any non-empty value enables per-stage timing trace lines on stderr (ingest, size-estimate, and emit hot paths) for diagnosing where wall time is spent. | off | (pending) |
 
-## 15.4. Debugging
+## 17.4. Debugging
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -14650,7 +14109,7 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_DEBUG_CACHE_MAX` | Per-arg size cap on the dumped payload; larger args recorded by hash only. Equivalent to `--debug-cache-max`. | `0` (unlimited) | [Runtime knobs](https://morloc-project.github.io/docs/runs/debugging.md#debug-knobs) |
 | `MORLOC_DEBUG_RECURSION_CAP` | Per-manifold frame limit in a recorded trace (`0` = unlimited). Equivalent to `--debug-recursion-cap`. | `3` | [Runtime knobs](https://morloc-project.github.io/docs/runs/debugging.md#debug-knobs) |
 
-## 15.5. Caching
+## 17.5. Caching
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -14658,7 +14117,7 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_CACHE_COMPRESSION_LEVEL` | zstd level for persisted cache entries. `0` stores them uncompressed so `morloc dump` reads them without decompressing; raise it for large-payload workloads where disk footprint matters. | `0` (uncompressed) | (pending) |
 | `MORLOC_POOL_HASH` | Hex source fingerprint mixed into every cache key so editing the morloc source (or a `@hash-include` file) invalidates the cache. `0` keeps caching working but drops source-edit invalidation. | `0` (no invalidation) | (pending) |
 
-## 15.6. Data transfer (packets and shared memory)
+## 17.6. Data transfer (packets and shared memory)
 
 Set by the nexus from the compiled manifest and read once by `libmorloc` on the first packet operation.
 
@@ -14668,7 +14127,7 @@ Set by the nexus from the compiled manifest and read once by `libmorloc` on the 
 | `MORLOC_NO_SHM` | Set to `1`/`true`/`yes`/`on` to disable shared memory and route large payloads through temp files instead. | off | (pending) |
 | `MORLOC_TMPDIR` | Temp directory for file-routed packets (used when a payload exceeds the inline threshold and SHM is disabled or unavailable). | system temp | (pending) |
 
-## 15.7. Streaming and compression
+## 17.7. Streaming and compression
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -14677,7 +14136,7 @@ Set by the nexus from the compiled manifest and read once by `libmorloc` on the 
 | `MORLOC_IFILE_CACHE_BYTES` | Per-handle SHM cache for decompressed IFile sub-packets (`0` disables). | 256 MiB | [Streaming environment variables](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md#stream-env-vars) |
 | `MORLOC_FRAME_WORKERS` | Worker threads for parallel zstd frame compression/decompression (capped at 16). | `min(cores, 16)` | [Streaming environment variables](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md#stream-env-vars) |
 
-## 15.8. Nexus and inter-process wiring
+## 17.8. Nexus and inter-process wiring
 
 Set by the nexus and read by the pools it launches.
 
@@ -14689,7 +14148,7 @@ Set by the nexus and read by the pools it launches.
 | `MORLOC_NEXUS_STDIO_SOCK` | Unix socket the nexus binds for its stdio server; a pool connects to it to route `@stdin` / `@stdout` / `@stderr` back to the nexus. Unset means the pool was not started by a nexus. | *(unset)* | (pending) |
 | `MORLOC_STDOUT_COMPRESSION_LEVEL` | The nexus’s explicit `-z N`, when one was given. A pool writing a stream to `@stdout` compresses every sub-packet at this level instead of the `@write` level. Unset means the `@write` level stands. | *(unset)* | [Compression](https://morloc-project.github.io/docs/runs/compression.md) |
 
-## 15.9. Nexus inspection tools (`view` / `file`)
+## 17.9. Nexus inspection tools (`view` / `file`)
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -14697,7 +14156,7 @@ Set by the nexus and read by the pools it launches.
 | `MORLOC_FILE_MAX_SCAN_SUBPACKETS` | Cap on sub-packets scanned when classifying a footer-less stream file. | `10000` | [Stream packets](https://morloc-project.github.io/docs/utilities/nexus-file.md#stream-packets) |
 | `MORLOC_CSV_SNIFF_ROWS` | Data rows Arrow scans to infer a CSV schema. `0` falls back to `String` columns; a non-numeric value falls back to the default. The whole file is never scanned. | `100` | (pending) |
 
-## 15.10. String safety
+## 17.10. String safety
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -14708,7 +14167,7 @@ Set by the nexus and read by the pools it launches.
 
 <!-- https://morloc-project.github.io/docs/ai-policy/ -->
 
-# 16. AI Policy
+# 18. AI Policy
 
 Morloc Manual | https://morloc-project.github.io/docs/ai-policy/ | prev: https://morloc-project.github.io/docs/env/index.md | next: https://morloc-project.github.io/docs/contact/index.md
 
@@ -14727,7 +14186,7 @@ As for the docs, even with the advent of AI, I do believe these should be writte
 
 <!-- https://morloc-project.github.io/docs/contact/ -->
 
-# 17. Contact
+# 19. Contact
 
 Morloc Manual | https://morloc-project.github.io/docs/contact/ | prev: https://morloc-project.github.io/docs/ai-policy/index.md
 

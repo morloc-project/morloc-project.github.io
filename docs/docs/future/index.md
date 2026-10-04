@@ -1,8 +1,8 @@
-# 13. Future Directions
+# 15. Future Directions
 
-Morloc Manual | https://morloc-project.github.io/docs/future/ | prev: https://morloc-project.github.io/docs/utilities/nexus-view.md | next: https://morloc-project.github.io/docs/qa/index.md
+Morloc Manual | https://morloc-project.github.io/docs/future/ | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.md | next: https://morloc-project.github.io/docs/qa/index.md
 
-## 13.1. Planes of libraries
+## 15.1. Planes of libraries
 
 > **Important**
 > The infrastructure for "planes" is not yet constructed, so the following is speculative

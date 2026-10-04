@@ -157,4 +157,4 @@ $ ./sift --mcp-tools > tools.json
 morloc mcp: excluding command 'total' from the tool surface (reads from @stdin)
 ```
 
-The MCP surface is covered in [Model Context Protocol (MCP)](https://morloc-project.github.io/docs/internals/mcp.md), and the same module served over HTTP, TCP, and Unix sockets in [Daemons and the serving router](https://morloc-project.github.io/docs/internals/api-interfaces.md). They are worth reading together with this section, because they are the same point from three directions: the command line is one view of a typed library, not the thing the library is built on. A CLI, an HTTP endpoint, and an MCP tool are three renderings of one set of functions, and none of them is written by hand.
+Serving the same module over MCP and HTTP is covered in [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). It is worth reading together with this section, because they are the same point from three directions: the command line is one view of a typed library, not the thing the library is built on. A CLI, an HTTP endpoint, and an MCP tool are three renderings of one set of functions, and none of them is written by hand.

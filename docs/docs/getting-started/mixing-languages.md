@@ -39,4 +39,4 @@ $ ./report report 21
 "The current temperature is 21.0C (69.80000000000001F)"
 ```
 
-A Python function called a C++ function, and you wrote no binding code. All of the interop — serializing the argument, starting both pools, passing a callable reference across the process boundary — is generated. [Build Architecture](https://morloc-project.github.io/docs/internals/index.md) covers how.
+A Python function called a C++ function, and you wrote no binding code. All of the interop — serializing the argument, starting both pools, passing a callable reference across the process boundary — is generated. [Build Architecture](https://morloc-project.github.io/docs/build-architecture/index.md) covers how.

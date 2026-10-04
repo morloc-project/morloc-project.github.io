@@ -1,4 +1,4 @@
-# 16. AI Policy
+# 18. AI Policy
 
 Morloc Manual | https://morloc-project.github.io/docs/ai-policy/ | prev: https://morloc-project.github.io/docs/env/index.md | next: https://morloc-project.github.io/docs/contact/index.md
 

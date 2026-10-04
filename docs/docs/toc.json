@@ -8,7 +8,7 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "2c455ab8fe57550ca8f3ae59b1dfd6790a886ff4"
+  "source": "c116217f8aebba8a3822fc4a0204852e95269fa1"
  },
  "pages": [
   {
@@ -2475,295 +2475,6 @@
   },
   {
    "number": "11.",
-   "title": "Build Architecture",
-   "id": "internals",
-   "url": "https://morloc-project.github.io/docs/internals/",
-   "md": "https://morloc-project.github.io/docs/internals/index.md",
-   "chapter": "internals",
-   "level": 1,
-   "summary": "",
-   "headings": []
-  },
-  {
-   "number": "11.1.",
-   "title": "Architecture Overview",
-   "id": "architecture-overview",
-   "url": "https://morloc-project.github.io/docs/internals/architecture-overview.html",
-   "md": "https://morloc-project.github.io/docs/internals/architecture-overview.md",
-   "chapter": "internals",
-   "level": 2,
-   "summary": "A compiled Morloc program has two kinds of components: one nexus and one or more pools.",
-   "headings": []
-  },
-  {
-   "number": "11.2.",
-   "title": "Cross-language function calls",
-   "id": "cross-language-calls",
-   "url": "https://morloc-project.github.io/docs/internals/cross-language-calls.html",
-   "md": "https://morloc-project.github.io/docs/internals/cross-language-calls.md",
-   "chapter": "internals",
-   "level": 2,
-   "summary": "When a Morloc program composes functions from different languages, the compiler must bridge the language boundary.",
-   "headings": [
-    {
-     "id": "_how_it_works",
-     "title": "How it works",
-     "number": "11.2.1."
-    },
-    {
-     "id": "_what_the_generated_code_looks_like",
-     "title": "What the generated code looks like",
-     "number": "11.2.2."
-    },
-    {
-     "id": "_performance_implications",
-     "title": "Performance implications",
-     "number": "11.2.3."
-    }
-   ]
-  },
-  {
-   "number": "11.3.",
-   "title": "Protocols",
-   "id": "protocols",
-   "url": "https://morloc-project.github.io/docs/internals/protocols.html",
-   "md": "https://morloc-project.github.io/docs/internals/protocols.md",
-   "chapter": "internals",
-   "level": 2,
-   "summary": "This section describes the binary formats used for communication between the nexus and pools: the manifest, the packet protocol, the shared memory layout,...",
-   "headings": [
-    {
-     "id": "_the_manifest",
-     "title": "The manifest",
-     "number": "11.3.1."
-    },
-    {
-     "id": "_packet_protocol",
-     "title": "Packet protocol",
-     "number": "11.3.2."
-    },
-    {
-     "id": "_packet_types",
-     "title": "Packet types",
-     "number": ""
-    },
-    {
-     "id": "_metadata_blocks",
-     "title": "Metadata blocks",
-     "number": ""
-    },
-    {
-     "id": "_shared_memory",
-     "title": "Shared memory",
-     "number": "11.3.3."
-    },
-    {
-     "id": "_volumes",
-     "title": "Volumes",
-     "number": ""
-    },
-    {
-     "id": "_pointer_types",
-     "title": "Pointer types",
-     "number": ""
-    },
-    {
-     "id": "_volume_header_shm_t",
-     "title": "Volume header (shm_t)",
-     "number": ""
-    },
-    {
-     "id": "_block_header_block_header_t_packed",
-     "title": "Block header (block_header_t, packed)",
-     "number": ""
-    },
-    {
-     "id": "schema-strings",
-     "title": "Schema strings",
-     "number": "11.3.4."
-    },
-    {
-     "id": "_voidstar_binary_format",
-     "title": "Voidstar binary format",
-     "number": "11.3.5."
-    }
-   ]
-  },
-  {
-   "number": "11.4.",
-   "title": "Runtime and Dev Builds",
-   "id": "runtime-and-dev-builds",
-   "url": "https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.html",
-   "md": "https://morloc-project.github.io/docs/internals/runtime-and-dev-builds.md",
-   "chapter": "internals",
-   "level": 2,
-   "summary": "The Morloc runtime — the shared library (libmorloc.so) and the nexus binary (morloc-nexus) — is written in Rust.",
-   "headings": [
-    {
-     "id": "build-modes",
-     "title": "Build modes",
-     "number": "11.4.1."
-    },
-    {
-     "id": "_what_the_runtime_provides",
-     "title": "What the runtime provides",
-     "number": "11.4.2."
-    },
-    {
-     "id": "_build_dependencies",
-     "title": "Build dependencies",
-     "number": "11.4.3."
-    },
-    {
-     "id": "_container_images",
-     "title": "Container images",
-     "number": "11.4.4."
-    }
-   ]
-  },
-  {
-   "number": "11.5.",
-   "title": "Daemons and the serving router",
-   "id": "api-interfaces",
-   "url": "https://morloc-project.github.io/docs/internals/api-interfaces.html",
-   "md": "https://morloc-project.github.io/docs/internals/api-interfaces.md",
-   "chapter": "internals",
-   "level": 2,
-   "summary": "This section is for readers who want to run Morloc programs as services without mim, or who want to know what mim start runs underneath.",
-   "headings": [
-    {
-     "id": "_http_protocol",
-     "title": "HTTP protocol",
-     "number": "11.5.1."
-    },
-    {
-     "id": "_tcp_protocol",
-     "title": "TCP protocol",
-     "number": "11.5.2."
-    },
-    {
-     "id": "_unix_socket_protocol",
-     "title": "Unix socket protocol",
-     "number": "11.5.3."
-    },
-    {
-     "id": "_running_all_protocols_at_once",
-     "title": "Running all protocols at once",
-     "number": "11.5.4."
-    },
-    {
-     "id": "_ephemeral_ports",
-     "title": "Ephemeral ports",
-     "number": ""
-    },
-    {
-     "id": "_the_serving_router",
-     "title": "The serving router",
-     "number": "11.5.5."
-    },
-    {
-     "id": "_shutdown",
-     "title": "Shutdown",
-     "number": "11.5.6."
-    },
-    {
-     "id": "_summary",
-     "title": "Summary",
-     "number": "11.5.7."
-    }
-   ]
-  },
-  {
-   "number": "11.6.",
-   "title": "Model Context Protocol (MCP)",
-   "id": "mcp",
-   "url": "https://morloc-project.github.io/docs/internals/mcp.html",
-   "md": "https://morloc-project.github.io/docs/internals/mcp.md",
-   "chapter": "internals",
-   "level": 2,
-   "summary": "This section describes how a Morloc program speaks MCP, for readers writing a client, debugging one, or serving a program without mim.",
-   "headings": [
-    {
-     "id": "_the_handshake",
-     "title": "The handshake",
-     "number": "11.6.1."
-    },
-    {
-     "id": "_inspecting_the_tool_surface",
-     "title": "Inspecting the tool surface",
-     "number": "11.6.2."
-    },
-    {
-     "id": "_how_arguments_map_to_properties",
-     "title": "How arguments map to properties",
-     "number": "11.6.3."
-    },
-    {
-     "id": "_calling_a_tool",
-     "title": "Calling a tool",
-     "number": "11.6.4."
-    },
-    {
-     "id": "_what_is_not_exposed",
-     "title": "What is not exposed",
-     "number": "11.6.5."
-    },
-    {
-     "id": "_errors",
-     "title": "Errors",
-     "number": "11.6.6."
-    },
-    {
-     "id": "_connecting_a_local_client",
-     "title": "Connecting a local client",
-     "number": "11.6.7."
-    },
-    {
-     "id": "_mcp_over_http",
-     "title": "MCP over HTTP",
-     "number": "11.6.8."
-    },
-    {
-     "id": "_summary_2",
-     "title": "Summary",
-     "number": "11.6.9."
-    }
-   ]
-  },
-  {
-   "number": "11.7.",
-   "title": "morloc eval",
-   "id": "morloc-eval",
-   "url": "https://morloc-project.github.io/docs/internals/morloc-eval.html",
-   "md": "https://morloc-project.github.io/docs/internals/morloc-eval.md",
-   "chapter": "internals",
-   "level": 2,
-   "summary": "Morloc has three subcommands that turn source into a result, and they serve distinct roles:",
-   "headings": [
-    {
-     "id": "_imports_in_eval_strings",
-     "title": "Imports in eval strings",
-     "number": "11.7.1."
-    },
-    {
-     "id": "_the_eval_sandbox",
-     "title": "The eval sandbox",
-     "number": "11.7.2."
-    },
-    {
-     "id": "_single_line_layout_braces_and_semicolons",
-     "title": "Single-line layout: braces and semicolons",
-     "number": "11.7.3."
-    },
-    {
-     "id": "_saving_an_eval_expression_as_a_command",
-     "title": "Saving an eval expression as a command",
-     "number": "11.7.4."
-    }
-   ]
-  },
-  {
-   "number": "12.",
    "title": "Utilities",
    "id": "utilities",
    "url": "https://morloc-project.github.io/docs/utilities/",
@@ -2774,7 +2485,7 @@
    "headings": []
   },
   {
-   "number": "12.1.",
+   "number": "11.1.",
    "title": "morloc-nexus file",
    "id": "nexus-file",
    "url": "https://morloc-project.github.io/docs/utilities/nexus-file.html",
@@ -2786,22 +2497,22 @@
     {
      "id": "stream-packets",
      "title": "Stream packets",
-     "number": "12.1.1."
+     "number": "11.1.1."
     },
     {
      "id": "_options",
      "title": "Options",
-     "number": "12.1.2."
+     "number": "11.1.2."
     },
     {
      "id": "_verbose_example",
      "title": "Verbose example",
-     "number": "12.1.3."
+     "number": "11.1.3."
     }
    ]
   },
   {
-   "number": "12.2.",
+   "number": "11.2.",
    "title": "morloc-nexus view",
    "id": "nexus-view",
    "url": "https://morloc-project.github.io/docs/utilities/nexus-view.html",
@@ -2813,47 +2524,410 @@
     {
      "id": "_reading_from_stdin",
      "title": "Reading from stdin",
-     "number": "12.2.1."
+     "number": "11.2.1."
     },
     {
      "id": "_schema_resolution",
      "title": "Schema resolution",
-     "number": "12.2.2."
+     "number": "11.2.2."
     },
     {
      "id": "_pattern_extract_a_subset",
      "title": "--pattern: extract a subset",
-     "number": "12.2.3."
+     "number": "11.2.3."
     },
     {
      "id": "_packet_shape_output_s_d_p",
      "title": "Packet-shape output: -s / -d / -p",
-     "number": "12.2.4."
+     "number": "11.2.4."
     },
     {
      "id": "_f_jsonl_line_delimited_json",
      "title": "-f jsonl: line-delimited JSON",
-     "number": "12.2.5."
+     "number": "11.2.5."
     },
     {
      "id": "view-size-guardrails",
      "title": "Size guardrails and --force",
-     "number": "12.2.6."
+     "number": "11.2.6."
     },
     {
      "id": "footer-less-streams",
      "title": "Footer-less streams",
-     "number": "12.2.7."
+     "number": "11.2.7."
     },
     {
      "id": "_options_2",
      "title": "Options",
-     "number": "12.2.8."
+     "number": "11.2.8."
     }
    ]
   },
   {
+   "number": "12.",
+   "title": "Ecosystem Architecture",
+   "id": "ecosystem-architecture",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/index.md",
+   "chapter": "ecosystem-architecture",
+   "level": 1,
+   "summary": "This chapter specifies how the parts of the Morloc ecosystem fit together: the compiler, the runtime library, the nexus, and the environment manager.",
+   "headings": []
+  },
+  {
+   "number": "12.1.",
+   "title": "Overview",
+   "id": "eco-overview",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "STUB: Introduces the four parts of the ecosystem: the compiler, the runtime library, the nexus, and the environment manager (mim).",
+   "headings": []
+  },
+  {
+   "number": "12.2.",
+   "title": "Runtime bootstrap",
+   "id": "eco-bootstrap",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies what initialization (morloc init) produces: the compiled runtime library, the nexus binary, the per-language bindings and their headers, and...",
+   "headings": []
+  },
+  {
+   "number": "12.3.",
+   "title": "Module resolution",
+   "id": "eco-modules",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies how an import is resolved to a module: the search order, the precedence of local and installed modules, and how ambiguity is reported.",
+   "headings": []
+  },
+  {
+   "number": "12.4.",
+   "title": "Environment solving",
+   "id": "eco-solving",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies the contract between the compiler and the environment solver: which events trigger solving (build, install, sync), what the compiler asks...",
+   "headings": []
+  },
+  {
+   "number": "12.5.",
+   "title": "Freezing and execution environments",
+   "id": "eco-freezing",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies freezing: turning an environment and its installed programs into a portable artifact that runs on another machine.",
+   "headings": []
+  },
+  {
+   "number": "12.6.",
+   "title": "Serving",
+   "id": "eco-serving",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies how a compiled program is served beyond the command line: the daemon, the router that fronts several programs, and the transports (HTTP, TCP...",
+   "headings": []
+  },
+  {
    "number": "13.",
+   "title": "Build Architecture",
+   "id": "build-architecture",
+   "url": "https://morloc-project.github.io/docs/build-architecture/",
+   "md": "https://morloc-project.github.io/docs/build-architecture/index.md",
+   "chapter": "build-architecture",
+   "level": 1,
+   "summary": "This chapter specifies what morloc make produces and how the result runs.",
+   "headings": []
+  },
+  {
+   "number": "13.1.",
+   "title": "Runtime overview",
+   "id": "build-overview",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-overview.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-overview.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Gives the high-level picture of a running program.",
+   "headings": []
+  },
+  {
+   "number": "13.2.",
+   "title": "Compilation artifacts",
+   "id": "build-artifacts",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-artifacts.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-artifacts.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies exactly what morloc make produces: the build directory layout, the per-language pool trees, and the launchers (CLI, MCP, daemon) that exec...",
+   "headings": []
+  },
+  {
+   "number": "13.3.",
+   "title": "Process lifecycle",
+   "id": "build-lifecycle",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-lifecycle.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies the life of a program’s processes.",
+   "headings": []
+  },
+  {
+   "number": "13.4.",
+   "title": "Packet protocol",
+   "id": "build-packets",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-packets.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-packets.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies the packet protocol that the nexus and pools speak: the fixed header, every packet type, metadata blocks, and how a payload is carried...",
+   "headings": []
+  },
+  {
+   "number": "13.5.",
+   "title": "Shared memory layout",
+   "id": "build-shm",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-shm.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-shm.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies the shared memory that pools use to exchange large values without copying.",
+   "headings": []
+  },
+  {
+   "number": "13.6.",
+   "title": "Voidstar format and schema strings",
+   "id": "build-voidstar",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-voidstar.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-voidstar.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies voidstar, the language-neutral binary layout every serialized value takes: the layout of each primitive, string, array, tuple, record,...",
+   "headings": []
+  },
+  {
+   "number": "13.7.",
+   "title": "Tables and tensors on the wire",
+   "id": "build-tables",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-tables.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-tables.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies how tables and tensors cross language boundaries.",
+   "headings": []
+  },
+  {
+   "number": "13.8.",
+   "title": "Worker model",
+   "id": "build-workers",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-workers.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-workers.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies concurrency inside a running program: the threads in the nexus, the worker pool inside each language process, and how workers are created,...",
+   "headings": []
+  },
+  {
+   "number": "13.9.",
+   "title": "Error propagation",
+   "id": "build-errors",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-errors.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-errors.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies how a failure travels through a program.",
+   "headings": []
+  },
+  {
+   "number": "13.10.",
+   "title": "Streaming and memory mapping",
+   "id": "build-streaming",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-streaming.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-streaming.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies streams: values too large or too long-lived to hold in memory at once.",
+   "headings": []
+  },
+  {
+   "number": "13.11.",
+   "title": "Collect, fold, parse and render",
+   "id": "build-collect",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-collect.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-collect.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies the CLI’s data-flow directives: @collect and @fold, which gather a stream into a value, and @parse and @render, which convert between...",
+   "headings": []
+  },
+  {
+   "number": "13.12.",
+   "title": "Run directory, caching and logging",
+   "id": "build-runs",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-runs.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-runs.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies the state a run keeps outside the process.",
+   "headings": []
+  },
+  {
+   "number": "14.",
+   "title": "Compiler Architecture",
+   "id": "compiler-architecture",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/index.md",
+   "chapter": "compiler-architecture",
+   "level": 1,
+   "summary": "This chapter specifies how the compiler turns Morloc source into the artifacts described in Build Architecture.",
+   "headings": []
+  },
+  {
+   "number": "14.1.",
+   "title": "Pipeline overview",
+   "id": "compiler-pipeline",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-pipeline.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-pipeline.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Lists every compiler stage in order: lexing, parsing, module loading, desugaring, typechecking, realization, serialization planning, code generation,...",
+   "headings": []
+  },
+  {
+   "number": "14.2.",
+   "title": "Parsing and module loading",
+   "id": "compiler-parsing",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies the concrete syntax: lexical rules, the layout (indentation) rule, the grammar, and how docstrings are attached to the declarations they...",
+   "headings": []
+  },
+  {
+   "number": "14.3.",
+   "title": "Type system",
+   "id": "compiler-types",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-types.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-types.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies the type system: the typing rules, polymorphism and how quantifiers are inferred, typeclasses and instance resolution (including how overlap...",
+   "headings": []
+  },
+  {
+   "number": "14.4.",
+   "title": "Effects",
+   "id": "compiler-effects",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies effects.",
+   "headings": []
+  },
+  {
+   "number": "14.5.",
+   "title": "Realization",
+   "id": "compiler-realization",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies realization: choosing, for every call in a program, which language implementation to use when several are available.",
+   "headings": []
+  },
+  {
+   "number": "14.6.",
+   "title": "Term sharing and inlining",
+   "id": "compiler-sharing",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-sharing.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-sharing.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies how the compiler keeps generated code proportional to the source.",
+   "headings": []
+  },
+  {
+   "number": "14.7.",
+   "title": "Serialization",
+   "id": "compiler-serialization",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies how generated code serializes values at language boundaries.",
+   "headings": []
+  },
+  {
+   "number": "14.8.",
+   "title": "Cross-language calls and tail calls",
+   "id": "compiler-calls",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies how a call in one language reaches a function in another: the stub generated on the calling side, the dispatch on the receiving side, and...",
+   "headings": []
+  },
+  {
+   "number": "14.9.",
+   "title": "Code generation",
+   "id": "compiler-codegen",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies code generation.",
+   "headings": []
+  },
+  {
+   "number": "14.10.",
+   "title": "Interface generation",
+   "id": "compiler-interface",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies how exported functions become a program’s external interface.",
+   "headings": []
+  },
+  {
+   "number": "14.11.",
+   "title": "Language onboarding",
+   "id": "compiler-onboarding",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies what it takes to add a language to Morloc: the language description the compiler reads, the type mappings and build parameters it declares,...",
+   "headings": []
+  },
+  {
+   "number": "14.12.",
+   "title": "Runtime library API",
+   "id": "compiler-libmorloc",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "STUB: Specifies the C ABI that language bindings are written against: the ABI version and the rule for when it changes, the error-reporting convention every...",
+   "headings": []
+  },
+  {
+   "number": "15.",
    "title": "Future Directions",
    "id": "future",
    "url": "https://morloc-project.github.io/docs/future/",
@@ -2865,12 +2939,12 @@
     {
      "id": "planes-of-libraries",
      "title": "Planes of libraries",
-     "number": "13.1."
+     "number": "15.1."
     }
    ]
   },
   {
-   "number": "14.",
+   "number": "16.",
    "title": "Q&A",
    "id": "qa",
    "url": "https://morloc-project.github.io/docs/qa/",
@@ -2881,7 +2955,7 @@
    "headings": []
   },
   {
-   "number": "14.1.",
+   "number": "16.1.",
    "title": "I only use one language, is Morloc still useful?",
    "id": "one-language",
    "url": "https://morloc-project.github.io/docs/qa/one-language.html",
@@ -2892,7 +2966,7 @@
    "headings": []
   },
   {
-   "number": "14.2.",
+   "number": "16.2.",
    "title": "Is this just a bioinformatics workflow language?",
    "id": "bioinformatics-only",
    "url": "https://morloc-project.github.io/docs/qa/bioinformatics-only.html",
@@ -2903,7 +2977,7 @@
    "headings": []
   },
   {
-   "number": "14.3.",
+   "number": "16.3.",
    "title": "Does Morloc allow function-specific containerized environments?",
    "id": "per-function-environments",
    "url": "https://morloc-project.github.io/docs/qa/per-function-environments.html",
@@ -2914,7 +2988,7 @@
    "headings": []
   },
   {
-   "number": "14.4.",
+   "number": "16.4.",
    "title": "What about object-oriented programming?",
    "id": "object-oriented",
    "url": "https://morloc-project.github.io/docs/qa/object-oriented.html",
@@ -2925,7 +2999,7 @@
    "headings": []
   },
   {
-   "number": "14.5.",
+   "number": "16.5.",
    "title": "Is Morloc still relevant when AI can program and translate?",
    "id": "ai-relevance",
    "url": "https://morloc-project.github.io/docs/qa/ai-relevance.html",
@@ -2936,7 +3010,7 @@
    "headings": []
   },
   {
-   "number": "14.6.",
+   "number": "16.6.",
    "title": "I’m not a human, do I still need Morloc?",
    "id": "not-a-human",
    "url": "https://morloc-project.github.io/docs/qa/not-a-human.html",
@@ -2947,7 +3021,7 @@
    "headings": []
   },
   {
-   "number": "14.7.",
+   "number": "16.7.",
    "title": "Why is it named after Morlocks, weren’t they, like, bad?",
    "id": "morlocks",
    "url": "https://morloc-project.github.io/docs/qa/morlocks.html",
@@ -2958,7 +3032,7 @@
    "headings": []
   },
   {
-   "number": "14.8.",
+   "number": "16.8.",
    "title": "Wait! I have more questions!",
    "id": "more-questions",
    "url": "https://morloc-project.github.io/docs/qa/more-questions.html",
@@ -2969,7 +3043,7 @@
    "headings": []
   },
   {
-   "number": "15.",
+   "number": "17.",
    "title": "Environmental Variable List",
    "id": "env",
    "url": "https://morloc-project.github.io/docs/env/",
@@ -2981,57 +3055,57 @@
     {
      "id": "env-installation",
      "title": "Installation and runtime setup",
-     "number": "15.1."
+     "number": "17.1."
     },
     {
      "id": "env-module-installation",
      "title": "Module installation (setup-script environment)",
-     "number": "15.2."
+     "number": "17.2."
     },
     {
      "id": "env-run-directory",
      "title": "Run directory, logging, and reporting",
-     "number": "15.3."
+     "number": "17.3."
     },
     {
      "id": "env-debugging",
      "title": "Debugging",
-     "number": "15.4."
+     "number": "17.4."
     },
     {
      "id": "env-caching",
      "title": "Caching",
-     "number": "15.5."
+     "number": "17.5."
     },
     {
      "id": "env-data-transfer",
      "title": "Data transfer (packets and shared memory)",
-     "number": "15.6."
+     "number": "17.6."
     },
     {
      "id": "env-streaming",
      "title": "Streaming and compression",
-     "number": "15.7."
+     "number": "17.7."
     },
     {
      "id": "env-nexus-wiring",
      "title": "Nexus and inter-process wiring",
-     "number": "15.8."
+     "number": "17.8."
     },
     {
      "id": "env-inspection-tools",
      "title": "Nexus inspection tools (view / file)",
-     "number": "15.9."
+     "number": "17.9."
     },
     {
      "id": "env-string-safety",
      "title": "String safety",
-     "number": "15.10."
+     "number": "17.10."
     }
    ]
   },
   {
-   "number": "16.",
+   "number": "18.",
    "title": "AI Policy",
    "id": "ai-policy",
    "url": "https://morloc-project.github.io/docs/ai-policy/",
@@ -3042,7 +3116,7 @@
    "headings": []
   },
   {
-   "number": "17.",
+   "number": "19.",
    "title": "Contact",
    "id": "contact",
    "url": "https://morloc-project.github.io/docs/contact/",
