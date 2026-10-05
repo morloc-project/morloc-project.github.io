@@ -173,7 +173,6 @@
  "typeclasses": "types/typeclasses.html",
  "_one_class_many_languages": "types/typeclasses.html",
  "_superclasses": "types/typeclasses.html",
- "_constraints_are_checked": "types/typeclasses.html",
  "_instances_with_contexts": "types/typeclasses.html",
  "_importing_a_class_from_another_module": "types/typeclasses.html",
  "infix-operators": "types/infix-operators.html",

@@ -8,7 +8,7 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "c116217f8aebba8a3822fc4a0204852e95269fa1"
+  "source": "e2f884801eb42e814c8c765537372fd4a11df351"
  },
  "pages": [
   {
@@ -1100,19 +1100,14 @@
      "number": "5.2.2."
     },
     {
-     "id": "_constraints_are_checked",
-     "title": "Constraints are checked",
-     "number": "5.2.3."
-    },
-    {
      "id": "_instances_with_contexts",
      "title": "Instances with contexts",
-     "number": "5.2.4."
+     "number": "5.2.3."
     },
     {
      "id": "_importing_a_class_from_another_module",
      "title": "Importing a class from another module",
-     "number": "5.2.5."
+     "number": "5.2.4."
     }
    ]
   },
