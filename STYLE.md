@@ -347,12 +347,14 @@ different things and the manual has conflated them before.
 ## 9. Architecture chapters
 
 The Ecosystem, Build and Compiler Architecture chapters are the specification
-of the Morloc system. Each section has two parts:
+of the Morloc system. Each section has two parts, with no subheadings to
+mark them:
 
-- **Purpose:** what the component is for and where it sits among its
+- **Purpose:** one `[abstract]` paragraph directly under the section
+  heading, saying what the component is for and where it sits among its
   neighbours.
-- **Specification:** its rules, formats, invariants and guarantees, with the
-  reason behind every non-obvious choice.
+- **Specification:** the rest of the section: its rules, formats, invariants
+  and guarantees, with the reason behind every non-obvious choice.
 
 Every sentence must stay true if Morloc were reimplemented in another
 language, and must be understandable by an engineer on an unrelated project

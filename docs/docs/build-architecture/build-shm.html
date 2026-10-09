@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li class="active"><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="build-workers.html">13.8. Worker model</a></li>
-<li><a href="build-errors.html">13.9. Error propagation</a></li>
-<li><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="build-workers.html">13.4. Worker model</a></li>
+<li><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li class="active"><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -731,19 +772,213 @@
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Shared memory layout"><div class="sect2">
-<h3 id="build-shm"><a class="anchor" href="#build-shm"></a>13.5. Shared memory layout</h3>
+<h3 id="build-shm"><a class="anchor" href="#build-shm"></a>13.6. Shared memory layout</h3>
+<div class="quoteblock abstract">
+<blockquote>
+Large values pass between pools through shared memory, so a value written by
+one process can be read by another where it lies, with only an 8-byte
+pointer crossing the socket. This section specifies the shared-memory
+volumes and blocks of a run, the pointer forms that address them, and the
+rules for allocating, sharing and releasing a block among processes that may
+die at any moment.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the shared memory that pools use to exchange large values
-without copying. Defines volumes, the volume header, block headers, and the
-three pointer forms (pool-relative, volume-relative, absolute) with the rules
-for converting between them. Covers allocation, reference counting and release,
-how volumes are created and attached safely by concurrent processes, and how
-file locking protects them.</p>
+<p><strong>Volumes.</strong> A run’s shared memory is a set of <strong>volumes</strong>, each a POSIX
+shared-memory object mapped by every process of the run. Volume <em>i</em> is named
+<code>&lt;base&gt;-&lt;i&gt;</code> with <em>i</em> as four hex digits, where the nexus chooses the base
+name (<code>/mlc-&lt;pid&gt;-&lt;random&gt;-&lt;generation&gt;</code>) and passes it to every pool. The
+generation changes when a daemon discards its shared memory and starts over,
+so the new namespace never collides with the old. Volume 0 is never created:
+index 0 is reserved for pointers into a self-contained buffer
+(<a href="build-voidstar.html">Voidstar format and schema strings</a>). The first volume is index 1, with 64 KiB of data; a
+process that needs more creates another volume at an unused index, at least
+twice the size of the last, up to 32767 volumes. If the shared-memory
+filesystem is full or unavailable, a volume is created as a file in the run
+directory instead, and a zero-length stub under the shared-memory name tells
+other processes where it is.</p>
+</div>
+<div class="paragraph">
+<p>Each volume starts with a header:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Offset</th>
+<th class="tableblock halign-left valign-top">Size</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">magic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0xFECA0DF0</code>, written last by the creator; a volume without it is not ready.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The volume’s name, NUL-padded.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">132</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">index</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The volume’s index, checked when a process opens it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">136</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes of data after the header.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">144</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">reserved</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">152</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lock</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A process-shared lock guarding the block list (size set by the platform).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cursor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Offset of the block where the next search starts, or -1.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The header is padded to a multiple of 16 bytes, and the data region follows
+it. Volumes never leave the machine, so the platform’s own lock layout is
+acceptable.</p>
+</div>
+<div class="paragraph">
+<p><strong>Blocks.</strong> The data region is a sequence of blocks, each a 16-byte header
+followed by its data:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Offset</th>
+<th class="tableblock halign-left valign-top">Size</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">magic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0x0CB10DF0</code> for a block; <code>0x0CB1DEAD</code> for a header merged into a neighbor.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">references</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 when free; all ones while the last reference is being dropped.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes of data.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Block data is 16-byte aligned and its size a multiple of 16, because some
+Arrow column types hold 128-bit words that another language’s Arrow library
+will read in place and expects aligned. To allocate, a process takes the
+volume’s lock, searches first-fit from the cursor (merging adjacent free
+blocks as it passes them), splits off any usable remainder as a new free
+block, and sets the block’s count from 0 to 1. It tries the volume it used
+last, then the others, then creates a new volume.</p>
+</div>
+<div class="paragraph">
+<p><strong>Pointers.</strong> Three forms address shared memory:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Form</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Relative</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Volume index in bits 62-48 and offset into that volume’s data in bits 47-0; -1 is null (<a href="build-voidstar.html">Voidstar format and schema strings</a>). The same in every process; this is the only form that crosses a process boundary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Volume</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An offset into one volume’s data region. Used inside a volume, for its cursor.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Absolute</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An address in this process. Never stored in shared memory, since each process maps the volumes at different addresses.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Converting a relative pointer to an absolute one maps the named volume on
+first use, so a process can follow a pointer into a volume another process
+created after it started.</p>
+</div>
+<div class="paragraph">
+<p><strong>References.</strong> A block’s count is the number of holders that may still read
+it. The allocator holds the first reference. A process sending a pointer to
+another takes a reference for the receiver before sending (<a href="build-packets.html">Packet protocol</a>),
+and the receiver owns it on arrival. Taking a reference on a block that is
+free or being released fails rather than reviving it. The last release
+overwrites the block’s data with zeros before marking it free, so a stale
+reader sees zeros instead of another value. A count names no holder, so the
+references of a process that died cannot be found and released one by one;
+they are recovered only by discarding the whole namespace, which the end of
+a run, or a daemon’s recovery, does.</p>
+</div>
+<div class="paragraph">
+<p><strong>Concurrency.</strong> Each volume’s lock is <strong>robust</strong>: if a process dies holding
+it, the next process to take it is told so. The volume’s block list may then
+be half edited, so the volume is marked damaged and never allocated from
+again; allocation moves on to another volume. A volume is created with
+exclusive creation, so when two processes race to create the same index one
+wins and the other opens the winner’s volume once its magic appears.</p>
+</div>
+<div class="paragraph">
+<p><strong>Removal.</strong> The process that created the first volume (the nexus) removes
+the names of all volumes when the run ends (<a href="build-lifecycle.html">Process lifecycle</a>). It never
+unmaps them while threads may still read; the kernel frees the memory once
+the last process unmaps it.</p>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="build-packets.html">Previous: 13.4. Packet protocol</a>
-<a class="next" rel="next" href="build-voidstar.html">Next: 13.6. Voidstar format and schema strings</a>
+<a class="prev" rel="prev" href="build-packets.html">Previous: 13.5. Packet protocol</a>
+<a class="next" rel="next" href="build-voidstar.html">Next: 13.7. Voidstar format and schema strings</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

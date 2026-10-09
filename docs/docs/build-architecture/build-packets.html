@@ -65,7 +65,7 @@
 <meta property="og:title" content="Packet protocol - Morloc Manual">
 <meta property="og:url" content="https://morloc-project.github.io/docs/build-architecture/build-packets.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/build-architecture/build-packets.html">
-<link rel="prev" href="build-lifecycle.html">
+<link rel="prev" href="build-workers.html">
 <link rel="next" href="build-shm.html">
 <link rel="alternate" type="text/markdown" href="build-packets.md">
 </head>
@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li class="active"><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="build-workers.html">13.8. Worker model</a></li>
-<li><a href="build-errors.html">13.9. Error propagation</a></li>
-<li><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="build-workers.html">13.4. Worker model</a></li>
+<li class="active"><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -731,18 +772,264 @@
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Packet protocol"><div class="sect2">
-<h3 id="build-packets"><a class="anchor" href="#build-packets"></a>13.4. Packet protocol</h3>
+<h3 id="build-packets"><a class="anchor" href="#build-packets"></a>13.5. Packet protocol</h3>
+<div class="quoteblock abstract">
+<blockquote>
+Every message between Morloc processes is a <strong>packet</strong>: a fixed 32-byte header,
+optional metadata, and a payload. The same format carries calls, results,
+errors and readiness pings over sockets, and it is also the on-disk format
+of streams and cached results. This section specifies the header, each packet
+type, metadata blocks, how a payload names its data, and the transport rules.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the packet protocol that the nexus and pools speak: the
-fixed header, every packet type, metadata blocks, and how a payload is carried
-either inline or by reference to shared memory. Defines error packets, the
-transport between processes, and the framing and ordering rules a conforming
-implementation must follow.</p>
+<p><strong>Layout.</strong> A packet is a header, then <code>offset</code> bytes of metadata, then
+<code>length</code> bytes of payload. All integers are little-endian.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Offset</th>
+<th class="tableblock halign-left valign-top">Size</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">magic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0x0707f86d</code> (bytes <code>6d f8 07 07</code>). A packet without it is rejected.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">plain</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">flavor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">command</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Packet type (first byte) and type-specific fields.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">offset</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes of metadata between the header and the payload.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">24</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">length</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes of payload.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Packet types</strong>, from the first command byte:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A value, or an error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">call</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A function call: which function, and its arguments.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ping</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Readiness check. The header alone; the reply is an identical ping.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stream</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Opens a stream file; the length field is all ones, since a stream has no fixed length (<a href="build-streaming.html">Streaming and memory mapping</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">footer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Closes a stream file with its index (<a href="build-streaming.html">Streaming and memory mapping</a>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A <strong>call</strong> carries the function’s index inside the receiving pool (the <code>mid</code>
+from the manifest) as a 32-bit integer at byte 16, and an entry-point byte at
+byte 13: 0 for an ordinary call, 1 for a call read from a file, as on a
+cluster node. Its payload is the arguments, each a complete data packet,
+concatenated in order. The receiver walks them by their own sizes.</p>
+</div>
+<div class="paragraph">
+<p>A <strong>data</strong> packet describes its payload in the command field:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Byte</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">source</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 inline: the payload is the value. 1 file: the payload is a path. 2 pointer: the payload is an 8-byte relative pointer into shared memory (<a href="build-shm.html">Shared memory layout</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">format</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 JSON, 1 MessagePack, 2 text, 3 packet (the file is itself a packet or stream), 4 voidstar (<a href="build-voidstar.html">Voidstar format and schema strings</a>), 5 Arrow (<a href="build-tables.html">Tables and tensors on the wire</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">compression</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 none, 1 Zstandard.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">encryption</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 pass, 1 fail, 2 output pipe closed.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Not every combination is meaningful. Values crossing between pools use
+inline or pointer voidstar; tables use pointer Arrow; values in temporary
+files (shared memory disabled) use file MessagePack.</p>
+</div>
+<div class="paragraph">
+<p><strong>Errors</strong> are data packets with status 1, inline source and text format;
+the payload is the error message, including its cross-language traceback
+(<a href="build-errors.html">Error propagation</a>). Status 2 marks a write to a closed standard output, so
+the nexus can end the run with the conventional broken-pipe status instead of
+an error. A pool answers every call with exactly one packet: a request it
+cannot even read is answered with an error packet rather than silence.</p>
+</div>
+<div class="paragraph">
+<p><strong>Metadata</strong> is a sequence of blocks. Each block is the three bytes <code>mmh</code>, a
+one-byte kind, a 32-bit body size, then the body. Readers stop at the first
+block that does not start with <code>mmh</code>, and the region is zero-padded to a
+multiple of 32 bytes.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Kind</th>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Body</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">schema</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The schema string of the payload’s type, NUL-terminated (<a href="build-voidstar.html">Voidstar format and schema strings</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">volume index</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A 16-bit shared-memory volume index.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">frame index</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sizes of the payload’s compressed frames; required when compression is Zstandard.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">subpacket index</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Offsets and element counts of a stream’s batches.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6, 7, 8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stream diagnostics, final footer, footer status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used only in stream files (<a href="build-streaming.html">Streaming and memory mapping</a>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A packet between pools needs no schema block, because both sides know the
+type from the compiled program. Packets written to disk carry one, so that
+any tool can read them without the program that wrote them.</p>
+</div>
+<div class="paragraph">
+<p><strong>Transport.</strong> Packets travel over Unix-domain stream sockets. Each call opens
+one connection, sends one call packet, reads one reply packet, and closes.
+There is no separate framing: the receiver reads the 32-byte header and then
+exactly <code>offset + length</code> more bytes. Before a pointer payload is sent, the
+sender takes a shared-memory reference on the receiver’s behalf, so the
+block cannot be freed in the gap before the receiver reads it; if the send
+fails, the sender drops that reference again.</p>
+</div>
+<div class="paragraph">
+<p>A caller waits for a reply as long as the callee lives, with no deadline: a
+call may legitimately run for days. A pool reading a request waits as long as
+the sending process exists, checking once a second.</p>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="build-lifecycle.html">Previous: 13.3. Process lifecycle</a>
-<a class="next" rel="next" href="build-shm.html">Next: 13.5. Shared memory layout</a>
+<a class="prev" rel="prev" href="build-workers.html">Previous: 13.4. Worker model</a>
+<a class="next" rel="next" href="build-shm.html">Next: 13.6. Shared memory layout</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

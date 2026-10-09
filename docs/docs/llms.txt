@@ -122,29 +122,30 @@
 
 ## 12. Ecosystem Architecture
 
-- [12. Ecosystem Architecture](https://morloc-project.github.io/docs/ecosystem-architecture/index.md): This chapter specifies how the parts of the Morloc ecosystem fit together: the compiler, the runtime library, the nexus, and the environment manager.
-- [12.1. Overview](https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md): STUB: Introduces the four parts of the ecosystem: the compiler, the runtime library, the nexus, and the environment manager (mim).
-- [12.2. Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md): STUB: Specifies what initialization (morloc init) produces: the compiled runtime library, the nexus binary, the per-language bindings and their headers, and...
-- [12.3. Module resolution](https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md): STUB: Specifies how an import is resolved to a module: the search order, the precedence of local and installed modules, and how ambiguity is reported.
-- [12.4. Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md): STUB: Specifies the contract between the compiler and the environment solver: which events trigger solving (build, install, sync), what the compiler asks...
-- [12.5. Freezing and execution environments](https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md): STUB: Specifies freezing: turning an environment and its installed programs into a portable artifact that runs on another machine.
-- [12.6. Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md): STUB: Specifies how a compiled program is served beyond the command line: the daemon, the router that fronts several programs, and the transports (HTTP, TCP...
+- [12. Ecosystem Architecture](https://morloc-project.github.io/docs/ecosystem-architecture/index.md): This chapter specifies how the parts of the Morloc ecosystem fit together: the compiler, the runtime library, the nexus, and the environment manager mim.
+- [12.1. Overview](https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md): Who invokes whom.
+- [12.2. Environments](https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md): Identity.
+- [12.3. Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md)
+- [12.4. Module resolution](https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md)
+- [12.5. Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md)
+- [12.6. Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)
+- [12.7. Freezing](https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md): Which environments.
 
 ## 13. Build Architecture
 
 - [13. Build Architecture](https://morloc-project.github.io/docs/build-architecture/index.md): This chapter specifies what morloc make produces and how the result runs.
-- [13.1. Runtime overview](https://morloc-project.github.io/docs/build-architecture/build-overview.md): STUB: Gives the high-level picture of a running program.
-- [13.2. Compilation artifacts](https://morloc-project.github.io/docs/build-architecture/build-artifacts.md): STUB: Specifies exactly what morloc make produces: the build directory layout, the per-language pool trees, and the launchers (CLI, MCP, daemon) that exec...
-- [13.3. Process lifecycle](https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md): STUB: Specifies the life of a program’s processes.
-- [13.4. Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md): STUB: Specifies the packet protocol that the nexus and pools speak: the fixed header, every packet type, metadata blocks, and how a payload is carried...
-- [13.5. Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md): STUB: Specifies the shared memory that pools use to exchange large values without copying.
-- [13.6. Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md): STUB: Specifies voidstar, the language-neutral binary layout every serialized value takes: the layout of each primitive, string, array, tuple, record,...
-- [13.7. Tables and tensors on the wire](https://morloc-project.github.io/docs/build-architecture/build-tables.md): STUB: Specifies how tables and tensors cross language boundaries.
-- [13.8. Worker model](https://morloc-project.github.io/docs/build-architecture/build-workers.md): STUB: Specifies concurrency inside a running program: the threads in the nexus, the worker pool inside each language process, and how workers are created,...
-- [13.9. Error propagation](https://morloc-project.github.io/docs/build-architecture/build-errors.md): STUB: Specifies how a failure travels through a program.
-- [13.10. Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md): STUB: Specifies streams: values too large or too long-lived to hold in memory at once.
-- [13.11. Collect, fold, parse and render](https://morloc-project.github.io/docs/build-architecture/build-collect.md): STUB: Specifies the CLI’s data-flow directives: @collect and @fold, which gather a stream into a value, and @parse and @render, which convert between...
-- [13.12. Run directory, caching and logging](https://morloc-project.github.io/docs/build-architecture/build-runs.md): STUB: Specifies the state a run keeps outside the process.
+- [13.1. Runtime overview](https://morloc-project.github.io/docs/build-architecture/build-overview.md): The nexus is a single precompiled binary shared by every Morloc program.
+- [13.2. Compilation artifacts](https://morloc-project.github.io/docs/build-architecture/build-artifacts.md): Layout.
+- [13.3. Process lifecycle](https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md): Startup.
+- [13.4. Worker model](https://morloc-project.github.io/docs/build-architecture/build-workers.md): The nexus.
+- [13.5. Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md): Layout.
+- [13.6. Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md): Volumes.
+- [13.7. Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)
+- [13.8. Tables and tensors on the wire](https://morloc-project.github.io/docs/build-architecture/build-tables.md): The table block.
+- [13.9. Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md): Stream types.
+- [13.10. Error propagation](https://morloc-project.github.io/docs/build-architecture/build-errors.md): Two kinds of failure.
+- [13.11. Collect, fold, parse and render](https://morloc-project.github.io/docs/build-architecture/build-collect.md): Everything is compiled into ordinary commands.
+- [13.12. Logs and result caching](https://morloc-project.github.io/docs/build-architecture/build-runs.md)
 
 ## 14. Compiler Architecture
 

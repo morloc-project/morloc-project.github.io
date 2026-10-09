@@ -8,7 +8,7 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "e2f884801eb42e814c8c765537372fd4a11df351"
+  "source": "d2af6cd9cf12bc8643e345f44ed95c21a021001d"
  },
  "pages": [
   {
@@ -2566,7 +2566,7 @@
    "md": "https://morloc-project.github.io/docs/ecosystem-architecture/index.md",
    "chapter": "ecosystem-architecture",
    "level": 1,
-   "summary": "This chapter specifies how the parts of the Morloc ecosystem fit together: the compiler, the runtime library, the nexus, and the environment manager.",
+   "summary": "This chapter specifies how the parts of the Morloc ecosystem fit together: the compiler, the runtime library, the nexus, and the environment manager mim.",
    "headings": []
   },
   {
@@ -2577,52 +2577,110 @@
    "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md",
    "chapter": "ecosystem-architecture",
    "level": 2,
-   "summary": "STUB: Introduces the four parts of the ecosystem: the compiler, the runtime library, the nexus, and the environment manager (mim).",
+   "summary": "Who invokes whom.",
    "headings": []
   },
   {
    "number": "12.2.",
+   "title": "Environments",
+   "id": "eco-environments",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "Identity.",
+   "headings": []
+  },
+  {
+   "number": "12.3.",
    "title": "Runtime bootstrap",
    "id": "eco-bootstrap",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html",
    "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md",
    "chapter": "ecosystem-architecture",
    "level": 2,
-   "summary": "STUB: Specifies what initialization (morloc init) produces: the compiled runtime library, the nexus binary, the per-language bindings and their headers, and...",
-   "headings": []
+   "summary": "",
+   "headings": [
+    {
+     "id": "_releases",
+     "title": "Releases",
+     "number": "12.3.1."
+    },
+    {
+     "id": "_building_an_environment",
+     "title": "Building an environment",
+     "number": "12.3.2."
+    },
+    {
+     "id": "_what_morloc_init_produces",
+     "title": "What morloc init produces",
+     "number": "12.3.3."
+    }
+   ]
   },
   {
-   "number": "12.3.",
+   "number": "12.4.",
    "title": "Module resolution",
    "id": "eco-modules",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.html",
    "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md",
    "chapter": "ecosystem-architecture",
    "level": 2,
-   "summary": "STUB: Specifies how an import is resolved to a module: the search order, the precedence of local and installed modules, and how ambiguity is reported.",
-   "headings": []
+   "summary": "",
+   "headings": [
+    {
+     "id": "_finding_a_module",
+     "title": "Finding a module",
+     "number": "12.4.1."
+    },
+    {
+     "id": "_identity",
+     "title": "Identity",
+     "number": "12.4.2."
+    },
+    {
+     "id": "_installing_2",
+     "title": "Installing",
+     "number": "12.4.3."
+    },
+    {
+     "id": "_foreign_dependencies",
+     "title": "Foreign dependencies",
+     "number": "12.4.4."
+    }
+   ]
   },
   {
-   "number": "12.4.",
+   "number": "12.5.",
    "title": "Environment solving",
    "id": "eco-solving",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html",
    "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md",
    "chapter": "ecosystem-architecture",
    "level": 2,
-   "summary": "STUB: Specifies the contract between the compiler and the environment solver: which events trigger solving (build, install, sync), what the compiler asks...",
-   "headings": []
-  },
-  {
-   "number": "12.5.",
-   "title": "Freezing and execution environments",
-   "id": "eco-freezing",
-   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html",
-   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md",
-   "chapter": "ecosystem-architecture",
-   "level": 2,
-   "summary": "STUB: Specifies freezing: turning an environment and its installed programs into a portable artifact that runs on another machine.",
-   "headings": []
+   "summary": "",
+   "headings": [
+    {
+     "id": "_the_build_hook",
+     "title": "The build hook",
+     "number": "12.5.1."
+    },
+    {
+     "id": "_one_world_per_environment",
+     "title": "One world per environment",
+     "number": "12.5.2."
+    },
+    {
+     "id": "_solving",
+     "title": "Solving",
+     "number": "12.5.3."
+    },
+    {
+     "id": "_when_solving_happens",
+     "title": "When solving happens",
+     "number": "12.5.4."
+    }
+   ]
   },
   {
    "number": "12.6.",
@@ -2632,7 +2690,54 @@
    "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md",
    "chapter": "ecosystem-architecture",
    "level": 2,
-   "summary": "STUB: Specifies how a compiled program is served beyond the command line: the daemon, the router that fronts several programs, and the transports (HTTP, TCP...",
+   "summary": "",
+   "headings": [
+    {
+     "id": "_server_modes",
+     "title": "Server modes",
+     "number": "12.6.1."
+    },
+    {
+     "id": "_endpoints",
+     "title": "Endpoints",
+     "number": "12.6.2."
+    },
+    {
+     "id": "_commands_as_mcp_tools",
+     "title": "Commands as MCP tools",
+     "number": "12.6.3."
+    },
+    {
+     "id": "_pool_crash_recovery",
+     "title": "Pool crash recovery",
+     "number": "12.6.4."
+    },
+    {
+     "id": "_eval",
+     "title": "Eval",
+     "number": "12.6.5."
+    },
+    {
+     "id": "_security_model",
+     "title": "Security model",
+     "number": "12.6.6."
+    },
+    {
+     "id": "_serving_an_environment",
+     "title": "Serving an environment",
+     "number": "12.6.7."
+    }
+   ]
+  },
+  {
+   "number": "12.7.",
+   "title": "Freezing",
+   "id": "eco-freezing",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "Which environments.",
    "headings": []
   },
   {
@@ -2654,7 +2759,7 @@
    "md": "https://morloc-project.github.io/docs/build-architecture/build-overview.md",
    "chapter": "build-architecture",
    "level": 2,
-   "summary": "STUB: Gives the high-level picture of a running program.",
+   "summary": "The nexus is a single precompiled binary shared by every Morloc program.",
    "headings": []
   },
   {
@@ -2665,7 +2770,7 @@
    "md": "https://morloc-project.github.io/docs/build-architecture/build-artifacts.md",
    "chapter": "build-architecture",
    "level": 2,
-   "summary": "STUB: Specifies exactly what morloc make produces: the build directory layout, the per-language pool trees, and the launchers (CLI, MCP, daemon) that exec...",
+   "summary": "Layout.",
    "headings": []
   },
   {
@@ -2676,84 +2781,95 @@
    "md": "https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md",
    "chapter": "build-architecture",
    "level": 2,
-   "summary": "STUB: Specifies the life of a program’s processes.",
+   "summary": "Startup.",
    "headings": []
   },
   {
    "number": "13.4.",
-   "title": "Packet protocol",
-   "id": "build-packets",
-   "url": "https://morloc-project.github.io/docs/build-architecture/build-packets.html",
-   "md": "https://morloc-project.github.io/docs/build-architecture/build-packets.md",
-   "chapter": "build-architecture",
-   "level": 2,
-   "summary": "STUB: Specifies the packet protocol that the nexus and pools speak: the fixed header, every packet type, metadata blocks, and how a payload is carried...",
-   "headings": []
-  },
-  {
-   "number": "13.5.",
-   "title": "Shared memory layout",
-   "id": "build-shm",
-   "url": "https://morloc-project.github.io/docs/build-architecture/build-shm.html",
-   "md": "https://morloc-project.github.io/docs/build-architecture/build-shm.md",
-   "chapter": "build-architecture",
-   "level": 2,
-   "summary": "STUB: Specifies the shared memory that pools use to exchange large values without copying.",
-   "headings": []
-  },
-  {
-   "number": "13.6.",
-   "title": "Voidstar format and schema strings",
-   "id": "build-voidstar",
-   "url": "https://morloc-project.github.io/docs/build-architecture/build-voidstar.html",
-   "md": "https://morloc-project.github.io/docs/build-architecture/build-voidstar.md",
-   "chapter": "build-architecture",
-   "level": 2,
-   "summary": "STUB: Specifies voidstar, the language-neutral binary layout every serialized value takes: the layout of each primitive, string, array, tuple, record,...",
-   "headings": []
-  },
-  {
-   "number": "13.7.",
-   "title": "Tables and tensors on the wire",
-   "id": "build-tables",
-   "url": "https://morloc-project.github.io/docs/build-architecture/build-tables.html",
-   "md": "https://morloc-project.github.io/docs/build-architecture/build-tables.md",
-   "chapter": "build-architecture",
-   "level": 2,
-   "summary": "STUB: Specifies how tables and tensors cross language boundaries.",
-   "headings": []
-  },
-  {
-   "number": "13.8.",
    "title": "Worker model",
    "id": "build-workers",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-workers.html",
    "md": "https://morloc-project.github.io/docs/build-architecture/build-workers.md",
    "chapter": "build-architecture",
    "level": 2,
-   "summary": "STUB: Specifies concurrency inside a running program: the threads in the nexus, the worker pool inside each language process, and how workers are created,...",
+   "summary": "The nexus.",
+   "headings": []
+  },
+  {
+   "number": "13.5.",
+   "title": "Packet protocol",
+   "id": "build-packets",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-packets.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-packets.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "Layout.",
+   "headings": []
+  },
+  {
+   "number": "13.6.",
+   "title": "Shared memory layout",
+   "id": "build-shm",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-shm.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-shm.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "Volumes.",
+   "headings": []
+  },
+  {
+   "number": "13.7.",
+   "title": "Voidstar format and schema strings",
+   "id": "build-voidstar",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-voidstar.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-voidstar.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "",
+   "headings": [
+    {
+     "id": "_schema_strings",
+     "title": "Schema strings",
+     "number": "13.7.1."
+    },
+    {
+     "id": "_layout",
+     "title": "Layout",
+     "number": "13.7.2."
+    }
+   ]
+  },
+  {
+   "number": "13.8.",
+   "title": "Tables and tensors on the wire",
+   "id": "build-tables",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-tables.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-tables.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "The table block.",
    "headings": []
   },
   {
    "number": "13.9.",
-   "title": "Error propagation",
-   "id": "build-errors",
-   "url": "https://morloc-project.github.io/docs/build-architecture/build-errors.html",
-   "md": "https://morloc-project.github.io/docs/build-architecture/build-errors.md",
-   "chapter": "build-architecture",
-   "level": 2,
-   "summary": "STUB: Specifies how a failure travels through a program.",
-   "headings": []
-  },
-  {
-   "number": "13.10.",
    "title": "Streaming and memory mapping",
    "id": "build-streaming",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-streaming.html",
    "md": "https://morloc-project.github.io/docs/build-architecture/build-streaming.md",
    "chapter": "build-architecture",
    "level": 2,
-   "summary": "STUB: Specifies streams: values too large or too long-lived to hold in memory at once.",
+   "summary": "Stream types.",
+   "headings": []
+  },
+  {
+   "number": "13.10.",
+   "title": "Error propagation",
+   "id": "build-errors",
+   "url": "https://morloc-project.github.io/docs/build-architecture/build-errors.html",
+   "md": "https://morloc-project.github.io/docs/build-architecture/build-errors.md",
+   "chapter": "build-architecture",
+   "level": 2,
+   "summary": "Two kinds of failure.",
    "headings": []
   },
   {
@@ -2764,19 +2880,30 @@
    "md": "https://morloc-project.github.io/docs/build-architecture/build-collect.md",
    "chapter": "build-architecture",
    "level": 2,
-   "summary": "STUB: Specifies the CLI’s data-flow directives: @collect and @fold, which gather a stream into a value, and @parse and @render, which convert between...",
+   "summary": "Everything is compiled into ordinary commands.",
    "headings": []
   },
   {
    "number": "13.12.",
-   "title": "Run directory, caching and logging",
+   "title": "Logs and result caching",
    "id": "build-runs",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-runs.html",
    "md": "https://morloc-project.github.io/docs/build-architecture/build-runs.md",
    "chapter": "build-architecture",
    "level": 2,
-   "summary": "STUB: Specifies the state a run keeps outside the process.",
-   "headings": []
+   "summary": "",
+   "headings": [
+    {
+     "id": "_log_directory",
+     "title": "Log directory",
+     "number": "13.12.1."
+    },
+    {
+     "id": "_result_cache",
+     "title": "Result cache",
+     "number": "13.12.2."
+    }
+   ]
   },
   {
    "number": "14.",

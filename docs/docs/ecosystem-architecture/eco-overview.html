@@ -66,7 +66,7 @@
 <meta property="og:url" content="https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html">
 <link rel="prev" href="index.html">
-<link rel="next" href="eco-bootstrap.html">
+<link rel="next" href="eco-environments.html">
 <link rel="alternate" type="text/markdown" href="eco-overview.md">
 </head>
 <body class="book toc2 toc-left">
@@ -653,11 +653,42 @@
 <li class="current"><a href="index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li class="active"><a href="eco-overview.html">12.1. Overview</a></li>
-<li><a href="eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="eco-serving.html">12.6. Serving</a></li>
+<li><a href="eco-environments.html">12.2. Environments</a></li>
+<li><a href="eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li><a href="../build-architecture/index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="../build-architecture/build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="../build-architecture/build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="../build-architecture/build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="../build-architecture/build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="../build-architecture/build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="../build-architecture/build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="../build-architecture/build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="../build-architecture/build-workers.html">13.8. Worker model</a></li>
-<li><a href="../build-architecture/build-errors.html">13.9. Error propagation</a></li>
-<li><a href="../build-architecture/build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-workers.html">13.4. Worker model</a></li>
+<li><a href="../build-architecture/build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="../build-architecture/build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="../build-architecture/build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="../build-architecture/build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="../build-architecture/build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="../build-architecture/build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-errors.html">13.10. Error propagation</a></li>
 <li><a href="../build-architecture/build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="../build-architecture/build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="../build-architecture/build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="../build-architecture/build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -732,20 +773,130 @@
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">12. Ecosystem Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Overview"><div class="sect2">
 <h3 id="eco-overview"><a class="anchor" href="#eco-overview"></a>12.1. Overview</h3>
+<div class="quoteblock abstract">
+<blockquote>
+The Morloc ecosystem has four parts. The <strong>compiler</strong> turns Morloc source into
+a build directory. The <strong>runtime library</strong> is linked into every pool and
+implements the shared formats. The <strong>nexus</strong> runs a compiled program, from the
+command line or as a server. The <strong>environment manager</strong>, <code>mim</code>, creates
+isolated installations of the other three, solves the foreign packages that
+programs need, and serves and freezes the result. This section says what
+each part owns, when each runs, where an installation keeps its files, and
+how the parts agree on versions.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Introduces the four parts of the ecosystem: the compiler, the runtime
-library, the nexus, and the environment manager (<code>mim</code>). Explains what each one
-owns, which part invokes which, and at what point in a program’s life (install,
-build, run, serve). Specifies the on-disk layout of an installation and names
-every manifest and lock file, with a sentence on each one’s role. States how
-versions of the parts must agree, including the ABI version check that rejects
-a mismatched runtime. Ends with a map linking each concern to the section that
-specifies it.</p>
+<p><strong>Who invokes whom.</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Stage</th>
+<th class="tableblock halign-left valign-top">What runs</th>
+<th class="tableblock halign-left valign-top">What it produces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provision</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mim</code> downloads a compiler release and builds an environment; inside it, <code>morloc init</code> builds the runtime (<a href="eco-bootstrap.html">Runtime bootstrap</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An installation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Install</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc install</code> fetches modules (<a href="eco-modules.html">Module resolution</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Module source in the installation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Build</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc make</code>, which calls back into <code>mim</code> to solve packages (<a href="eco-solving.html">Environment solving</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A build directory and launchers (<a href="../build-architecture/build-artifacts.html">Compilation artifacts</a>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A launcher runs the nexus, which starts the pools (<a href="../build-architecture/build-overview.html">Runtime overview</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A result</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Serve</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus as a server, started by <code>mim</code> (<a href="eco-serving.html">Serving</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP tools and HTTP endpoints</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Freeze</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mim</code> builds an image of the environment (<a href="eco-freezing.html">Freezing</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A container image</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The compiler and <code>mim</code> are coupled only across process boundaries: files
+the compiler writes, commands it runs, and environment variables. In every
+such contract the compiler (or its release) writes and <code>mim</code> reads, so the
+burden of compatibility falls on <code>mim</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong>An installation</strong> is two directory trees. The <strong>home</strong> holds what
+<code>morloc init</code> builds and is the same for every program; the <strong>state</strong> holds
+what accumulates as modules and programs are installed. They are the same
+directory unless the state is given its own location.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;home&gt;/
+|-- bin/           morloc-nexus, and the launcher of each installed program
+|-- lib/           the runtime library and per-language libraries
+|-- include/       the runtime's C header and per-language headers
+|-- opt/           per-language setup state
+`-- rust/          the runtime's source, kept for building Rust pools
+
+&lt;state&gt;/
+|-- src/morloc/plane/&lt;plane&gt;/&lt;module&gt;/   installed module source
+|-- fdb/           one record per installed module, and install locks
+|-- modules/       files that modules expose to foreign code
+|-- exe/&lt;program&gt;/ installed programs: source copy and build directory
+`-- snapshots/     module version pins</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The home defaults to <code>~/.local/share/morloc</code>. Inside an environment, <code>mim</code>
+gives each environment its own home and state, so nothing is shared between
+environments except downloads (<a href="eco-environments.html">Environments</a>).</p>
+</div>
+<div class="paragraph">
+<p><strong>Version agreement.</strong> Three rules keep the parts consistent:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Compiler and nexus.</strong> A build’s manifest records the compiler’s version.
+The nexus runs a manifest only if it was written by the same Morloc
+version (<a href="../build-architecture/build-artifacts.html">Compilation artifacts</a>).</p>
+</li>
+<li>
+<p><strong>Compiler and runtime.</strong> The runtime is built from the source shipped
+with the compiler’s own release, by that compiler, so they agree by
+construction. The runtime library also declares a numeric ABI version,
+which the nexus reports.</p>
+</li>
+<li>
+<p><strong>Compiler and <code>mim</code>.</strong> Each document the compiler hands to <code>mim</code> carries
+its own version: the dependency specification an integer, the
+language-support table a <code>MAJOR.MINOR</code> schema. A release lists these
+versions in its manifest so that <code>mim</code> can refuse, before installing
+anything, a release it cannot read (<a href="eco-bootstrap.html">Runtime bootstrap</a>).</p>
+</li>
+</ul>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
 <a class="prev" rel="prev" href="index.html">Previous: 12. Ecosystem Architecture</a>
-<a class="next" rel="next" href="eco-bootstrap.html">Next: 12.2. Runtime bootstrap</a>
+<a class="next" rel="next" href="eco-environments.html">Next: 12.2. Environments</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

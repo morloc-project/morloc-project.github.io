@@ -61,12 +61,12 @@
 <link rel="apple-touch-icon" href="../static/img/icon-192.png">
 
 <link rel="manifest" href="../manifest.webmanifest">
-<title>Freezing and execution environments - Morloc Manual</title>
-<meta property="og:title" content="Freezing and execution environments - Morloc Manual">
+<title>Freezing - Morloc Manual</title>
+<meta property="og:title" content="Freezing - Morloc Manual">
 <meta property="og:url" content="https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html">
-<link rel="prev" href="eco-solving.html">
-<link rel="next" href="eco-serving.html">
+<link rel="prev" href="eco-serving.html">
+<link rel="next" href="../build-architecture/index.html">
 <link rel="alternate" type="text/markdown" href="eco-freezing.md">
 </head>
 <body class="book toc2 toc-left">
@@ -653,11 +653,42 @@
 <li class="current"><a href="index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="eco-overview.html">12.1. Overview</a></li>
-<li><a href="eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="eco-solving.html">12.4. Environment solving</a></li>
-<li class="active"><a href="eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="eco-serving.html">12.6. Serving</a></li>
+<li><a href="eco-environments.html">12.2. Environments</a></li>
+<li><a href="eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li class="active"><a href="eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li><a href="../build-architecture/index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="../build-architecture/build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="../build-architecture/build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="../build-architecture/build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="../build-architecture/build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="../build-architecture/build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="../build-architecture/build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="../build-architecture/build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="../build-architecture/build-workers.html">13.8. Worker model</a></li>
-<li><a href="../build-architecture/build-errors.html">13.9. Error propagation</a></li>
-<li><a href="../build-architecture/build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-workers.html">13.4. Worker model</a></li>
+<li><a href="../build-architecture/build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="../build-architecture/build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="../build-architecture/build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="../build-architecture/build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="../build-architecture/build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="../build-architecture/build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-errors.html">13.10. Error propagation</a></li>
 <li><a href="../build-architecture/build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="../build-architecture/build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="../build-architecture/build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="../build-architecture/build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -730,20 +771,97 @@
 </div>
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">12. Ecosystem Architecture</a></nav>
-<div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Freezing and execution environments"><div class="sect2">
-<h3 id="eco-freezing"><a class="anchor" href="#eco-freezing"></a>12.5. Freezing and execution environments</h3>
+<div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Freezing"><div class="sect2">
+<h3 id="eco-freezing"><a class="anchor" href="#eco-freezing"></a>12.7. Freezing</h3>
+<div class="quoteblock abstract">
+<blockquote>
+An environment changes as programs are installed and packages solved.
+<strong>Freezing</strong> captures it as it stands in a container image that runs the same
+programs and serves the same views on another machine, with nothing
+mounted from the machine that built it. This section specifies what a
+frozen image contains, what it requires of its host, how it decides who may
+reach it, and what a slim image gives up.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies freezing: turning an environment and its installed programs
-into a portable artifact that runs on another machine. Defines what a frozen
-artifact contains, what it may assume of the host, and which features a slim
-artifact gives up. Covers container execution and cluster execution (resource
-labels and job submission), and the requirements an execution environment must
-meet to run a program.</p>
+<p><strong>Which environments.</strong> Only a Docker or Podman environment provisioned
+from a release can be frozen. A native or Apptainer environment has no
+image to build on, and a development environment’s compiler lives outside
+it. The image is built by the environment’s own engine, on the machine that
+holds the environment, and freezing changes nothing in the environment.</p>
+</div>
+<div class="paragraph">
+<p><strong>Contents.</strong> The image is the environment’s image with:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the toolchain installed from the environment’s lock, without solving
+again, so its packages are exactly those the environment was tested
+with; a lock that does not install fails the freeze;</p>
+</li>
+<li>
+<p>the Morloc home (<a href="eco-overview.html">Overview</a>);</p>
+</li>
+<li>
+<p>every installed program, with its build directory and its copied source
+directory, and the installed module source;</p>
+</li>
+<li>
+<p>the views and eval allow-list, as the image’s default command.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>An environment that is missing any of these, for instance because it was
+never fully built, is refused with the missing part named.</p>
+</div>
+<div class="paragraph">
+<p><strong>What is refused.</strong> Each program travels as the directory <code>mim install</code>
+copied, so freezing inspects them first. Tool state that nothing reads at
+run time — version-control directories, caches, virtual environments,
+build output — is refused. A program over 100 MB, a file over 50 MB, or an
+environment with no programs at all must be confirmed by the user; without
+a terminal to ask, confirmation is refusal. A force option answers all of
+these.</p>
+</div>
+<div class="paragraph">
+<p><strong>Running the image.</strong> The default command starts the front end
+(<a href="eco-serving.html">Serving</a>) listening on every interface on port 8080. Inside a
+container that is the only way a published port can reach it, so the image
+does not decide who can reach it: whoever runs it does, with the port
+mapping and the network. A token, if given at run time in
+<code>MORLOC_MCP_TOKEN</code>, is required exactly as on any server. Eval stays locked
+without a token unless <code>MORLOC_EVAL_ALLOW_NO_AUTH</code> is set. An environment
+with no views gives an image with no default command; its programs run when
+named.</p>
+</div>
+<div class="paragraph">
+<p>Morloc moves data between pools through shared memory, which container
+engines limit by default; the image records the size the environment used
+in a label so that the operator can grant it.</p>
+</div>
+<div class="paragraph">
+<p><strong>Labels.</strong> Once it leaves the manager nothing tracks the image, so it
+describes itself: the Morloc version, the source environment, the programs,
+each adapter’s modules, whether eval is on, and the suggested shared-memory
+size.</p>
+</div>
+<div class="paragraph">
+<p><strong>Slim images.</strong> A slim image omits what only building needs: compilers,
+the solver, the Morloc compiler, the runtime’s headers and source, and the
+build-only packages, found by walking the solved packages' dependencies from
+the requested ones without passing through a build tool. It keeps every
+interpreter and library the programs load. Since eval compiles code, an
+environment with eval enabled cannot be frozen slim. After a slim image is
+built, every program is started inside it and every runtime library’s
+links are resolved, so a missing library is found at freeze time rather
+than in production.</p>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="eco-solving.html">Previous: 12.4. Environment solving</a>
-<a class="next" rel="next" href="eco-serving.html">Next: 12.6. Serving</a>
+<a class="prev" rel="prev" href="eco-serving.html">Previous: 12.6. Serving</a>
+<a class="next" rel="next" href="../build-architecture/index.html">Next: 13. Build Architecture</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

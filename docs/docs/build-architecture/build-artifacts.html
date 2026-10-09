@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li class="active"><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="build-workers.html">13.8. Worker model</a></li>
-<li><a href="build-errors.html">13.9. Error propagation</a></li>
-<li><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="build-workers.html">13.4. Worker model</a></li>
+<li><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -732,12 +773,183 @@
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Compilation artifacts"><div class="sect2">
 <h3 id="build-artifacts"><a class="anchor" href="#build-artifacts"></a>13.2. Compilation artifacts</h3>
+<div class="quoteblock abstract">
+<blockquote>
+<code>morloc make</code> turns a Morloc program into a build directory and one or more
+launchers. The build directory holds the generated pools and a manifest that
+describes every command. A launcher is a short shell script that hands the
+manifest to the nexus. This section specifies that layout, the manifest, and
+what installing a program does.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies exactly what <code>morloc make</code> produces: the build directory
-layout, the per-language pool trees, and the launchers (CLI, MCP, daemon) that
-exec the shared nexus. Gives the complete manifest format field by field, how
-it is versioned, and which compatibility promises it makes. Defines what
-installing a built program does and where installed programs live.</p>
+<p><strong>Layout.</strong> A program is identified by a <strong>key</strong>: the <code>--name</code> given, else the
+<code>-o</code> name, else the source file’s base name. Building <code>demo.loc</code> that calls
+Python and C++ produces:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./
+|-- demo                  CLI launcher
+|-- demo.loc, foo.py ...  the program's sources (not copied)
+`-- demo-build/
+    |-- .morloc-build     marker: this directory is a Morloc build
+    |-- manifest.json     commands, pools and runtime settings
+    |-- envspec.json      dependencies, for the environment manager
+    `-- pools/
+        |-- cpp/          generated source and the compiled pool binary
+        `-- py/           generated pool script</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Compiled languages (C++, Rust) are built into a pool binary. Interpreted
+languages (Python, R) get a generated script that loads the user’s source
+files when it starts. Those files are found relative to the build directory,
+in the directory that contains it. The build directory and its source
+directory therefore move together; neither is relocatable alone. No absolute
+build path is recorded.</p>
+</div>
+<div class="paragraph">
+<p><strong>Rebuilds</strong> assemble the new tree in a sibling staging directory and move it
+into place only after every pool compiles. A failed build leaves the previous
+build in place. A rebuild deletes an existing <code>&lt;key&gt;-build</code> directory only if
+it carries the marker file, so a user directory that happens to have the same
+name is never removed.</p>
+</div>
+<div class="paragraph">
+<p><strong>Launchers.</strong> Each launcher records the manifest path on a comment line
+(<code># morloc-manifest: demo-build/manifest.json</code>), resolves its own location,
+and execs the nexus with a mode and the manifest:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Launcher</th>
+<th class="tableblock halign-left valign-top">Created by</th>
+<th class="tableblock halign-left valign-top">Runs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">default (<code>-o</code> names it, <code>--no-cli</code> suppresses it)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc-nexus run &lt;manifest&gt; …​</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Daemon</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--daemon-out NAME</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc-nexus daemon &lt;manifest&gt; …​</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>There is no MCP launcher. <code>morloc-nexus mcp</code> takes either launcher or the
+manifest itself as its target. Every nexus mode that names a program accepts
+both forms.</p>
+</div>
+<div class="paragraph">
+<p><strong>The manifest</strong> is a JSON object written by the compiler and read only by
+the nexus. Its main fields:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Program name.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Compiler version, build time, and the build directory (always <code>.</code>, the manifest’s own directory).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pools</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One entry per language: the command line that starts the pool, relative to the build directory, and the pool’s socket name.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>commands</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One entry per exported function (below).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>groups</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Named groups of commands for the CLI.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>inline_size</code>, <code>no_shm</code>, <code>tmpdir</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data-route settings fixed at build time (<a href="build-overview.html">Runtime overview</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>run_log</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prologue and epilogue templates for the run log (<a href="build-runs.html">Logs and result caching</a>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Each command records its name, its documentation, its arguments and return
+value, and either how to run it or the expression itself:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remote</code> (runs in a pool) or <code>pure</code> (the nexus evaluates <code>expr</code> itself).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mid</code>, <code>pool</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For <code>remote</code>: the function’s index inside its pool, and which pool holds it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>needed_pools</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Every pool the command can reach, so a CLI run starts only those.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>args</code>, <code>return</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Each with its Morloc type and its schema string, which fixes the binary layout of the value (<a href="build-voidstar.html">Voidstar format and schema strings</a>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The manifest carries no schema version of its own. The nexus accepts a
+manifest only if it was written by the same Morloc version, and refuses any
+other with a message to rebuild. Builds are artifacts, regenerated on every
+<code>make</code>, so an exact match costs nothing and removes every cross-version
+compatibility question. Within a version, readers ignore keys they do not
+know. Every entity also carries an empty <code>constraints</code> list and <code>metadata</code>
+object, reserved so that later additions need no format change.</p>
+</div>
+<div class="paragraph">
+<p><strong>Installing</strong> (<code>morloc make --install</code>, or <code>morloc install --build</code>) builds
+into the Morloc home rather than the working directory. The program’s key is
+its module name. The source directory is mirrored to <code>exe/&lt;module&gt;/</code>,
+skipping version-control data, paths listed in a <code>.morlocignore</code> file, and
+stale build directories (found by their marker). The build lands in
+<code>exe/&lt;module&gt;/&lt;module&gt;-build/</code>, and the CLI launcher is copied to <code>bin/</code>,
+which you put on your <code>PATH</code>. A reinstall requires <code>--force</code>, and replaces
+the whole mirrored tree.</p>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>

@@ -66,7 +66,7 @@
 <meta property="og:url" content="https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html">
 <link rel="prev" href="eco-modules.html">
-<link rel="next" href="eco-freezing.html">
+<link rel="next" href="eco-serving.html">
 <link rel="alternate" type="text/markdown" href="eco-solving.md">
 </head>
 <body class="book toc2 toc-left">
@@ -653,11 +653,42 @@
 <li class="current"><a href="index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="eco-overview.html">12.1. Overview</a></li>
-<li><a href="eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="eco-modules.html">12.3. Module resolution</a></li>
-<li class="active"><a href="eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="eco-serving.html">12.6. Serving</a></li>
+<li><a href="eco-environments.html">12.2. Environments</a></li>
+<li><a href="eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li class="current active"><a href="eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li><a href="../build-architecture/index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="../build-architecture/build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="../build-architecture/build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="../build-architecture/build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="../build-architecture/build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="../build-architecture/build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="../build-architecture/build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="../build-architecture/build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="../build-architecture/build-workers.html">13.8. Worker model</a></li>
-<li><a href="../build-architecture/build-errors.html">13.9. Error propagation</a></li>
-<li><a href="../build-architecture/build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-workers.html">13.4. Worker model</a></li>
+<li><a href="../build-architecture/build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="../build-architecture/build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="../build-architecture/build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="../build-architecture/build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="../build-architecture/build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="../build-architecture/build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-errors.html">13.10. Error propagation</a></li>
 <li><a href="../build-architecture/build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="../build-architecture/build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="../build-architecture/build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="../build-architecture/build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -731,20 +772,181 @@
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">12. Ecosystem Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Environment solving"><div class="sect2">
-<h3 id="eco-solving"><a class="anchor" href="#eco-solving"></a>12.4. Environment solving</h3>
+<h3 id="eco-solving"><a class="anchor" href="#eco-solving"></a>12.5. Environment solving</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A program’s foreign packages must be installed, at compatible versions,
+before its pools can compile or run. The compiler knows what a program
+needs; the environment manager knows how to provide it. This section
+specifies the contract between them: when the compiler asks, what it sends,
+how the manager turns every program’s requests into one solved set of
+packages, and what holds when solves fail or run at once.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_the_build_hook"><a class="anchor" href="#_the_build_hook"></a>12.5.1. The build hook</h4>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the contract between the compiler and the environment
-solver: which events trigger solving (build, install, sync), what the compiler
-asks for, and what it receives back. Defines how foreign packages for each
-language are provided to an environment, how the solved result is locked, and
-the guarantees the lock gives (reproducibility, and when a lock is reused or
-invalidated). Describes where environments and locks live and how concurrent
-operations on one environment are kept safe.</p>
+<p><code>morloc make</code> asks for its packages only inside a managed environment,
+when <code>MORLOC_ENV</code> is set (<a href="eco-environments.html">Environments</a>). After writing the pool
+sources and before compiling them, it runs:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$MORLOC_BUILD_HOOK sync --name &lt;key&gt; --spec envspec.json --root &lt;project&gt; [--installed]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>&lt;key&gt;</code> is the program’s key (<a href="../build-architecture/build-artifacts.html">Compilation artifacts</a>), <code>envspec.json</code> is the
+document described in <a href="eco-modules.html">Module resolution</a>, and <code>--installed</code> marks a build that
+is being installed rather than built in place. The hook writes its messages
+to standard error. Exit status 0 means the environment now satisfies the
+specification; anything else fails the build. If <code>MORLOC_ENV</code> is set but no
+hook is named, a program that declares foreign packages fails to build,
+since nothing could provide them.</p>
+</div>
+<div class="paragraph">
+<p>The hook asks the compiler named by <code>MORLOC_BIN</code> for its <strong>language-support
+table</strong>: for each language, the runtime package and version range the
+compiler supports and the packages its bindings need, plus the toolchain
+the compiler itself needs. A program’s request is always solved together
+with this table, so a program can never ask for an interpreter the runtime
+cannot bind.</p>
+</div>
+<div class="paragraph">
+<p>Both documents carry versions. The dependency specification has an integer
+version that the reader must match exactly; it is refused with "rebuild the
+program" if older and "upgrade the manager" if newer. The language-support
+table has a <code>MAJOR.MINOR</code> schema; a reader accepts any minor version of the
+major it knows and ignores fields it does not recognise.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_one_world_per_environment"><a class="anchor" href="#_one_world_per_environment"></a>12.5.2. One world per environment</h4>
+<div class="paragraph">
+<p>An environment has one set of installed packages, its <strong>solved world</strong>. It is
+the solution of the union of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the specification of every installed program;</p>
+</li>
+<li>
+<p>the specification of every program built in place (<strong>scratch</strong> builds),
+kept until the environment is cleaned;</p>
+</li>
+<li>
+<p>the compiler’s language-support requirements;</p>
+</li>
+<li>
+<p>extra packages the user named for the environment;</p>
+</li>
+<li>
+<p>the interpreter pins (below).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>One world means one version of each package. Two programs constraining the
+same package must both be satisfied. A requirement nobody can satisfy fails
+the command that added it.</p>
+</div>
+<div class="paragraph">
+<p>Each requested package is provided, delegated or refused. conda and PyPI
+packages are solved into the world. Rust crates and Julia packages are left
+to the language’s own build tool, which resolves them when the pool is
+compiled. A source the manager does not support is refused, never silently
+dropped, as are contradictory requests for one package: two conda channels,
+two local paths, or a local path and a version.</p>
+</div>
+<div class="paragraph">
+<p>A local Python package of an installed program (<a href="../languages/python.html#local-deps">Local packages (<code>local-deps</code>)</a>) is copied
+into the environment under a name derived from a hash of its contents, and
+the requirement points at the copy. The installed program then no longer
+depends on the project directory, the same path is valid on the host, in a
+container and in a frozen image, and reinstalling unchanged source does no
+work. Copies that no installed program references are reclaimed.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_solving"><a class="anchor" href="#_solving"></a>12.5.3. Solving</h4>
+<div class="paragraph">
+<p>Each environment has one solve lock, shared by the host and its container.
+Recording a program’s specification, gathering the world, solving it, and
+recording the result all happen while holding it, so concurrent builds in
+one environment serialize, and the second usually finds its world already
+solved.</p>
+</div>
+<div class="paragraph">
+<p>The world reduces to a canonical <strong>requirement digest</strong>. If it equals the
+digest of the last successful solve and the solved packages are present,
+nothing is done. The digest is written last, after the packages are
+installed and their activation captured, so an interrupted solve is redone
+rather than trusted.</p>
+</div>
+<div class="paragraph">
+<p>Otherwise the solver first tries to install the existing lock unchanged,
+and re-solves only if the lock cannot satisfy the new world. Package
+versions therefore move only when a new requirement forces them to.</p>
+</div>
+<div class="paragraph">
+<p><strong>Interpreter pins.</strong> The Python and R bindings are compiled against one
+minor version of their interpreter (<a href="eco-bootstrap.html">Runtime bootstrap</a>). After the first
+solve that provides an interpreter, its minor version is pinned, and later
+solves stay within it. A requirement that needs another minor fails with a
+message to update the environment, which drops the pin and rebuilds the
+bindings.</p>
+</div>
+<div class="paragraph">
+<p><strong>Failure.</strong> If a solve fails, the requirements recorded for every program
+are restored to what they were before the command. The solver’s own
+manifest, lock and partially installed packages may be left changed; the
+next successful solve reconciles them, and the digest, removed at the start
+of the solve, guarantees that it runs.</p>
+</div>
+<div class="paragraph">
+<p><strong>Immutable environments.</strong> An environment marked immutable — one being
+served, or a frozen image — refuses any request that would change its
+world or rebuild a binding, before writing anything.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_when_solving_happens"><a class="anchor" href="#_when_solving_happens"></a>12.5.4. When solving happens</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Event</th>
+<th class="tableblock halign-left valign-top">Solve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc make</code> in an environment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Through the build hook, as above.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mim install</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Once before the build, from the specification the compiler reports without building, so packages are present when the pools compile; then through the hook.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mim modify</code> (languages, extra packages) and <code>mim update</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A solve of the whole world, followed by a rebuild of the runtime and bindings when the Morloc version or an interpreter changed.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cleaning the environment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scratch specifications are discarded and the world re-solved from installed programs only.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="eco-modules.html">Previous: 12.3. Module resolution</a>
-<a class="next" rel="next" href="eco-freezing.html">Next: 12.5. Freezing and execution environments</a>
+<a class="prev" rel="prev" href="eco-modules.html">Previous: 12.4. Module resolution</a>
+<a class="next" rel="next" href="eco-serving.html">Next: 12.6. Serving</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

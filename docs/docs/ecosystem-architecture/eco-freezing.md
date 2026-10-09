@@ -1,5 +1,26 @@
-# 12.5. Freezing and execution environments
+# 12.7. Freezing
 
-Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md | next: https://morloc-project.github.io/docs/build-architecture/index.md
 
-**STUB**: Specifies freezing: turning an environment and its installed programs into a portable artifact that runs on another machine. Defines what a frozen artifact contains, what it may assume of the host, and which features a slim artifact gives up. Covers container execution and cluster execution (resource labels and job submission), and the requirements an execution environment must meet to run a program.
+> An environment changes as programs are installed and packages solved. **Freezing** captures it as it stands in a container image that runs the same programs and serves the same views on another machine, with nothing mounted from the machine that built it. This section specifies what a frozen image contains, what it requires of its host, how it decides who may reach it, and what a slim image gives up.
+
+**Which environments.** Only a Docker or Podman environment provisioned from a release can be frozen. A native or Apptainer environment has no image to build on, and a development environment’s compiler lives outside it. The image is built by the environment’s own engine, on the machine that holds the environment, and freezing changes nothing in the environment.
+
+**Contents.** The image is the environment’s image with:
+
+-   the toolchain installed from the environment’s lock, without solving again, so its packages are exactly those the environment was tested with; a lock that does not install fails the freeze;
+-   the Morloc home ([Overview](https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md));
+-   every installed program, with its build directory and its copied source directory, and the installed module source;
+-   the views and eval allow-list, as the image’s default command.
+
+An environment that is missing any of these, for instance because it was never fully built, is refused with the missing part named.
+
+**What is refused.** Each program travels as the directory `mim install` copied, so freezing inspects them first. Tool state that nothing reads at run time — version-control directories, caches, virtual environments, build output — is refused. A program over 100 MB, a file over 50 MB, or an environment with no programs at all must be confirmed by the user; without a terminal to ask, confirmation is refusal. A force option answers all of these.
+
+**Running the image.** The default command starts the front end ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)) listening on every interface on port 8080. Inside a container that is the only way a published port can reach it, so the image does not decide who can reach it: whoever runs it does, with the port mapping and the network. A token, if given at run time in `MORLOC_MCP_TOKEN`, is required exactly as on any server. Eval stays locked without a token unless `MORLOC_EVAL_ALLOW_NO_AUTH` is set. An environment with no views gives an image with no default command; its programs run when named.
+
+Morloc moves data between pools through shared memory, which container engines limit by default; the image records the size the environment used in a label so that the operator can grant it.
+
+**Labels.** Once it leaves the manager nothing tracks the image, so it describes itself: the Morloc version, the source environment, the programs, each adapter’s modules, whether eval is on, and the suggested shared-memory size.
+
+**Slim images.** A slim image omits what only building needs: compilers, the solver, the Morloc compiler, the runtime’s headers and source, and the build-only packages, found by walking the solved packages' dependencies from the requested ones without passing through a build tool. It keeps every interpreter and library the programs load. Since eval compiles code, an environment with eval enabled cannot be frozen slim. After a slim image is built, every program is started inside it and every runtime library’s links are resolved, so a missing library is found at freeze time rather than in production.

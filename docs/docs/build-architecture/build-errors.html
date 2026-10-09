@@ -65,8 +65,8 @@
 <meta property="og:title" content="Error propagation - Morloc Manual">
 <meta property="og:url" content="https://morloc-project.github.io/docs/build-architecture/build-errors.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/build-architecture/build-errors.html">
-<link rel="prev" href="build-workers.html">
-<link rel="next" href="build-streaming.html">
+<link rel="prev" href="build-streaming.html">
+<link rel="next" href="build-collect.html">
 <link rel="alternate" type="text/markdown" href="build-errors.md">
 </head>
 <body class="book toc2 toc-left">
@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="build-workers.html">13.8. Worker model</a></li>
-<li class="active"><a href="build-errors.html">13.9. Error propagation</a></li>
-<li><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="build-workers.html">13.4. Worker model</a></li>
+<li><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li class="active"><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -731,19 +772,114 @@
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Error propagation"><div class="sect2">
-<h3 id="build-errors"><a class="anchor" href="#build-errors"></a>13.9. Error propagation</h3>
+<h3 id="build-errors"><a class="anchor" href="#build-errors"></a>13.10. Error propagation</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A failure can start in any language, several calls deep, in a different
+process from the code that should handle it. This section specifies the two
+kinds of failure the runtime distinguishes, how a recoverable failure travels
+back through pools as an error packet gathering a traceback, how <code>@try</code> turns
+it into a value, and how a failure of the runtime itself ends a run.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies how a failure travels through a program. Covers a foreign
-exception in one pool, a runtime fault such as a failed allocation, and a
-crashed process. Each becomes an error packet, crosses process boundaries with
-its context intact, and reaches the caller, either as a <code>Try</code> value or as the
-CLI’s error output and exit code. Defines what information is preserved at each
-hop.</p>
+<p><strong>Two kinds of failure.</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Kind</th>
+<th class="tableblock halign-left valign-top">Examples</th>
+<th class="tableblock halign-left valign-top">Caught by <code>@try</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Recoverable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An exception raised by user code in any language; <code>@throw</code> in Morloc; a Rust panic in user code.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Infrastructure</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A pool that crashed or was killed; a broken connection; an internal error (panic) in the runtime.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A recoverable failure means the computation went wrong; the program can
+decide what to do. An infrastructure failure means the system that runs the
+program went wrong, so no Morloc code can be trusted to handle it.</p>
+</div>
+<div class="paragraph">
+<p><strong>Recoverable failures.</strong> Each generated function catches a failure that
+escapes it, appends one traceback line, and raises it again:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>  at &lt;function&gt; [&lt;language&gt;] (mid=&lt;index&gt;, &lt;file&gt;:&lt;line&gt;:&lt;column&gt;)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Anonymous functions are named <code>_</code>. At the edge of a pool, the failure
+becomes an error packet (status 1, text payload; <a href="build-packets.html">Packet protocol</a>) carrying
+the message and the lines so far. The calling pool’s stub reads the error
+packet and raises it as a native failure in its own language, whose
+functions then add their lines. So the traceback grows across every pool
+the failure crosses, innermost call first:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>nope
+  at _ [py] (mid=2366, t.loc:12:23)
+  at _ [cpp] (mid=2364, t.loc:12:17)
+  at chain [cpp] (mid=4, t.loc:1:34)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A program built with <code>morloc make --debug</code> also records each active frame’s
+arguments when a failure passes through it, and adds them to the message.</p>
+</div>
+<div class="paragraph">
+<p><strong><code>@try</code>.</strong> <code>@try e</code> evaluates <code>e</code>. If it completes, the result is <code>Ok v</code>; if
+a recoverable failure escapes it, the result is <code>Err msg</code>, where <code>msg</code> is
+the message with the traceback gathered so far. A failure is caught the same
+way whichever language raised it.</p>
+</div>
+<div class="paragraph">
+<p><strong>At the nexus.</strong> A failure that reaches the nexus ends a one-shot run with
+<code>Error: run failed</code>, the message and its traceback on standard error, and
+exit status 1. A command whose result is a variant whose arm is named <code>Err</code>
+is treated the same way: the value is printed on standard error and the run
+exits 1, so a failing command fails in a shell pipeline even though it
+returned a value. A daemon answers the request as failed and keeps serving.</p>
+</div>
+<div class="paragraph">
+<p><strong>Infrastructure failures.</strong> A pool that loses a pool it called, or whose
+runtime breaks one of its own invariants, does not answer with an error
+packet: it ends its own worker. Its caller then sees a closed connection,
+which is itself an infrastructure failure, so the failure travels to the
+nexus whatever code lies between, and no <code>@try</code> along the way can catch it.
+The nexus reports which pool died and how, ends the run with status 1 (70 if
+the nexus itself panicked; <a href="build-lifecycle.html">Process lifecycle</a>), and removes the run’s
+processes and shared memory. A daemon fails the request and restarts its
+pools. A process that dies prints its own diagnostics to the standard error
+it shares with the nexus, so they reach the user directly.</p>
+</div>
+<div class="paragraph">
+<p><strong>Closed output.</strong> Writing to a standard output that the reader has closed
+(as with <code>| head</code>) is neither: the pool answers with status 2, and the nexus
+ends the run with status 141, as a native program would.</p>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="build-workers.html">Previous: 13.8. Worker model</a>
-<a class="next" rel="next" href="build-streaming.html">Next: 13.10. Streaming and memory mapping</a>
+<a class="prev" rel="prev" href="build-streaming.html">Previous: 13.9. Streaming and memory mapping</a>
+<a class="next" rel="next" href="build-collect.html">Next: 13.11. Collect, fold, parse and render</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

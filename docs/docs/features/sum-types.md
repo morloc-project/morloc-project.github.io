@@ -516,7 +516,7 @@ For the reader writing native code against a Morloc `data` type. Each row is wha
 | Python | The ordinal, as an `int`. A list of them is a byte buffer, the same object a `[U8]` produces. | `("Circle", (2.0,))` — the constructor’s name and a tuple of its fields. |
 | R | An ordered `factor`, so `<` compares in declaration order. Codes are 1-based, so a code is the wire tag plus one; the levels are the constructor names in declaration order. | `list("Circle", list(2.0))` — the name and a list of fields. |
 | C++ | `enum class Color : uint8_t` with explicit discriminants, so the native value and the wire tag are the same byte. | A wrapper struct holding a `std::variant` of `std::shared_ptr` to one struct per arm. |
-| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | An enum whose arms each hold one `Box` of a tuple of their fields. Not `Copy`, since a box is not. |
+| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | Generated: an enum whose arms each hold one `::rustmorloc::RecBox` of a tuple of their fields. A `RecBox` is reference-counted: cloning it shares the fields instead of copying them, and dropping a long chain does not recurse. Build an arm with `RecBox::new..,` and read its fields through `Deref`; `into_inner` moves the tuple out when the box has a single owner. A type you map yourself with `data Rust ⇒` declares its arms with `Box` instead (`Link(Box<(i64, Chain)>)`); a mapped type with `RecBox` arms does not compile. Not `Copy`. |
 
 The generated C++ and Rust declarations, for the `Shape` of this section:
 
@@ -541,8 +541,8 @@ struct Shape_Dot {
 ```rust
 #[derive(Clone)]
 pub enum Shape {
-    Circle(::std::boxed::Box<(f64,)>),
-    Rect(::std::boxed::Box<(f64, f64)>),
+    Circle(::rustmorloc::RecBox<(f64,)>),
+    Rect(::rustmorloc::RecBox<(f64, f64)>),
     Dot,
 }
 ```

@@ -65,8 +65,8 @@
 <meta property="og:title" content="Streaming and memory mapping - Morloc Manual">
 <meta property="og:url" content="https://morloc-project.github.io/docs/build-architecture/build-streaming.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/build-architecture/build-streaming.html">
-<link rel="prev" href="build-errors.html">
-<link rel="next" href="build-collect.html">
+<link rel="prev" href="build-tables.html">
+<link rel="next" href="build-errors.html">
 <link rel="alternate" type="text/markdown" href="build-streaming.md">
 </head>
 <body class="book toc2 toc-left">
@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="build-workers.html">13.8. Worker model</a></li>
-<li><a href="build-errors.html">13.9. Error propagation</a></li>
-<li class="active"><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="build-workers.html">13.4. Worker model</a></li>
+<li><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li class="active"><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -731,19 +772,143 @@
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Streaming and memory mapping"><div class="sect2">
-<h3 id="build-streaming"><a class="anchor" href="#build-streaming"></a>13.10. Streaming and memory mapping</h3>
+<h3 id="build-streaming"><a class="anchor" href="#build-streaming"></a>13.9. Streaming and memory mapping</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A <strong>stream</strong> is a list too large or too long-lived to hold in memory at once,
+kept in a file and read or written in batches. Any pool can read a stream
+another pool is writing, and a finished stream file can be read at random
+without loading it. This section specifies the stream file format, its
+compression, how processes share an open stream, and what a reader may rely
+on while the stream is still being written.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies streams: values too large or too long-lived to hold in
-memory at once. Defines the stream file format, how it is divided into chunks,
-and how the chunks are compressed, including write-behind compression. Covers
-how readers map a stream into memory and access it at random, which element
-types and variants a stream may hold, and the guarantees for a stream that is
-still being written.</p>
+<p><strong>Stream types.</strong> Three Morloc types name a stream, each a 16-byte slot in
+voidstar (schema codes <code>F</code>, <code>I</code>, <code>O</code>):</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile [a]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A finished file, read at random by element index.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A stream read forward in batches. Several readers share one cursor, so together they consume each batch once.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A stream written in batches.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The slot’s first byte says what follows in its last eight: 0 for a relative
+pointer to a path (length, then bytes), 1 for the index of an open stream in
+the run’s stream registry (below). A path can cross between runs; an index
+means something only inside the run that opened it.</p>
+</div>
+<div class="paragraph">
+<p><strong>File format.</strong> A stream file is a sequence of packets (<a href="build-packets.html">Packet protocol</a>):</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Part</th>
+<th class="tableblock halign-left valign-top">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Head</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A stream packet (type 3) whose metadata holds the schema of the list, <code>a</code> followed by the element schema. Its length field is all ones.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Batches</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data packets, one per batch. Each payload is a self-contained voidstar array of that batch’s elements, its pointers relative to the start of the payload.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Footer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A footer packet (type 4) whose metadata holds a batch index (offset and element count of every batch), a final marker, and a status.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tail</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8 bytes: the footer’s length as a 32-bit integer, then the magic bytes reversed (<code>07 07 f8 6d</code>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A reader finds the footer from the end of the file through the tail, so
+random access needs no scan. The status is <code>closed</code> for a stream written to
+the end, or <code>paused</code> for one a writer stopped and may resume. While a stream
+is open for writing, a temporary footer carrying only diagnostics is
+rewritten after every batch, so the file always ends in a valid tail.</p>
+</div>
+<div class="paragraph">
+<p><strong>Compression.</strong> Each batch is compressed separately with Zstandard, so a
+reader can decompress any batch without the others. A batch is split into
+independent frames of at most 16 MiB, listed in the batch’s metadata, so
+they can be decompressed in parallel straight into shared memory. The user’s
+compression level 0-9 maps to Zstandard levels 0, 1, 3, 6, 9, 12, 15, 19, 21
+and 22, with long-distance matching from level 7.</p>
+</div>
+<div class="paragraph">
+<p><strong>Write-behind.</strong> A writer fills a buffer in shared memory (16 MiB by
+default). When compression is on and the buffer is full, it is sealed and
+handed to background threads for compression, and the writer continues into
+a fresh buffer. Compressed batches are appended to the file in the order
+they were sealed, so compression never reorders elements. The writer waits
+only when more than a fixed number of sealed batches are outstanding (8 by
+default), and every flush, close and end of call writes everything sealed so
+far.</p>
+</div>
+<div class="paragraph">
+<p><strong>Sharing an open stream.</strong> A stream’s identity lives in a <strong>registry</strong> in
+shared memory, created with the run’s first volume. Each slot records the
+file’s path, schema, write cursor, element count and batch index, and a
+generation number that changes when the slot is opened and when it is
+released. A stream index carries the generation it was made with, and every
+operation checks it, so an index to a closed stream can never touch the
+stream that later reuses its slot. Each process keeps its own descriptor and
+read-only mapping of the file. A writer holds an exclusive file lock while
+the stream is open.</p>
+</div>
+<div class="paragraph">
+<p><strong>Readers.</strong> An <code>IFile</code> maps the file and locates an element through the
+batch index. A batch stored uncompressed and 8-byte aligned is read where it
+lies in the mapping; any other batch is decompressed or copied into shared
+memory first. An <code>IStream</code> reads forward from the shared cursor. A reader
+that opens a stream still being written sees the batches written before it
+opened, up to the temporary footer; reading past the end yields an empty
+batch.</p>
+</div>
+<div class="paragraph">
+<p><strong>Rewriting a file.</strong> Opening an <code>OStream</code> on a file that already has data
+writes a new file and renames it into place, so a reader that still has the
+old file mapped keeps a consistent view. Where a rename is impossible (the
+directory is not writable, say) and nothing in the program is reading the
+file, it is truncated in place instead. The runtime never deletes a stream
+file; only a half-written temporary file is removed on failure.</p>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="build-errors.html">Previous: 13.9. Error propagation</a>
-<a class="next" rel="next" href="build-collect.html">Next: 13.11. Collect, fold, parse and render</a>
+<a class="prev" rel="prev" href="build-tables.html">Previous: 13.8. Tables and tensors on the wire</a>
+<a class="next" rel="next" href="build-errors.html">Next: 13.10. Error propagation</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

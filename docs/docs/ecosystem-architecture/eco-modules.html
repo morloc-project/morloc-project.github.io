@@ -653,11 +653,42 @@
 <li class="current"><a href="index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="eco-overview.html">12.1. Overview</a></li>
-<li><a href="eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li class="active"><a href="eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="eco-serving.html">12.6. Serving</a></li>
+<li><a href="eco-environments.html">12.2. Environments</a></li>
+<li><a href="eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li class="current active"><a href="eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li><a href="../build-architecture/index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="../build-architecture/build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="../build-architecture/build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="../build-architecture/build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="../build-architecture/build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="../build-architecture/build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="../build-architecture/build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="../build-architecture/build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="../build-architecture/build-workers.html">13.8. Worker model</a></li>
-<li><a href="../build-architecture/build-errors.html">13.9. Error propagation</a></li>
-<li><a href="../build-architecture/build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-workers.html">13.4. Worker model</a></li>
+<li><a href="../build-architecture/build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="../build-architecture/build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="../build-architecture/build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="../build-architecture/build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="../build-architecture/build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="../build-architecture/build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-errors.html">13.10. Error propagation</a></li>
 <li><a href="../build-architecture/build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="../build-architecture/build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="../build-architecture/build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="../build-architecture/build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -731,18 +772,204 @@
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">12. Ecosystem Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Module resolution"><div class="sect2">
-<h3 id="eco-modules"><a class="anchor" href="#eco-modules"></a>12.3. Module resolution</h3>
+<h3 id="eco-modules"><a class="anchor" href="#eco-modules"></a>12.4. Module resolution</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A Morloc program is assembled from modules: its own source files and
+modules installed into the Morloc state. This section specifies how the
+compiler finds the file an <code>import</code> names, how a module is identified and
+installed, how versions are pinned, and how a module declares the foreign
+packages it needs. The install-string syntax is given in
+<a href="../modules/installing-modules.html">Installing modules</a>.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_finding_a_module"><a class="anchor" href="#_finding_a_module"></a>12.4.1. Finding a module</h4>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies how an <code>import</code> is resolved to a module: the search order,
-the precedence of local and installed modules, and how ambiguity is reported.
-Defines what installing a module means, how modules are named and versioned,
-and how a module declares the foreign packages (Python, R, C++, Rust) it
-requires. Explains how those declarations feed the environment solver.</p>
+<p>An import names a module by dotted path. A leading dot makes it <strong>local</strong>:
+<code>import .foo.bar</code> is looked up only under the <strong>project root</strong>, the directory
+of the file being compiled, as <code>foo/bar.loc</code> and then <code>foo/bar/main.loc</code>. A
+program read from standard input has no project root and may not use local
+imports, and neither may an eval expression (<a href="eco-serving.html">Serving</a>).</p>
+</div>
+<div class="paragraph">
+<p>Without the leading dot the import is <strong>bare</strong>, and two lists of candidates
+are built. The <strong>system</strong> list searches the installed modules of the active
+<strong>plane</strong> (a named namespace of installed modules; <code>default</code> unless
+configured), its core subdirectory (<code>morloclib</code>) first:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>&lt;plane&gt;/morloclib/foo/bar/main.loc</code></p>
+</li>
+<li>
+<p><code>&lt;plane&gt;/morloclib/foo/bar.loc</code></p>
+</li>
+<li>
+<p><code>&lt;plane&gt;/foo/bar.loc</code></p>
+</li>
+<li>
+<p><code>&lt;plane&gt;/foo/bar/main.loc</code></p>
+</li>
+<li>
+<p>the same two forms directly under the module tree, outside any plane</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The <strong>local</strong> list is the two local forms above. A bare import that matches
+only a system candidate takes the first one. One that matches only a local
+candidate is accepted with a warning to write <code>import .foo.bar</code>. One that
+matches both is an error naming both files, because the meaning of the
+program would otherwise depend on what happens to be installed. One that
+matches nothing is an error listing every path tried and suggesting
+<code>morloc install</code>.</p>
+</div>
+<div class="paragraph">
+<p>A module named <code>owner/name</code> searches only the plane: <code>owner/name/main.loc</code>,
+<code>owner/name.loc</code>, then <code>name/main.loc</code> and <code>name.loc</code>.</p>
+</div>
+<div class="paragraph">
+<p>The last three components of a matched path must have the exact spelling
+of the import, so a module resolves the same way on case-insensitive and
+case-sensitive file systems.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_identity"><a class="anchor" href="#_identity"></a>12.4.2. Identity</h4>
+<div class="paragraph">
+<p>A module is a directory. Its entry file is <code>main.loc</code>, or its only <code>.loc</code>
+file. The entry file declares exactly one named module, and that name must
+equal the directory’s name (for an installed module, the repository’s
+name). A name is ASCII letters, digits and <code>-</code>, beginning with a letter or
+digit.</p>
+</div>
+<div class="paragraph">
+<p>A module’s metadata is the <code>package.yaml</code> beside its entry file. The fields
+the ecosystem reads:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The module’s own version.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc-version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The range of compiler versions the module accepts. A compiler outside it refuses to load the module.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc-deps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pins for imported modules, each a name and a git hash.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>py-deps</code>, <code>r-deps</code>, <code>cpp-deps</code>, <code>rust-deps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Foreign packages, each with a version constraint and a source (<a href="../languages/python.html#py-deps">Dependencies (<code>py-deps</code>)</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>local-deps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Packages kept inside the project tree (<a href="../languages/python.html#local-deps">Local packages (<code>local-deps</code>)</a>). Allowed only in the program being built, not in an imported module.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lang-versions</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constraints on the language runtimes themselves.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dependencies</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">System libraries.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>expose</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Files copied where foreign code can include or import them (<a href="../modules/exposing-native-resources.html">Exposing native resources</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>setup</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A script run after the module is installed.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_installing_2"><a class="anchor" href="#_installing_2"></a>12.4.3. Installing</h4>
+<div class="paragraph">
+<p><code>morloc install</code> fetches a module into <code>&lt;plane&gt;/&lt;name&gt;</code> in the Morloc state.
+Each install:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>takes a lock for that module name, so two installs of one module never
+interleave;</p>
+</li>
+<li>
+<p>fetches into a temporary directory beside the destination;</p>
+</li>
+<li>
+<p>checks that the module’s declared name matches and that its
+<code>morloc-version</code> admits this compiler;</p>
+</li>
+<li>
+<p>replaces the previous copy in one rename, so a failed install leaves the
+old one intact;</p>
+</li>
+<li>
+<p>installs every module it imports that is not already present, the same
+way;</p>
+</li>
+<li>
+<p>copies its <code>expose</code> files and runs its <code>setup</code> script, with the module’s
+name, version and directory in the environment;</p>
+</li>
+<li>
+<p>typechecks it, unless told not to;</p>
+</li>
+<li>
+<p>writes a record of the install: name, version, source and pinned hash.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A module that is already installed is left alone unless the install is
+forced. <code>morloc make</code> installs missing imports the same way before it
+compiles.</p>
+</div>
+<div class="paragraph">
+<p><strong>Pins.</strong> A pin fixes an imported module to a git hash. Pins come from the
+<code>morloc-deps</code> of the modules being installed (a pin closer to the program
+wins; two different pins at the same depth are an error) and from snapshot
+files in the state, which list <code>name hash</code> pairs for a whole installation.
+An installed module whose recorded hash differs from its pin is an error
+until it is reinstalled.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_foreign_dependencies"><a class="anchor" href="#_foreign_dependencies"></a>12.4.4. Foreign dependencies</h4>
+<div class="paragraph">
+<p>The compiler gathers the foreign requirements of a program from every
+module it imports, transitively, and writes them beside the manifest as
+<code>envspec.json</code>. Constraints on one package from several modules are
+combined (all must hold), the C++ standard is the highest any module
+asks for, and two modules naming different conda channels for one package
+is an error. The file also lists the program’s languages and system
+libraries. <code>morloc envspec</code> writes the same document without building. How
+the document is solved is specified in <a href="eco-solving.html">Environment solving</a>.</p>
+</div>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="eco-bootstrap.html">Previous: 12.2. Runtime bootstrap</a>
-<a class="next" rel="next" href="eco-solving.html">Next: 12.4. Environment solving</a>
+<a class="prev" rel="prev" href="eco-bootstrap.html">Previous: 12.3. Runtime bootstrap</a>
+<a class="next" rel="next" href="eco-solving.html">Next: 12.5. Environment solving</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

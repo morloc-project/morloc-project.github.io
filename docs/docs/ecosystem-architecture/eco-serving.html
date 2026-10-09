@@ -65,8 +65,8 @@
 <meta property="og:title" content="Serving - Morloc Manual">
 <meta property="og:url" content="https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html">
-<link rel="prev" href="eco-freezing.html">
-<link rel="next" href="../build-architecture/index.html">
+<link rel="prev" href="eco-solving.html">
+<link rel="next" href="eco-freezing.html">
 <link rel="alternate" type="text/markdown" href="eco-serving.md">
 </head>
 <body class="book toc2 toc-left">
@@ -653,11 +653,42 @@
 <li class="current"><a href="index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="eco-overview.html">12.1. Overview</a></li>
-<li><a href="eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li class="active"><a href="eco-serving.html">12.6. Serving</a></li>
+<li><a href="eco-environments.html">12.2. Environments</a></li>
+<li><a href="eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li class="current active"><a href="eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li><a href="../build-architecture/index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="../build-architecture/build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="../build-architecture/build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="../build-architecture/build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="../build-architecture/build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="../build-architecture/build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="../build-architecture/build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="../build-architecture/build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="../build-architecture/build-workers.html">13.8. Worker model</a></li>
-<li><a href="../build-architecture/build-errors.html">13.9. Error propagation</a></li>
-<li><a href="../build-architecture/build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-workers.html">13.4. Worker model</a></li>
+<li><a href="../build-architecture/build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="../build-architecture/build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="../build-architecture/build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="../build-architecture/build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="../build-architecture/build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="../build-architecture/build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="../build-architecture/build-errors.html">13.10. Error propagation</a></li>
 <li><a href="../build-architecture/build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="../build-architecture/build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="../build-architecture/build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="../build-architecture/build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="../build-architecture/build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -732,20 +773,295 @@
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">12. Ecosystem Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Serving"><div class="sect2">
 <h3 id="eco-serving"><a class="anchor" href="#eco-serving"></a>12.6. Serving</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A compiled program is a command-line tool, but the nexus can also keep it
+running as a server, answering many requests without restarting its pools.
+This section specifies the server modes, how one command of a manifest
+becomes an HTTP endpoint and an MCP tool, how a server recovers from a
+crashed pool, how callers may evaluate new expressions, and the security
+model that decides who may call what. How <code>mim</code> chooses what to serve is
+specified last.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_server_modes"><a class="anchor" href="#_server_modes"></a>12.6.1. Server modes</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Mode</th>
+<th class="tableblock halign-left valign-top">Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Daemon</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One program, to local clients over a Unix socket or loopback TCP (length-prefixed JSON), and optionally over HTTP. Starts every pool at startup.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One program to one agent, over standard input and output, or over HTTP.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Front end</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Several installed programs over one HTTP port, as MCP tools and a JSON API, with optional eval. Each program runs in its own daemon, which the front end starts on first use.</p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies how a compiled program is served beyond the command line:
-the daemon, the router that fronts several programs, and the transports (HTTP,
-TCP and Unix sockets, MCP over stdio). Defines the mapping from one manifest
-command to a CLI subcommand, an HTTP endpoint and an MCP tool, including how
-argument types become input schemas, how docstrings become descriptions, and
-which commands are excluded and why. Specifies remote evaluation of expressions
-and the security model: authentication, allow-lists, sandboxing and resource
-limits, with the threat each one addresses.</p>
+<p><code>mim</code> always serves through the front end. It names the programs to serve
+explicitly; nothing is served because it happens to be installed. The front
+end finds each program’s manifest in the installed-programs directory of
+the state (<a href="eco-overview.html">Overview</a>), checks every one at startup, and starts each
+program’s daemon on its first request. A daemon that has exited is started
+again on the next request for it.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_endpoints"><a class="anchor" href="#_endpoints"></a>12.6.2. Endpoints</h4>
+<div class="paragraph">
+<p>The front end answers:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Request</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GET /health</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Liveness. Open to every caller, so a monitor needs no secret.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>POST /mcp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The MCP endpoint.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>POST /call/&lt;module&gt;/&lt;command&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Call one command. The body is the argument list as a JSON array, or an object with an <code>args</code> array.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GET /discover</code>, <code>GET /discover/&lt;module&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The served modules, then one module’s commands with their arguments, types and documentation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>POST /eval</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Evaluate an expression, when eval is enabled (below).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A successful call returns <code>{"status":"ok","result":…​}</code>. A command whose
+result carries a media type returns the raw bytes with that type instead.
+A failure returns <code>{"status":"error","error":"…​"}</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_commands_as_mcp_tools"><a class="anchor" href="#_commands_as_mcp_tools"></a>12.6.3. Commands as MCP tools</h4>
+<div class="paragraph">
+<p>Each exported command of each program on the MCP view becomes one tool,
+named <code>&lt;module&gt;__&lt;command&gt;</code>. A name that collides is refused at startup.
+The tool’s description is the command’s documentation, and its input schema
+is an object with one property per argument, keyed by the argument’s
+published name (its declared long name, or <code>_1</code>, <code>_2</code>, …​ for positional
+arguments). Morloc types map to JSON Schema:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Morloc type</th>
+<th class="tableblock halign-left valign-top">JSON Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Bool</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>boolean</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">integer types</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>integer</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">real types</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>number</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enumerations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code> with <code>enum</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sum types</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oneOf</code> a constructor-name string or a one-key object</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lists, tables</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>array</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">tuples</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>array</code> with fixed <code>prefixItems</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">records</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>object</code>, required fields being those not optional</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional <code>?T</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>T</code> or <code>null</code>, never required</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A record argument may instead be spread into one property per field. A
+command that renders its result several ways gets an extra <code>_render</code>
+property naming the rendering. When a command returns a record, the tool
+also declares an output schema and returns structured content; otherwise
+the result is one text block of JSON.</p>
+</div>
+<div class="paragraph">
+<p>A command is not offered as a tool if an argument or its result is a file
+handle or a stream, or if it reads standard input. These mean nothing to a
+remote caller, and a stream would write to the standard output that the
+MCP transport owns.</p>
+</div>
+<div class="paragraph">
+<p><strong>Protocol.</strong> The server speaks MCP protocol version <code>2025-06-18</code>. A client
+sends <code>initialize</code>, then the <code>notifications/initialized</code> notification;
+<code>tools/list</code> and <code>tools/call</code> before that are rejected. Over HTTP,
+<code>initialize</code> returns an <code>Mcp-Session-Id</code> header that every later request
+must carry; an unknown session is told to initialize again, and an idle
+session expires. A call that fails while running returns a normal result
+marked <code>isError</code>, with the message as text. A malformed request, an unknown
+tool or a bad argument is a JSON-RPC error.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_pool_crash_recovery"><a class="anchor" href="#_pool_crash_recovery"></a>12.6.4. Pool crash recovery</h4>
+<div class="paragraph">
+<p>A daemon outlives any one call, so it must survive a pool that crashes.
+When it finds a pool dead, it closes admission (new requests are answered
+as unavailable, HTTP 503), stops every pool, and waits for the requests
+already running to finish. Only then does it discard the program’s shared
+memory, create it afresh, restart and ping every pool, and reopen
+admission. No request spans a recovery, so no shared-memory reference from
+before the crash is ever read after it. If running requests do not finish
+within a minute, or recovery keeps failing, the daemon exits instead of
+serving from an inconsistent state.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_eval"><a class="anchor" href="#_eval"></a>12.6.5. Eval</h4>
+<div class="paragraph">
+<p>When enabled, eval lets a caller send a whole Morloc expression that
+composes installed functions. It is offered as <code>POST /eval</code> with
+<code>{"expr": "…​"}</code> and as an MCP tool named <code>eval</code> whose description lists
+the importable modules.</p>
+</div>
+<div class="paragraph">
+<p>Each request is typechecked, compiled and run in a fresh process group,
+under these restrictions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Every <code>import</code> must name a module on the <strong>allow-list</strong>, checked against
+the module’s real name, so renaming on import does not help.</p>
+</li>
+<li>
+<p>Only installed modules resolve; local imports are refused.</p>
+</li>
+<li>
+<p>The expression may not source foreign code or declare types,
+typeclasses or instances.</p>
+</li>
+<li>
+<p>Input and output intrinsics may not appear directly; a function from an
+allowed module may still perform them, so the reachable I/O is exactly
+what those modules export.</p>
+</li>
+<li>
+<p>The compiler’s memory is capped at 2 GB; CPU time at a configurable
+limit (30 seconds by default) and wall time at four times that. A
+request over its limit has its whole process group stopped.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Nothing about one request is kept for the next.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_security_model"><a class="anchor" href="#_security_model"></a>12.6.6. Security model</h4>
+<div class="paragraph">
+<p>A server binds the loopback address unless told otherwise, so only the
+local machine can reach it. A server bound to any other address must have a
+<strong>token</strong>, a shared secret every request presents as
+<code>Authorization: Bearer &lt;token&gt;</code>; without it a request is refused with 401.
+The token is compared in constant time, and only <code>/health</code> is exempt.
+Starting an exposed server without a token requires an explicit waiver,
+meant for a gateway that already checks callers.</p>
+</div>
+<div class="paragraph">
+<p>Eval is code execution, so it is held to a stricter rule: with no token it
+is <strong>locked</strong> — not listed, reported as locked by <code>/discover</code>, and refused — unless waived separately from the server-wide waiver. <code>mim</code> grants that
+waiver to a loopback server, where every caller is already local.</p>
+</div>
+<div class="paragraph">
+<p>Remote clients are untrusted in other ways too: a request must arrive
+within a deadline, its headers and body are bounded, and the number of
+simultaneous connections is capped, so one client cannot exhaust the
+server.</p>
+</div>
+<div class="paragraph">
+<p>The plain-HTTP server does not encrypt. A token stops strangers who find
+the port, not anyone who can watch the network; <code>mim</code> therefore requires
+the operator to acknowledge plaintext before exposing a server, and an
+untrusted network needs a tunnel or a TLS proxy in front.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_serving_an_environment"><a class="anchor" href="#_serving_an_environment"></a>12.6.7. Serving an environment</h4>
+<div class="paragraph">
+<p><code>mim</code> keeps, per environment, a <strong>view</strong> for each adapter — the modules
+answering over MCP and over the JSON API — and an optional eval
+allow-list. Installing a module never serves it. <code>mim start</code> reads the
+views, starts one front end for the environment, and records its process
+or container. A second <code>start</code> is refused while the recorded server is
+alive (judged by the recorded process being the one <code>mim</code> started, not
+merely a live process id), unless told to replace it. <code>stop</code> ends the
+server and removes the record.</p>
+</div>
+<div class="paragraph">
+<p>The token is chosen by the operator and passed to the server in its
+environment. <code>mim</code> never generates one, writes one to disk, or puts one on
+a command line. A container server runs with a read-only root file system,
+and the environment is marked immutable while it serves (<a href="eco-solving.html">Environment solving</a>),
+so a caller cannot change the installed software.</p>
+</div>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="eco-freezing.html">Previous: 12.5. Freezing and execution environments</a>
-<a class="next" rel="next" href="../build-architecture/index.html">Next: 13. Build Architecture</a>
+<a class="prev" rel="prev" href="eco-solving.html">Previous: 12.5. Environment solving</a>
+<a class="next" rel="next" href="eco-freezing.html">Next: 12.7. Freezing</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

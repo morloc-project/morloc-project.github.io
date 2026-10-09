@@ -651,11 +651,42 @@
 <li><a href="docs/ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="docs/ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="docs/ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="docs/ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="docs/ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="docs/ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="docs/ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="docs/ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="docs/ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="docs/ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="docs/ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="docs/ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="docs/ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="docs/ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="docs/ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="docs/ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="docs/ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="docs/ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="docs/ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="docs/ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="docs/ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="docs/ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="docs/ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="docs/ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="docs/ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="docs/ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="docs/ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="docs/ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="docs/ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="docs/ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="docs/ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li><a href="docs/build-architecture/index.html">13. Build Architecture</a>
@@ -663,15 +694,25 @@
 <li><a href="docs/build-architecture/build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="docs/build-architecture/build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="docs/build-architecture/build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="docs/build-architecture/build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="docs/build-architecture/build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="docs/build-architecture/build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="docs/build-architecture/build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="docs/build-architecture/build-workers.html">13.8. Worker model</a></li>
-<li><a href="docs/build-architecture/build-errors.html">13.9. Error propagation</a></li>
-<li><a href="docs/build-architecture/build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="docs/build-architecture/build-workers.html">13.4. Worker model</a></li>
+<li><a href="docs/build-architecture/build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="docs/build-architecture/build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="docs/build-architecture/build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="docs/build-architecture/build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="docs/build-architecture/build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="docs/build-architecture/build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="docs/build-architecture/build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="docs/build-architecture/build-errors.html">13.10. Error propagation</a></li>
 <li><a href="docs/build-architecture/build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="docs/build-architecture/build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="docs/build-architecture/build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="docs/build-architecture/build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="docs/build-architecture/build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="docs/compiler-architecture/index.html">14. Compiler Architecture</a>

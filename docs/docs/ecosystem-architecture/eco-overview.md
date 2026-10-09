@@ -1,5 +1,44 @@
 # 12.1. Overview
 
-Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/index.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/index.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md
 
-**STUB**: Introduces the four parts of the ecosystem: the compiler, the runtime library, the nexus, and the environment manager (`mim`). Explains what each one owns, which part invokes which, and at what point in a program’s life (install, build, run, serve). Specifies the on-disk layout of an installation and names every manifest and lock file, with a sentence on each one’s role. States how versions of the parts must agree, including the ABI version check that rejects a mismatched runtime. Ends with a map linking each concern to the section that specifies it.
+> The Morloc ecosystem has four parts. The **compiler** turns Morloc source into a build directory. The **runtime library** is linked into every pool and implements the shared formats. The **nexus** runs a compiled program, from the command line or as a server. The **environment manager**, `mim`, creates isolated installations of the other three, solves the foreign packages that programs need, and serves and freezes the result. This section says what each part owns, when each runs, where an installation keeps its files, and how the parts agree on versions.
+
+**Who invokes whom.**
+
+| Stage | What runs | What it produces |
+| --- | --- | --- |
+| Provision | `mim` downloads a compiler release and builds an environment; inside it, `morloc init` builds the runtime ([Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md)) | An installation |
+| Install | `morloc install` fetches modules ([Module resolution](https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md)) | Module source in the installation |
+| Build | `morloc make`, which calls back into `mim` to solve packages ([Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md)) | A build directory and launchers ([Compilation artifacts](https://morloc-project.github.io/docs/build-architecture/build-artifacts.md)) |
+| Run | A launcher runs the nexus, which starts the pools ([Runtime overview](https://morloc-project.github.io/docs/build-architecture/build-overview.md)) | A result |
+| Serve | The nexus as a server, started by `mim` ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)) | MCP tools and HTTP endpoints |
+| Freeze | `mim` builds an image of the environment ([Freezing](https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md)) | A container image |
+
+The compiler and `mim` are coupled only across process boundaries: files the compiler writes, commands it runs, and environment variables. In every such contract the compiler (or its release) writes and `mim` reads, so the burden of compatibility falls on `mim`.
+
+**An installation** is two directory trees. The **home** holds what `morloc init` builds and is the same for every program; the **state** holds what accumulates as modules and programs are installed. They are the same directory unless the state is given its own location.
+
+```
+<home>/
+|-- bin/           morloc-nexus, and the launcher of each installed program
+|-- lib/           the runtime library and per-language libraries
+|-- include/       the runtime's C header and per-language headers
+|-- opt/           per-language setup state
+`-- rust/          the runtime's source, kept for building Rust pools
+
+<state>/
+|-- src/morloc/plane/<plane>/<module>/   installed module source
+|-- fdb/           one record per installed module, and install locks
+|-- modules/       files that modules expose to foreign code
+|-- exe/<program>/ installed programs: source copy and build directory
+`-- snapshots/     module version pins
+```
+
+The home defaults to `~/.local/share/morloc`. Inside an environment, `mim` gives each environment its own home and state, so nothing is shared between environments except downloads ([Environments](https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md)).
+
+**Version agreement.** Three rules keep the parts consistent:
+
+-   **Compiler and nexus.** A build’s manifest records the compiler’s version. The nexus runs a manifest only if it was written by the same Morloc version ([Compilation artifacts](https://morloc-project.github.io/docs/build-architecture/build-artifacts.md)).
+-   **Compiler and runtime.** The runtime is built from the source shipped with the compiler’s own release, by that compiler, so they agree by construction. The runtime library also declares a numeric ABI version, which the nexus reports.
+-   **Compiler and `mim`.** Each document the compiler hands to `mim` carries its own version: the dependency specification an integer, the language-support table a `MAJOR.MINOR` schema. A release lists these versions in its manifest so that `mim` can refuse, before installing anything, a release it cannot read ([Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md)).

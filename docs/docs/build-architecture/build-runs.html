@@ -61,8 +61,8 @@
 <link rel="apple-touch-icon" href="../static/img/icon-192.png">
 
 <link rel="manifest" href="../manifest.webmanifest">
-<title>Run directory, caching and logging - Morloc Manual</title>
-<meta property="og:title" content="Run directory, caching and logging - Morloc Manual">
+<title>Logs and result caching - Morloc Manual</title>
+<meta property="og:title" content="Logs and result caching - Morloc Manual">
 <meta property="og:url" content="https://morloc-project.github.io/docs/build-architecture/build-runs.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/build-architecture/build-runs.html">
 <link rel="prev" href="build-collect.html">
@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="build-workers.html">13.8. Worker model</a></li>
-<li><a href="build-errors.html">13.9. Error propagation</a></li>
-<li><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="build-workers.html">13.4. Worker model</a></li>
+<li><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li class="active"><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li class="current active"><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -730,14 +771,148 @@
 </div>
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
-<div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Run directory, caching and logging"><div class="sect2">
-<h3 id="build-runs"><a class="anchor" href="#build-runs"></a>13.12. Run directory, caching and logging</h3>
+<div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Logs and result caching"><div class="sect2">
+<h3 id="build-runs"><a class="anchor" href="#build-runs"></a>13.12. Logs and result caching</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A run can leave two kinds of state behind it, both opt-in: a <strong>log directory</strong>
+recording what the run did, and a <strong>result cache</strong> that lets a later run skip
+a call it has already made. Both outlive the run, unlike the private run
+directory of <a href="build-lifecycle.html">Process lifecycle</a>, which is always removed. This section
+specifies how each is activated, its layout and formats, and what holds
+when several runs share them.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_log_directory"><a class="anchor" href="#_log_directory"></a>13.12.1. Log directory</h4>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the state a run keeps outside the process. Defines the run
-directory layout and its activation rules, how cache keys are computed and when
-a cached result is reused or invalidated, and the format and levels of the run
-log. States the concurrency guarantees when several runs share a cache or a run
-directory.</p>
+<p><code>--log-dir DIR</code> (or <code>MORLOC_LOG_DIR</code>) gives each run its own directory,
+<code>DIR/&lt;run id&gt;/</code>, where the run id is the start time in UTC plus eight random
+hex digits (<code>20261009T143000Z-1a2b3c4d</code>). A Morloc program started by
+another program’s pool inherits the outer run’s directory, so a nested
+pipeline logs into one place. The directory is created on first write and
+never removed.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">File</th>
+<th class="tableblock halign-left valign-top">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>log</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run-scope lines: the prologue, the epilogue, and the benchmark summary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;label&gt;/log</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Start, pass and fail lines for calls in a labeled group.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>summary.json</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Written once, at exit, by atomic rename (below).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>debug/inputs/&lt;hash&gt;.pkt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Programs built with <code>--debug</code> only: the arguments of each frame a failure passed through, as self-contained voidstar packets.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>summary.json</code> holds <code>status</code> (<code>ok</code> or <code>fail</code>), <code>exit_code</code>, <code>command</code>,
+<code>run_id</code>, <code>started_at</code> and <code>finished_at</code> (RFC 3339), <code>wall_ms</code>,
+<code>morloc_version</code> and <code>error</code> (null on success). Because it appears only by
+rename, a script may wait for the file to exist and then read it whole.
+<code>--summary FILE</code> writes the same object to a chosen path instead.</p>
+</div>
+<div class="paragraph">
+<p><strong>Log lines</strong> come from templates in the program’s configuration, with
+placeholders such as <code>{name}</code>, <code>{run_id}</code>, <code>{runtime}</code>, <code>{exit_code}</code> and
+<code>{error}</code>. Placeholders known at build time are filled in by the compiler;
+the rest by the nexus as the line is written. Every line goes to standard
+error (colored only on a terminal) and to the matching log file. There are no
+levels; <code>--quiet</code> suppresses all of them. At exit the nexus writes the
+benchmark summary (count, mean, min, max, total and standard deviation per
+labeled function, from one timing record per successful call), then the
+epilogue, then <code>summary.json</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_result_cache"><a class="anchor" href="#_result_cache"></a>13.12.2. Result cache</h4>
+<div class="paragraph">
+<p>A labeled group configured with <code>cache: true</code> has its calls cached. The
+compiler wraps each such call: compute a key, return the stored result on a
+hit, otherwise run the call and store its result. Only successful results
+are stored.</p>
+</div>
+<div class="paragraph">
+<p><strong>The key</strong> is a 64-bit xxHash of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the <strong>pool fingerprint</strong>: a hash of the generated source of the calling
+pool, the build parameters, and any files the program lists under
+<code>hash-include</code>. A sourced foreign file is covered only through the
+generated code that names it; list it under <code>hash-include</code> to make its
+contents part of the key;</p>
+</li>
+<li>
+<p>the function’s index in that pool;</p>
+</li>
+<li>
+<p>each argument, hashed by walking its voidstar value under its schema and
+following its pointers, so the key does not depend on where the value’s
+parts lie in shared memory.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Entries</strong> live under <code>MORLOC_CACHE_BASE</code>, else <code>$XDG_CACHE_HOME/morloc/cache</code>,
+else <code>~/.cache/morloc/cache</code>, else <code>cache</code> in the per-user runtime
+directory. An entry is two files, both packets
+(<a href="build-packets.html">Packet protocol</a>):</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">File</th>
+<th class="tableblock halign-left valign-top">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;label&gt;/&lt;key&gt;.dat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A data packet whose payload is the path of the result file.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data/&lt;value hash&gt;.dat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The result as a voidstar packet with its schema, optionally Zstandard-compressed.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Results are stored by the hash of their value, so many calls that return the
+same value share one result file. An entry that is truncated or whose result
+file is missing is deleted and treated as a miss. Nothing is evicted, and
+an entry is invalidated only by a change of key.</p>
+</div>
+<div class="paragraph">
+<p><strong>Sharing.</strong> The cache takes no locks. Every file is written to a unique
+temporary name beside its target, synced, and renamed into place, and the
+result file is written before the key file that names it. So a reader sees a
+complete entry or none, and two runs storing the same entry at once both
+succeed with the same content.</p>
+</div>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>

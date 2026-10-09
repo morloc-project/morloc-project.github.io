@@ -66,7 +66,7 @@
 <meta property="og:url" content="https://morloc-project.github.io/docs/build-architecture/build-lifecycle.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/build-architecture/build-lifecycle.html">
 <link rel="prev" href="build-artifacts.html">
-<link rel="next" href="build-packets.html">
+<link rel="next" href="build-workers.html">
 <link rel="alternate" type="text/markdown" href="build-lifecycle.md">
 </head>
 <body class="book toc2 toc-left">
@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li class="active"><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="build-workers.html">13.8. Worker model</a></li>
-<li><a href="build-errors.html">13.9. Error propagation</a></li>
-<li><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="build-workers.html">13.4. Worker model</a></li>
+<li><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -732,18 +773,165 @@
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Process lifecycle"><div class="sect2">
 <h3 id="build-lifecycle"><a class="anchor" href="#build-lifecycle"></a>13.3. Process lifecycle</h3>
-<div class="paragraph">
-<p><strong>STUB</strong>: Specifies the life of a program’s processes. Covers nexus startup,
-how pools are spawned and when each is considered ready, and the handshake
-between them. Covers orderly shutdown, signal handling, and what happens when
-the parent dies on any platform. Defines how temporary files and shared memory
-are cleaned up on every exit path, and the exit codes a program can return with
-their meanings.</p>
+<div class="quoteblock abstract">
+<blockquote>
+A run creates processes, a private directory and shared memory, and must
+remove all of them however it ends: normally, by error, by signal, or by
+being killed outright. This section specifies how a run starts its pools,
+how it knows they are ready, how it stops them, and what it guarantees
+about cleanup and exit status.
+</blockquote>
 </div>
+<div class="paragraph">
+<p><strong>Startup.</strong> Before it starts any pool, the nexus:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Creates the <strong>run directory</strong>, a fresh directory under <code>/tmp</code> readable only
+by the user, and writes an owner record into it (the nexus’s pid, process
+start time, boot id and pid namespace). It always lives under <code>/tmp</code> so a
+later run can find it; the owner record tells a dead run from a live one.</p>
+</li>
+<li>
+<p>Removes the run directories and shared memory of earlier runs whose owner
+is dead and whose pools have all ended.</p>
+</li>
+<li>
+<p>Creates the run’s shared memory: the first volume and the stream registry
+(<a href="build-shm.html">Shared memory layout</a>).</p>
+</li>
+<li>
+<p>Installs its signal handlers.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>It then starts each pool the request needs (<a href="build-overview.html">Runtime overview</a>):</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>It starts a <strong>pin</strong>: a tiny process that leads a new process group, ignores
+termination signals, and exits only when the nexus closes a pipe to it.
+The pin holds the group’s id, so the id cannot be reissued to an
+unrelated process while the nexus may still signal the group.</p>
+</li>
+<li>
+<p>It records the group in the run directory, then starts the pool inside
+that group. The pool’s command line is the manifest’s command for it
+followed by three arguments: its socket path, the run directory, and the
+shared-memory base name. The pool inherits the nexus’s standard input,
+output and error unchanged.</p>
+</li>
+<li>
+<p>It pings each pool on its socket until one answers with a ping packet
+(<a href="build-packets.html">Packet protocol</a>). Retries back off exponentially. If the pool process
+exits first, startup fails at once and reports its exit status.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>The lifeline.</strong> The nexus holds the only write end of a pipe; every pool
+receives the read end. The kernel closes the write end when the nexus exits
+for any reason, including <code>SIGKILL</code>, so a pool always learns that its nexus
+is gone. It then ends its own process group (<code>SIGTERM</code>, 200 ms, <code>SIGKILL</code>)
+and starts a detached <strong>sweeper</strong> that removes the run’s shared memory and
+directory once every recorded group has ended. Without the lifeline, a
+killed nexus would leave pools and shared memory behind indefinitely.</p>
+</div>
+<div class="paragraph">
+<p><strong>Shutdown.</strong> At the end of a run, or on <code>SIGINT</code>, <code>SIGTERM</code> or <code>SIGHUP</code>,
+the nexus stops its pools: <code>SIGTERM</code> to every pool group, up to 200 ms for
+the pool processes to exit, then <code>SIGKILL</code> to every group. It then removes
+the names of the shared-memory objects and the run directory. It removes
+names but never unmaps memory at exit, because a background thread may
+still be reading it. When a pool process exits on its own, the nexus kills
+the rest of its group, so a pool’s worker processes never outlive it.</p>
+</div>
+<div class="paragraph">
+<p><strong>Cleanup on every path:</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">How the run ends</th>
+<th class="tableblock halign-left valign-top">Who removes shared memory and the run directory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Normal exit, error, <code>SIGINT</code>/<code>SIGTERM</code>/<code>SIGHUP</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus, before it exits.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Crash signal (<code>SIGSEGV</code>, <code>SIGBUS</code>, <code>SIGFPE</code>, <code>SIGABRT</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus’s crash handler removes the shared memory, then the signal takes its default action.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Internal error (panic)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus kills its pool groups and removes what it registered before exiting.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SIGKILL</code> or power loss of the nexus</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Each pool’s sweeper, after its lifeline closes; failing that, the next run’s startup sweep.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A long-running daemon additionally recovers from a pool crash by stopping
+every pool, waiting for running requests, discarding the shared memory and
+starting fresh; that is specified with the daemon in <a href="../ecosystem-architecture/eco-serving.html">Serving</a>.</p>
+</div>
+<div class="paragraph">
+<p><strong>Exit status</strong> of a one-shot run:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Status</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Success.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The call failed: an error raised by user code, a pool that died, an argument that could not be read, or a runtime error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Usage error: an unknown command or option.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">70</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Internal error: an invariant inside Morloc itself was broken (a panic). Only a panic exits with 70.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128 + <em>N</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ended by signal <em>N</em> (130 for <code>SIGINT</code>, 143 for <code>SIGTERM</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">141</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Standard output was a closed pipe (128 + <code>SIGPIPE</code>), as when the output is piped to <code>head</code>.</p></td>
+</tr>
+</tbody>
+</table>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
 <a class="prev" rel="prev" href="build-artifacts.html">Previous: 13.2. Compilation artifacts</a>
-<a class="next" rel="next" href="build-packets.html">Next: 13.4. Packet protocol</a>
+<a class="next" rel="next" href="build-workers.html">Next: 13.4. Worker model</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

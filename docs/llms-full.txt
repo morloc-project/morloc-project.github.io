@@ -4344,7 +4344,7 @@ For the reader writing native code against a Morloc `data` type. Each row is wha
 | Python | The ordinal, as an `int`. A list of them is a byte buffer, the same object a `[U8]` produces. | `("Circle", (2.0,))` — the constructor’s name and a tuple of its fields. |
 | R | An ordered `factor`, so `<` compares in declaration order. Codes are 1-based, so a code is the wire tag plus one; the levels are the constructor names in declaration order. | `list("Circle", list(2.0))` — the name and a list of fields. |
 | C++ | `enum class Color : uint8_t` with explicit discriminants, so the native value and the wire tag are the same byte. | A wrapper struct holding a `std::variant` of `std::shared_ptr` to one struct per arm. |
-| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | An enum whose arms each hold one `Box` of a tuple of their fields. Not `Copy`, since a box is not. |
+| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | Generated: an enum whose arms each hold one `::rustmorloc::RecBox` of a tuple of their fields. A `RecBox` is reference-counted: cloning it shares the fields instead of copying them, and dropping a long chain does not recurse. Build an arm with `RecBox::new..,` and read its fields through `Deref`; `into_inner` moves the tuple out when the box has a single owner. A type you map yourself with `data Rust ⇒` declares its arms with `Box` instead (`Link(Box<(i64, Chain)>)`); a mapped type with `RecBox` arms does not compile. Not `Copy`. |
 
 The generated C++ and Rust declarations, for the `Shape` of this section:
 
@@ -4369,8 +4369,8 @@ struct Shape_Dot {
 ```rust
 #[derive(Clone)]
 pub enum Shape {
-    Circle(::std::boxed::Box<(f64,)>),
-    Rect(::std::boxed::Box<(f64, f64)>),
+    Circle(::rustmorloc::RecBox<(f64,)>),
+    Rect(::rustmorloc::RecBox<(f64, f64)>),
     Dot,
 }
 ```
@@ -13455,7 +13455,7 @@ A stream file whose final footer is missing (writer crashed before `@close`, `pr
 
 Morloc Manual | https://morloc-project.github.io/docs/ecosystem-architecture/ | prev: https://morloc-project.github.io/docs/utilities/nexus-view.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md
 
-This chapter specifies how the parts of the Morloc ecosystem fit together: the compiler, the runtime library, the nexus, and the environment manager. It defines where each part is installed, how a program’s dependencies (Morloc modules and foreign packages) are resolved and locked, how an environment is frozen into a portable artifact, and how a compiled program is served to other programs and agents. The [Deployment](https://morloc-project.github.io/docs/apis/index.md) chapter shows how to use these tools; this chapter specifies what they do.
+This chapter specifies how the parts of the Morloc ecosystem fit together: the compiler, the runtime library, the nexus, and the environment manager `mim`. It defines where each part is installed, how the runtime is built, how an `import` finds a module, how a program’s foreign packages are solved into an environment, how a compiled program is served to other programs and agents, and how an environment is frozen into a portable image. The [Deployment](https://morloc-project.github.io/docs/apis/index.md) chapter shows how to use these tools; this chapter specifies what they do.
 
 This chapter and the two that follow are written as a specification. They describe behavior, formats and guarantees rather than any particular implementation, so they should remain true of any conforming reimplementation.
 
@@ -13466,53 +13466,291 @@ This chapter and the two that follow are written as a specification. They descri
 
 # 12.1. Overview
 
-Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/index.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/index.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md
 
-**STUB**: Introduces the four parts of the ecosystem: the compiler, the runtime library, the nexus, and the environment manager (`mim`). Explains what each one owns, which part invokes which, and at what point in a program’s life (install, build, run, serve). Specifies the on-disk layout of an installation and names every manifest and lock file, with a sentence on each one’s role. States how versions of the parts must agree, including the ABI version check that rejects a mismatched runtime. Ends with a map linking each concern to the section that specifies it.
+> The Morloc ecosystem has four parts. The **compiler** turns Morloc source into a build directory. The **runtime library** is linked into every pool and implements the shared formats. The **nexus** runs a compiled program, from the command line or as a server. The **environment manager**, `mim`, creates isolated installations of the other three, solves the foreign packages that programs need, and serves and freezes the result. This section says what each part owns, when each runs, where an installation keeps its files, and how the parts agree on versions.
+
+**Who invokes whom.**
+
+| Stage | What runs | What it produces |
+| --- | --- | --- |
+| Provision | `mim` downloads a compiler release and builds an environment; inside it, `morloc init` builds the runtime ([Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md)) | An installation |
+| Install | `morloc install` fetches modules ([Module resolution](https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md)) | Module source in the installation |
+| Build | `morloc make`, which calls back into `mim` to solve packages ([Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md)) | A build directory and launchers ([Compilation artifacts](https://morloc-project.github.io/docs/build-architecture/build-artifacts.md)) |
+| Run | A launcher runs the nexus, which starts the pools ([Runtime overview](https://morloc-project.github.io/docs/build-architecture/build-overview.md)) | A result |
+| Serve | The nexus as a server, started by `mim` ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)) | MCP tools and HTTP endpoints |
+| Freeze | `mim` builds an image of the environment ([Freezing](https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md)) | A container image |
+
+The compiler and `mim` are coupled only across process boundaries: files the compiler writes, commands it runs, and environment variables. In every such contract the compiler (or its release) writes and `mim` reads, so the burden of compatibility falls on `mim`.
+
+**An installation** is two directory trees. The **home** holds what `morloc init` builds and is the same for every program; the **state** holds what accumulates as modules and programs are installed. They are the same directory unless the state is given its own location.
+
+```
+<home>/
+|-- bin/           morloc-nexus, and the launcher of each installed program
+|-- lib/           the runtime library and per-language libraries
+|-- include/       the runtime's C header and per-language headers
+|-- opt/           per-language setup state
+`-- rust/          the runtime's source, kept for building Rust pools
+
+<state>/
+|-- src/morloc/plane/<plane>/<module>/   installed module source
+|-- fdb/           one record per installed module, and install locks
+|-- modules/       files that modules expose to foreign code
+|-- exe/<program>/ installed programs: source copy and build directory
+`-- snapshots/     module version pins
+```
+
+The home defaults to `~/.local/share/morloc`. Inside an environment, `mim` gives each environment its own home and state, so nothing is shared between environments except downloads ([Environments](https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md)).
+
+**Version agreement.** Three rules keep the parts consistent:
+
+-   **Compiler and nexus.** A build’s manifest records the compiler’s version. The nexus runs a manifest only if it was written by the same Morloc version ([Compilation artifacts](https://morloc-project.github.io/docs/build-architecture/build-artifacts.md)).
+-   **Compiler and runtime.** The runtime is built from the source shipped with the compiler’s own release, by that compiler, so they agree by construction. The runtime library also declares a numeric ABI version, which the nexus reports.
+-   **Compiler and `mim`.** Each document the compiler hands to `mim` carries its own version: the dependency specification an integer, the language-support table a `MAJOR.MINOR` schema. A release lists these versions in its manifest so that `mim` can refuse, before installing anything, a release it cannot read ([Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md)).
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.html -->
+
+# 12.2. Environments
+
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md
+
+> An **environment** is one complete Morloc installation managed by `mim`: a compiler, its runtime, a solved set of language toolchains and packages, and the programs installed into it. Every other `mim` operation acts on one environment. This section specifies an environment’s identity, where its files live, how commands run inside it, and what holds when it is changed or removed.
+
+**Identity.** An environment is a name within a **scope**. The **local** scope belongs to one user and needs no privileges; the **system** scope is shared by every user on the machine, and only root may create, change, serve or remove its environments (any user may run commands in one). A name is 1 to 64 characters of ASCII letters, digits, `-`, `_` and `.`, beginning with a letter or digit, unique within its scope. A lookup by name tries the local scope first, so a local environment may shadow a system one of the same name.
+
+**Backend.** Each environment has one backend, fixed at creation:
+
+| Backend | How commands run |
+| --- | --- |
+| Native | On the host, against a toolchain installed in the environment’s own directory. |
+| Container | In a container started from the environment’s own image, by Docker, Podman or Apptainer. |
+
+When no backend is named, `mim` chooses native where the host can run it (glibc Linux, Apple Silicon macOS, or NixOS with `nix` and unprivileged user namespaces), and otherwise a configured container engine or the only one installed. With several engines and no configured choice it asks rather than guessing.
+
+**Files.** Each scope has a configuration root and a data root:
+
+| Scope | Configuration | Data |
+| --- | --- | --- |
+| local | `$XDG_CONFIG_HOME/morloc` (default `~/.config/morloc`) | `$XDG_DATA_HOME/morloc` (default `~/.local/share/morloc`) |
+| system | `/etc/morloc` | `/usr/local/share/morloc` |
+
+An environment’s configuration directory holds its settings, its views ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)), its extra engine flags and the record of its running server. It is small, edited by `mim` only, and never visible inside the environment. The environment exists exactly when its settings record does.
+
+Its data directory holds everything the environment’s programs see: the Morloc home and state ([Overview](https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md)), the solved toolchain and its lock, the recorded requirements of every program ([Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md)), the home directory of its shell, and its server logs. Downloads that environments can share — compiler releases, the solver binary, `mim` binaries for other platforms — are stored once per scope in the data root and never modified after they are complete.
+
+**The default environment.** A command that names no environment acts on the default. Each scope records at most one default, by name. The local default wins if it names an existing environment; otherwise the system default applies. There is no activation step and no variable that selects an environment, so a command means the same thing in every shell.
+
+**Running a command.** `mim run` and `mim shell` execute a command with the environment’s compiler, runtime, toolchain and installed programs first on the `PATH` and its home as `MORLOC_HOME`. The working directory is the user’s current directory, mounted at `/work` in a container, and files written there belong to the invoking user. A container sees only the host variables passed to it explicitly. The command’s exit status becomes \`mim’s.
+
+Three variables mark a command as running in a managed environment, and are set together:
+
+| Variable | Meaning |
+| --- | --- |
+| `MORLOC_ENV` | Non-empty inside a managed environment. `morloc make` solves packages only when it is set. |
+| `MORLOC_BUILD_HOOK` | The program `morloc make` calls to solve packages: the `mim` that manages this environment. |
+| `MORLOC_BIN` | The compiler, so the hook asks the exact compiler that is building for its language requirements. |
+
+The hook is `mim` itself, in the same binary as the manager. Staging the manager’s own binary into the environment keeps the two at one version.
+
+Before a solve, a build or a native command, `mim` removes the variables of any other conda, mamba or pixi environment active in the user’s shell. Their activation scripts add compiler flags and library paths, and mixing two package worlds produces binaries that link against both.
+
+**Changing an environment.** `mim update` rebuilds an environment and `mim modify` changes its settings, rebuilding when the toolchain changes. The Morloc version an environment was provisioned with moves only when an update asks for another version explicitly; no other command changes it. A move is refused if an installed module declares a range of Morloc versions that excludes the target. A change either completes or leaves the environment’s settings, requirements and solved toolchain as they were.
+
+**Removal.** `mim rm` stops the environment’s server, then removes its configuration, data, image and volumes. It leaves alone directories the user supplied (a host directory mounted as its home) and the shared downloads, so a later `mim new` does not start from nothing.
 
 
 ---
 
 <!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html -->
 
-# 12.2. Runtime bootstrap
+# 12.3. Runtime bootstrap
 
-Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md
 
-**STUB**: Specifies what initialization (`morloc init`) produces: the compiled runtime library, the nexus binary, the per-language bindings and their headers, and where each is placed. Defines the inputs each artifact depends on and the conditions that force a rebuild, so a stale runtime is never paired with a newer compiler. Covers the build modes (release versus development) and what an installation must provide before any program can be compiled.
+> Before any program can be compiled, an installation needs a compiler and a runtime built for the machine it runs on. The compiler is distributed as a prebuilt binary in a release; the runtime is built from source on the target by `morloc init`, against the toolchain the environment provides. This section specifies what a release contains, how `mim` verifies and installs it, what `morloc init` produces, and when it rebuilds.
+
+## 12.3.1. Releases
+
+A release is named by a tag. `latest` means the newest release, and a bare version such as `0.105.2` means tag `v0.105.2`. Each release publishes a **release manifest**, a JSON object:
+
+| Field | Meaning |
+| --- | --- |
+| `schema` | The manifest’s own format version. A reader refuses a schema newer than it knows. |
+| `version` | The Morloc version the release contains. |
+| `triples` | Per platform (`linux-x86_64`, `linux-arm64`, `macos-arm64`), the name of the compiler binary. |
+| `rust_src` | The name of the archive holding the runtime’s source. |
+| `sha256` | The SHA-256 digest of every asset. |
+| `versions` | The contract versions of this release: `morloc_version`, `abi_version`, `envspec_version`, `lang_support_schema`. |
+
+`mim` reads the manifest before downloading anything else and refuses a release whose contract versions it cannot read, telling the user to upgrade `mim`. A platform the manifest does not list is refused with a pointer to a container backend, since a container runs the Linux build on any host.
+
+Every asset is downloaded to a temporary name, checked against its digest, and only then renamed into place. A missing digest is a refusal, not a warning. A downloaded release is stored once per scope, keyed by version and platform, and marked complete only after all of its assets are in place; an incomplete one is never used.
+
+## 12.3.2. Building an environment
+
+For a container backend, `mim` first builds an image for the environment from a base Linux image, the system packages the user asked for, any extra certificate authorities, the compiler, the runtime source, and its own binary. It is rebuilt only when one of these inputs changes. The solved toolchain and the built runtime are not in the image: they live in the environment’s data and are mounted in, so a package change does not rebuild the image.
+
+Then, for every backend, `mim` solves the toolchain the compiler requires ([Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md)) and runs `morloc init` inside the environment, in a strict mode in which every compiler and interpreter must come from the solved toolchain rather than the host.
+
+An environment can carry a bundle of extra certificate authorities, for networks that inspect TLS. The bundle is checked to contain certificates only (a private key is refused), installed as a trusted root in the image, and passed to the solver and every package manager in the environment.
+
+## 12.3.3. What `morloc init` produces
+
+`morloc init` builds the runtime into the Morloc home:
+
+| Output | Purpose |
+| --- | --- |
+| `include/morloc.h` | The runtime’s C API ([Runtime library API](https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.md)). |
+| `lib/` runtime library | The shared library every pool links against. |
+| `bin/morloc-nexus` | The nexus. |
+| Per-language bindings | One for each supported language whose tools are present: a Python extension module, an R library, a C++ library and precompiled header, a prebuilt Rust crate. |
+| `rust/` | A copy of the runtime source, used when compiling Rust pools. |
+
+The runtime source is found, in order, at a path named by `MORLOC_RUST_DIR`, in the home’s `rust/` directory, or beside the compiler binary. Building it requires a Rust toolchain. The runtime is always built optimized; a sanitizer variant exists for debugging the runtime itself.
+
+A language whose tools are missing is skipped with a warning, and its programs cannot be built until a later `init` succeeds. In strict mode a missing or foreign tool is an error instead, so an environment never silently falls back to the host’s compiler.
+
+Only one `init` runs per home at a time; a second waits for the first. `init` rebuilds the runtime and every language binding unless it is run in incremental mode, which keeps each part that is already present. `-f` also removes the files `init` owns before rebuilding, so a binding left by an older version cannot survive.
+
+`init` links `morloc-nexus` into a directory on the user’s `PATH` (by default `~/.local/bin` when it exists; `MORLOC_BIN_LINK_DIR` names another, and an empty value turns linking off). `mim` turns it off inside environments so that no environment changes the user’s global commands.
+
+**Interpreter pinning.** The Python and R bindings are compiled against one minor version of their interpreter. Once an environment has built them, the interpreter’s minor version is pinned in every later solve of that environment ([Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md)), and a binding that no longer matches its interpreter is rebuilt before the next build uses it.
 
 
 ---
 
 <!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.html -->
 
-# 12.3. Module resolution
+# 12.4. Module resolution
 
 Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md
 
-**STUB**: Specifies how an `import` is resolved to a module: the search order, the precedence of local and installed modules, and how ambiguity is reported. Defines what installing a module means, how modules are named and versioned, and how a module declares the foreign packages (Python, R, C++, Rust) it requires. Explains how those declarations feed the environment solver.
+> A Morloc program is assembled from modules: its own source files and modules installed into the Morloc state. This section specifies how the compiler finds the file an `import` names, how a module is identified and installed, how versions are pinned, and how a module declares the foreign packages it needs. The install-string syntax is given in [Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md).
+
+## 12.4.1. Finding a module
+
+An import names a module by dotted path. A leading dot makes it **local**: `import .foo.bar` is looked up only under the **project root**, the directory of the file being compiled, as `foo/bar.loc` and then `foo/bar/main.loc`. A program read from standard input has no project root and may not use local imports, and neither may an eval expression ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)).
+
+Without the leading dot the import is **bare**, and two lists of candidates are built. The **system** list searches the installed modules of the active **plane** (a named namespace of installed modules; `default` unless configured), its core subdirectory (`morloclib`) first:
+
+1.  `<plane>/morloclib/foo/bar/main.loc`
+2.  `<plane>/morloclib/foo/bar.loc`
+3.  `<plane>/foo/bar.loc`
+4.  `<plane>/foo/bar/main.loc`
+5.  the same two forms directly under the module tree, outside any plane
+
+The **local** list is the two local forms above. A bare import that matches only a system candidate takes the first one. One that matches only a local candidate is accepted with a warning to write `import .foo.bar`. One that matches both is an error naming both files, because the meaning of the program would otherwise depend on what happens to be installed. One that matches nothing is an error listing every path tried and suggesting `morloc install`.
+
+A module named `owner/name` searches only the plane: `owner/name/main.loc`, `owner/name.loc`, then `name/main.loc` and `name.loc`.
+
+The last three components of a matched path must have the exact spelling of the import, so a module resolves the same way on case-insensitive and case-sensitive file systems.
+
+## 12.4.2. Identity
+
+A module is a directory. Its entry file is `main.loc`, or its only `.loc` file. The entry file declares exactly one named module, and that name must equal the directory’s name (for an installed module, the repository’s name). A name is ASCII letters, digits and `-`, beginning with a letter or digit.
+
+A module’s metadata is the `package.yaml` beside its entry file. The fields the ecosystem reads:
+
+| Field | Meaning |
+| --- | --- |
+| `version` | The module’s own version. |
+| `morloc-version` | The range of compiler versions the module accepts. A compiler outside it refuses to load the module. |
+| `morloc-deps` | Pins for imported modules, each a name and a git hash. |
+| `py-deps`, `r-deps`, `cpp-deps`, `rust-deps` | Foreign packages, each with a version constraint and a source ([Dependencies (`py-deps`)](https://morloc-project.github.io/docs/languages/python.md#py-deps)). |
+| `local-deps` | Packages kept inside the project tree ([Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)). Allowed only in the program being built, not in an imported module. |
+| `lang-versions` | Constraints on the language runtimes themselves. |
+| `dependencies` | System libraries. |
+| `expose` | Files copied where foreign code can include or import them ([Exposing native resources](https://morloc-project.github.io/docs/modules/exposing-native-resources.md)). |
+| `setup` | A script run after the module is installed. |
+
+## 12.4.3. Installing
+
+`morloc install` fetches a module into `<plane>/<name>` in the Morloc state. Each install:
+
+1.  takes a lock for that module name, so two installs of one module never interleave;
+2.  fetches into a temporary directory beside the destination;
+3.  checks that the module’s declared name matches and that its `morloc-version` admits this compiler;
+4.  replaces the previous copy in one rename, so a failed install leaves the old one intact;
+5.  installs every module it imports that is not already present, the same way;
+6.  copies its `expose` files and runs its `setup` script, with the module’s name, version and directory in the environment;
+7.  typechecks it, unless told not to;
+8.  writes a record of the install: name, version, source and pinned hash.
+
+A module that is already installed is left alone unless the install is forced. `morloc make` installs missing imports the same way before it compiles.
+
+**Pins.** A pin fixes an imported module to a git hash. Pins come from the `morloc-deps` of the modules being installed (a pin closer to the program wins; two different pins at the same depth are an error) and from snapshot files in the state, which list `name hash` pairs for a whole installation. An installed module whose recorded hash differs from its pin is an error until it is reinstalled.
+
+## 12.4.4. Foreign dependencies
+
+The compiler gathers the foreign requirements of a program from every module it imports, transitively, and writes them beside the manifest as `envspec.json`. Constraints on one package from several modules are combined (all must hold), the C++ standard is the highest any module asks for, and two modules naming different conda channels for one package is an error. The file also lists the program’s languages and system libraries. `morloc envspec` writes the same document without building. How the document is solved is specified in [Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md).
 
 
 ---
 
 <!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html -->
 
-# 12.4. Environment solving
+# 12.5. Environment solving
 
-Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md
 
-**STUB**: Specifies the contract between the compiler and the environment solver: which events trigger solving (build, install, sync), what the compiler asks for, and what it receives back. Defines how foreign packages for each language are provided to an environment, how the solved result is locked, and the guarantees the lock gives (reproducibility, and when a lock is reused or invalidated). Describes where environments and locks live and how concurrent operations on one environment are kept safe.
+> A program’s foreign packages must be installed, at compatible versions, before its pools can compile or run. The compiler knows what a program needs; the environment manager knows how to provide it. This section specifies the contract between them: when the compiler asks, what it sends, how the manager turns every program’s requests into one solved set of packages, and what holds when solves fail or run at once.
 
+## 12.5.1. The build hook
 
----
+`morloc make` asks for its packages only inside a managed environment, when `MORLOC_ENV` is set ([Environments](https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md)). After writing the pool sources and before compiling them, it runs:
 
-<!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html -->
+```
+$MORLOC_BUILD_HOOK sync --name <key> --spec envspec.json --root <project> [--installed]
+```
 
-# 12.5. Freezing and execution environments
+`<key>` is the program’s key ([Compilation artifacts](https://morloc-project.github.io/docs/build-architecture/build-artifacts.md)), `envspec.json` is the document described in [Module resolution](https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md), and `--installed` marks a build that is being installed rather than built in place. The hook writes its messages to standard error. Exit status 0 means the environment now satisfies the specification; anything else fails the build. If `MORLOC_ENV` is set but no hook is named, a program that declares foreign packages fails to build, since nothing could provide them.
 
-Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md
+The hook asks the compiler named by `MORLOC_BIN` for its **language-support table**: for each language, the runtime package and version range the compiler supports and the packages its bindings need, plus the toolchain the compiler itself needs. A program’s request is always solved together with this table, so a program can never ask for an interpreter the runtime cannot bind.
 
-**STUB**: Specifies freezing: turning an environment and its installed programs into a portable artifact that runs on another machine. Defines what a frozen artifact contains, what it may assume of the host, and which features a slim artifact gives up. Covers container execution and cluster execution (resource labels and job submission), and the requirements an execution environment must meet to run a program.
+Both documents carry versions. The dependency specification has an integer version that the reader must match exactly; it is refused with "rebuild the program" if older and "upgrade the manager" if newer. The language-support table has a `MAJOR.MINOR` schema; a reader accepts any minor version of the major it knows and ignores fields it does not recognise.
+
+## 12.5.2. One world per environment
+
+An environment has one set of installed packages, its **solved world**. It is the solution of the union of:
+
+-   the specification of every installed program;
+-   the specification of every program built in place (**scratch** builds), kept until the environment is cleaned;
+-   the compiler’s language-support requirements;
+-   extra packages the user named for the environment;
+-   the interpreter pins (below).
+
+One world means one version of each package. Two programs constraining the same package must both be satisfied. A requirement nobody can satisfy fails the command that added it.
+
+Each requested package is provided, delegated or refused. conda and PyPI packages are solved into the world. Rust crates and Julia packages are left to the language’s own build tool, which resolves them when the pool is compiled. A source the manager does not support is refused, never silently dropped, as are contradictory requests for one package: two conda channels, two local paths, or a local path and a version.
+
+A local Python package of an installed program ([Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)) is copied into the environment under a name derived from a hash of its contents, and the requirement points at the copy. The installed program then no longer depends on the project directory, the same path is valid on the host, in a container and in a frozen image, and reinstalling unchanged source does no work. Copies that no installed program references are reclaimed.
+
+## 12.5.3. Solving
+
+Each environment has one solve lock, shared by the host and its container. Recording a program’s specification, gathering the world, solving it, and recording the result all happen while holding it, so concurrent builds in one environment serialize, and the second usually finds its world already solved.
+
+The world reduces to a canonical **requirement digest**. If it equals the digest of the last successful solve and the solved packages are present, nothing is done. The digest is written last, after the packages are installed and their activation captured, so an interrupted solve is redone rather than trusted.
+
+Otherwise the solver first tries to install the existing lock unchanged, and re-solves only if the lock cannot satisfy the new world. Package versions therefore move only when a new requirement forces them to.
+
+**Interpreter pins.** The Python and R bindings are compiled against one minor version of their interpreter ([Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md)). After the first solve that provides an interpreter, its minor version is pinned, and later solves stay within it. A requirement that needs another minor fails with a message to update the environment, which drops the pin and rebuilds the bindings.
+
+**Failure.** If a solve fails, the requirements recorded for every program are restored to what they were before the command. The solver’s own manifest, lock and partially installed packages may be left changed; the next successful solve reconciles them, and the digest, removed at the start of the solve, guarantees that it runs.
+
+**Immutable environments.** An environment marked immutable — one being served, or a frozen image — refuses any request that would change its world or rebuild a binding, before writing anything.
+
+## 12.5.4. When solving happens
+
+| Event | Solve |
+| --- | --- |
+| `morloc make` in an environment | Through the build hook, as above. |
+| `mim install` | Once before the build, from the specification the compiler reports without building, so packages are present when the pools compile; then through the hook. |
+| `mim modify` (languages, extra packages) and `mim update` | A solve of the whole world, followed by a rebuild of the runtime and bindings when the Morloc version or an interpreter changed. |
+| Cleaning the environment | Scratch specifications are discarded and the world re-solved from installed programs only. |
 
 
 ---
@@ -13521,9 +13759,122 @@ Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/e
 
 # 12.6. Serving
 
-Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md | next: https://morloc-project.github.io/docs/build-architecture/index.md
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md
 
-**STUB**: Specifies how a compiled program is served beyond the command line: the daemon, the router that fronts several programs, and the transports (HTTP, TCP and Unix sockets, MCP over stdio). Defines the mapping from one manifest command to a CLI subcommand, an HTTP endpoint and an MCP tool, including how argument types become input schemas, how docstrings become descriptions, and which commands are excluded and why. Specifies remote evaluation of expressions and the security model: authentication, allow-lists, sandboxing and resource limits, with the threat each one addresses.
+> A compiled program is a command-line tool, but the nexus can also keep it running as a server, answering many requests without restarting its pools. This section specifies the server modes, how one command of a manifest becomes an HTTP endpoint and an MCP tool, how a server recovers from a crashed pool, how callers may evaluate new expressions, and the security model that decides who may call what. How `mim` chooses what to serve is specified last.
+
+## 12.6.1. Server modes
+
+| Mode | Serves |
+| --- | --- |
+| Daemon | One program, to local clients over a Unix socket or loopback TCP (length-prefixed JSON), and optionally over HTTP. Starts every pool at startup. |
+| MCP | One program to one agent, over standard input and output, or over HTTP. |
+| Front end | Several installed programs over one HTTP port, as MCP tools and a JSON API, with optional eval. Each program runs in its own daemon, which the front end starts on first use. |
+
+`mim` always serves through the front end. It names the programs to serve explicitly; nothing is served because it happens to be installed. The front end finds each program’s manifest in the installed-programs directory of the state ([Overview](https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md)), checks every one at startup, and starts each program’s daemon on its first request. A daemon that has exited is started again on the next request for it.
+
+## 12.6.2. Endpoints
+
+The front end answers:
+
+| Request | Meaning |
+| --- | --- |
+| `GET /health` | Liveness. Open to every caller, so a monitor needs no secret. |
+| `POST /mcp` | The MCP endpoint. |
+| `POST /call/<module>/<command>` | Call one command. The body is the argument list as a JSON array, or an object with an `args` array. |
+| `GET /discover`, `GET /discover/<module>` | The served modules, then one module’s commands with their arguments, types and documentation. |
+| `POST /eval` | Evaluate an expression, when eval is enabled (below). |
+
+A successful call returns `{"status":"ok","result":…​}`. A command whose result carries a media type returns the raw bytes with that type instead. A failure returns `{"status":"error","error":"…​"}`.
+
+## 12.6.3. Commands as MCP tools
+
+Each exported command of each program on the MCP view becomes one tool, named `<module>__<command>`. A name that collides is refused at startup. The tool’s description is the command’s documentation, and its input schema is an object with one property per argument, keyed by the argument’s published name (its declared long name, or `_1`, `_2`, …​ for positional arguments). Morloc types map to JSON Schema:
+
+| Morloc type | JSON Schema |
+| --- | --- |
+| `Bool` | `boolean` |
+| integer types | `integer` |
+| real types | `number` |
+| `Str` | `string` |
+| enumerations | `string` with `enum` |
+| sum types | `oneOf` a constructor-name string or a one-key object |
+| lists, tables | `array` |
+| tuples | `array` with fixed `prefixItems` |
+| records | `object`, required fields being those not optional |
+| optional `?T` | `T` or `null`, never required |
+
+A record argument may instead be spread into one property per field. A command that renders its result several ways gets an extra `_render` property naming the rendering. When a command returns a record, the tool also declares an output schema and returns structured content; otherwise the result is one text block of JSON.
+
+A command is not offered as a tool if an argument or its result is a file handle or a stream, or if it reads standard input. These mean nothing to a remote caller, and a stream would write to the standard output that the MCP transport owns.
+
+**Protocol.** The server speaks MCP protocol version `2025-06-18`. A client sends `initialize`, then the `notifications/initialized` notification; `tools/list` and `tools/call` before that are rejected. Over HTTP, `initialize` returns an `Mcp-Session-Id` header that every later request must carry; an unknown session is told to initialize again, and an idle session expires. A call that fails while running returns a normal result marked `isError`, with the message as text. A malformed request, an unknown tool or a bad argument is a JSON-RPC error.
+
+## 12.6.4. Pool crash recovery
+
+A daemon outlives any one call, so it must survive a pool that crashes. When it finds a pool dead, it closes admission (new requests are answered as unavailable, HTTP 503), stops every pool, and waits for the requests already running to finish. Only then does it discard the program’s shared memory, create it afresh, restart and ping every pool, and reopen admission. No request spans a recovery, so no shared-memory reference from before the crash is ever read after it. If running requests do not finish within a minute, or recovery keeps failing, the daemon exits instead of serving from an inconsistent state.
+
+## 12.6.5. Eval
+
+When enabled, eval lets a caller send a whole Morloc expression that composes installed functions. It is offered as `POST /eval` with `{"expr": "…​"}` and as an MCP tool named `eval` whose description lists the importable modules.
+
+Each request is typechecked, compiled and run in a fresh process group, under these restrictions:
+
+-   Every `import` must name a module on the **allow-list**, checked against the module’s real name, so renaming on import does not help.
+-   Only installed modules resolve; local imports are refused.
+-   The expression may not source foreign code or declare types, typeclasses or instances.
+-   Input and output intrinsics may not appear directly; a function from an allowed module may still perform them, so the reachable I/O is exactly what those modules export.
+-   The compiler’s memory is capped at 2 GB; CPU time at a configurable limit (30 seconds by default) and wall time at four times that. A request over its limit has its whole process group stopped.
+
+Nothing about one request is kept for the next.
+
+## 12.6.6. Security model
+
+A server binds the loopback address unless told otherwise, so only the local machine can reach it. A server bound to any other address must have a **token**, a shared secret every request presents as `Authorization: Bearer <token>`; without it a request is refused with 401. The token is compared in constant time, and only `/health` is exempt. Starting an exposed server without a token requires an explicit waiver, meant for a gateway that already checks callers.
+
+Eval is code execution, so it is held to a stricter rule: with no token it is **locked** — not listed, reported as locked by `/discover`, and refused — unless waived separately from the server-wide waiver. `mim` grants that waiver to a loopback server, where every caller is already local.
+
+Remote clients are untrusted in other ways too: a request must arrive within a deadline, its headers and body are bounded, and the number of simultaneous connections is capped, so one client cannot exhaust the server.
+
+The plain-HTTP server does not encrypt. A token stops strangers who find the port, not anyone who can watch the network; `mim` therefore requires the operator to acknowledge plaintext before exposing a server, and an untrusted network needs a tunnel or a TLS proxy in front.
+
+## 12.6.7. Serving an environment
+
+`mim` keeps, per environment, a **view** for each adapter — the modules answering over MCP and over the JSON API — and an optional eval allow-list. Installing a module never serves it. `mim start` reads the views, starts one front end for the environment, and records its process or container. A second `start` is refused while the recorded server is alive (judged by the recorded process being the one `mim` started, not merely a live process id), unless told to replace it. `stop` ends the server and removes the record.
+
+The token is chosen by the operator and passed to the server in its environment. `mim` never generates one, writes one to disk, or puts one on a command line. A container server runs with a read-only root file system, and the environment is marked immutable while it serves ([Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md)), so a caller cannot change the installed software.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html -->
+
+# 12.7. Freezing
+
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md | next: https://morloc-project.github.io/docs/build-architecture/index.md
+
+> An environment changes as programs are installed and packages solved. **Freezing** captures it as it stands in a container image that runs the same programs and serves the same views on another machine, with nothing mounted from the machine that built it. This section specifies what a frozen image contains, what it requires of its host, how it decides who may reach it, and what a slim image gives up.
+
+**Which environments.** Only a Docker or Podman environment provisioned from a release can be frozen. A native or Apptainer environment has no image to build on, and a development environment’s compiler lives outside it. The image is built by the environment’s own engine, on the machine that holds the environment, and freezing changes nothing in the environment.
+
+**Contents.** The image is the environment’s image with:
+
+-   the toolchain installed from the environment’s lock, without solving again, so its packages are exactly those the environment was tested with; a lock that does not install fails the freeze;
+-   the Morloc home ([Overview](https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md));
+-   every installed program, with its build directory and its copied source directory, and the installed module source;
+-   the views and eval allow-list, as the image’s default command.
+
+An environment that is missing any of these, for instance because it was never fully built, is refused with the missing part named.
+
+**What is refused.** Each program travels as the directory `mim install` copied, so freezing inspects them first. Tool state that nothing reads at run time — version-control directories, caches, virtual environments, build output — is refused. A program over 100 MB, a file over 50 MB, or an environment with no programs at all must be confirmed by the user; without a terminal to ask, confirmation is refusal. A force option answers all of these.
+
+**Running the image.** The default command starts the front end ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)) listening on every interface on port 8080. Inside a container that is the only way a published port can reach it, so the image does not decide who can reach it: whoever runs it does, with the port mapping and the network. A token, if given at run time in `MORLOC_MCP_TOKEN`, is required exactly as on any server. Eval stays locked without a token unless `MORLOC_EVAL_ALLOW_NO_AUTH` is set. An environment with no views gives an image with no default command; its programs run when named.
+
+Morloc moves data between pools through shared memory, which container engines limit by default; the image records the size the environment used in a label so that the operator can grant it.
+
+**Labels.** Once it leaves the manager nothing tracks the image, so it describes itself: the Morloc version, the source environment, the programs, each adapter’s modules, whether eval is on, and the suggested shared-memory size.
+
+**Slim images.** A slim image omits what only building needs: compilers, the solver, the Morloc compiler, the runtime’s headers and source, and the build-only packages, found by walking the solved packages' dependencies from the requested ones without passing through a build tool. It keeps every interpreter and library the programs load. Since eval compiles code, an environment with eval enabled cannot be frozen slim. After a slim image is built, every program is started inside it and every runtime library’s links are resolved, so a missing library is found at freeze time rather than in production.
 
 
 ---
@@ -13532,9 +13883,9 @@ Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/e
 
 # 13. Build Architecture
 
-Morloc Manual | https://morloc-project.github.io/docs/build-architecture/ | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md | next: https://morloc-project.github.io/docs/build-architecture/build-overview.md
+Morloc Manual | https://morloc-project.github.io/docs/build-architecture/ | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md | next: https://morloc-project.github.io/docs/build-architecture/build-overview.md
 
-This chapter specifies what `morloc make` produces and how the result runs. A compiled program is a manifest describing its commands, one pool per language holding the generated code, and a launcher. At run time the nexus reads the manifest, starts the pools, and routes calls and data between them. The chapter defines the process lifecycle, the protocol the processes speak, the shared memory and binary formats that data travels in, the worker and streaming models, and the data flow through the CLI’s collection, parsing and rendering stages.
+This chapter specifies what `morloc make` produces and how the result runs. A compiled program is a manifest describing its commands, one pool per language holding the generated code, and a launcher. At run time the nexus reads the manifest, starts the pools, and sends the first call; the pools then call one another directly. The chapter defines the process lifecycle and worker model, the protocol the processes speak, the shared memory and binary formats that data travels in, streams, how errors propagate, and the data flow through the CLI’s collection, parsing and rendering stages.
 
 
 ---
@@ -13545,7 +13896,36 @@ This chapter specifies what `morloc make` produces and how the result runs. A co
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-overview.html | prev: https://morloc-project.github.io/docs/build-architecture/index.md | next: https://morloc-project.github.io/docs/build-architecture/build-artifacts.md
 
-**STUB**: Gives the high-level picture of a running program. The nexus is the entry point that parses the request, reads the manifest, and dispatches calls. Pools are one long-lived process per language that execute the generated code. Explains how a call travels from the nexus into a pool, between pools, and back, and when data moves inline versus through shared memory. Serves as the map for the rest of the chapter.
+> A running Morloc program is a small set of cooperating processes: one **nexus** and one **pool** per language the program uses. The nexus is the program’s entry point and its only owner of shared resources. The pools execute the generated code. This section maps how they fit together; the sections that follow specify each piece.
+
+**The nexus** is a single precompiled binary shared by every Morloc program. It reads the program’s manifest, interprets the request, starts the pools the request needs, sends the first call, and delivers the result. It runs in one of four modes:
+
+| Mode | Behavior |
+| --- | --- |
+| CLI | One request from the command line, then exit. Starts only the pools the command can reach. |
+| Daemon | Long-running server for many requests over a Unix socket, TCP or HTTP. Starts every pool at startup. |
+| MCP | Long-running Model Context Protocol server for agents, on stdio or HTTP. Starts every pool at startup. |
+| Call packet | Reads one prebuilt call from a file and writes the reply to a file. Used for jobs on cluster nodes. |
+
+A command whose body calls no foreign function is **pure**. The nexus evaluates it itself and starts no pools.
+
+**A pool** is one long-lived process per language. It holds every function the program uses from that language, compiled or loaded together, and serves calls on its own socket. Calls between functions in the same pool are ordinary native calls: no serialization and no IPC.
+
+**A call that crosses languages** goes directly from the calling pool to the callee’s pool. The nexus is not on the path. Every cross-process call opens one connection, sends one call packet, and receives one reply packet.
+
+![Diagram](https://morloc-project.github.io/docs/static/img/diag-59440dc2c47612dc9b26fc2809b04987f920cf98795a953da52b5aac4c735c67.svg)
+
+**Data travels in one of three ways.** Every value that leaves a process is first serialized to the language-neutral binary form described in [Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md). Where that serialized form then goes depends on its size and on whether shared memory is available:
+
+| Route | When |
+| --- | --- |
+| Inline | The serialized value is at most the inline threshold (64 KiB by default). It is copied into the packet. |
+| Shared memory | The value is larger. It is written into shared memory and the packet carries a pointer to it ([Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md)). |
+| File | The value is larger and shared memory is disabled. It is written to a temporary file and the packet carries the path. |
+
+A shared-memory pointer is relative: it names a block by volume and offset, so it means the same block in every process of the program. This lets a pool read a large argument where its sender wrote it, without a copy across the socket.
+
+**Ownership.** The nexus creates the program’s shared-memory namespace and temporary directory, and it alone removes them. Each pool watches a pipe whose write end only the nexus holds, and exits when the nexus does. Startup, shutdown and crash handling are specified in [Process lifecycle](https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md).
 
 
 ---
@@ -13556,7 +13936,60 @@ Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-artifacts.html | prev: https://morloc-project.github.io/docs/build-architecture/build-overview.md | next: https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md
 
-**STUB**: Specifies exactly what `morloc make` produces: the build directory layout, the per-language pool trees, and the launchers (CLI, MCP, daemon) that exec the shared nexus. Gives the complete manifest format field by field, how it is versioned, and which compatibility promises it makes. Defines what installing a built program does and where installed programs live.
+> `morloc make` turns a Morloc program into a build directory and one or more launchers. The build directory holds the generated pools and a manifest that describes every command. A launcher is a short shell script that hands the manifest to the nexus. This section specifies that layout, the manifest, and what installing a program does.
+
+**Layout.** A program is identified by a **key**: the `--name` given, else the `-o` name, else the source file’s base name. Building `demo.loc` that calls Python and C++ produces:
+
+```
+./
+|-- demo                  CLI launcher
+|-- demo.loc, foo.py ...  the program's sources (not copied)
+`-- demo-build/
+    |-- .morloc-build     marker: this directory is a Morloc build
+    |-- manifest.json     commands, pools and runtime settings
+    |-- envspec.json      dependencies, for the environment manager
+    `-- pools/
+        |-- cpp/          generated source and the compiled pool binary
+        `-- py/           generated pool script
+```
+
+Compiled languages (C++, Rust) are built into a pool binary. Interpreted languages (Python, R) get a generated script that loads the user’s source files when it starts. Those files are found relative to the build directory, in the directory that contains it. The build directory and its source directory therefore move together; neither is relocatable alone. No absolute build path is recorded.
+
+**Rebuilds** assemble the new tree in a sibling staging directory and move it into place only after every pool compiles. A failed build leaves the previous build in place. A rebuild deletes an existing `<key>-build` directory only if it carries the marker file, so a user directory that happens to have the same name is never removed.
+
+**Launchers.** Each launcher records the manifest path on a comment line (`# morloc-manifest: demo-build/manifest.json`), resolves its own location, and execs the nexus with a mode and the manifest:
+
+| Launcher | Created by | Runs |
+| --- | --- | --- |
+| CLI | default (`-o` names it, `--no-cli` suppresses it) | `morloc-nexus run <manifest> …​` |
+| Daemon | `--daemon-out NAME` | `morloc-nexus daemon <manifest> …​` |
+
+There is no MCP launcher. `morloc-nexus mcp` takes either launcher or the manifest itself as its target. Every nexus mode that names a program accepts both forms.
+
+**The manifest** is a JSON object written by the compiler and read only by the nexus. Its main fields:
+
+| Field | Meaning |
+| --- | --- |
+| `name` | Program name. |
+| `build` | Compiler version, build time, and the build directory (always `.`, the manifest’s own directory). |
+| `pools` | One entry per language: the command line that starts the pool, relative to the build directory, and the pool’s socket name. |
+| `commands` | One entry per exported function (below). |
+| `groups` | Named groups of commands for the CLI. |
+| `inline_size`, `no_shm`, `tmpdir` | Data-route settings fixed at build time ([Runtime overview](https://morloc-project.github.io/docs/build-architecture/build-overview.md)). |
+| `run_log` | Prologue and epilogue templates for the run log ([Logs and result caching](https://morloc-project.github.io/docs/build-architecture/build-runs.md)). |
+
+Each command records its name, its documentation, its arguments and return value, and either how to run it or the expression itself:
+
+| Field | Meaning |
+| --- | --- |
+| `type` | `remote` (runs in a pool) or `pure` (the nexus evaluates `expr` itself). |
+| `mid`, `pool` | For `remote`: the function’s index inside its pool, and which pool holds it. |
+| `needed_pools` | Every pool the command can reach, so a CLI run starts only those. |
+| `args`, `return` | Each with its Morloc type and its schema string, which fixes the binary layout of the value ([Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)). |
+
+The manifest carries no schema version of its own. The nexus accepts a manifest only if it was written by the same Morloc version, and refuses any other with a message to rebuild. Builds are artifacts, regenerated on every `make`, so an exact match costs nothing and removes every cross-version compatibility question. Within a version, readers ignore keys they do not know. Every entity also carries an empty `constraints` list and `metadata` object, reserved so that later additions need no format change.
+
+**Installing** (`morloc make --install`, or `morloc install --build`) builds into the Morloc home rather than the working directory. The program’s key is its module name. The source directory is mirrored to `exe/<module>/`, skipping version-control data, paths listed in a `.morlocignore` file, and stale build directories (found by their marker). The build lands in `exe/<module>/<module>-build/`, and the CLI launcher is copied to `bin/`, which you put on your `PATH`. A reinstall requires `--force`, and replaces the whole mirrored tree.
 
 
 ---
@@ -13565,86 +13998,405 @@ Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build
 
 # 13.3. Process lifecycle
 
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-lifecycle.html | prev: https://morloc-project.github.io/docs/build-architecture/build-artifacts.md | next: https://morloc-project.github.io/docs/build-architecture/build-packets.md
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-lifecycle.html | prev: https://morloc-project.github.io/docs/build-architecture/build-artifacts.md | next: https://morloc-project.github.io/docs/build-architecture/build-workers.md
 
-**STUB**: Specifies the life of a program’s processes. Covers nexus startup, how pools are spawned and when each is considered ready, and the handshake between them. Covers orderly shutdown, signal handling, and what happens when the parent dies on any platform. Defines how temporary files and shared memory are cleaned up on every exit path, and the exit codes a program can return with their meanings.
+> A run creates processes, a private directory and shared memory, and must remove all of them however it ends: normally, by error, by signal, or by being killed outright. This section specifies how a run starts its pools, how it knows they are ready, how it stops them, and what it guarantees about cleanup and exit status.
 
+**Startup.** Before it starts any pool, the nexus:
 
----
+1.  Creates the **run directory**, a fresh directory under `/tmp` readable only by the user, and writes an owner record into it (the nexus’s pid, process start time, boot id and pid namespace). It always lives under `/tmp` so a later run can find it; the owner record tells a dead run from a live one.
+2.  Removes the run directories and shared memory of earlier runs whose owner is dead and whose pools have all ended.
+3.  Creates the run’s shared memory: the first volume and the stream registry ([Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md)).
+4.  Installs its signal handlers.
 
-<!-- https://morloc-project.github.io/docs/build-architecture/build-packets.html -->
+It then starts each pool the request needs ([Runtime overview](https://morloc-project.github.io/docs/build-architecture/build-overview.md)):
 
-# 13.4. Packet protocol
+1.  It starts a **pin**: a tiny process that leads a new process group, ignores termination signals, and exits only when the nexus closes a pipe to it. The pin holds the group’s id, so the id cannot be reissued to an unrelated process while the nexus may still signal the group.
+2.  It records the group in the run directory, then starts the pool inside that group. The pool’s command line is the manifest’s command for it followed by three arguments: its socket path, the run directory, and the shared-memory base name. The pool inherits the nexus’s standard input, output and error unchanged.
+3.  It pings each pool on its socket until one answers with a ping packet ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)). Retries back off exponentially. If the pool process exits first, startup fails at once and reports its exit status.
 
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-packets.html | prev: https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md | next: https://morloc-project.github.io/docs/build-architecture/build-shm.md
+**The lifeline.** The nexus holds the only write end of a pipe; every pool receives the read end. The kernel closes the write end when the nexus exits for any reason, including `SIGKILL`, so a pool always learns that its nexus is gone. It then ends its own process group (`SIGTERM`, 200 ms, `SIGKILL`) and starts a detached **sweeper** that removes the run’s shared memory and directory once every recorded group has ended. Without the lifeline, a killed nexus would leave pools and shared memory behind indefinitely.
 
-**STUB**: Specifies the packet protocol that the nexus and pools speak: the fixed header, every packet type, metadata blocks, and how a payload is carried either inline or by reference to shared memory. Defines error packets, the transport between processes, and the framing and ordering rules a conforming implementation must follow.
+**Shutdown.** At the end of a run, or on `SIGINT`, `SIGTERM` or `SIGHUP`, the nexus stops its pools: `SIGTERM` to every pool group, up to 200 ms for the pool processes to exit, then `SIGKILL` to every group. It then removes the names of the shared-memory objects and the run directory. It removes names but never unmaps memory at exit, because a background thread may still be reading it. When a pool process exits on its own, the nexus kills the rest of its group, so a pool’s worker processes never outlive it.
 
+**Cleanup on every path:**
 
----
+| How the run ends | Who removes shared memory and the run directory |
+| --- | --- |
+| Normal exit, error, `SIGINT`/`SIGTERM`/`SIGHUP` | The nexus, before it exits. |
+| Crash signal (`SIGSEGV`, `SIGBUS`, `SIGFPE`, `SIGABRT`) | The nexus’s crash handler removes the shared memory, then the signal takes its default action. |
+| Internal error (panic) | The nexus kills its pool groups and removes what it registered before exiting. |
+| `SIGKILL` or power loss of the nexus | Each pool’s sweeper, after its lifeline closes; failing that, the next run’s startup sweep. |
 
-<!-- https://morloc-project.github.io/docs/build-architecture/build-shm.html -->
+A long-running daemon additionally recovers from a pool crash by stopping every pool, waiting for running requests, discarding the shared memory and starting fresh; that is specified with the daemon in [Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md).
 
-# 13.5. Shared memory layout
+**Exit status** of a one-shot run:
 
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-shm.html | prev: https://morloc-project.github.io/docs/build-architecture/build-packets.md | next: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md
-
-**STUB**: Specifies the shared memory that pools use to exchange large values without copying. Defines volumes, the volume header, block headers, and the three pointer forms (pool-relative, volume-relative, absolute) with the rules for converting between them. Covers allocation, reference counting and release, how volumes are created and attached safely by concurrent processes, and how file locking protects them.
-
-
----
-
-<!-- https://morloc-project.github.io/docs/build-architecture/build-voidstar.html -->
-
-# 13.6. Voidstar format and schema strings
-
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-voidstar.html | prev: https://morloc-project.github.io/docs/build-architecture/build-shm.md | next: https://morloc-project.github.io/docs/build-architecture/build-tables.md
-
-**STUB**: Specifies voidstar, the language-neutral binary layout every serialized value takes: the layout of each primitive, string, array, tuple, record, optional and sum type, along with alignment and the rules for nested data. Defines the schema string grammar that describes a layout, and how a schema and a buffer together let any language read a value with no other type information.
-
-
----
-
-<!-- https://morloc-project.github.io/docs/build-architecture/build-tables.html -->
-
-# 13.7. Tables and tensors on the wire
-
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-tables.html | prev: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md | next: https://morloc-project.github.io/docs/build-architecture/build-workers.md
-
-**STUB**: Specifies how tables and tensors cross language boundaries. Tables travel as Arrow columnar data; this section defines how a schema constrains them, and when they are passed with no copy. Tensors travel as dimension and data pairs; this section defines how dimensions are represented and checked.
+| Status | Meaning |
+| --- | --- |
+| 0 | Success. |
+| 1 | The call failed: an error raised by user code, a pool that died, an argument that could not be read, or a runtime error. |
+| 2 | Usage error: an unknown command or option. |
+| 70 | Internal error: an invariant inside Morloc itself was broken (a panic). Only a panic exits with 70. |
+| 128 + *N* | Ended by signal *N* (130 for `SIGINT`, 143 for `SIGTERM`). |
+| 141 | Standard output was a closed pipe (128 + `SIGPIPE`), as when the output is piped to `head`. |
 
 
 ---
 
 <!-- https://morloc-project.github.io/docs/build-architecture/build-workers.html -->
 
-# 13.8. Worker model
+# 13.4. Worker model
 
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-workers.html | prev: https://morloc-project.github.io/docs/build-architecture/build-tables.md | next: https://morloc-project.github.io/docs/build-architecture/build-errors.md
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-workers.html | prev: https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md | next: https://morloc-project.github.io/docs/build-architecture/build-packets.md
 
-**STUB**: Specifies concurrency inside a running program: the threads in the nexus, the worker pool inside each language process, and how workers are created, scaled, and parked. Defines the locks and their scope, the guarantees about ordering of calls and replies, and how parallel calls from one pool into another are kept from deadlocking.
+> A pool serves many calls at once: concurrent requests to a daemon, parallel maps, and calls that come back into a pool while it is already waiting on another. This section specifies how the nexus and the pools divide that work among threads and processes, how pools grow and shrink, and the one rule that keeps calls between pools from deadlocking.
+
+**The nexus.** A one-shot nexus makes one call and waits for it. A daemon or MCP server runs an accept thread and a fixed set of request workers (four more than the number of pools, between 4 and 32); a request waits in a queue until a worker is free. In every mode, a `SIGCHLD` handler reaps child processes as they exit, so a pool’s death is noticed at once.
+
+**Pools.** Each pool has one process that owns its socket, and a set of **workers** that run user code. How a worker is made depends on the language:
+
+| Language | Workers |
+| --- | --- |
+| C++, Rust | Threads. An accept thread queues each connection; a worker thread takes it. |
+| Python, Linux default | Forked processes. A coordinator process, which loads no user code and runs no threads, forks the workers; each worker loads the user’s sources after the fork. |
+| Python, macOS default | Threads, since forking a running Python interpreter is unsafe there. Selected anywhere with `MORLOC_PY_POOL=thread` (or `fork`). |
+| R | Forked processes. Idle workers accept on the pool’s socket directly. |
+
+Forked workers are created only from a process with a single thread, because a forked child inherits only the thread that forked it, and any lock another thread held at that moment would stay locked forever. Loading user code after the fork keeps libraries that start their own threads out of the coordinator.
+
+**The no-deadlock rule.** A pool never leaves an incoming call waiting while every one of its workers is blocked on another pool. Cross-language calls can nest in any pattern: a Python function calls C++, which calls back into Python. If the only Python worker were waiting on C++, the callback would wait forever. So:
+
+-   A thread pool starts a new worker whenever a call arrives and no worker is free.
+-   A forked pool counts a worker as blocked while it waits on another pool (a foreign call, or a read or write on a channel), and forks a new worker when every worker is blocked. A call that arrives while some worker is merely computing waits for it.
+
+Calls that arrive one after another reuse a single worker; only real concurrency adds workers. There is no upper bound, because any bound would reintroduce the deadlock.
+
+**Shrinking.** Each pool starts with one worker. A worker beyond the first that stays idle for 5 seconds exits (`MORLOC_POOL_IDLE_TIMEOUT_MS` changes this for C++ and Rust). R workers never exit before the pool does.
+
+**Ordering.** Every call travels on its own connection with exactly one request and one reply, so a reply always reaches the caller that asked. Concurrent calls have no ordering guarantee relative to one another. A pool’s own sequential code (a `map` in one worker, say) runs in order.
+
+**Locks.** State shared between processes is guarded by locks that survive the death of their holder: if a process dies holding one, the next process to take it is told, and treats what it protects as damaged rather than waiting forever ([Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md)). Within a process, locks are always taken in one global order, so two threads can never each hold a lock the other wants.
 
 
 ---
 
-<!-- https://morloc-project.github.io/docs/build-architecture/build-errors.html -->
+<!-- https://morloc-project.github.io/docs/build-architecture/build-packets.html -->
 
-# 13.9. Error propagation
+# 13.5. Packet protocol
 
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-errors.html | prev: https://morloc-project.github.io/docs/build-architecture/build-workers.md | next: https://morloc-project.github.io/docs/build-architecture/build-streaming.md
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-packets.html | prev: https://morloc-project.github.io/docs/build-architecture/build-workers.md | next: https://morloc-project.github.io/docs/build-architecture/build-shm.md
 
-**STUB**: Specifies how a failure travels through a program. Covers a foreign exception in one pool, a runtime fault such as a failed allocation, and a crashed process. Each becomes an error packet, crosses process boundaries with its context intact, and reaches the caller, either as a `Try` value or as the CLI’s error output and exit code. Defines what information is preserved at each hop.
+> Every message between Morloc processes is a **packet**: a fixed 32-byte header, optional metadata, and a payload. The same format carries calls, results, errors and readiness pings over sockets, and it is also the on-disk format of streams and cached results. This section specifies the header, each packet type, metadata blocks, how a payload names its data, and the transport rules.
+
+**Layout.** A packet is a header, then `offset` bytes of metadata, then `length` bytes of payload. All integers are little-endian.
+
+| Offset | Size | Field | Meaning |
+| --- | --- | --- | --- |
+| 0 | 4 | magic | `0x0707f86d` (bytes `6d f8 07 07`). A packet without it is rejected. |
+| 4 | 2 | plain | Reserved, 0. |
+| 6 | 2 | version | Reserved, 0. |
+| 8 | 2 | flavor | Reserved, 0. |
+| 10 | 2 | mode | Reserved, 0. |
+| 12 | 8 | command | Packet type (first byte) and type-specific fields. |
+| 20 | 4 | offset | Bytes of metadata between the header and the payload. |
+| 24 | 8 | length | Bytes of payload. |
+
+**Packet types**, from the first command byte:
+
+| Type | Name | Purpose |
+| --- | --- | --- |
+| 0 | data | A value, or an error. |
+| 1 | call | A function call: which function, and its arguments. |
+| 2 | ping | Readiness check. The header alone; the reply is an identical ping. |
+| 3 | stream | Opens a stream file; the length field is all ones, since a stream has no fixed length ([Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md)). |
+| 4 | footer | Closes a stream file with its index ([Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md)). |
+
+A **call** carries the function’s index inside the receiving pool (the `mid` from the manifest) as a 32-bit integer at byte 16, and an entry-point byte at byte 13: 0 for an ordinary call, 1 for a call read from a file, as on a cluster node. Its payload is the arguments, each a complete data packet, concatenated in order. The receiver walks them by their own sizes.
+
+A **data** packet describes its payload in the command field:
+
+| Byte | Field | Values |
+| --- | --- | --- |
+| 13 | source | 0 inline: the payload is the value. 1 file: the payload is a path. 2 pointer: the payload is an 8-byte relative pointer into shared memory ([Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md)). |
+| 14 | format | 0 JSON, 1 MessagePack, 2 text, 3 packet (the file is itself a packet or stream), 4 voidstar ([Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)), 5 Arrow ([Tables and tensors on the wire](https://morloc-project.github.io/docs/build-architecture/build-tables.md)). |
+| 15 | compression | 0 none, 1 Zstandard. |
+| 16 | encryption | Reserved, 0. |
+| 17 | status | 0 pass, 1 fail, 2 output pipe closed. |
+
+Not every combination is meaningful. Values crossing between pools use inline or pointer voidstar; tables use pointer Arrow; values in temporary files (shared memory disabled) use file MessagePack.
+
+**Errors** are data packets with status 1, inline source and text format; the payload is the error message, including its cross-language traceback ([Error propagation](https://morloc-project.github.io/docs/build-architecture/build-errors.md)). Status 2 marks a write to a closed standard output, so the nexus can end the run with the conventional broken-pipe status instead of an error. A pool answers every call with exactly one packet: a request it cannot even read is answered with an error packet rather than silence.
+
+**Metadata** is a sequence of blocks. Each block is the three bytes `mmh`, a one-byte kind, a 32-bit body size, then the body. Readers stop at the first block that does not start with `mmh`, and the region is zero-padded to a multiple of 32 bytes.
+
+| Kind | Name | Body |
+| --- | --- | --- |
+| 1 | schema | The schema string of the payload’s type, NUL-terminated ([Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)). |
+| 3 | volume index | A 16-bit shared-memory volume index. |
+| 4 | frame index | Sizes of the payload’s compressed frames; required when compression is Zstandard. |
+| 5 | subpacket index | Offsets and element counts of a stream’s batches. |
+| 6, 7, 8 | stream diagnostics, final footer, footer status | Used only in stream files ([Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md)). |
+
+A packet between pools needs no schema block, because both sides know the type from the compiled program. Packets written to disk carry one, so that any tool can read them without the program that wrote them.
+
+**Transport.** Packets travel over Unix-domain stream sockets. Each call opens one connection, sends one call packet, reads one reply packet, and closes. There is no separate framing: the receiver reads the 32-byte header and then exactly `offset + length` more bytes. Before a pointer payload is sent, the sender takes a shared-memory reference on the receiver’s behalf, so the block cannot be freed in the gap before the receiver reads it; if the send fails, the sender drops that reference again.
+
+A caller waits for a reply as long as the callee lives, with no deadline: a call may legitimately run for days. A pool reading a request waits as long as the sending process exists, checking once a second.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-shm.html -->
+
+# 13.6. Shared memory layout
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-shm.html | prev: https://morloc-project.github.io/docs/build-architecture/build-packets.md | next: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md
+
+> Large values pass between pools through shared memory, so a value written by one process can be read by another where it lies, with only an 8-byte pointer crossing the socket. This section specifies the shared-memory volumes and blocks of a run, the pointer forms that address them, and the rules for allocating, sharing and releasing a block among processes that may die at any moment.
+
+**Volumes.** A run’s shared memory is a set of **volumes**, each a POSIX shared-memory object mapped by every process of the run. Volume *i* is named `<base>-<i>` with *i* as four hex digits, where the nexus chooses the base name (`/mlc-<pid>-<random>-<generation>`) and passes it to every pool. The generation changes when a daemon discards its shared memory and starts over, so the new namespace never collides with the old. Volume 0 is never created: index 0 is reserved for pointers into a self-contained buffer ([Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)). The first volume is index 1, with 64 KiB of data; a process that needs more creates another volume at an unused index, at least twice the size of the last, up to 32767 volumes. If the shared-memory filesystem is full or unavailable, a volume is created as a file in the run directory instead, and a zero-length stub under the shared-memory name tells other processes where it is.
+
+Each volume starts with a header:
+
+| Offset | Size | Field | Meaning |
+| --- | --- | --- | --- |
+| 0 | 4 | magic | `0xFECA0DF0`, written last by the creator; a volume without it is not ready. |
+| 4 | 128 | name | The volume’s name, NUL-padded. |
+| 132 | 4 | index | The volume’s index, checked when a process opens it. |
+| 136 | 8 | size | Bytes of data after the header. |
+| 144 | 8 | reserved | 0. |
+| 152 | \- | lock | A process-shared lock guarding the block list (size set by the platform). |
+| \- | 8 | cursor | Offset of the block where the next search starts, or -1. |
+
+The header is padded to a multiple of 16 bytes, and the data region follows it. Volumes never leave the machine, so the platform’s own lock layout is acceptable.
+
+**Blocks.** The data region is a sequence of blocks, each a 16-byte header followed by its data:
+
+| Offset | Size | Field | Meaning |
+| --- | --- | --- | --- |
+| 0 | 4 | magic | `0x0CB10DF0` for a block; `0x0CB1DEAD` for a header merged into a neighbor. |
+| 4 | 4 | references | 0 when free; all ones while the last reference is being dropped. |
+| 8 | 8 | size | Bytes of data. |
+
+Block data is 16-byte aligned and its size a multiple of 16, because some Arrow column types hold 128-bit words that another language’s Arrow library will read in place and expects aligned. To allocate, a process takes the volume’s lock, searches first-fit from the cursor (merging adjacent free blocks as it passes them), splits off any usable remainder as a new free block, and sets the block’s count from 0 to 1. It tries the volume it used last, then the others, then creates a new volume.
+
+**Pointers.** Three forms address shared memory:
+
+| Form | Meaning |
+| --- | --- |
+| Relative | Volume index in bits 62-48 and offset into that volume’s data in bits 47-0; -1 is null ([Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)). The same in every process; this is the only form that crosses a process boundary. |
+| Volume | An offset into one volume’s data region. Used inside a volume, for its cursor. |
+| Absolute | An address in this process. Never stored in shared memory, since each process maps the volumes at different addresses. |
+
+Converting a relative pointer to an absolute one maps the named volume on first use, so a process can follow a pointer into a volume another process created after it started.
+
+**References.** A block’s count is the number of holders that may still read it. The allocator holds the first reference. A process sending a pointer to another takes a reference for the receiver before sending ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)), and the receiver owns it on arrival. Taking a reference on a block that is free or being released fails rather than reviving it. The last release overwrites the block’s data with zeros before marking it free, so a stale reader sees zeros instead of another value. A count names no holder, so the references of a process that died cannot be found and released one by one; they are recovered only by discarding the whole namespace, which the end of a run, or a daemon’s recovery, does.
+
+**Concurrency.** Each volume’s lock is **robust**: if a process dies holding it, the next process to take it is told so. The volume’s block list may then be half edited, so the volume is marked damaged and never allocated from again; allocation moves on to another volume. A volume is created with exclusive creation, so when two processes race to create the same index one wins and the other opens the winner’s volume once its magic appears.
+
+**Removal.** The process that created the first volume (the nexus) removes the names of all volumes when the run ends ([Process lifecycle](https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md)). It never unmaps them while threads may still read; the kernel frees the memory once the last process unmaps it.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-voidstar.html -->
+
+# 13.7. Voidstar format and schema strings
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-voidstar.html | prev: https://morloc-project.github.io/docs/build-architecture/build-shm.md | next: https://morloc-project.github.io/docs/build-architecture/build-tables.md
+
+> **Voidstar** is the binary layout every value takes when it leaves a language: C-like fixed-width slots, with variable-length parts reached through relative pointers. A **schema string** is a compact description of a type’s layout. A buffer plus its schema is enough for any language to read the value, with no other type information. Every binding reads and writes this one layout, so a value crosses between any two languages with no intermediate format.
+
+## 13.7.1. Schema strings
+
+A schema is a string of type codes in prefix order. Codes that take children are followed by them; codes that take a count are followed by it.
+
+| Code | Type | Followed by |
+| --- | --- | --- |
+| `z` | Unit | nothing |
+| `b` | Bool | nothing |
+| `i1` `i2` `i4` `i8` | Signed integer of 1, 2, 4, 8 bytes | \- |
+| `u1` `u2` `u4` `u8` | Unsigned integer | \- |
+| `f4` `f8` | Float (`Real` is `f8`) | \- |
+| `j` | `Int`, arbitrary precision | nothing |
+| `s` | String (UTF-8) | nothing |
+| `a` | Array | the element schema; `a:N` declares the length as decimal *N* |
+| `t` | Tuple | count, then each element schema |
+| `m` | Record | count, then for each field its name and schema |
+| `?` | Optional | the inner schema |
+| `e` | Enum (no constructor has fields) | count, then constructor names |
+| `v` | Variant (sum type) | count, then for each arm its name, field count and field schemas |
+| `T` | Table ([Tables and tensors on the wire](https://morloc-project.github.io/docs/build-architecture/build-tables.md)) | optionally `:` count, then column names and schemas |
+| `F` `O` `I` | Input file, output stream, input stream ([Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md)) | nothing |
+| `&` | Names the schema that follows, for recursion | name, then the schema |
+| `^` | Refers back to an enclosing `&` | name |
+
+Counts and name lengths are base-64 numbers. A value below 64 is one digit from `0-9`, `a-z`, `A-Z`, `+`, `/` (0 to 63). A larger value is written as `=`, its low digit, and the rest of the number, recursively: 100 is `=A1`. Names are written as their length followed by their bytes. Enums and variants have at most 256 constructors, and nesting is limited to 128 levels.
+
+A schema may also carry **hints** in angle brackets (`<dict>`) naming the concrete type a language should build. Hints do not change the layout and are dropped from the canonical form stored in packets.
+
+Examples, from real programs:
+
+| Schema | Type |
+| --- | --- |
+| `j` | `Int` |
+| `v23Err1s2Ok1z` | `Try Str ()`: arm `Err` with one `s` field, arm `Ok` with one `z` field |
+| `m24names2idi4` | `{name :: Str, id :: I32}` |
+| `&4Treev24Leaf04Node24Tree4Tree` | `data Tree = Leaf \| Node Tree Tree` |
+| `t3sjaau1` | A function value: home language, function index, captured values as packets |
+
+## 13.7.2. Layout
+
+Every value has a fixed-width **slot**. Integers are little-endian.
+
+| Code | Width | Align | Slot contents |
+| --- | --- | --- | --- |
+| `z` | 0 | 1 | Nothing. |
+| `b`, `i1`, `u1` | 1 | 1 | The value. |
+| `i2` …​ `f8` | 2, 4, 8 | natural | The value. |
+| `e` | 1 | 1 | Constructor ordinal, in declaration order. |
+| `s`, `a` | 16 | 8 | 8-byte count (bytes for a string, with no NUL; elements for an array), then a relative pointer to the data. An empty one holds the null pointer. |
+| `j` | 16 | 8 | 8-byte limb count, then a word. With one limb the word is the value itself. With more, it points to that many 64-bit limbs, least significant first, in two’s complement. |
+| `t`, `m` | computed | `t`: largest field; `m`: 8 | C struct rules: each field at the next offset aligned for it, total rounded up to the largest field alignment. Field names exist only in the schema. |
+| `?` | 8 | 8 | A relative pointer to the value, or null when absent. |
+| `v` | 16 | 8 | Byte 0 is the arm’s ordinal, bytes 1-7 zero, bytes 8-15 a pointer to the arm’s fields laid out as a tuple. An arm with no fields stores null. |
+
+Array elements are packed at the element’s width. The data of an array of numbers starts on a 64-byte boundary, so a binding can hand it to vector instructions or a numeric library without copying. A record `{name :: Str, age :: I32}` puts `name` at offset 0 and `age` at 16, with width 24.
+
+Variant and optional slots hold a pointer rather than the value itself so that every slot’s width is fixed. This is what lets a recursive type exist: a `Tree` slot is 16 bytes however deep the tree goes. For the same reason, a type may refer to itself only through an array, optional or variant.
+
+**Relative pointers.** A pointer is a signed 64-bit integer. Bits 62-48 name a shared-memory volume and bits 47-0 an offset into it ([Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md)); -1 is null. Because a pointer names a volume rather than an address, it means the same thing in every process that maps the volumes. When a value is copied out of shared memory into one self-contained buffer (to send inline or write to disk), its pointers use volume 0 and are offsets from the start of the buffer; loading the buffer back into shared memory rebases them.
+
+**Reading a value** takes only the schema and the buffer: the schema gives each slot’s width and each field’s offset, a pointer is followed to reach variable-length data, and a variant’s tag selects which arm’s schema governs its payload.
+
+**Other encodings.** A value can also be written as JSON or MessagePack, for the command line, files and caches. MessagePack writes tuples and records as arrays, enums as ordinals, and variants as `[tag, payload]`; JSON writes records as objects and constructors by name. Tables have neither form and travel only as Arrow.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-tables.html -->
+
+# 13.8. Tables and tensors on the wire
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-tables.html | prev: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md | next: https://morloc-project.github.io/docs/build-architecture/build-streaming.md
+
+> Tables are columnar, and every language with a serious table library already agrees on one columnar memory format: Apache Arrow. So a table does not travel as voidstar. It travels as Arrow data laid out in one shared-memory block, which each language imports without copying. This section specifies that block, how a table’s declared columns constrain it, and how tensors, which are ordinary voidstar values, carry their dimensions.
+
+**The table block.** A table is always the whole value of a data packet, sent by pointer with format Arrow ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)), even when shared memory is otherwise disabled. Tables cannot be nested inside other values. The block holds a header, then node descriptors, buffer descriptors, a string table, and the data buffers, each buffer aligned to 64 bytes from the start of the block, with zeroed padding.
+
+| Offset | Size | Field | Meaning |
+| --- | --- | --- | --- |
+| 0 | 4 | magic | `0xA770DA7A`. |
+| 4 | 4 | version | 2\. Any other version is rejected. |
+| 8 | 4 | columns | Number of columns; equals the root node’s child count. |
+| 12 | 4 | nodes | Number of node descriptors. |
+| 16 | 8 | rows | Number of rows; equals the root node’s length. |
+| 24 | 8 | total size | Bytes in the block; every offset is checked against it. |
+| 32 | 8 | metadata offset | Reserved, 0. |
+| 40 | 4 | metadata length | Reserved, 0. |
+| 44 | 4 | buffers | Number of buffer descriptors. |
+| 48 | 4 | nodes offset | Where the node descriptors start. |
+| 52 | 4 | buffers offset | Where the buffer descriptors start. |
+| 56 | 4 | strings offset | Where the string table starts. |
+| 60 | 4 | strings length | Bytes in the string table. |
+
+A **node** is one Arrow array: the root is a struct whose children are the columns, and a nested column has nodes of its own. Each 64-byte node descriptor carries what the Arrow C Data Interface needs to rebuild the array: length, null count, flags, the format string and column name (as offsets into the string table), and the index and count of its buffers and children. Each 32-byte buffer descriptor gives a buffer’s offset and size within the block. Slices are compacted and dictionaries decoded before a table is written, so every node starts at offset 0 and has no dictionary.
+
+**Zero-copy import.** A receiver validates the block (every offset in bounds, every buffer long enough for its node), then builds Arrow C Data Interface structures whose buffers point into the block, holding a reference on it for as long as the table lives. Python receives a `pyarrow` record batch, R an `arrow` record batch, C++ a nanoarrow-based handle, and Rust an `arrow-rs` record batch, each without copying the data. Converting further, to a pandas or R data frame, is the language library’s own copy. Sending a table writes a new block, except that a pool returning a table it received, unchanged, passes the same block on.
+
+**Declared columns.** A table’s type lists columns (`T:` in its schema; [Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)), and that list is a lower bound: a table may have more columns, which travel after the declared ones. A declared column may be a boolean, integer, float or string, or an optional of one of these; any Arrow type may appear among the extra columns. On send, a declared column of another type is cast if the cast loses nothing, and refused otherwise. On receive, every declared column must be present with an acceptable type, and a column not declared optional must have no nulls. The number of rows is not part of the type and is not checked.
+
+**Tables from files.** A table argument given as a file is read in the pool, not the nexus. Arrow IPC and Parquet are recognized by their magic bytes; otherwise the extension (`.csv`, `.tsv`, `.json`) or the content decides. CSV columns bind to declared columns by header name. As output, the nexus writes a table as JSON rows, JSON lines, CSV, TSV, Arrow IPC or Parquet.
+
+**Tensors** are not a runtime type. A tensor is a pair of its dimensions and its elements in one flat, row-major array, and travels as that ordinary voidstar tuple: `Matrix 2 2 Real` has schema `t2t2jja:4f8`. Because the array of numbers is 64-byte aligned in shared memory, Python receives a read-only numpy view over it with no copy. When the dimensions are known at compile time, the array’s length is checked against their product.
 
 
 ---
 
 <!-- https://morloc-project.github.io/docs/build-architecture/build-streaming.html -->
 
-# 13.10. Streaming and memory mapping
+# 13.9. Streaming and memory mapping
 
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-streaming.html | prev: https://morloc-project.github.io/docs/build-architecture/build-errors.md | next: https://morloc-project.github.io/docs/build-architecture/build-collect.md
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-streaming.html | prev: https://morloc-project.github.io/docs/build-architecture/build-tables.md | next: https://morloc-project.github.io/docs/build-architecture/build-errors.md
 
-**STUB**: Specifies streams: values too large or too long-lived to hold in memory at once. Defines the stream file format, how it is divided into chunks, and how the chunks are compressed, including write-behind compression. Covers how readers map a stream into memory and access it at random, which element types and variants a stream may hold, and the guarantees for a stream that is still being written.
+> A **stream** is a list too large or too long-lived to hold in memory at once, kept in a file and read or written in batches. Any pool can read a stream another pool is writing, and a finished stream file can be read at random without loading it. This section specifies the stream file format, its compression, how processes share an open stream, and what a reader may rely on while the stream is still being written.
+
+**Stream types.** Three Morloc types name a stream, each a 16-byte slot in voidstar (schema codes `F`, `I`, `O`):
+
+| Type | Use |
+| --- | --- |
+| `IFile [a]` | A finished file, read at random by element index. |
+| `IStream a` | A stream read forward in batches. Several readers share one cursor, so together they consume each batch once. |
+| `OStream a` | A stream written in batches. |
+
+The slot’s first byte says what follows in its last eight: 0 for a relative pointer to a path (length, then bytes), 1 for the index of an open stream in the run’s stream registry (below). A path can cross between runs; an index means something only inside the run that opened it.
+
+**File format.** A stream file is a sequence of packets ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)):
+
+| Part | Contents |
+| --- | --- |
+| Head | A stream packet (type 3) whose metadata holds the schema of the list, `a` followed by the element schema. Its length field is all ones. |
+| Batches | Data packets, one per batch. Each payload is a self-contained voidstar array of that batch’s elements, its pointers relative to the start of the payload. |
+| Footer | A footer packet (type 4) whose metadata holds a batch index (offset and element count of every batch), a final marker, and a status. |
+| Tail | 8 bytes: the footer’s length as a 32-bit integer, then the magic bytes reversed (`07 07 f8 6d`). |
+
+A reader finds the footer from the end of the file through the tail, so random access needs no scan. The status is `closed` for a stream written to the end, or `paused` for one a writer stopped and may resume. While a stream is open for writing, a temporary footer carrying only diagnostics is rewritten after every batch, so the file always ends in a valid tail.
+
+**Compression.** Each batch is compressed separately with Zstandard, so a reader can decompress any batch without the others. A batch is split into independent frames of at most 16 MiB, listed in the batch’s metadata, so they can be decompressed in parallel straight into shared memory. The user’s compression level 0-9 maps to Zstandard levels 0, 1, 3, 6, 9, 12, 15, 19, 21 and 22, with long-distance matching from level 7.
+
+**Write-behind.** A writer fills a buffer in shared memory (16 MiB by default). When compression is on and the buffer is full, it is sealed and handed to background threads for compression, and the writer continues into a fresh buffer. Compressed batches are appended to the file in the order they were sealed, so compression never reorders elements. The writer waits only when more than a fixed number of sealed batches are outstanding (8 by default), and every flush, close and end of call writes everything sealed so far.
+
+**Sharing an open stream.** A stream’s identity lives in a **registry** in shared memory, created with the run’s first volume. Each slot records the file’s path, schema, write cursor, element count and batch index, and a generation number that changes when the slot is opened and when it is released. A stream index carries the generation it was made with, and every operation checks it, so an index to a closed stream can never touch the stream that later reuses its slot. Each process keeps its own descriptor and read-only mapping of the file. A writer holds an exclusive file lock while the stream is open.
+
+**Readers.** An `IFile` maps the file and locates an element through the batch index. A batch stored uncompressed and 8-byte aligned is read where it lies in the mapping; any other batch is decompressed or copied into shared memory first. An `IStream` reads forward from the shared cursor. A reader that opens a stream still being written sees the batches written before it opened, up to the temporary footer; reading past the end yields an empty batch.
+
+**Rewriting a file.** Opening an `OStream` on a file that already has data writes a new file and renames it into place, so a reader that still has the old file mapped keeps a consistent view. Where a rename is impossible (the directory is not writable, say) and nothing in the program is reading the file, it is truncated in place instead. The runtime never deletes a stream file; only a half-written temporary file is removed on failure.
+
+
+---
+
+<!-- https://morloc-project.github.io/docs/build-architecture/build-errors.html -->
+
+# 13.10. Error propagation
+
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-errors.html | prev: https://morloc-project.github.io/docs/build-architecture/build-streaming.md | next: https://morloc-project.github.io/docs/build-architecture/build-collect.md
+
+> A failure can start in any language, several calls deep, in a different process from the code that should handle it. This section specifies the two kinds of failure the runtime distinguishes, how a recoverable failure travels back through pools as an error packet gathering a traceback, how `@try` turns it into a value, and how a failure of the runtime itself ends a run.
+
+**Two kinds of failure.**
+
+| Kind | Examples | Caught by `@try` |
+| --- | --- | --- |
+| Recoverable | An exception raised by user code in any language; `@throw` in Morloc; a Rust panic in user code. | Yes |
+| Infrastructure | A pool that crashed or was killed; a broken connection; an internal error (panic) in the runtime. | No |
+
+A recoverable failure means the computation went wrong; the program can decide what to do. An infrastructure failure means the system that runs the program went wrong, so no Morloc code can be trusted to handle it.
+
+**Recoverable failures.** Each generated function catches a failure that escapes it, appends one traceback line, and raises it again:
+
+```
+  at <function> [<language>] (mid=<index>, <file>:<line>:<column>)
+```
+
+Anonymous functions are named `_`. At the edge of a pool, the failure becomes an error packet (status 1, text payload; [Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)) carrying the message and the lines so far. The calling pool’s stub reads the error packet and raises it as a native failure in its own language, whose functions then add their lines. So the traceback grows across every pool the failure crosses, innermost call first:
+
+```
+nope
+  at _ [py] (mid=2366, t.loc:12:23)
+  at _ [cpp] (mid=2364, t.loc:12:17)
+  at chain [cpp] (mid=4, t.loc:1:34)
+```
+
+A program built with `morloc make --debug` also records each active frame’s arguments when a failure passes through it, and adds them to the message.
+
+**`@try`.** `@try e` evaluates `e`. If it completes, the result is `Ok v`; if a recoverable failure escapes it, the result is `Err msg`, where `msg` is the message with the traceback gathered so far. A failure is caught the same way whichever language raised it.
+
+**At the nexus.** A failure that reaches the nexus ends a one-shot run with `Error: run failed`, the message and its traceback on standard error, and exit status 1. A command whose result is a variant whose arm is named `Err` is treated the same way: the value is printed on standard error and the run exits 1, so a failing command fails in a shell pipeline even though it returned a value. A daemon answers the request as failed and keeps serving.
+
+**Infrastructure failures.** A pool that loses a pool it called, or whose runtime breaks one of its own invariants, does not answer with an error packet: it ends its own worker. Its caller then sees a closed connection, which is itself an infrastructure failure, so the failure travels to the nexus whatever code lies between, and no `@try` along the way can catch it. The nexus reports which pool died and how, ends the run with status 1 (70 if the nexus itself panicked; [Process lifecycle](https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md)), and removes the run’s processes and shared memory. A daemon fails the request and restarts its pools. A process that dies prints its own diagnostics to the standard error it shares with the nexus, so they reach the user directly.
+
+**Closed output.** Writing to a standard output that the reader has closed (as with `| head`) is neither: the pool answers with status 2, and the nexus ends the run with status 141, as a native program would.
 
 
 ---
@@ -13653,20 +14405,90 @@ Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build
 
 # 13.11. Collect, fold, parse and render
 
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-collect.html | prev: https://morloc-project.github.io/docs/build-architecture/build-streaming.md | next: https://morloc-project.github.io/docs/build-architecture/build-runs.md
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-collect.html | prev: https://morloc-project.github.io/docs/build-architecture/build-errors.md | next: https://morloc-project.github.io/docs/build-architecture/build-runs.md
 
-**STUB**: Specifies the CLI’s data-flow directives: `@collect` and `@fold`, which gather a stream into a value, and `@parse` and `@render`, which convert between external formats and typed values. Defines buffering and when data is materialized versus streamed. Covers how parsers and formatters are chosen, how several renders write to separate named outputs, and the full path data takes from input file to output.
+> A command’s docstring can attach data-flow directives to it: `@parse` reads an argument from a file in a foreign format, `@collect` streams a command’s output instead of returning it whole, and output actions (`@render`, `@with`, with `@fold`) turn that output into other results, each written to its own destination. The chapters on [Arguments](https://morloc-project.github.io/docs/clis/arguments.md), [Streaming output with `@collect`](https://morloc-project.github.io/docs/clis/streaming-output.md) and [Output actions](https://morloc-project.github.io/docs/clis/output-actions.md) show how to use them; this section specifies where each step runs, what is held in memory, and how several outputs are produced from one run.
+
+**Everything is compiled into ordinary commands.** The compiler lowers each directive into Morloc code and, where needed, into extra commands in the manifest that the user never names: a **parse entry** per command with parsed arguments, an **action entry** per output action, and a **replay entry** per action for multi-output runs. The nexus only chooses which entries to run and where their output goes; all user-level work (parsing, folding, formatting) runs in pools.
+
+**`@parse`.** An argument declares named formats, each with file extensions. The nexus picks a format by looking only at the argument’s text, never the file’s contents:
+
+1.  A `name:` prefix selects that format (`morloc:` reads an ordinary Morloc value).
+2.  Otherwise the longest matching extension wins, ignoring case.
+3.  Otherwise the argument is read as an ordinary value. `-` is standard input, which at most one argument may claim.
+
+The parse entry then calls the format’s handler in a pool with the path. A plain argument’s handler returns the value, and every such argument is parsed before the command body starts. An `IStream` argument’s handler feeds batches to the command as it runs. An `IFile` argument is first written to a stream file in a temporary **stage** directory and opened from there. A handler’s failure names the argument, format and path, and ends the run with status 1.
+
+**`@collect`.** `@collect producer` gives the producer a sink and streams whatever it passes to the sink to the command’s output, batch by batch. The batches travel through shared memory to the nexus, which writes each in the requested format as it arrives. Nothing is gathered: memory use does not grow with the output.
+
+**Output actions** consume what the command collects. Each runs as its own entry, a copy of the command whose sink is replaced:
+
+| Kind | Sink, and what the handler receives |
+| --- | --- |
+| gather | Writes every batch to a temporary stream file. The handler receives the whole list, or an `IFile` handle to read it at random without loading it. |
+| `@stream` | Calls the handler on each batch inside the sink. Memory stays constant. |
+| `@fold` | Folds each batch into an accumulator with `@fold`, starting from `@init`. Each thread keeps its own accumulator; at the end they are merged with `@combine` in the order the threads first folded, and the handler receives the result. |
+
+A `@render` handler returns bytes (`Str`, `[Str]`, `Vector U8` or a list of `Vector U8`), which are written verbatim, ignoring `-f`. A `@with` handler returns a typed value, which is written in the `-f` format.
+
+**One output.** When only standard output is wanted, the nexus runs the action’s entry directly (or the command itself) and writes its result.
+
+**Several outputs.** When an action writes to a file, or a command has more than one action, the run is **staged**:
+
+![Diagram](https://morloc-project.github.io/docs/static/img/diag-99fe3d09edc27db5c3fd0d2a44a3594ce1b9ab118e4f6ff39e9739c550e4c01a.svg)
+
+1.  A stage process runs the command once and saves its value, its collected stream and its arguments as packet files. If standard output wants the command’s own output, the stage also writes it there as it runs.
+2.  Each action is replayed in its own process on the saved output, writing to a temporary file beside its target.
+3.  Only when every process has succeeded are the temporary files renamed into place. A failure removes them and ends the run with the failing process’s status, so a named output is either complete or untouched.
+
+The command body runs once however many outputs are requested, so a slow or effectful command is never repeated per output. Output formats are checked against every destination before anything runs, and conflicting destinations (two claims on standard output, two outputs to one file) are a usage error with status 2.
 
 
 ---
 
 <!-- https://morloc-project.github.io/docs/build-architecture/build-runs.html -->
 
-# 13.12. Run directory, caching and logging
+# 13.12. Logs and result caching
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-runs.html | prev: https://morloc-project.github.io/docs/build-architecture/build-collect.md | next: https://morloc-project.github.io/docs/compiler-architecture/index.md
 
-**STUB**: Specifies the state a run keeps outside the process. Defines the run directory layout and its activation rules, how cache keys are computed and when a cached result is reused or invalidated, and the format and levels of the run log. States the concurrency guarantees when several runs share a cache or a run directory.
+> A run can leave two kinds of state behind it, both opt-in: a **log directory** recording what the run did, and a **result cache** that lets a later run skip a call it has already made. Both outlive the run, unlike the private run directory of [Process lifecycle](https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md), which is always removed. This section specifies how each is activated, its layout and formats, and what holds when several runs share them.
+
+## 13.12.1. Log directory
+
+`--log-dir DIR` (or `MORLOC_LOG_DIR`) gives each run its own directory, `DIR/<run id>/`, where the run id is the start time in UTC plus eight random hex digits (`20261009T143000Z-1a2b3c4d`). A Morloc program started by another program’s pool inherits the outer run’s directory, so a nested pipeline logs into one place. The directory is created on first write and never removed.
+
+| File | Contents |
+| --- | --- |
+| `log` | Run-scope lines: the prologue, the epilogue, and the benchmark summary. |
+| `<label>/log` | Start, pass and fail lines for calls in a labeled group. |
+| `summary.json` | Written once, at exit, by atomic rename (below). |
+| `debug/inputs/<hash>.pkt` | Programs built with `--debug` only: the arguments of each frame a failure passed through, as self-contained voidstar packets. |
+
+`summary.json` holds `status` (`ok` or `fail`), `exit_code`, `command`, `run_id`, `started_at` and `finished_at` (RFC 3339), `wall_ms`, `morloc_version` and `error` (null on success). Because it appears only by rename, a script may wait for the file to exist and then read it whole. `--summary FILE` writes the same object to a chosen path instead.
+
+**Log lines** come from templates in the program’s configuration, with placeholders such as `{name}`, `{run_id}`, `{runtime}`, `{exit_code}` and `{error}`. Placeholders known at build time are filled in by the compiler; the rest by the nexus as the line is written. Every line goes to standard error (colored only on a terminal) and to the matching log file. There are no levels; `--quiet` suppresses all of them. At exit the nexus writes the benchmark summary (count, mean, min, max, total and standard deviation per labeled function, from one timing record per successful call), then the epilogue, then `summary.json`.
+
+## 13.12.2. Result cache
+
+A labeled group configured with `cache: true` has its calls cached. The compiler wraps each such call: compute a key, return the stored result on a hit, otherwise run the call and store its result. Only successful results are stored.
+
+**The key** is a 64-bit xxHash of:
+
+-   the **pool fingerprint**: a hash of the generated source of the calling pool, the build parameters, and any files the program lists under `hash-include`. A sourced foreign file is covered only through the generated code that names it; list it under `hash-include` to make its contents part of the key;
+-   the function’s index in that pool;
+-   each argument, hashed by walking its voidstar value under its schema and following its pointers, so the key does not depend on where the value’s parts lie in shared memory.
+
+**Entries** live under `MORLOC_CACHE_BASE`, else `$XDG_CACHE_HOME/morloc/cache`, else `~/.cache/morloc/cache`, else `cache` in the per-user runtime directory. An entry is two files, both packets ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)):
+
+| File | Contents |
+| --- | --- |
+| `<label>/<key>.dat` | A data packet whose payload is the path of the result file. |
+| `data/<value hash>.dat` | The result as a voidstar packet with its schema, optionally Zstandard-compressed. |
+
+Results are stored by the hash of their value, so many calls that return the same value share one result file. An entry that is truncated or whose result file is missing is deleted and treated as a miss. Nothing is evicted, and an entry is invalidated only by a change of key.
+
+**Sharing.** The cache takes no locks. Every file is written to a unique temporary name beside its target, synced, and renamed into place, and the result file is written before the key file that names it. So a reader sees a complete entry or none, and two runs storing the same entry at once both succeed with the same content.
 
 
 ---

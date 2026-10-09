@@ -673,11 +673,42 @@
 <li><a href="#ecosystem-architecture">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="#eco-overview">12.1. Overview</a></li>
-<li><a href="#eco-bootstrap">12.2. Runtime bootstrap</a></li>
-<li><a href="#eco-modules">12.3. Module resolution</a></li>
-<li><a href="#eco-solving">12.4. Environment solving</a></li>
-<li><a href="#eco-freezing">12.5. Freezing and execution environments</a></li>
-<li><a href="#eco-serving">12.6. Serving</a></li>
+<li><a href="#eco-environments">12.2. Environments</a></li>
+<li><a href="#eco-bootstrap">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="#_releases">12.3.1. Releases</a></li>
+<li><a href="#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="#eco-modules">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="#_identity">12.4.2. Identity</a></li>
+<li><a href="#_installing_2">12.4.3. Installing</a></li>
+<li><a href="#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="#eco-solving">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="#_solving">12.5.3. Solving</a></li>
+<li><a href="#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="#eco-serving">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="#_eval">12.6.5. Eval</a></li>
+<li><a href="#_security_model">12.6.6. Security model</a></li>
+<li><a href="#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="#eco-freezing">12.7. Freezing</a></li>
 </ul>
 </li>
 <li><a href="#build-architecture">13. Build Architecture</a>
@@ -685,15 +716,25 @@
 <li><a href="#build-overview">13.1. Runtime overview</a></li>
 <li><a href="#build-artifacts">13.2. Compilation artifacts</a></li>
 <li><a href="#build-lifecycle">13.3. Process lifecycle</a></li>
-<li><a href="#build-packets">13.4. Packet protocol</a></li>
-<li><a href="#build-shm">13.5. Shared memory layout</a></li>
-<li><a href="#build-voidstar">13.6. Voidstar format and schema strings</a></li>
-<li><a href="#build-tables">13.7. Tables and tensors on the wire</a></li>
-<li><a href="#build-workers">13.8. Worker model</a></li>
-<li><a href="#build-errors">13.9. Error propagation</a></li>
-<li><a href="#build-streaming">13.10. Streaming and memory mapping</a></li>
+<li><a href="#build-workers">13.4. Worker model</a></li>
+<li><a href="#build-packets">13.5. Packet protocol</a></li>
+<li><a href="#build-shm">13.6. Shared memory layout</a></li>
+<li><a href="#build-voidstar">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="#build-tables">13.8. Tables and tensors on the wire</a></li>
+<li><a href="#build-streaming">13.9. Streaming and memory mapping</a></li>
+<li><a href="#build-errors">13.10. Error propagation</a></li>
 <li><a href="#build-collect">13.11. Collect, fold, parse and render</a></li>
-<li><a href="#build-runs">13.12. Run directory, caching and logging</a></li>
+<li><a href="#build-runs">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#compiler-architecture">14. Compiler Architecture</a>
@@ -7701,8 +7742,14 @@ in which case your file declares it and must match the layout below.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>#[repr(u8)]</code> enum with explicit discriminants, deriving <code>Clone</code>, <code>Copy</code>,
   <code>PartialEq</code>, <code>Eq</code>, <code>PartialOrd</code>, <code>Ord</code> and <code>Debug</code>, so it compares in
   declaration order.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">An enum whose arms each hold one <code>Box</code> of a tuple of their fields. Not <code>Copy</code>,
-  since a box is not.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generated: an enum whose arms each hold one <code>::rustmorloc::RecBox</code> of a tuple
+  of their fields. A <code>RecBox</code> is reference-counted: cloning it shares the fields
+  instead of copying them, and dropping a long chain does not recurse. Build an
+  arm with <code>RecBox::new..,</code> and read its fields through <code>Deref</code>;
+  <code>into_inner</code> moves the tuple out when the box has a single owner. A type you
+  map yourself with <code>data Rust &#8658;</code> declares its arms with <code>Box</code> instead
+  (<code>Link(Box&lt;(i64, Chain)&gt;)</code>); a mapped type with <code>RecBox</code> arms does not
+  compile. Not <code>Copy</code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -7732,8 +7779,8 @@ in which case your file declares it and must match the layout below.</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="rust"><span></span><span class="tok-cp">#[derive(Clone)]</span>
 <span class="tok-k">pub</span><span class="tok-w"> </span><span class="tok-k">enum</span><span class="tok-w"> </span><span class="tok-nc">Shape</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-n">Circle</span><span class="tok-p">(::</span><span class="tok-n">std</span><span class="tok-p">::</span><span class="tok-n">boxed</span><span class="tok-p">::</span><span class="tok-nb">Box</span><span class="tok-o">&lt;</span><span class="tok-p">(</span><span class="tok-kt">f64</span><span class="tok-p">,)</span><span class="tok-o">&gt;</span><span class="tok-p">),</span>
-<span class="tok-w">    </span><span class="tok-n">Rect</span><span class="tok-p">(::</span><span class="tok-n">std</span><span class="tok-p">::</span><span class="tok-n">boxed</span><span class="tok-p">::</span><span class="tok-nb">Box</span><span class="tok-o">&lt;</span><span class="tok-p">(</span><span class="tok-kt">f64</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">f64</span><span class="tok-p">)</span><span class="tok-o">&gt;</span><span class="tok-p">),</span>
+<span class="tok-w">    </span><span class="tok-n">Circle</span><span class="tok-p">(::</span><span class="tok-n">rustmorloc</span><span class="tok-p">::</span><span class="tok-n">RecBox</span><span class="tok-o">&lt;</span><span class="tok-p">(</span><span class="tok-kt">f64</span><span class="tok-p">,)</span><span class="tok-o">&gt;</span><span class="tok-p">),</span>
+<span class="tok-w">    </span><span class="tok-n">Rect</span><span class="tok-p">(::</span><span class="tok-n">rustmorloc</span><span class="tok-p">::</span><span class="tok-n">RecBox</span><span class="tok-o">&lt;</span><span class="tok-p">(</span><span class="tok-kt">f64</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">f64</span><span class="tok-p">)</span><span class="tok-o">&gt;</span><span class="tok-p">),</span>
 <span class="tok-w">    </span><span class="tok-n">Dot</span><span class="tok-p">,</span>
 <span class="tok-p">}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
@@ -22968,86 +23015,1224 @@ sub-packet-offset index, then dispatches the walker as normal.</p>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This chapter specifies how the parts of the Morloc ecosystem fit together:
-the compiler, the runtime library, the nexus, and the environment manager. It
-defines where each part is installed, how a program&#8217;s dependencies (Morloc
-modules and foreign packages) are resolved and locked, how an environment is
-frozen into a portable artifact, and how a compiled program is served to other
-programs and agents. The <a href="#apis">Deployment</a> chapter shows how to use these tools; this
-chapter specifies what they do.</p>
+the compiler, the runtime library, the nexus, and the environment manager
+<code>mim</code>. It defines where each part is installed, how the runtime is built,
+how an <code>import</code> finds a module, how a program&#8217;s foreign packages are solved
+into an environment, how a compiled program is served to other programs and
+agents, and how an environment is frozen into a portable image. The
+<a href="#apis">Deployment</a> chapter shows how to use these tools; this chapter specifies what
+they do.</p>
 </div>
 <div class="paragraph">
 <p>This chapter and the two that follow are written as a specification. They
 describe behavior, formats and guarantees rather than any particular
-implementation, so they should remain true of any conforming reimplementation.</p>
+implementation, so they should remain true of any conforming
+reimplementation.</p>
 </div>
 <div class="sect2">
 <h3 id="eco-overview"><a class="anchor" href="#eco-overview"></a>12.1. Overview</h3>
+<div class="quoteblock abstract">
+<blockquote>
+The Morloc ecosystem has four parts. The <strong>compiler</strong> turns Morloc source into
+a build directory. The <strong>runtime library</strong> is linked into every pool and
+implements the shared formats. The <strong>nexus</strong> runs a compiled program, from the
+command line or as a server. The <strong>environment manager</strong>, <code>mim</code>, creates
+isolated installations of the other three, solves the foreign packages that
+programs need, and serves and freezes the result. This section says what
+each part owns, when each runs, where an installation keeps its files, and
+how the parts agree on versions.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Introduces the four parts of the ecosystem: the compiler, the runtime
-library, the nexus, and the environment manager (<code>mim</code>). Explains what each one
-owns, which part invokes which, and at what point in a program&#8217;s life (install,
-build, run, serve). Specifies the on-disk layout of an installation and names
-every manifest and lock file, with a sentence on each one&#8217;s role. States how
-versions of the parts must agree, including the ABI version check that rejects
-a mismatched runtime. Ends with a map linking each concern to the section that
-specifies it.</p>
+<p><strong>Who invokes whom.</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Stage</th>
+<th class="tableblock halign-left valign-top">What runs</th>
+<th class="tableblock halign-left valign-top">What it produces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provision</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mim</code> downloads a compiler release and builds an environment; inside it, <code>morloc init</code> builds the runtime (<a href="#eco-bootstrap">Runtime bootstrap</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An installation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Install</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc install</code> fetches modules (<a href="#eco-modules">Module resolution</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Module source in the installation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Build</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc make</code>, which calls back into <code>mim</code> to solve packages (<a href="#eco-solving">Environment solving</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A build directory and launchers (<a href="#build-artifacts">Compilation artifacts</a>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A launcher runs the nexus, which starts the pools (<a href="#build-overview">Runtime overview</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A result</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Serve</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus as a server, started by <code>mim</code> (<a href="#eco-serving">Serving</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP tools and HTTP endpoints</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Freeze</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mim</code> builds an image of the environment (<a href="#eco-freezing">Freezing</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A container image</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The compiler and <code>mim</code> are coupled only across process boundaries: files
+the compiler writes, commands it runs, and environment variables. In every
+such contract the compiler (or its release) writes and <code>mim</code> reads, so the
+burden of compatibility falls on <code>mim</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong>An installation</strong> is two directory trees. The <strong>home</strong> holds what
+<code>morloc init</code> builds and is the same for every program; the <strong>state</strong> holds
+what accumulates as modules and programs are installed. They are the same
+directory unless the state is given its own location.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;home&gt;/
+|-- bin/           morloc-nexus, and the launcher of each installed program
+|-- lib/           the runtime library and per-language libraries
+|-- include/       the runtime's C header and per-language headers
+|-- opt/           per-language setup state
+`-- rust/          the runtime's source, kept for building Rust pools
+
+&lt;state&gt;/
+|-- src/morloc/plane/&lt;plane&gt;/&lt;module&gt;/   installed module source
+|-- fdb/           one record per installed module, and install locks
+|-- modules/       files that modules expose to foreign code
+|-- exe/&lt;program&gt;/ installed programs: source copy and build directory
+`-- snapshots/     module version pins</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The home defaults to <code>~/.local/share/morloc</code>. Inside an environment, <code>mim</code>
+gives each environment its own home and state, so nothing is shared between
+environments except downloads (<a href="#eco-environments">Environments</a>).</p>
+</div>
+<div class="paragraph">
+<p><strong>Version agreement.</strong> Three rules keep the parts consistent:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Compiler and nexus.</strong> A build&#8217;s manifest records the compiler&#8217;s version.
+The nexus runs a manifest only if it was written by the same Morloc
+version (<a href="#build-artifacts">Compilation artifacts</a>).</p>
+</li>
+<li>
+<p><strong>Compiler and runtime.</strong> The runtime is built from the source shipped
+with the compiler&#8217;s own release, by that compiler, so they agree by
+construction. The runtime library also declares a numeric ABI version,
+which the nexus reports.</p>
+</li>
+<li>
+<p><strong>Compiler and <code>mim</code>.</strong> Each document the compiler hands to <code>mim</code> carries
+its own version: the dependency specification an integer, the
+language-support table a <code>MAJOR.MINOR</code> schema. A release lists these
+versions in its manifest so that <code>mim</code> can refuse, before installing
+anything, a release it cannot read (<a href="#eco-bootstrap">Runtime bootstrap</a>).</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect2">
-<h3 id="eco-bootstrap"><a class="anchor" href="#eco-bootstrap"></a>12.2. Runtime bootstrap</h3>
+<h3 id="eco-environments"><a class="anchor" href="#eco-environments"></a>12.2. Environments</h3>
+<div class="quoteblock abstract">
+<blockquote>
+An <strong>environment</strong> is one complete Morloc installation managed by <code>mim</code>: a
+compiler, its runtime, a solved set of language toolchains and packages,
+and the programs installed into it. Every other <code>mim</code> operation acts on one
+environment. This section specifies an environment&#8217;s identity, where its
+files live, how commands run inside it, and what holds when it is changed
+or removed.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies what initialization (<code>morloc init</code>) produces: the compiled
-runtime library, the nexus binary, the per-language bindings and their headers,
-and where each is placed. Defines the inputs each artifact depends on and the
-conditions that force a rebuild, so a stale runtime is never paired with a
-newer compiler. Covers the build modes (release versus development) and what an
-installation must provide before any program can be compiled.</p>
+<p><strong>Identity.</strong> An environment is a name within a <strong>scope</strong>. The <strong>local</strong> scope
+belongs to one user and needs no privileges; the <strong>system</strong> scope is shared by
+every user on the machine, and only root may create, change, serve or remove
+its environments (any user may run commands in one). A name is 1 to 64
+characters of ASCII letters, digits, <code>-</code>, <code>_</code> and <code>.</code>, beginning with a
+letter or digit, unique within its scope. A lookup by name tries the local
+scope first, so a local environment may shadow a system one of the same
+name.</p>
+</div>
+<div class="paragraph">
+<p><strong>Backend.</strong> Each environment has one backend, fixed at creation:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Backend</th>
+<th class="tableblock halign-left valign-top">How commands run</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Native</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">On the host, against a toolchain installed in the environment&#8217;s own directory.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Container</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In a container started from the environment&#8217;s own image, by Docker, Podman or Apptainer.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>When no backend is named, <code>mim</code> chooses native where the host can run it
+(glibc Linux, Apple Silicon macOS, or NixOS with <code>nix</code> and unprivileged
+user namespaces), and otherwise a configured container engine or the only
+one installed. With several engines and no configured choice it asks rather
+than guessing.</p>
+</div>
+<div class="paragraph">
+<p><strong>Files.</strong> Each scope has a configuration root and a data root:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Scope</th>
+<th class="tableblock halign-left valign-top">Configuration</th>
+<th class="tableblock halign-left valign-top">Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">local</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>$XDG_CONFIG_HOME/morloc</code> (default <code>~/.config/morloc</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>$XDG_DATA_HOME/morloc</code> (default <code>~/.local/share/morloc</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">system</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/etc/morloc</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/usr/local/share/morloc</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>An environment&#8217;s configuration directory holds its settings, its views
+(<a href="#eco-serving">Serving</a>), its extra engine flags and the record of its running
+server. It is small, edited by <code>mim</code> only, and never visible inside the
+environment. The environment exists exactly when its settings record does.</p>
+</div>
+<div class="paragraph">
+<p>Its data directory holds everything the environment&#8217;s programs see: the
+Morloc home and state (<a href="#eco-overview">Overview</a>), the solved toolchain and its lock,
+the recorded requirements of every program (<a href="#eco-solving">Environment solving</a>), the home
+directory of its shell, and its server logs. Downloads that environments can
+share&#8201;&#8212;&#8201;compiler releases, the solver binary, <code>mim</code> binaries for other
+platforms&#8201;&#8212;&#8201;are stored once per scope in the data root and never modified
+after they are complete.</p>
+</div>
+<div class="paragraph">
+<p><strong>The default environment.</strong> A command that names no environment acts on
+the default. Each scope records at most one default, by name. The local
+default wins if it names an existing environment; otherwise the system
+default applies. There is no activation step and no variable that selects
+an environment, so a command means the same thing in every shell.</p>
+</div>
+<div class="paragraph">
+<p><strong>Running a command.</strong> <code>mim run</code> and <code>mim shell</code> execute a command with the
+environment&#8217;s compiler, runtime, toolchain and installed programs first on
+the <code>PATH</code> and its home as <code>MORLOC_HOME</code>. The working directory is the
+user&#8217;s current directory, mounted at <code>/work</code> in a container, and files
+written there belong to the invoking user. A container sees only the host
+variables passed to it explicitly. The command&#8217;s exit status becomes
+`mim&#8217;s.</p>
+</div>
+<div class="paragraph">
+<p>Three variables mark a command as running in a managed environment, and are
+set together:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Variable</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MORLOC_ENV</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Non-empty inside a managed environment. <code>morloc make</code> solves packages only when it is set.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MORLOC_BUILD_HOOK</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The program <code>morloc make</code> calls to solve packages: the <code>mim</code> that manages this environment.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MORLOC_BIN</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The compiler, so the hook asks the exact compiler that is building for its language requirements.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The hook is <code>mim</code> itself, in the same binary as the manager. Staging the
+manager&#8217;s own binary into the environment keeps the two at one version.</p>
+</div>
+<div class="paragraph">
+<p>Before a solve, a build or a native command, <code>mim</code> removes the variables of
+any other conda, mamba or pixi environment active in the user&#8217;s shell.
+Their activation scripts add compiler flags and library paths, and mixing
+two package worlds produces binaries that link against both.</p>
+</div>
+<div class="paragraph">
+<p><strong>Changing an environment.</strong> <code>mim update</code> rebuilds an environment and
+<code>mim modify</code> changes its settings, rebuilding when the toolchain changes.
+The Morloc version an environment was provisioned with moves only when an
+update asks for another version explicitly; no other command changes it. A
+move is refused if an installed module declares a range of Morloc versions
+that excludes the target. A change either completes or leaves the
+environment&#8217;s settings, requirements and solved toolchain as they were.</p>
+</div>
+<div class="paragraph">
+<p><strong>Removal.</strong> <code>mim rm</code> stops the environment&#8217;s server, then removes its
+configuration, data, image and volumes. It leaves alone directories the user
+supplied (a host directory mounted as its home) and the shared downloads, so
+a later <code>mim new</code> does not start from nothing.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="eco-modules"><a class="anchor" href="#eco-modules"></a>12.3. Module resolution</h3>
+<h3 id="eco-bootstrap"><a class="anchor" href="#eco-bootstrap"></a>12.3. Runtime bootstrap</h3>
+<div class="quoteblock abstract">
+<blockquote>
+Before any program can be compiled, an installation needs a compiler and a
+runtime built for the machine it runs on. The compiler is distributed as a
+prebuilt binary in a release; the runtime is built from source on the target
+by <code>morloc init</code>, against the toolchain the environment provides. This
+section specifies what a release contains, how <code>mim</code> verifies and installs
+it, what <code>morloc init</code> produces, and when it rebuilds.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_releases"><a class="anchor" href="#_releases"></a>12.3.1. Releases</h4>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies how an <code>import</code> is resolved to a module: the search order,
-the precedence of local and installed modules, and how ambiguity is reported.
-Defines what installing a module means, how modules are named and versioned,
-and how a module declares the foreign packages (Python, R, C++, Rust) it
-requires. Explains how those declarations feed the environment solver.</p>
+<p>A release is named by a tag. <code>latest</code> means the newest release, and a bare
+version such as <code>0.105.2</code> means tag <code>v0.105.2</code>. Each release publishes a
+<strong>release manifest</strong>, a JSON object:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>schema</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The manifest&#8217;s own format version. A reader refuses a schema newer than it knows.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Morloc version the release contains.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>triples</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Per platform (<code>linux-x86_64</code>, <code>linux-arm64</code>, <code>macos-arm64</code>), the name of the compiler binary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rust_src</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name of the archive holding the runtime&#8217;s source.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sha256</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The SHA-256 digest of every asset.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>versions</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The contract versions of this release: <code>morloc_version</code>, <code>abi_version</code>, <code>envspec_version</code>, <code>lang_support_schema</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>mim</code> reads the manifest before downloading anything else and refuses a
+release whose contract versions it cannot read, telling the user to upgrade
+<code>mim</code>. A platform the manifest does not list is refused with a pointer to a
+container backend, since a container runs the Linux build on any host.</p>
+</div>
+<div class="paragraph">
+<p>Every asset is downloaded to a temporary name, checked against its digest,
+and only then renamed into place. A missing digest is a refusal, not a
+warning. A downloaded release is stored once per scope, keyed by version and
+platform, and marked complete only after all of its assets are in place; an
+incomplete one is never used.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_building_an_environment"><a class="anchor" href="#_building_an_environment"></a>12.3.2. Building an environment</h4>
+<div class="paragraph">
+<p>For a container backend, <code>mim</code> first builds an image for the environment
+from a base Linux image, the system packages the user asked for, any extra
+certificate authorities, the compiler, the runtime source, and its own
+binary. It is rebuilt only when one of these inputs changes. The solved
+toolchain and the built runtime are not in the image: they live in the
+environment&#8217;s data and are mounted in, so a package change does not rebuild
+the image.</p>
+</div>
+<div class="paragraph">
+<p>Then, for every backend, <code>mim</code> solves the toolchain the compiler requires
+(<a href="#eco-solving">Environment solving</a>) and runs <code>morloc init</code> inside the environment, in a strict
+mode in which every compiler and interpreter must come from the solved
+toolchain rather than the host.</p>
+</div>
+<div class="paragraph">
+<p>An environment can carry a bundle of extra certificate authorities, for
+networks that inspect TLS. The bundle is checked to contain certificates
+only (a private key is refused), installed as a trusted root in the image,
+and passed to the solver and every package manager in the environment.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_what_morloc_init_produces"><a class="anchor" href="#_what_morloc_init_produces"></a>12.3.3. What <code>morloc init</code> produces</h4>
+<div class="paragraph">
+<p><code>morloc init</code> builds the runtime into the Morloc home:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Output</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>include/morloc.h</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The runtime&#8217;s C API (<a href="#compiler-libmorloc">Runtime library API</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lib/</code> runtime library</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The shared library every pool links against.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bin/morloc-nexus</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Per-language bindings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One for each supported language whose tools are present: a Python extension module, an R library, a C&#43;&#43; library and precompiled header, a prebuilt Rust crate.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>rust/</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A copy of the runtime source, used when compiling Rust pools.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The runtime source is found, in order, at a path named by
+<code>MORLOC_RUST_DIR</code>, in the home&#8217;s <code>rust/</code> directory, or beside the compiler
+binary. Building it requires a Rust toolchain. The runtime is always built
+optimized; a sanitizer variant exists for debugging the runtime itself.</p>
+</div>
+<div class="paragraph">
+<p>A language whose tools are missing is skipped with a warning, and its
+programs cannot be built until a later <code>init</code> succeeds. In strict mode a
+missing or foreign tool is an error instead, so an environment never
+silently falls back to the host&#8217;s compiler.</p>
+</div>
+<div class="paragraph">
+<p>Only one <code>init</code> runs per home at a time; a second waits for the first.
+<code>init</code> rebuilds the runtime and every language binding unless it is run in
+incremental mode, which keeps each part that is already present. <code>-f</code> also
+removes the files <code>init</code> owns before rebuilding, so a binding left by an
+older version cannot survive.</p>
+</div>
+<div class="paragraph">
+<p><code>init</code> links <code>morloc-nexus</code> into a directory on the user&#8217;s <code>PATH</code> (by
+default <code>~/.local/bin</code> when it exists; <code>MORLOC_BIN_LINK_DIR</code> names another,
+and an empty value turns linking off). <code>mim</code> turns it off inside
+environments so that no environment changes the user&#8217;s global commands.</p>
+</div>
+<div class="paragraph">
+<p><strong>Interpreter pinning.</strong> The Python and R bindings are compiled against one
+minor version of their interpreter. Once an environment has built them, the
+interpreter&#8217;s minor version is pinned in every later solve of that
+environment (<a href="#eco-solving">Environment solving</a>), and a binding that no longer matches its
+interpreter is rebuilt before the next build uses it.</p>
+</div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="eco-solving"><a class="anchor" href="#eco-solving"></a>12.4. Environment solving</h3>
+<h3 id="eco-modules"><a class="anchor" href="#eco-modules"></a>12.4. Module resolution</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A Morloc program is assembled from modules: its own source files and
+modules installed into the Morloc state. This section specifies how the
+compiler finds the file an <code>import</code> names, how a module is identified and
+installed, how versions are pinned, and how a module declares the foreign
+packages it needs. The install-string syntax is given in
+<a href="#installing-modules">Installing modules</a>.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_finding_a_module"><a class="anchor" href="#_finding_a_module"></a>12.4.1. Finding a module</h4>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the contract between the compiler and the environment
-solver: which events trigger solving (build, install, sync), what the compiler
-asks for, and what it receives back. Defines how foreign packages for each
-language are provided to an environment, how the solved result is locked, and
-the guarantees the lock gives (reproducibility, and when a lock is reused or
-invalidated). Describes where environments and locks live and how concurrent
-operations on one environment are kept safe.</p>
+<p>An import names a module by dotted path. A leading dot makes it <strong>local</strong>:
+<code>import .foo.bar</code> is looked up only under the <strong>project root</strong>, the directory
+of the file being compiled, as <code>foo/bar.loc</code> and then <code>foo/bar/main.loc</code>. A
+program read from standard input has no project root and may not use local
+imports, and neither may an eval expression (<a href="#eco-serving">Serving</a>).</p>
+</div>
+<div class="paragraph">
+<p>Without the leading dot the import is <strong>bare</strong>, and two lists of candidates
+are built. The <strong>system</strong> list searches the installed modules of the active
+<strong>plane</strong> (a named namespace of installed modules; <code>default</code> unless
+configured), its core subdirectory (<code>morloclib</code>) first:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>&lt;plane&gt;/morloclib/foo/bar/main.loc</code></p>
+</li>
+<li>
+<p><code>&lt;plane&gt;/morloclib/foo/bar.loc</code></p>
+</li>
+<li>
+<p><code>&lt;plane&gt;/foo/bar.loc</code></p>
+</li>
+<li>
+<p><code>&lt;plane&gt;/foo/bar/main.loc</code></p>
+</li>
+<li>
+<p>the same two forms directly under the module tree, outside any plane</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The <strong>local</strong> list is the two local forms above. A bare import that matches
+only a system candidate takes the first one. One that matches only a local
+candidate is accepted with a warning to write <code>import .foo.bar</code>. One that
+matches both is an error naming both files, because the meaning of the
+program would otherwise depend on what happens to be installed. One that
+matches nothing is an error listing every path tried and suggesting
+<code>morloc install</code>.</p>
+</div>
+<div class="paragraph">
+<p>A module named <code>owner/name</code> searches only the plane: <code>owner/name/main.loc</code>,
+<code>owner/name.loc</code>, then <code>name/main.loc</code> and <code>name.loc</code>.</p>
+</div>
+<div class="paragraph">
+<p>The last three components of a matched path must have the exact spelling
+of the import, so a module resolves the same way on case-insensitive and
+case-sensitive file systems.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_identity"><a class="anchor" href="#_identity"></a>12.4.2. Identity</h4>
+<div class="paragraph">
+<p>A module is a directory. Its entry file is <code>main.loc</code>, or its only <code>.loc</code>
+file. The entry file declares exactly one named module, and that name must
+equal the directory&#8217;s name (for an installed module, the repository&#8217;s
+name). A name is ASCII letters, digits and <code>-</code>, beginning with a letter or
+digit.</p>
+</div>
+<div class="paragraph">
+<p>A module&#8217;s metadata is the <code>package.yaml</code> beside its entry file. The fields
+the ecosystem reads:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The module&#8217;s own version.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc-version</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The range of compiler versions the module accepts. A compiler outside it refuses to load the module.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc-deps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pins for imported modules, each a name and a git hash.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>py-deps</code>, <code>r-deps</code>, <code>cpp-deps</code>, <code>rust-deps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Foreign packages, each with a version constraint and a source (<a href="#py-deps">Dependencies (<code>py-deps</code>)</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>local-deps</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Packages kept inside the project tree (<a href="#local-deps">Local packages (<code>local-deps</code>)</a>). Allowed only in the program being built, not in an imported module.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>lang-versions</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constraints on the language runtimes themselves.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dependencies</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">System libraries.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>expose</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Files copied where foreign code can include or import them (<a href="#exposing-native-resources">Exposing native resources</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>setup</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A script run after the module is installed.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_installing_2"><a class="anchor" href="#_installing_2"></a>12.4.3. Installing</h4>
+<div class="paragraph">
+<p><code>morloc install</code> fetches a module into <code>&lt;plane&gt;/&lt;name&gt;</code> in the Morloc state.
+Each install:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>takes a lock for that module name, so two installs of one module never
+interleave;</p>
+</li>
+<li>
+<p>fetches into a temporary directory beside the destination;</p>
+</li>
+<li>
+<p>checks that the module&#8217;s declared name matches and that its
+<code>morloc-version</code> admits this compiler;</p>
+</li>
+<li>
+<p>replaces the previous copy in one rename, so a failed install leaves the
+old one intact;</p>
+</li>
+<li>
+<p>installs every module it imports that is not already present, the same
+way;</p>
+</li>
+<li>
+<p>copies its <code>expose</code> files and runs its <code>setup</code> script, with the module&#8217;s
+name, version and directory in the environment;</p>
+</li>
+<li>
+<p>typechecks it, unless told not to;</p>
+</li>
+<li>
+<p>writes a record of the install: name, version, source and pinned hash.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A module that is already installed is left alone unless the install is
+forced. <code>morloc make</code> installs missing imports the same way before it
+compiles.</p>
+</div>
+<div class="paragraph">
+<p><strong>Pins.</strong> A pin fixes an imported module to a git hash. Pins come from the
+<code>morloc-deps</code> of the modules being installed (a pin closer to the program
+wins; two different pins at the same depth are an error) and from snapshot
+files in the state, which list <code>name hash</code> pairs for a whole installation.
+An installed module whose recorded hash differs from its pin is an error
+until it is reinstalled.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_foreign_dependencies"><a class="anchor" href="#_foreign_dependencies"></a>12.4.4. Foreign dependencies</h4>
+<div class="paragraph">
+<p>The compiler gathers the foreign requirements of a program from every
+module it imports, transitively, and writes them beside the manifest as
+<code>envspec.json</code>. Constraints on one package from several modules are
+combined (all must hold), the C&#43;&#43; standard is the highest any module
+asks for, and two modules naming different conda channels for one package
+is an error. The file also lists the program&#8217;s languages and system
+libraries. <code>morloc envspec</code> writes the same document without building. How
+the document is solved is specified in <a href="#eco-solving">Environment solving</a>.</p>
+</div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="eco-freezing"><a class="anchor" href="#eco-freezing"></a>12.5. Freezing and execution environments</h3>
+<h3 id="eco-solving"><a class="anchor" href="#eco-solving"></a>12.5. Environment solving</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A program&#8217;s foreign packages must be installed, at compatible versions,
+before its pools can compile or run. The compiler knows what a program
+needs; the environment manager knows how to provide it. This section
+specifies the contract between them: when the compiler asks, what it sends,
+how the manager turns every program&#8217;s requests into one solved set of
+packages, and what holds when solves fail or run at once.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_the_build_hook"><a class="anchor" href="#_the_build_hook"></a>12.5.1. The build hook</h4>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies freezing: turning an environment and its installed programs
-into a portable artifact that runs on another machine. Defines what a frozen
-artifact contains, what it may assume of the host, and which features a slim
-artifact gives up. Covers container execution and cluster execution (resource
-labels and job submission), and the requirements an execution environment must
-meet to run a program.</p>
+<p><code>morloc make</code> asks for its packages only inside a managed environment,
+when <code>MORLOC_ENV</code> is set (<a href="#eco-environments">Environments</a>). After writing the pool
+sources and before compiling them, it runs:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$MORLOC_BUILD_HOOK sync --name &lt;key&gt; --spec envspec.json --root &lt;project&gt; [--installed]</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>&lt;key&gt;</code> is the program&#8217;s key (<a href="#build-artifacts">Compilation artifacts</a>), <code>envspec.json</code> is the
+document described in <a href="#eco-modules">Module resolution</a>, and <code>--installed</code> marks a build that
+is being installed rather than built in place. The hook writes its messages
+to standard error. Exit status 0 means the environment now satisfies the
+specification; anything else fails the build. If <code>MORLOC_ENV</code> is set but no
+hook is named, a program that declares foreign packages fails to build,
+since nothing could provide them.</p>
+</div>
+<div class="paragraph">
+<p>The hook asks the compiler named by <code>MORLOC_BIN</code> for its <strong>language-support
+table</strong>: for each language, the runtime package and version range the
+compiler supports and the packages its bindings need, plus the toolchain
+the compiler itself needs. A program&#8217;s request is always solved together
+with this table, so a program can never ask for an interpreter the runtime
+cannot bind.</p>
+</div>
+<div class="paragraph">
+<p>Both documents carry versions. The dependency specification has an integer
+version that the reader must match exactly; it is refused with "rebuild the
+program" if older and "upgrade the manager" if newer. The language-support
+table has a <code>MAJOR.MINOR</code> schema; a reader accepts any minor version of the
+major it knows and ignores fields it does not recognise.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_one_world_per_environment"><a class="anchor" href="#_one_world_per_environment"></a>12.5.2. One world per environment</h4>
+<div class="paragraph">
+<p>An environment has one set of installed packages, its <strong>solved world</strong>. It is
+the solution of the union of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the specification of every installed program;</p>
+</li>
+<li>
+<p>the specification of every program built in place (<strong>scratch</strong> builds),
+kept until the environment is cleaned;</p>
+</li>
+<li>
+<p>the compiler&#8217;s language-support requirements;</p>
+</li>
+<li>
+<p>extra packages the user named for the environment;</p>
+</li>
+<li>
+<p>the interpreter pins (below).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>One world means one version of each package. Two programs constraining the
+same package must both be satisfied. A requirement nobody can satisfy fails
+the command that added it.</p>
+</div>
+<div class="paragraph">
+<p>Each requested package is provided, delegated or refused. conda and PyPI
+packages are solved into the world. Rust crates and Julia packages are left
+to the language&#8217;s own build tool, which resolves them when the pool is
+compiled. A source the manager does not support is refused, never silently
+dropped, as are contradictory requests for one package: two conda channels,
+two local paths, or a local path and a version.</p>
+</div>
+<div class="paragraph">
+<p>A local Python package of an installed program (<a href="#local-deps">Local packages (<code>local-deps</code>)</a>) is copied
+into the environment under a name derived from a hash of its contents, and
+the requirement points at the copy. The installed program then no longer
+depends on the project directory, the same path is valid on the host, in a
+container and in a frozen image, and reinstalling unchanged source does no
+work. Copies that no installed program references are reclaimed.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_solving"><a class="anchor" href="#_solving"></a>12.5.3. Solving</h4>
+<div class="paragraph">
+<p>Each environment has one solve lock, shared by the host and its container.
+Recording a program&#8217;s specification, gathering the world, solving it, and
+recording the result all happen while holding it, so concurrent builds in
+one environment serialize, and the second usually finds its world already
+solved.</p>
+</div>
+<div class="paragraph">
+<p>The world reduces to a canonical <strong>requirement digest</strong>. If it equals the
+digest of the last successful solve and the solved packages are present,
+nothing is done. The digest is written last, after the packages are
+installed and their activation captured, so an interrupted solve is redone
+rather than trusted.</p>
+</div>
+<div class="paragraph">
+<p>Otherwise the solver first tries to install the existing lock unchanged,
+and re-solves only if the lock cannot satisfy the new world. Package
+versions therefore move only when a new requirement forces them to.</p>
+</div>
+<div class="paragraph">
+<p><strong>Interpreter pins.</strong> The Python and R bindings are compiled against one
+minor version of their interpreter (<a href="#eco-bootstrap">Runtime bootstrap</a>). After the first
+solve that provides an interpreter, its minor version is pinned, and later
+solves stay within it. A requirement that needs another minor fails with a
+message to update the environment, which drops the pin and rebuilds the
+bindings.</p>
+</div>
+<div class="paragraph">
+<p><strong>Failure.</strong> If a solve fails, the requirements recorded for every program
+are restored to what they were before the command. The solver&#8217;s own
+manifest, lock and partially installed packages may be left changed; the
+next successful solve reconciles them, and the digest, removed at the start
+of the solve, guarantees that it runs.</p>
+</div>
+<div class="paragraph">
+<p><strong>Immutable environments.</strong> An environment marked immutable&#8201;&#8212;&#8201;one being
+served, or a frozen image&#8201;&#8212;&#8201;refuses any request that would change its
+world or rebuild a binding, before writing anything.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_when_solving_happens"><a class="anchor" href="#_when_solving_happens"></a>12.5.4. When solving happens</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Event</th>
+<th class="tableblock halign-left valign-top">Solve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc make</code> in an environment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Through the build hook, as above.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mim install</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Once before the build, from the specification the compiler reports without building, so packages are present when the pools compile; then through the hook.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mim modify</code> (languages, extra packages) and <code>mim update</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A solve of the whole world, followed by a rebuild of the runtime and bindings when the Morloc version or an interpreter changed.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cleaning the environment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scratch specifications are discarded and the world re-solved from installed programs only.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="sect2">
 <h3 id="eco-serving"><a class="anchor" href="#eco-serving"></a>12.6. Serving</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A compiled program is a command-line tool, but the nexus can also keep it
+running as a server, answering many requests without restarting its pools.
+This section specifies the server modes, how one command of a manifest
+becomes an HTTP endpoint and an MCP tool, how a server recovers from a
+crashed pool, how callers may evaluate new expressions, and the security
+model that decides who may call what. How <code>mim</code> chooses what to serve is
+specified last.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_server_modes"><a class="anchor" href="#_server_modes"></a>12.6.1. Server modes</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Mode</th>
+<th class="tableblock halign-left valign-top">Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Daemon</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One program, to local clients over a Unix socket or loopback TCP (length-prefixed JSON), and optionally over HTTP. Starts every pool at startup.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One program to one agent, over standard input and output, or over HTTP.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Front end</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Several installed programs over one HTTP port, as MCP tools and a JSON API, with optional eval. Each program runs in its own daemon, which the front end starts on first use.</p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies how a compiled program is served beyond the command line:
-the daemon, the router that fronts several programs, and the transports (HTTP,
-TCP and Unix sockets, MCP over stdio). Defines the mapping from one manifest
-command to a CLI subcommand, an HTTP endpoint and an MCP tool, including how
-argument types become input schemas, how docstrings become descriptions, and
-which commands are excluded and why. Specifies remote evaluation of expressions
-and the security model: authentication, allow-lists, sandboxing and resource
-limits, with the threat each one addresses.</p>
+<p><code>mim</code> always serves through the front end. It names the programs to serve
+explicitly; nothing is served because it happens to be installed. The front
+end finds each program&#8217;s manifest in the installed-programs directory of
+the state (<a href="#eco-overview">Overview</a>), checks every one at startup, and starts each
+program&#8217;s daemon on its first request. A daemon that has exited is started
+again on the next request for it.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_endpoints"><a class="anchor" href="#_endpoints"></a>12.6.2. Endpoints</h4>
+<div class="paragraph">
+<p>The front end answers:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Request</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GET /health</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Liveness. Open to every caller, so a monitor needs no secret.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>POST /mcp</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The MCP endpoint.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>POST /call/&lt;module&gt;/&lt;command&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Call one command. The body is the argument list as a JSON array, or an object with an <code>args</code> array.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GET /discover</code>, <code>GET /discover/&lt;module&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The served modules, then one module&#8217;s commands with their arguments, types and documentation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>POST /eval</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Evaluate an expression, when eval is enabled (below).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A successful call returns <code>{"status":"ok","result":&#8230;&#8203;}</code>. A command whose
+result carries a media type returns the raw bytes with that type instead.
+A failure returns <code>{"status":"error","error":"&#8230;&#8203;"}</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_commands_as_mcp_tools"><a class="anchor" href="#_commands_as_mcp_tools"></a>12.6.3. Commands as MCP tools</h4>
+<div class="paragraph">
+<p>Each exported command of each program on the MCP view becomes one tool,
+named <code>&lt;module&gt;__&lt;command&gt;</code>. A name that collides is refused at startup.
+The tool&#8217;s description is the command&#8217;s documentation, and its input schema
+is an object with one property per argument, keyed by the argument&#8217;s
+published name (its declared long name, or <code>_1</code>, <code>_2</code>, &#8230;&#8203; for positional
+arguments). Morloc types map to JSON Schema:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Morloc type</th>
+<th class="tableblock halign-left valign-top">JSON Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Bool</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>boolean</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">integer types</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>integer</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">real types</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>number</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Str</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">enumerations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code> with <code>enum</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sum types</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oneOf</code> a constructor-name string or a one-key object</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lists, tables</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>array</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">tuples</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>array</code> with fixed <code>prefixItems</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">records</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>object</code>, required fields being those not optional</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optional <code>?T</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>T</code> or <code>null</code>, never required</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A record argument may instead be spread into one property per field. A
+command that renders its result several ways gets an extra <code>_render</code>
+property naming the rendering. When a command returns a record, the tool
+also declares an output schema and returns structured content; otherwise
+the result is one text block of JSON.</p>
+</div>
+<div class="paragraph">
+<p>A command is not offered as a tool if an argument or its result is a file
+handle or a stream, or if it reads standard input. These mean nothing to a
+remote caller, and a stream would write to the standard output that the
+MCP transport owns.</p>
+</div>
+<div class="paragraph">
+<p><strong>Protocol.</strong> The server speaks MCP protocol version <code>2025-06-18</code>. A client
+sends <code>initialize</code>, then the <code>notifications/initialized</code> notification;
+<code>tools/list</code> and <code>tools/call</code> before that are rejected. Over HTTP,
+<code>initialize</code> returns an <code>Mcp-Session-Id</code> header that every later request
+must carry; an unknown session is told to initialize again, and an idle
+session expires. A call that fails while running returns a normal result
+marked <code>isError</code>, with the message as text. A malformed request, an unknown
+tool or a bad argument is a JSON-RPC error.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_pool_crash_recovery"><a class="anchor" href="#_pool_crash_recovery"></a>12.6.4. Pool crash recovery</h4>
+<div class="paragraph">
+<p>A daemon outlives any one call, so it must survive a pool that crashes.
+When it finds a pool dead, it closes admission (new requests are answered
+as unavailable, HTTP 503), stops every pool, and waits for the requests
+already running to finish. Only then does it discard the program&#8217;s shared
+memory, create it afresh, restart and ping every pool, and reopen
+admission. No request spans a recovery, so no shared-memory reference from
+before the crash is ever read after it. If running requests do not finish
+within a minute, or recovery keeps failing, the daemon exits instead of
+serving from an inconsistent state.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_eval"><a class="anchor" href="#_eval"></a>12.6.5. Eval</h4>
+<div class="paragraph">
+<p>When enabled, eval lets a caller send a whole Morloc expression that
+composes installed functions. It is offered as <code>POST /eval</code> with
+<code>{"expr": "&#8230;&#8203;"}</code> and as an MCP tool named <code>eval</code> whose description lists
+the importable modules.</p>
+</div>
+<div class="paragraph">
+<p>Each request is typechecked, compiled and run in a fresh process group,
+under these restrictions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Every <code>import</code> must name a module on the <strong>allow-list</strong>, checked against
+the module&#8217;s real name, so renaming on import does not help.</p>
+</li>
+<li>
+<p>Only installed modules resolve; local imports are refused.</p>
+</li>
+<li>
+<p>The expression may not source foreign code or declare types,
+typeclasses or instances.</p>
+</li>
+<li>
+<p>Input and output intrinsics may not appear directly; a function from an
+allowed module may still perform them, so the reachable I/O is exactly
+what those modules export.</p>
+</li>
+<li>
+<p>The compiler&#8217;s memory is capped at 2 GB; CPU time at a configurable
+limit (30 seconds by default) and wall time at four times that. A
+request over its limit has its whole process group stopped.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Nothing about one request is kept for the next.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_security_model"><a class="anchor" href="#_security_model"></a>12.6.6. Security model</h4>
+<div class="paragraph">
+<p>A server binds the loopback address unless told otherwise, so only the
+local machine can reach it. A server bound to any other address must have a
+<strong>token</strong>, a shared secret every request presents as
+<code>Authorization: Bearer &lt;token&gt;</code>; without it a request is refused with 401.
+The token is compared in constant time, and only <code>/health</code> is exempt.
+Starting an exposed server without a token requires an explicit waiver,
+meant for a gateway that already checks callers.</p>
+</div>
+<div class="paragraph">
+<p>Eval is code execution, so it is held to a stricter rule: with no token it
+is <strong>locked</strong>&#8201;&#8212;&#8201;not listed, reported as locked by <code>/discover</code>, and refused&#8201;&#8212;&#8201;unless waived separately from the server-wide waiver. <code>mim</code> grants that
+waiver to a loopback server, where every caller is already local.</p>
+</div>
+<div class="paragraph">
+<p>Remote clients are untrusted in other ways too: a request must arrive
+within a deadline, its headers and body are bounded, and the number of
+simultaneous connections is capped, so one client cannot exhaust the
+server.</p>
+</div>
+<div class="paragraph">
+<p>The plain-HTTP server does not encrypt. A token stops strangers who find
+the port, not anyone who can watch the network; <code>mim</code> therefore requires
+the operator to acknowledge plaintext before exposing a server, and an
+untrusted network needs a tunnel or a TLS proxy in front.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_serving_an_environment"><a class="anchor" href="#_serving_an_environment"></a>12.6.7. Serving an environment</h4>
+<div class="paragraph">
+<p><code>mim</code> keeps, per environment, a <strong>view</strong> for each adapter&#8201;&#8212;&#8201;the modules
+answering over MCP and over the JSON API&#8201;&#8212;&#8201;and an optional eval
+allow-list. Installing a module never serves it. <code>mim start</code> reads the
+views, starts one front end for the environment, and records its process
+or container. A second <code>start</code> is refused while the recorded server is
+alive (judged by the recorded process being the one <code>mim</code> started, not
+merely a live process id), unless told to replace it. <code>stop</code> ends the
+server and removes the record.</p>
+</div>
+<div class="paragraph">
+<p>The token is chosen by the operator and passed to the server in its
+environment. <code>mim</code> never generates one, writes one to disk, or puts one on
+a command line. A container server runs with a read-only root file system,
+and the environment is marked immutable while it serves (<a href="#eco-solving">Environment solving</a>),
+so a caller cannot change the installed software.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="eco-freezing"><a class="anchor" href="#eco-freezing"></a>12.7. Freezing</h3>
+<div class="quoteblock abstract">
+<blockquote>
+An environment changes as programs are installed and packages solved.
+<strong>Freezing</strong> captures it as it stands in a container image that runs the same
+programs and serves the same views on another machine, with nothing
+mounted from the machine that built it. This section specifies what a
+frozen image contains, what it requires of its host, how it decides who may
+reach it, and what a slim image gives up.
+</blockquote>
+</div>
+<div class="paragraph">
+<p><strong>Which environments.</strong> Only a Docker or Podman environment provisioned
+from a release can be frozen. A native or Apptainer environment has no
+image to build on, and a development environment&#8217;s compiler lives outside
+it. The image is built by the environment&#8217;s own engine, on the machine that
+holds the environment, and freezing changes nothing in the environment.</p>
+</div>
+<div class="paragraph">
+<p><strong>Contents.</strong> The image is the environment&#8217;s image with:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the toolchain installed from the environment&#8217;s lock, without solving
+again, so its packages are exactly those the environment was tested
+with; a lock that does not install fails the freeze;</p>
+</li>
+<li>
+<p>the Morloc home (<a href="#eco-overview">Overview</a>);</p>
+</li>
+<li>
+<p>every installed program, with its build directory and its copied source
+directory, and the installed module source;</p>
+</li>
+<li>
+<p>the views and eval allow-list, as the image&#8217;s default command.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>An environment that is missing any of these, for instance because it was
+never fully built, is refused with the missing part named.</p>
+</div>
+<div class="paragraph">
+<p><strong>What is refused.</strong> Each program travels as the directory <code>mim install</code>
+copied, so freezing inspects them first. Tool state that nothing reads at
+run time&#8201;&#8212;&#8201;version-control directories, caches, virtual environments,
+build output&#8201;&#8212;&#8201;is refused. A program over 100 MB, a file over 50 MB, or an
+environment with no programs at all must be confirmed by the user; without
+a terminal to ask, confirmation is refusal. A force option answers all of
+these.</p>
+</div>
+<div class="paragraph">
+<p><strong>Running the image.</strong> The default command starts the front end
+(<a href="#eco-serving">Serving</a>) listening on every interface on port 8080. Inside a
+container that is the only way a published port can reach it, so the image
+does not decide who can reach it: whoever runs it does, with the port
+mapping and the network. A token, if given at run time in
+<code>MORLOC_MCP_TOKEN</code>, is required exactly as on any server. Eval stays locked
+without a token unless <code>MORLOC_EVAL_ALLOW_NO_AUTH</code> is set. An environment
+with no views gives an image with no default command; its programs run when
+named.</p>
+</div>
+<div class="paragraph">
+<p>Morloc moves data between pools through shared memory, which container
+engines limit by default; the image records the size the environment used
+in a label so that the operator can grant it.</p>
+</div>
+<div class="paragraph">
+<p><strong>Labels.</strong> Once it leaves the manager nothing tracks the image, so it
+describes itself: the Morloc version, the source environment, the programs,
+each adapter&#8217;s modules, whether eval is on, and the suggested shared-memory
+size.</p>
+</div>
+<div class="paragraph">
+<p><strong>Slim images.</strong> A slim image omits what only building needs: compilers,
+the solver, the Morloc compiler, the runtime&#8217;s headers and source, and the
+build-only packages, found by walking the solved packages' dependencies from
+the requested ones without passing through a build tool. It keeps every
+interpreter and library the programs load. Since eval compiles code, an
+environment with eval enabled cannot be frozen slim. After a slim image is
+built, every program is started inside it and every runtime library&#8217;s
+links are resolved, so a missing library is found at freeze time rather
+than in production.</p>
 </div>
 </div>
 </div>
@@ -23059,136 +24244,1989 @@ limits, with the threat each one addresses.</p>
 <p>This chapter specifies what <code>morloc make</code> produces and how the result runs. A
 compiled program is a manifest describing its commands, one pool per language
 holding the generated code, and a launcher. At run time the nexus reads the
-manifest, starts the pools, and routes calls and data between them. The
-chapter defines the process lifecycle, the protocol the processes speak, the
-shared memory and binary formats that data travels in, the worker and
-streaming models, and the data flow through the CLI&#8217;s collection, parsing and
-rendering stages.</p>
+manifest, starts the pools, and sends the first call; the pools then call one
+another directly. The chapter defines the process lifecycle and worker
+model, the protocol the processes speak, the shared memory and binary formats
+that data travels in, streams, how errors propagate, and the data flow
+through the CLI&#8217;s collection, parsing and rendering stages.</p>
 </div>
 <div class="sect2">
 <h3 id="build-overview"><a class="anchor" href="#build-overview"></a>13.1. Runtime overview</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A running Morloc program is a small set of cooperating processes: one <strong>nexus</strong>
+and one <strong>pool</strong> per language the program uses. The nexus is the program&#8217;s
+entry point and its only owner of shared resources. The pools execute the
+generated code. This section maps how they fit together; the sections that
+follow specify each piece.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Gives the high-level picture of a running program. The nexus is the
-entry point that parses the request, reads the manifest, and dispatches calls.
-Pools are one long-lived process per language that execute the generated code.
-Explains how a call travels from the nexus into a pool, between pools, and
-back, and when data moves inline versus through shared memory. Serves as the
-map for the rest of the chapter.</p>
+<p><strong>The nexus</strong> is a single precompiled binary shared by every Morloc program.
+It reads the program&#8217;s manifest, interprets the request, starts the pools the
+request needs, sends the first call, and delivers the result. It runs in one
+of four modes:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Mode</th>
+<th class="tableblock halign-left valign-top">Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One request from the command line, then exit. Starts only the pools the command can reach.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Daemon</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Long-running server for many requests over a Unix socket, TCP or HTTP. Starts every pool at startup.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Long-running Model Context Protocol server for agents, on stdio or HTTP. Starts every pool at startup.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Call packet</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reads one prebuilt call from a file and writes the reply to a file. Used for jobs on cluster nodes.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A command whose body calls no foreign function is <strong>pure</strong>. The nexus evaluates
+it itself and starts no pools.</p>
+</div>
+<div class="paragraph">
+<p><strong>A pool</strong> is one long-lived process per language. It holds every function
+the program uses from that language, compiled or loaded together, and serves
+calls on its own socket. Calls between functions in the same pool are
+ordinary native calls: no serialization and no IPC.</p>
+</div>
+<div class="paragraph">
+<p><strong>A call that crosses languages</strong> goes directly from the calling pool to the
+callee&#8217;s pool. The nexus is not on the path. Every cross-process call opens
+one connection, sends one call packet, and receives one reply packet.</p>
+</div>
+<div class="imageblock kroki">
+<div class="content">
+<img loading="lazy" src="static/img/diag-59440dc2c47612dc9b26fc2809b04987f920cf98795a953da52b5aac4c735c67.svg" alt="Diagram">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Data travels in one of three ways.</strong> Every value that leaves a process is
+first serialized to the language-neutral binary form described in
+<a href="#build-voidstar">Voidstar format and schema strings</a>. Where that serialized form then goes depends on its size
+and on whether shared memory is available:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Route</th>
+<th class="tableblock halign-left valign-top">When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inline</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The serialized value is at most the inline threshold (64 KiB by default). It is copied into the packet.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shared memory</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The value is larger. It is written into shared memory and the packet carries a pointer to it (<a href="#build-shm">Shared memory layout</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The value is larger and shared memory is disabled. It is written to a temporary file and the packet carries the path.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A shared-memory pointer is relative: it names a block by volume and offset,
+so it means the same block in every process of the program. This lets a pool
+read a large argument where its sender wrote it, without a copy across the
+socket.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ownership.</strong> The nexus creates the program&#8217;s shared-memory namespace and
+temporary directory, and it alone removes them. Each pool watches a pipe whose
+write end only the nexus holds, and exits when the nexus does. Startup,
+shutdown and crash handling are specified in <a href="#build-lifecycle">Process lifecycle</a>.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="build-artifacts"><a class="anchor" href="#build-artifacts"></a>13.2. Compilation artifacts</h3>
+<div class="quoteblock abstract">
+<blockquote>
+<code>morloc make</code> turns a Morloc program into a build directory and one or more
+launchers. The build directory holds the generated pools and a manifest that
+describes every command. A launcher is a short shell script that hands the
+manifest to the nexus. This section specifies that layout, the manifest, and
+what installing a program does.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies exactly what <code>morloc make</code> produces: the build directory
-layout, the per-language pool trees, and the launchers (CLI, MCP, daemon) that
-exec the shared nexus. Gives the complete manifest format field by field, how
-it is versioned, and which compatibility promises it makes. Defines what
-installing a built program does and where installed programs live.</p>
+<p><strong>Layout.</strong> A program is identified by a <strong>key</strong>: the <code>--name</code> given, else the
+<code>-o</code> name, else the source file&#8217;s base name. Building <code>demo.loc</code> that calls
+Python and C&#43;&#43; produces:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>./
+|-- demo                  CLI launcher
+|-- demo.loc, foo.py ...  the program's sources (not copied)
+`-- demo-build/
+    |-- .morloc-build     marker: this directory is a Morloc build
+    |-- manifest.json     commands, pools and runtime settings
+    |-- envspec.json      dependencies, for the environment manager
+    `-- pools/
+        |-- cpp/          generated source and the compiled pool binary
+        `-- py/           generated pool script</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Compiled languages (C&#43;&#43;, Rust) are built into a pool binary. Interpreted
+languages (Python, R) get a generated script that loads the user&#8217;s source
+files when it starts. Those files are found relative to the build directory,
+in the directory that contains it. The build directory and its source
+directory therefore move together; neither is relocatable alone. No absolute
+build path is recorded.</p>
+</div>
+<div class="paragraph">
+<p><strong>Rebuilds</strong> assemble the new tree in a sibling staging directory and move it
+into place only after every pool compiles. A failed build leaves the previous
+build in place. A rebuild deletes an existing <code>&lt;key&gt;-build</code> directory only if
+it carries the marker file, so a user directory that happens to have the same
+name is never removed.</p>
+</div>
+<div class="paragraph">
+<p><strong>Launchers.</strong> Each launcher records the manifest path on a comment line
+(<code># morloc-manifest: demo-build/manifest.json</code>), resolves its own location,
+and execs the nexus with a mode and the manifest:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Launcher</th>
+<th class="tableblock halign-left valign-top">Created by</th>
+<th class="tableblock halign-left valign-top">Runs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">default (<code>-o</code> names it, <code>--no-cli</code> suppresses it)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc-nexus run &lt;manifest&gt; &#8230;&#8203;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Daemon</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>--daemon-out NAME</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>morloc-nexus daemon &lt;manifest&gt; &#8230;&#8203;</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>There is no MCP launcher. <code>morloc-nexus mcp</code> takes either launcher or the
+manifest itself as its target. Every nexus mode that names a program accepts
+both forms.</p>
+</div>
+<div class="paragraph">
+<p><strong>The manifest</strong> is a JSON object written by the compiler and read only by
+the nexus. Its main fields:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Program name.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Compiler version, build time, and the build directory (always <code>.</code>, the manifest&#8217;s own directory).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pools</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One entry per language: the command line that starts the pool, relative to the build directory, and the pool&#8217;s socket name.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>commands</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One entry per exported function (below).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>groups</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Named groups of commands for the CLI.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>inline_size</code>, <code>no_shm</code>, <code>tmpdir</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data-route settings fixed at build time (<a href="#build-overview">Runtime overview</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>run_log</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prologue and epilogue templates for the run log (<a href="#build-runs">Logs and result caching</a>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Each command records its name, its documentation, its arguments and return
+value, and either how to run it or the expression itself:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>type</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remote</code> (runs in a pool) or <code>pure</code> (the nexus evaluates <code>expr</code> itself).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mid</code>, <code>pool</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For <code>remote</code>: the function&#8217;s index inside its pool, and which pool holds it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>needed_pools</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Every pool the command can reach, so a CLI run starts only those.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>args</code>, <code>return</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Each with its Morloc type and its schema string, which fixes the binary layout of the value (<a href="#build-voidstar">Voidstar format and schema strings</a>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The manifest carries no schema version of its own. The nexus accepts a
+manifest only if it was written by the same Morloc version, and refuses any
+other with a message to rebuild. Builds are artifacts, regenerated on every
+<code>make</code>, so an exact match costs nothing and removes every cross-version
+compatibility question. Within a version, readers ignore keys they do not
+know. Every entity also carries an empty <code>constraints</code> list and <code>metadata</code>
+object, reserved so that later additions need no format change.</p>
+</div>
+<div class="paragraph">
+<p><strong>Installing</strong> (<code>morloc make --install</code>, or <code>morloc install --build</code>) builds
+into the Morloc home rather than the working directory. The program&#8217;s key is
+its module name. The source directory is mirrored to <code>exe/&lt;module&gt;/</code>,
+skipping version-control data, paths listed in a <code>.morlocignore</code> file, and
+stale build directories (found by their marker). The build lands in
+<code>exe/&lt;module&gt;/&lt;module&gt;-build/</code>, and the CLI launcher is copied to <code>bin/</code>,
+which you put on your <code>PATH</code>. A reinstall requires <code>--force</code>, and replaces
+the whole mirrored tree.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="build-lifecycle"><a class="anchor" href="#build-lifecycle"></a>13.3. Process lifecycle</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A run creates processes, a private directory and shared memory, and must
+remove all of them however it ends: normally, by error, by signal, or by
+being killed outright. This section specifies how a run starts its pools,
+how it knows they are ready, how it stops them, and what it guarantees
+about cleanup and exit status.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the life of a program&#8217;s processes. Covers nexus startup,
-how pools are spawned and when each is considered ready, and the handshake
-between them. Covers orderly shutdown, signal handling, and what happens when
-the parent dies on any platform. Defines how temporary files and shared memory
-are cleaned up on every exit path, and the exit codes a program can return with
-their meanings.</p>
+<p><strong>Startup.</strong> Before it starts any pool, the nexus:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Creates the <strong>run directory</strong>, a fresh directory under <code>/tmp</code> readable only
+by the user, and writes an owner record into it (the nexus&#8217;s pid, process
+start time, boot id and pid namespace). It always lives under <code>/tmp</code> so a
+later run can find it; the owner record tells a dead run from a live one.</p>
+</li>
+<li>
+<p>Removes the run directories and shared memory of earlier runs whose owner
+is dead and whose pools have all ended.</p>
+</li>
+<li>
+<p>Creates the run&#8217;s shared memory: the first volume and the stream registry
+(<a href="#build-shm">Shared memory layout</a>).</p>
+</li>
+<li>
+<p>Installs its signal handlers.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>It then starts each pool the request needs (<a href="#build-overview">Runtime overview</a>):</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>It starts a <strong>pin</strong>: a tiny process that leads a new process group, ignores
+termination signals, and exits only when the nexus closes a pipe to it.
+The pin holds the group&#8217;s id, so the id cannot be reissued to an
+unrelated process while the nexus may still signal the group.</p>
+</li>
+<li>
+<p>It records the group in the run directory, then starts the pool inside
+that group. The pool&#8217;s command line is the manifest&#8217;s command for it
+followed by three arguments: its socket path, the run directory, and the
+shared-memory base name. The pool inherits the nexus&#8217;s standard input,
+output and error unchanged.</p>
+</li>
+<li>
+<p>It pings each pool on its socket until one answers with a ping packet
+(<a href="#build-packets">Packet protocol</a>). Retries back off exponentially. If the pool process
+exits first, startup fails at once and reports its exit status.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>The lifeline.</strong> The nexus holds the only write end of a pipe; every pool
+receives the read end. The kernel closes the write end when the nexus exits
+for any reason, including <code>SIGKILL</code>, so a pool always learns that its nexus
+is gone. It then ends its own process group (<code>SIGTERM</code>, 200 ms, <code>SIGKILL</code>)
+and starts a detached <strong>sweeper</strong> that removes the run&#8217;s shared memory and
+directory once every recorded group has ended. Without the lifeline, a
+killed nexus would leave pools and shared memory behind indefinitely.</p>
+</div>
+<div class="paragraph">
+<p><strong>Shutdown.</strong> At the end of a run, or on <code>SIGINT</code>, <code>SIGTERM</code> or <code>SIGHUP</code>,
+the nexus stops its pools: <code>SIGTERM</code> to every pool group, up to 200 ms for
+the pool processes to exit, then <code>SIGKILL</code> to every group. It then removes
+the names of the shared-memory objects and the run directory. It removes
+names but never unmaps memory at exit, because a background thread may
+still be reading it. When a pool process exits on its own, the nexus kills
+the rest of its group, so a pool&#8217;s worker processes never outlive it.</p>
+</div>
+<div class="paragraph">
+<p><strong>Cleanup on every path:</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">How the run ends</th>
+<th class="tableblock halign-left valign-top">Who removes shared memory and the run directory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Normal exit, error, <code>SIGINT</code>/<code>SIGTERM</code>/<code>SIGHUP</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus, before it exits.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Crash signal (<code>SIGSEGV</code>, <code>SIGBUS</code>, <code>SIGFPE</code>, <code>SIGABRT</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus&#8217;s crash handler removes the shared memory, then the signal takes its default action.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Internal error (panic)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The nexus kills its pool groups and removes what it registered before exiting.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>SIGKILL</code> or power loss of the nexus</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Each pool&#8217;s sweeper, after its lifeline closes; failing that, the next run&#8217;s startup sweep.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A long-running daemon additionally recovers from a pool crash by stopping
+every pool, waiting for running requests, discarding the shared memory and
+starting fresh; that is specified with the daemon in <a href="#eco-serving">Serving</a>.</p>
+</div>
+<div class="paragraph">
+<p><strong>Exit status</strong> of a one-shot run:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Status</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Success.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The call failed: an error raised by user code, a pool that died, an argument that could not be read, or a runtime error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Usage error: an unknown command or option.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">70</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Internal error: an invariant inside Morloc itself was broken (a panic). Only a panic exits with 70.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128 + <em>N</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ended by signal <em>N</em> (130 for <code>SIGINT</code>, 143 for <code>SIGTERM</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">141</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Standard output was a closed pipe (128 + <code>SIGPIPE</code>), as when the output is piped to <code>head</code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="build-workers"><a class="anchor" href="#build-workers"></a>13.4. Worker model</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A pool serves many calls at once: concurrent requests to a daemon, parallel
+maps, and calls that come back into a pool while it is already waiting on
+another. This section specifies how the nexus and the pools divide that work
+among threads and processes, how pools grow and shrink, and the one rule that
+keeps calls between pools from deadlocking.
+</blockquote>
+</div>
+<div class="paragraph">
+<p><strong>The nexus.</strong> A one-shot nexus makes one call and waits for it. A daemon or
+MCP server runs an accept thread and a fixed set of request workers (four
+more than the number of pools, between 4 and 32); a request waits in a queue
+until a worker is free. In every mode, a <code>SIGCHLD</code> handler reaps child
+processes as they exit, so a pool&#8217;s death is noticed at once.</p>
+</div>
+<div class="paragraph">
+<p><strong>Pools.</strong> Each pool has one process that owns its socket, and a set of
+<strong>workers</strong> that run user code. How a worker is made depends on the language:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Language</th>
+<th class="tableblock halign-left valign-top">Workers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C&#43;&#43;, Rust</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Threads. An accept thread queues each connection; a worker thread takes it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python, Linux default</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forked processes. A coordinator process, which loads no user code and runs no threads, forks the workers; each worker loads the user&#8217;s sources after the fork.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python, macOS default</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Threads, since forking a running Python interpreter is unsafe there. Selected anywhere with <code>MORLOC_PY_POOL=thread</code> (or <code>fork</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">R</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forked processes. Idle workers accept on the pool&#8217;s socket directly.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Forked workers are created only from a process with a single thread, because
+a forked child inherits only the thread that forked it, and any lock another
+thread held at that moment would stay locked forever. Loading user code after
+the fork keeps libraries that start their own threads out of the coordinator.</p>
+</div>
+<div class="paragraph">
+<p><strong>The no-deadlock rule.</strong> A pool never leaves an incoming call waiting while
+every one of its workers is blocked on another pool. Cross-language calls can
+nest in any pattern: a Python function calls C&#43;&#43;, which calls back into
+Python. If the only Python worker were waiting on C&#43;&#43;, the callback would
+wait forever. So:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A thread pool starts a new worker whenever a call arrives and no worker is
+free.</p>
+</li>
+<li>
+<p>A forked pool counts a worker as blocked while it waits on another pool (a
+foreign call, or a read or write on a channel), and forks a new worker when
+every worker is blocked. A call that arrives while some worker is merely
+computing waits for it.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Calls that arrive one after another reuse a single worker; only real
+concurrency adds workers. There is no upper bound, because any bound would
+reintroduce the deadlock.</p>
+</div>
+<div class="paragraph">
+<p><strong>Shrinking.</strong> Each pool starts with one worker. A worker beyond the first
+that stays idle for 5 seconds exits (<code>MORLOC_POOL_IDLE_TIMEOUT_MS</code> changes
+this for C&#43;&#43; and Rust). R workers never exit before the pool does.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ordering.</strong> Every call travels on its own connection with exactly one
+request and one reply, so a reply always reaches the caller that asked.
+Concurrent calls have no ordering guarantee relative to one another. A
+pool&#8217;s own sequential code (a <code>map</code> in one worker, say) runs in order.</p>
+</div>
+<div class="paragraph">
+<p><strong>Locks.</strong> State shared between processes is guarded by locks that survive
+the death of their holder: if a process dies holding one, the next process
+to take it is told, and treats what it protects as damaged rather than
+waiting forever (<a href="#build-shm">Shared memory layout</a>). Within a process, locks are always taken in
+one global order, so two threads can never each hold a lock the other wants.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="build-packets"><a class="anchor" href="#build-packets"></a>13.4. Packet protocol</h3>
+<h3 id="build-packets"><a class="anchor" href="#build-packets"></a>13.5. Packet protocol</h3>
+<div class="quoteblock abstract">
+<blockquote>
+Every message between Morloc processes is a <strong>packet</strong>: a fixed 32-byte header,
+optional metadata, and a payload. The same format carries calls, results,
+errors and readiness pings over sockets, and it is also the on-disk format
+of streams and cached results. This section specifies the header, each packet
+type, metadata blocks, how a payload names its data, and the transport rules.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the packet protocol that the nexus and pools speak: the
-fixed header, every packet type, metadata blocks, and how a payload is carried
-either inline or by reference to shared memory. Defines error packets, the
-transport between processes, and the framing and ordering rules a conforming
-implementation must follow.</p>
+<p><strong>Layout.</strong> A packet is a header, then <code>offset</code> bytes of metadata, then
+<code>length</code> bytes of payload. All integers are little-endian.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Offset</th>
+<th class="tableblock halign-left valign-top">Size</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">magic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0x0707f86d</code> (bytes <code>6d f8 07 07</code>). A packet without it is rejected.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">plain</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">flavor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">command</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Packet type (first byte) and type-specific fields.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">offset</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes of metadata between the header and the payload.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">24</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">length</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes of payload.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Packet types</strong>, from the first command byte:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A value, or an error.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">call</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A function call: which function, and its arguments.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ping</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Readiness check. The header alone; the reply is an identical ping.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stream</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Opens a stream file; the length field is all ones, since a stream has no fixed length (<a href="#build-streaming">Streaming and memory mapping</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">footer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Closes a stream file with its index (<a href="#build-streaming">Streaming and memory mapping</a>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A <strong>call</strong> carries the function&#8217;s index inside the receiving pool (the <code>mid</code>
+from the manifest) as a 32-bit integer at byte 16, and an entry-point byte at
+byte 13: 0 for an ordinary call, 1 for a call read from a file, as on a
+cluster node. Its payload is the arguments, each a complete data packet,
+concatenated in order. The receiver walks them by their own sizes.</p>
+</div>
+<div class="paragraph">
+<p>A <strong>data</strong> packet describes its payload in the command field:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 66.6668%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Byte</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">13</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">source</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 inline: the payload is the value. 1 file: the payload is a path. 2 pointer: the payload is an 8-byte relative pointer into shared memory (<a href="#build-shm">Shared memory layout</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">14</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">format</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 JSON, 1 MessagePack, 2 text, 3 packet (the file is itself a packet or stream), 4 voidstar (<a href="#build-voidstar">Voidstar format and schema strings</a>), 5 Arrow (<a href="#build-tables">Tables and tensors on the wire</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">15</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">compression</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 none, 1 Zstandard.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">encryption</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 pass, 1 fail, 2 output pipe closed.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Not every combination is meaningful. Values crossing between pools use
+inline or pointer voidstar; tables use pointer Arrow; values in temporary
+files (shared memory disabled) use file MessagePack.</p>
+</div>
+<div class="paragraph">
+<p><strong>Errors</strong> are data packets with status 1, inline source and text format;
+the payload is the error message, including its cross-language traceback
+(<a href="#build-errors">Error propagation</a>). Status 2 marks a write to a closed standard output, so
+the nexus can end the run with the conventional broken-pipe status instead of
+an error. A pool answers every call with exactly one packet: a request it
+cannot even read is answered with an error packet rather than silence.</p>
+</div>
+<div class="paragraph">
+<p><strong>Metadata</strong> is a sequence of blocks. Each block is the three bytes <code>mmh</code>, a
+one-byte kind, a 32-bit body size, then the body. Readers stop at the first
+block that does not start with <code>mmh</code>, and the region is zero-padded to a
+multiple of 32 bytes.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Kind</th>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Body</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">schema</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The schema string of the payload&#8217;s type, NUL-terminated (<a href="#build-voidstar">Voidstar format and schema strings</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">volume index</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A 16-bit shared-memory volume index.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">frame index</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sizes of the payload&#8217;s compressed frames; required when compression is Zstandard.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">subpacket index</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Offsets and element counts of a stream&#8217;s batches.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6, 7, 8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">stream diagnostics, final footer, footer status</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used only in stream files (<a href="#build-streaming">Streaming and memory mapping</a>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A packet between pools needs no schema block, because both sides know the
+type from the compiled program. Packets written to disk carry one, so that
+any tool can read them without the program that wrote them.</p>
+</div>
+<div class="paragraph">
+<p><strong>Transport.</strong> Packets travel over Unix-domain stream sockets. Each call opens
+one connection, sends one call packet, reads one reply packet, and closes.
+There is no separate framing: the receiver reads the 32-byte header and then
+exactly <code>offset + length</code> more bytes. Before a pointer payload is sent, the
+sender takes a shared-memory reference on the receiver&#8217;s behalf, so the
+block cannot be freed in the gap before the receiver reads it; if the send
+fails, the sender drops that reference again.</p>
+</div>
+<div class="paragraph">
+<p>A caller waits for a reply as long as the callee lives, with no deadline: a
+call may legitimately run for days. A pool reading a request waits as long as
+the sending process exists, checking once a second.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="build-shm"><a class="anchor" href="#build-shm"></a>13.5. Shared memory layout</h3>
+<h3 id="build-shm"><a class="anchor" href="#build-shm"></a>13.6. Shared memory layout</h3>
+<div class="quoteblock abstract">
+<blockquote>
+Large values pass between pools through shared memory, so a value written by
+one process can be read by another where it lies, with only an 8-byte
+pointer crossing the socket. This section specifies the shared-memory
+volumes and blocks of a run, the pointer forms that address them, and the
+rules for allocating, sharing and releasing a block among processes that may
+die at any moment.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the shared memory that pools use to exchange large values
-without copying. Defines volumes, the volume header, block headers, and the
-three pointer forms (pool-relative, volume-relative, absolute) with the rules
-for converting between them. Covers allocation, reference counting and release,
-how volumes are created and attached safely by concurrent processes, and how
-file locking protects them.</p>
+<p><strong>Volumes.</strong> A run&#8217;s shared memory is a set of <strong>volumes</strong>, each a POSIX
+shared-memory object mapped by every process of the run. Volume <em>i</em> is named
+<code>&lt;base&gt;-&lt;i&gt;</code> with <em>i</em> as four hex digits, where the nexus chooses the base
+name (<code>/mlc-&lt;pid&gt;-&lt;random&gt;-&lt;generation&gt;</code>) and passes it to every pool. The
+generation changes when a daemon discards its shared memory and starts over,
+so the new namespace never collides with the old. Volume 0 is never created:
+index 0 is reserved for pointers into a self-contained buffer
+(<a href="#build-voidstar">Voidstar format and schema strings</a>). The first volume is index 1, with 64 KiB of data; a
+process that needs more creates another volume at an unused index, at least
+twice the size of the last, up to 32767 volumes. If the shared-memory
+filesystem is full or unavailable, a volume is created as a file in the run
+directory instead, and a zero-length stub under the shared-memory name tells
+other processes where it is.</p>
+</div>
+<div class="paragraph">
+<p>Each volume starts with a header:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Offset</th>
+<th class="tableblock halign-left valign-top">Size</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">magic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0xFECA0DF0</code>, written last by the creator; a volume without it is not ready.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">128</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The volume&#8217;s name, NUL-padded.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">132</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">index</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The volume&#8217;s index, checked when a process opens it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">136</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes of data after the header.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">144</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">reserved</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">152</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">lock</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A process-shared lock guarding the block list (size set by the platform).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cursor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Offset of the block where the next search starts, or -1.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The header is padded to a multiple of 16 bytes, and the data region follows
+it. Volumes never leave the machine, so the platform&#8217;s own lock layout is
+acceptable.</p>
+</div>
+<div class="paragraph">
+<p><strong>Blocks.</strong> The data region is a sequence of blocks, each a 16-byte header
+followed by its data:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Offset</th>
+<th class="tableblock halign-left valign-top">Size</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">magic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0x0CB10DF0</code> for a block; <code>0x0CB1DEAD</code> for a header merged into a neighbor.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">references</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0 when free; all ones while the last reference is being dropped.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes of data.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Block data is 16-byte aligned and its size a multiple of 16, because some
+Arrow column types hold 128-bit words that another language&#8217;s Arrow library
+will read in place and expects aligned. To allocate, a process takes the
+volume&#8217;s lock, searches first-fit from the cursor (merging adjacent free
+blocks as it passes them), splits off any usable remainder as a new free
+block, and sets the block&#8217;s count from 0 to 1. It tries the volume it used
+last, then the others, then creates a new volume.</p>
+</div>
+<div class="paragraph">
+<p><strong>Pointers.</strong> Three forms address shared memory:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Form</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Relative</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Volume index in bits 62-48 and offset into that volume&#8217;s data in bits 47-0; -1 is null (<a href="#build-voidstar">Voidstar format and schema strings</a>). The same in every process; this is the only form that crosses a process boundary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Volume</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An offset into one volume&#8217;s data region. Used inside a volume, for its cursor.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Absolute</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An address in this process. Never stored in shared memory, since each process maps the volumes at different addresses.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Converting a relative pointer to an absolute one maps the named volume on
+first use, so a process can follow a pointer into a volume another process
+created after it started.</p>
+</div>
+<div class="paragraph">
+<p><strong>References.</strong> A block&#8217;s count is the number of holders that may still read
+it. The allocator holds the first reference. A process sending a pointer to
+another takes a reference for the receiver before sending (<a href="#build-packets">Packet protocol</a>),
+and the receiver owns it on arrival. Taking a reference on a block that is
+free or being released fails rather than reviving it. The last release
+overwrites the block&#8217;s data with zeros before marking it free, so a stale
+reader sees zeros instead of another value. A count names no holder, so the
+references of a process that died cannot be found and released one by one;
+they are recovered only by discarding the whole namespace, which the end of
+a run, or a daemon&#8217;s recovery, does.</p>
+</div>
+<div class="paragraph">
+<p><strong>Concurrency.</strong> Each volume&#8217;s lock is <strong>robust</strong>: if a process dies holding
+it, the next process to take it is told so. The volume&#8217;s block list may then
+be half edited, so the volume is marked damaged and never allocated from
+again; allocation moves on to another volume. A volume is created with
+exclusive creation, so when two processes race to create the same index one
+wins and the other opens the winner&#8217;s volume once its magic appears.</p>
+</div>
+<div class="paragraph">
+<p><strong>Removal.</strong> The process that created the first volume (the nexus) removes
+the names of all volumes when the run ends (<a href="#build-lifecycle">Process lifecycle</a>). It never
+unmaps them while threads may still read; the kernel frees the memory once
+the last process unmaps it.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="build-voidstar"><a class="anchor" href="#build-voidstar"></a>13.6. Voidstar format and schema strings</h3>
+<h3 id="build-voidstar"><a class="anchor" href="#build-voidstar"></a>13.7. Voidstar format and schema strings</h3>
+<div class="quoteblock abstract">
+<blockquote>
+<strong>Voidstar</strong> is the binary layout every value takes when it leaves a language:
+C-like fixed-width slots, with variable-length parts reached through
+relative pointers. A <strong>schema string</strong> is a compact description of a type&#8217;s
+layout. A buffer plus its schema is enough for any language to read the
+value, with no other type information. Every binding reads and writes this
+one layout, so a value crosses between any two languages with no
+intermediate format.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_schema_strings"><a class="anchor" href="#_schema_strings"></a>13.7.1. Schema strings</h4>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies voidstar, the language-neutral binary layout every
-serialized value takes: the layout of each primitive, string, array, tuple,
-record, optional and sum type, along with alignment and the rules for nested
-data. Defines the schema string grammar that describes a layout, and how a
-schema and a buffer together let any language read a value with no other type
-information.</p>
+<p>A schema is a string of type codes in prefix order. Codes that take children
+are followed by them; codes that take a count are followed by it.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Code</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Followed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>z</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>i1</code> <code>i2</code> <code>i4</code> <code>i8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Signed integer of 1, 2, 4, 8 bytes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>u1</code> <code>u2</code> <code>u4</code> <code>u8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unsigned integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>f4</code> <code>f8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Float (<code>Real</code> is <code>f8</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>j</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int</code>, arbitrary precision</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>s</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String (UTF-8)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Array</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">the element schema; <code>a:N</code> declares the length as decimal <em>N</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tuple</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count, then each element schema</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>m</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Record</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count, then for each field its name and schema</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>?</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">the inner schema</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>e</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enum (no constructor has fields)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count, then constructor names</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>v</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Variant (sum type)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count, then for each arm its name, field count and field schemas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>T</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Table (<a href="#build-tables">Tables and tensors on the wire</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optionally <code>:</code> count, then column names and schemas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>F</code> <code>O</code> <code>I</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Input file, output stream, input stream (<a href="#build-streaming">Streaming and memory mapping</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&amp;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Names the schema that follows, for recursion</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name, then the schema</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>^</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Refers back to an enclosing <code>&amp;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Counts and name lengths are base-64 numbers. A value below 64 is one digit
+from <code>0-9</code>, <code>a-z</code>, <code>A-Z</code>, <code>+</code>, <code>/</code> (0 to 63). A larger value is written as
+<code>=</code>, its low digit, and the rest of the number, recursively: 100 is <code>=A1</code>.
+Names are written as their length followed by their bytes. Enums and variants
+have at most 256 constructors, and nesting is limited to 128 levels.</p>
+</div>
+<div class="paragraph">
+<p>A schema may also carry <strong>hints</strong> in angle brackets (<code>&lt;dict&gt;</code>) naming the
+concrete type a language should build. Hints do not change the layout and are
+dropped from the canonical form stored in packets.</p>
+</div>
+<div class="paragraph">
+<p>Examples, from real programs:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Schema</th>
+<th class="tableblock halign-left valign-top">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>j</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>v23Err1s2Ok1z</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Try Str ()</code>: arm <code>Err</code> with one <code>s</code> field, arm <code>Ok</code> with one <code>z</code> field</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>m24names2idi4</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{name :: Str, id :: I32}</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&amp;4Treev24Leaf04Node2<sup>4Tree</sup>4Tree</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data Tree = Leaf | Node Tree Tree</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t3sjaau1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A function value: home language, function index, captured values as packets</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_layout"><a class="anchor" href="#_layout"></a>13.7.2. Layout</h4>
+<div class="paragraph">
+<p>Every value has a fixed-width <strong>slot</strong>. Integers are little-endian.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Code</th>
+<th class="tableblock halign-left valign-top">Width</th>
+<th class="tableblock halign-left valign-top">Align</th>
+<th class="tableblock halign-left valign-top">Slot contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>z</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nothing.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b</code>, <code>i1</code>, <code>u1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>i2</code> &#8230;&#8203; <code>f8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2, 4, 8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">natural</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>e</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constructor ordinal, in declaration order.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>s</code>, <code>a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-byte count (bytes for a string, with no NUL; elements for an array), then a relative pointer to the data. An empty one holds the null pointer.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>j</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-byte limb count, then a word. With one limb the word is the value itself. With more, it points to that many 64-bit limbs, least significant first, in two&#8217;s complement.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t</code>, <code>m</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">computed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t</code>: largest field; <code>m</code>: 8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C struct rules: each field at the next offset aligned for it, total rounded up to the largest field alignment. Field names exist only in the schema.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>?</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A relative pointer to the value, or null when absent.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>v</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Byte 0 is the arm&#8217;s ordinal, bytes 1-7 zero, bytes 8-15 a pointer to the arm&#8217;s fields laid out as a tuple. An arm with no fields stores null.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Array elements are packed at the element&#8217;s width. The data of an array of
+numbers starts on a 64-byte boundary, so a binding can hand it to vector
+instructions or a numeric library without copying. A record <code>{name :: Str,
+age :: I32}</code> puts <code>name</code> at offset 0 and <code>age</code> at 16, with width 24.</p>
+</div>
+<div class="paragraph">
+<p>Variant and optional slots hold a pointer rather than the value itself so
+that every slot&#8217;s width is fixed. This is what lets a recursive type exist: a
+<code>Tree</code> slot is 16 bytes however deep the tree goes. For the same reason, a
+type may refer to itself only through an array, optional or variant.</p>
+</div>
+<div class="paragraph">
+<p><strong>Relative pointers.</strong> A pointer is a signed 64-bit integer. Bits 62-48 name a
+shared-memory volume and bits 47-0 an offset into it (<a href="#build-shm">Shared memory layout</a>); -1 is
+null. Because a pointer names a volume rather than an address, it means the
+same thing in every process that maps the volumes. When a value is copied out
+of shared memory into one self-contained buffer (to send inline or write to
+disk), its pointers use volume 0 and are offsets from the start of the
+buffer; loading the buffer back into shared memory rebases them.</p>
+</div>
+<div class="paragraph">
+<p><strong>Reading a value</strong> takes only the schema and the buffer: the schema gives
+each slot&#8217;s width and each field&#8217;s offset, a pointer is followed to reach
+variable-length data, and a variant&#8217;s tag selects which arm&#8217;s schema governs
+its payload.</p>
+</div>
+<div class="paragraph">
+<p><strong>Other encodings.</strong> A value can also be written as JSON or MessagePack, for
+the command line, files and caches. MessagePack writes tuples and records as
+arrays, enums as ordinals, and variants as <code>[tag, payload]</code>; JSON writes
+records as objects and constructors by name. Tables have neither form and
+travel only as Arrow.</p>
+</div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="build-tables"><a class="anchor" href="#build-tables"></a>13.7. Tables and tensors on the wire</h3>
+<h3 id="build-tables"><a class="anchor" href="#build-tables"></a>13.8. Tables and tensors on the wire</h3>
+<div class="quoteblock abstract">
+<blockquote>
+Tables are columnar, and every language with a serious table library already
+agrees on one columnar memory format: Apache Arrow. So a table does not
+travel as voidstar. It travels as Arrow data laid out in one shared-memory
+block, which each language imports without copying. This section specifies
+that block, how a table&#8217;s declared columns constrain it, and how tensors,
+which are ordinary voidstar values, carry their dimensions.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies how tables and tensors cross language boundaries. Tables
-travel as Arrow columnar data; this section defines how a schema constrains
-them, and when they are passed with no copy. Tensors travel as dimension and
-data pairs; this section defines how dimensions are represented and checked.</p>
+<p><strong>The table block.</strong> A table is always the whole value of a data packet, sent
+by pointer with format Arrow (<a href="#build-packets">Packet protocol</a>), even when shared memory is
+otherwise disabled. Tables cannot be nested inside other values. The block
+holds a header, then node descriptors, buffer descriptors, a string table,
+and the data buffers, each buffer aligned to 64 bytes from the start of the
+block, with zeroed padding.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Offset</th>
+<th class="tableblock halign-left valign-top">Size</th>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">magic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0xA770DA7A</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2. Any other version is rejected.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">columns</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of columns; equals the root node&#8217;s child count.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">12</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nodes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of node descriptors.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">rows</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of rows; equals the root node&#8217;s length.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">24</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">total size</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes in the block; every offset is checked against it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metadata offset</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">40</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">metadata length</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reserved, 0.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">44</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">buffers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of buffer descriptors.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">48</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nodes offset</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Where the node descriptors start.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">52</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">buffers offset</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Where the buffer descriptors start.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">56</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">strings offset</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Where the string table starts.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">60</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">strings length</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bytes in the string table.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A <strong>node</strong> is one Arrow array: the root is a struct whose children are the
+columns, and a nested column has nodes of its own. Each 64-byte node
+descriptor carries what the Arrow C Data Interface needs to rebuild the
+array: length, null count, flags, the format string and column name (as
+offsets into the string table), and the index and count of its buffers and
+children. Each 32-byte buffer descriptor gives a buffer&#8217;s offset and size
+within the block. Slices are compacted and dictionaries decoded before a
+table is written, so every node starts at offset 0 and has no dictionary.</p>
+</div>
+<div class="paragraph">
+<p><strong>Zero-copy import.</strong> A receiver validates the block (every offset in bounds,
+every buffer long enough for its node), then builds Arrow C Data Interface
+structures whose buffers point into the block, holding a reference on it for
+as long as the table lives. Python receives a <code>pyarrow</code> record batch, R an
+<code>arrow</code> record batch, C&#43;&#43; a nanoarrow-based handle, and Rust an
+<code>arrow-rs</code> record batch, each without copying the data. Converting further,
+to a pandas or R data frame, is the language library&#8217;s own copy. Sending a
+table writes a new block, except that a pool returning a table it received,
+unchanged, passes the same block on.</p>
+</div>
+<div class="paragraph">
+<p><strong>Declared columns.</strong> A table&#8217;s type lists columns (<code>T:</code> in its schema;
+<a href="#build-voidstar">Voidstar format and schema strings</a>), and that list is a lower bound: a table may have more
+columns, which travel after the declared ones. A declared column may be a
+boolean, integer, float or string, or an optional of one of these; any Arrow
+type may appear among the extra columns. On send, a declared column of
+another type is cast if the cast loses nothing, and refused otherwise. On
+receive, every declared column must be present with an acceptable type, and
+a column not declared optional must have no nulls. The number of rows is
+not part of the type and is not checked.</p>
+</div>
+<div class="paragraph">
+<p><strong>Tables from files.</strong> A table argument given as a file is read in the pool,
+not the nexus. Arrow IPC and Parquet are recognized by their magic bytes;
+otherwise the extension (<code>.csv</code>, <code>.tsv</code>, <code>.json</code>) or the content decides.
+CSV columns bind to declared columns by header name. As output, the nexus
+writes a table as JSON rows, JSON lines, CSV, TSV, Arrow IPC or Parquet.</p>
+</div>
+<div class="paragraph">
+<p><strong>Tensors</strong> are not a runtime type. A tensor is a pair of its dimensions and
+its elements in one flat, row-major array, and travels as that ordinary
+voidstar tuple: <code>Matrix 2 2 Real</code> has schema <code>t2t2jja:4f8</code>. Because the
+array of numbers is 64-byte aligned in shared memory, Python receives a
+read-only numpy view over it with no copy. When the dimensions are known at
+compile time, the array&#8217;s length is checked against their product.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="build-workers"><a class="anchor" href="#build-workers"></a>13.8. Worker model</h3>
+<h3 id="build-streaming"><a class="anchor" href="#build-streaming"></a>13.9. Streaming and memory mapping</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A <strong>stream</strong> is a list too large or too long-lived to hold in memory at once,
+kept in a file and read or written in batches. Any pool can read a stream
+another pool is writing, and a finished stream file can be read at random
+without loading it. This section specifies the stream file format, its
+compression, how processes share an open stream, and what a reader may rely
+on while the stream is still being written.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies concurrency inside a running program: the threads in the
-nexus, the worker pool inside each language process, and how workers are
-created, scaled, and parked. Defines the locks and their scope, the guarantees
-about ordering of calls and replies, and how parallel calls from one pool into
-another are kept from deadlocking.</p>
+<p><strong>Stream types.</strong> Three Morloc types name a stream, each a 16-byte slot in
+voidstar (schema codes <code>F</code>, <code>I</code>, <code>O</code>):</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IFile [a]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A finished file, read at random by element index.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A stream read forward in batches. Several readers share one cursor, so together they consume each batch once.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>OStream a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A stream written in batches.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The slot&#8217;s first byte says what follows in its last eight: 0 for a relative
+pointer to a path (length, then bytes), 1 for the index of an open stream in
+the run&#8217;s stream registry (below). A path can cross between runs; an index
+means something only inside the run that opened it.</p>
+</div>
+<div class="paragraph">
+<p><strong>File format.</strong> A stream file is a sequence of packets (<a href="#build-packets">Packet protocol</a>):</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Part</th>
+<th class="tableblock halign-left valign-top">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Head</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A stream packet (type 3) whose metadata holds the schema of the list, <code>a</code> followed by the element schema. Its length field is all ones.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Batches</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data packets, one per batch. Each payload is a self-contained voidstar array of that batch&#8217;s elements, its pointers relative to the start of the payload.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Footer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A footer packet (type 4) whose metadata holds a batch index (offset and element count of every batch), a final marker, and a status.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tail</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8 bytes: the footer&#8217;s length as a 32-bit integer, then the magic bytes reversed (<code>07 07 f8 6d</code>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A reader finds the footer from the end of the file through the tail, so
+random access needs no scan. The status is <code>closed</code> for a stream written to
+the end, or <code>paused</code> for one a writer stopped and may resume. While a stream
+is open for writing, a temporary footer carrying only diagnostics is
+rewritten after every batch, so the file always ends in a valid tail.</p>
+</div>
+<div class="paragraph">
+<p><strong>Compression.</strong> Each batch is compressed separately with Zstandard, so a
+reader can decompress any batch without the others. A batch is split into
+independent frames of at most 16 MiB, listed in the batch&#8217;s metadata, so
+they can be decompressed in parallel straight into shared memory. The user&#8217;s
+compression level 0-9 maps to Zstandard levels 0, 1, 3, 6, 9, 12, 15, 19, 21
+and 22, with long-distance matching from level 7.</p>
+</div>
+<div class="paragraph">
+<p><strong>Write-behind.</strong> A writer fills a buffer in shared memory (16 MiB by
+default). When compression is on and the buffer is full, it is sealed and
+handed to background threads for compression, and the writer continues into
+a fresh buffer. Compressed batches are appended to the file in the order
+they were sealed, so compression never reorders elements. The writer waits
+only when more than a fixed number of sealed batches are outstanding (8 by
+default), and every flush, close and end of call writes everything sealed so
+far.</p>
+</div>
+<div class="paragraph">
+<p><strong>Sharing an open stream.</strong> A stream&#8217;s identity lives in a <strong>registry</strong> in
+shared memory, created with the run&#8217;s first volume. Each slot records the
+file&#8217;s path, schema, write cursor, element count and batch index, and a
+generation number that changes when the slot is opened and when it is
+released. A stream index carries the generation it was made with, and every
+operation checks it, so an index to a closed stream can never touch the
+stream that later reuses its slot. Each process keeps its own descriptor and
+read-only mapping of the file. A writer holds an exclusive file lock while
+the stream is open.</p>
+</div>
+<div class="paragraph">
+<p><strong>Readers.</strong> An <code>IFile</code> maps the file and locates an element through the
+batch index. A batch stored uncompressed and 8-byte aligned is read where it
+lies in the mapping; any other batch is decompressed or copied into shared
+memory first. An <code>IStream</code> reads forward from the shared cursor. A reader
+that opens a stream still being written sees the batches written before it
+opened, up to the temporary footer; reading past the end yields an empty
+batch.</p>
+</div>
+<div class="paragraph">
+<p><strong>Rewriting a file.</strong> Opening an <code>OStream</code> on a file that already has data
+writes a new file and renames it into place, so a reader that still has the
+old file mapped keeps a consistent view. Where a rename is impossible (the
+directory is not writable, say) and nothing in the program is reading the
+file, it is truncated in place instead. The runtime never deletes a stream
+file; only a half-written temporary file is removed on failure.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="build-errors"><a class="anchor" href="#build-errors"></a>13.9. Error propagation</h3>
+<h3 id="build-errors"><a class="anchor" href="#build-errors"></a>13.10. Error propagation</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A failure can start in any language, several calls deep, in a different
+process from the code that should handle it. This section specifies the two
+kinds of failure the runtime distinguishes, how a recoverable failure travels
+back through pools as an error packet gathering a traceback, how <code>@try</code> turns
+it into a value, and how a failure of the runtime itself ends a run.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies how a failure travels through a program. Covers a foreign
-exception in one pool, a runtime fault such as a failed allocation, and a
-crashed process. Each becomes an error packet, crosses process boundaries with
-its context intact, and reaches the caller, either as a <code>Try</code> value or as the
-CLI&#8217;s error output and exit code. Defines what information is preserved at each
-hop.</p>
+<p><strong>Two kinds of failure.</strong></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Kind</th>
+<th class="tableblock halign-left valign-top">Examples</th>
+<th class="tableblock halign-left valign-top">Caught by <code>@try</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Recoverable</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">An exception raised by user code in any language; <code>@throw</code> in Morloc; a Rust panic in user code.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Infrastructure</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A pool that crashed or was killed; a broken connection; an internal error (panic) in the runtime.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A recoverable failure means the computation went wrong; the program can
+decide what to do. An infrastructure failure means the system that runs the
+program went wrong, so no Morloc code can be trusted to handle it.</p>
+</div>
+<div class="paragraph">
+<p><strong>Recoverable failures.</strong> Each generated function catches a failure that
+escapes it, appends one traceback line, and raises it again:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>  at &lt;function&gt; [&lt;language&gt;] (mid=&lt;index&gt;, &lt;file&gt;:&lt;line&gt;:&lt;column&gt;)</pre>
 </div>
 </div>
-<div class="sect2">
-<h3 id="build-streaming"><a class="anchor" href="#build-streaming"></a>13.10. Streaming and memory mapping</h3>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies streams: values too large or too long-lived to hold in
-memory at once. Defines the stream file format, how it is divided into chunks,
-and how the chunks are compressed, including write-behind compression. Covers
-how readers map a stream into memory and access it at random, which element
-types and variants a stream may hold, and the guarantees for a stream that is
-still being written.</p>
+<p>Anonymous functions are named <code>_</code>. At the edge of a pool, the failure
+becomes an error packet (status 1, text payload; <a href="#build-packets">Packet protocol</a>) carrying
+the message and the lines so far. The calling pool&#8217;s stub reads the error
+packet and raises it as a native failure in its own language, whose
+functions then add their lines. So the traceback grows across every pool
+the failure crosses, innermost call first:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>nope
+  at _ [py] (mid=2366, t.loc:12:23)
+  at _ [cpp] (mid=2364, t.loc:12:17)
+  at chain [cpp] (mid=4, t.loc:1:34)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A program built with <code>morloc make --debug</code> also records each active frame&#8217;s
+arguments when a failure passes through it, and adds them to the message.</p>
+</div>
+<div class="paragraph">
+<p><strong><code>@try</code>.</strong> <code>@try e</code> evaluates <code>e</code>. If it completes, the result is <code>Ok v</code>; if
+a recoverable failure escapes it, the result is <code>Err msg</code>, where <code>msg</code> is
+the message with the traceback gathered so far. A failure is caught the same
+way whichever language raised it.</p>
+</div>
+<div class="paragraph">
+<p><strong>At the nexus.</strong> A failure that reaches the nexus ends a one-shot run with
+<code>Error: run failed</code>, the message and its traceback on standard error, and
+exit status 1. A command whose result is a variant whose arm is named <code>Err</code>
+is treated the same way: the value is printed on standard error and the run
+exits 1, so a failing command fails in a shell pipeline even though it
+returned a value. A daemon answers the request as failed and keeps serving.</p>
+</div>
+<div class="paragraph">
+<p><strong>Infrastructure failures.</strong> A pool that loses a pool it called, or whose
+runtime breaks one of its own invariants, does not answer with an error
+packet: it ends its own worker. Its caller then sees a closed connection,
+which is itself an infrastructure failure, so the failure travels to the
+nexus whatever code lies between, and no <code>@try</code> along the way can catch it.
+The nexus reports which pool died and how, ends the run with status 1 (70 if
+the nexus itself panicked; <a href="#build-lifecycle">Process lifecycle</a>), and removes the run&#8217;s
+processes and shared memory. A daemon fails the request and restarts its
+pools. A process that dies prints its own diagnostics to the standard error
+it shares with the nexus, so they reach the user directly.</p>
+</div>
+<div class="paragraph">
+<p><strong>Closed output.</strong> Writing to a standard output that the reader has closed
+(as with <code>| head</code>) is neither: the pool answers with status 2, and the nexus
+ends the run with status 141, as a native program would.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="build-collect"><a class="anchor" href="#build-collect"></a>13.11. Collect, fold, parse and render</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A command&#8217;s docstring can attach data-flow directives to it: <code>@parse</code> reads
+an argument from a file in a foreign format, <code>@collect</code> streams a command&#8217;s
+output instead of returning it whole, and output actions (<code>@render</code>, <code>@with</code>,
+with <code>@fold</code>) turn that output into other results, each written to its own
+destination. The chapters on <a href="#arguments">Arguments</a>, <a href="#streaming-output">Streaming output with <code>@collect</code></a> and
+<a href="#output-actions">Output actions</a> show how to use them; this section specifies where each
+step runs, what is held in memory, and how several outputs are produced from
+one run.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the CLI&#8217;s data-flow directives: <code>@collect</code> and <code>@fold</code>,
-which gather a stream into a value, and <code>@parse</code> and <code>@render</code>, which convert
-between external formats and typed values. Defines buffering and when data is
-materialized versus streamed. Covers how parsers and formatters are chosen, how
-several renders write to separate named outputs, and the full path data takes
-from input file to output.</p>
+<p><strong>Everything is compiled into ordinary commands.</strong> The compiler lowers each
+directive into Morloc code and, where needed, into extra commands in the
+manifest that the user never names: a <strong>parse entry</strong> per command with parsed
+arguments, an <strong>action entry</strong> per output action, and a <strong>replay entry</strong> per
+action for multi-output runs. The nexus only chooses which entries to run and
+where their output goes; all user-level work (parsing, folding, formatting)
+runs in pools.</p>
+</div>
+<div class="paragraph">
+<p><strong><code>@parse</code>.</strong> An argument declares named formats, each with file extensions.
+The nexus picks a format by looking only at the argument&#8217;s text, never the
+file&#8217;s contents:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>A <code>name:</code> prefix selects that format (<code>morloc:</code> reads an ordinary Morloc
+value).</p>
+</li>
+<li>
+<p>Otherwise the longest matching extension wins, ignoring case.</p>
+</li>
+<li>
+<p>Otherwise the argument is read as an ordinary value. <code>-</code> is standard input,
+which at most one argument may claim.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The parse entry then calls the format&#8217;s handler in a pool with the path. A
+plain argument&#8217;s handler returns the value, and every such argument is parsed
+before the command body starts. An <code>IStream</code> argument&#8217;s handler feeds batches
+to the command as it runs. An <code>IFile</code> argument is first written to a stream
+file in a temporary <strong>stage</strong> directory and opened from there. A handler&#8217;s
+failure names the argument, format and path, and ends the run with status 1.</p>
+</div>
+<div class="paragraph">
+<p><strong><code>@collect</code>.</strong> <code>@collect producer</code> gives the producer a sink and streams
+whatever it passes to the sink to the command&#8217;s output, batch by batch. The
+batches travel through shared memory to the nexus, which writes each in the
+requested format as it arrives. Nothing is gathered: memory use does not
+grow with the output.</p>
+</div>
+<div class="paragraph">
+<p><strong>Output actions</strong> consume what the command collects. Each runs as its own
+entry, a copy of the command whose sink is replaced:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Kind</th>
+<th class="tableblock halign-left valign-top">Sink, and what the handler receives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">gather</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Writes every batch to a temporary stream file. The handler receives the whole list, or an <code>IFile</code> handle to read it at random without loading it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@stream</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Calls the handler on each batch inside the sink. Memory stays constant.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@fold</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Folds each batch into an accumulator with <code>@fold</code>, starting from <code>@init</code>. Each thread keeps its own accumulator; at the end they are merged with <code>@combine</code> in the order the threads first folded, and the handler receives the result.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A <code>@render</code> handler returns bytes (<code>Str</code>, <code>[Str]</code>, <code>Vector U8</code> or a list of
+<code>Vector U8</code>), which are written verbatim, ignoring <code>-f</code>. A <code>@with</code> handler
+returns a typed value, which is written in the <code>-f</code> format.</p>
+</div>
+<div class="paragraph">
+<p><strong>One output.</strong> When only standard output is wanted, the nexus runs the
+action&#8217;s entry directly (or the command itself) and writes its result.</p>
+</div>
+<div class="paragraph">
+<p><strong>Several outputs.</strong> When an action writes to a file, or a command has more
+than one action, the run is <strong>staged</strong>:</p>
+</div>
+<div class="imageblock kroki">
+<div class="content">
+<img loading="lazy" src="static/img/diag-99fe3d09edc27db5c3fd0d2a44a3594ce1b9ab118e4f6ff39e9739c550e4c01a.svg" alt="Diagram">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>A stage process runs the command once and saves its value, its collected
+stream and its arguments as packet files. If standard output wants the
+command&#8217;s own output, the stage also writes it there as it runs.</p>
+</li>
+<li>
+<p>Each action is replayed in its own process on the saved output, writing to
+a temporary file beside its target.</p>
+</li>
+<li>
+<p>Only when every process has succeeded are the temporary files renamed into
+place. A failure removes them and ends the run with the failing process&#8217;s
+status, so a named output is either complete or untouched.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The command body runs once however many outputs are requested, so a slow or
+effectful command is never repeated per output. Output formats are checked
+against every destination before anything runs, and conflicting destinations
+(two claims on standard output, two outputs to one file) are a usage error
+with status 2.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="build-runs"><a class="anchor" href="#build-runs"></a>13.12. Run directory, caching and logging</h3>
+<h3 id="build-runs"><a class="anchor" href="#build-runs"></a>13.12. Logs and result caching</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A run can leave two kinds of state behind it, both opt-in: a <strong>log directory</strong>
+recording what the run did, and a <strong>result cache</strong> that lets a later run skip
+a call it has already made. Both outlive the run, unlike the private run
+directory of <a href="#build-lifecycle">Process lifecycle</a>, which is always removed. This section
+specifies how each is activated, its layout and formats, and what holds
+when several runs share them.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_log_directory"><a class="anchor" href="#_log_directory"></a>13.12.1. Log directory</h4>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies the state a run keeps outside the process. Defines the run
-directory layout and its activation rules, how cache keys are computed and when
-a cached result is reused or invalidated, and the format and levels of the run
-log. States the concurrency guarantees when several runs share a cache or a run
-directory.</p>
+<p><code>--log-dir DIR</code> (or <code>MORLOC_LOG_DIR</code>) gives each run its own directory,
+<code>DIR/&lt;run id&gt;/</code>, where the run id is the start time in UTC plus eight random
+hex digits (<code>20261009T143000Z-1a2b3c4d</code>). A Morloc program started by
+another program&#8217;s pool inherits the outer run&#8217;s directory, so a nested
+pipeline logs into one place. The directory is created on first write and
+never removed.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">File</th>
+<th class="tableblock halign-left valign-top">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>log</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Run-scope lines: the prologue, the epilogue, and the benchmark summary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;label&gt;/log</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Start, pass and fail lines for calls in a labeled group.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>summary.json</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Written once, at exit, by atomic rename (below).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>debug/inputs/&lt;hash&gt;.pkt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Programs built with <code>--debug</code> only: the arguments of each frame a failure passed through, as self-contained voidstar packets.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><code>summary.json</code> holds <code>status</code> (<code>ok</code> or <code>fail</code>), <code>exit_code</code>, <code>command</code>,
+<code>run_id</code>, <code>started_at</code> and <code>finished_at</code> (RFC 3339), <code>wall_ms</code>,
+<code>morloc_version</code> and <code>error</code> (null on success). Because it appears only by
+rename, a script may wait for the file to exist and then read it whole.
+<code>--summary FILE</code> writes the same object to a chosen path instead.</p>
+</div>
+<div class="paragraph">
+<p><strong>Log lines</strong> come from templates in the program&#8217;s configuration, with
+placeholders such as <code>{name}</code>, <code>{run_id}</code>, <code>{runtime}</code>, <code>{exit_code}</code> and
+<code>{error}</code>. Placeholders known at build time are filled in by the compiler;
+the rest by the nexus as the line is written. Every line goes to standard
+error (colored only on a terminal) and to the matching log file. There are no
+levels; <code>--quiet</code> suppresses all of them. At exit the nexus writes the
+benchmark summary (count, mean, min, max, total and standard deviation per
+labeled function, from one timing record per successful call), then the
+epilogue, then <code>summary.json</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_result_cache"><a class="anchor" href="#_result_cache"></a>13.12.2. Result cache</h4>
+<div class="paragraph">
+<p>A labeled group configured with <code>cache: true</code> has its calls cached. The
+compiler wraps each such call: compute a key, return the stored result on a
+hit, otherwise run the call and store its result. Only successful results
+are stored.</p>
+</div>
+<div class="paragraph">
+<p><strong>The key</strong> is a 64-bit xxHash of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the <strong>pool fingerprint</strong>: a hash of the generated source of the calling
+pool, the build parameters, and any files the program lists under
+<code>hash-include</code>. A sourced foreign file is covered only through the
+generated code that names it; list it under <code>hash-include</code> to make its
+contents part of the key;</p>
+</li>
+<li>
+<p>the function&#8217;s index in that pool;</p>
+</li>
+<li>
+<p>each argument, hashed by walking its voidstar value under its schema and
+following its pointers, so the key does not depend on where the value&#8217;s
+parts lie in shared memory.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Entries</strong> live under <code>MORLOC_CACHE_BASE</code>, else <code>$XDG_CACHE_HOME/morloc/cache</code>,
+else <code>~/.cache/morloc/cache</code>, else <code>cache</code> in the per-user runtime
+directory. An entry is two files, both packets
+(<a href="#build-packets">Packet protocol</a>):</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">File</th>
+<th class="tableblock halign-left valign-top">Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;label&gt;/&lt;key&gt;.dat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A data packet whose payload is the path of the result file.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data/&lt;value hash&gt;.dat</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The result as a voidstar packet with its schema, optionally Zstandard-compressed.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Results are stored by the hash of their value, so many calls that return the
+same value share one result file. An entry that is truncated or whose result
+file is missing is deleted and treated as a miss. Nothing is evicted, and
+an entry is invalidated only by a change of key.</p>
+</div>
+<div class="paragraph">
+<p><strong>Sharing.</strong> The cache takes no locks. Every file is written to a unique
+temporary name beside its target, synced, and renamed into place, and the
+result file is written before the key file that names it. So a reader sees a
+complete entry or none, and two runs storing the same entry at once both
+succeed with the same content.</p>
+</div>
 </div>
 </div>
 </div>

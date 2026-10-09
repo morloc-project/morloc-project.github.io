@@ -1,5 +1,58 @@
-# 12.4. Environment solving
+# 12.5. Environment solving
 
-Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md
 
-**STUB**: Specifies the contract between the compiler and the environment solver: which events trigger solving (build, install, sync), what the compiler asks for, and what it receives back. Defines how foreign packages for each language are provided to an environment, how the solved result is locked, and the guarantees the lock gives (reproducibility, and when a lock is reused or invalidated). Describes where environments and locks live and how concurrent operations on one environment are kept safe.
+> A program’s foreign packages must be installed, at compatible versions, before its pools can compile or run. The compiler knows what a program needs; the environment manager knows how to provide it. This section specifies the contract between them: when the compiler asks, what it sends, how the manager turns every program’s requests into one solved set of packages, and what holds when solves fail or run at once.
+
+## 12.5.1. The build hook
+
+`morloc make` asks for its packages only inside a managed environment, when `MORLOC_ENV` is set ([Environments](https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md)). After writing the pool sources and before compiling them, it runs:
+
+```
+$MORLOC_BUILD_HOOK sync --name <key> --spec envspec.json --root <project> [--installed]
+```
+
+`<key>` is the program’s key ([Compilation artifacts](https://morloc-project.github.io/docs/build-architecture/build-artifacts.md)), `envspec.json` is the document described in [Module resolution](https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md), and `--installed` marks a build that is being installed rather than built in place. The hook writes its messages to standard error. Exit status 0 means the environment now satisfies the specification; anything else fails the build. If `MORLOC_ENV` is set but no hook is named, a program that declares foreign packages fails to build, since nothing could provide them.
+
+The hook asks the compiler named by `MORLOC_BIN` for its **language-support table**: for each language, the runtime package and version range the compiler supports and the packages its bindings need, plus the toolchain the compiler itself needs. A program’s request is always solved together with this table, so a program can never ask for an interpreter the runtime cannot bind.
+
+Both documents carry versions. The dependency specification has an integer version that the reader must match exactly; it is refused with "rebuild the program" if older and "upgrade the manager" if newer. The language-support table has a `MAJOR.MINOR` schema; a reader accepts any minor version of the major it knows and ignores fields it does not recognise.
+
+## 12.5.2. One world per environment
+
+An environment has one set of installed packages, its **solved world**. It is the solution of the union of:
+
+-   the specification of every installed program;
+-   the specification of every program built in place (**scratch** builds), kept until the environment is cleaned;
+-   the compiler’s language-support requirements;
+-   extra packages the user named for the environment;
+-   the interpreter pins (below).
+
+One world means one version of each package. Two programs constraining the same package must both be satisfied. A requirement nobody can satisfy fails the command that added it.
+
+Each requested package is provided, delegated or refused. conda and PyPI packages are solved into the world. Rust crates and Julia packages are left to the language’s own build tool, which resolves them when the pool is compiled. A source the manager does not support is refused, never silently dropped, as are contradictory requests for one package: two conda channels, two local paths, or a local path and a version.
+
+A local Python package of an installed program ([Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)) is copied into the environment under a name derived from a hash of its contents, and the requirement points at the copy. The installed program then no longer depends on the project directory, the same path is valid on the host, in a container and in a frozen image, and reinstalling unchanged source does no work. Copies that no installed program references are reclaimed.
+
+## 12.5.3. Solving
+
+Each environment has one solve lock, shared by the host and its container. Recording a program’s specification, gathering the world, solving it, and recording the result all happen while holding it, so concurrent builds in one environment serialize, and the second usually finds its world already solved.
+
+The world reduces to a canonical **requirement digest**. If it equals the digest of the last successful solve and the solved packages are present, nothing is done. The digest is written last, after the packages are installed and their activation captured, so an interrupted solve is redone rather than trusted.
+
+Otherwise the solver first tries to install the existing lock unchanged, and re-solves only if the lock cannot satisfy the new world. Package versions therefore move only when a new requirement forces them to.
+
+**Interpreter pins.** The Python and R bindings are compiled against one minor version of their interpreter ([Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md)). After the first solve that provides an interpreter, its minor version is pinned, and later solves stay within it. A requirement that needs another minor fails with a message to update the environment, which drops the pin and rebuilds the bindings.
+
+**Failure.** If a solve fails, the requirements recorded for every program are restored to what they were before the command. The solver’s own manifest, lock and partially installed packages may be left changed; the next successful solve reconciles them, and the digest, removed at the start of the solve, guarantees that it runs.
+
+**Immutable environments.** An environment marked immutable — one being served, or a frozen image — refuses any request that would change its world or rebuild a binding, before writing anything.
+
+## 12.5.4. When solving happens
+
+| Event | Solve |
+| --- | --- |
+| `morloc make` in an environment | Through the build hook, as above. |
+| `mim install` | Once before the build, from the specification the compiler reports without building, so packages are present when the pools compile; then through the hook. |
+| `mim modify` (languages, extra packages) and `mim update` | A solve of the whole world, followed by a rebuild of the runtime and bindings when the Morloc version or an interpreter changed. |
+| Cleaning the environment | Scratch specifications are discarded and the world re-solved from installed programs only. |

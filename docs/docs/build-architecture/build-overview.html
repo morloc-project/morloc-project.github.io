@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li class="active"><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="build-workers.html">13.8. Worker model</a></li>
-<li><a href="build-errors.html">13.9. Error propagation</a></li>
-<li><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="build-workers.html">13.4. Worker model</a></li>
+<li><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -732,13 +773,114 @@
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Runtime overview"><div class="sect2">
 <h3 id="build-overview"><a class="anchor" href="#build-overview"></a>13.1. Runtime overview</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A running Morloc program is a small set of cooperating processes: one <strong>nexus</strong>
+and one <strong>pool</strong> per language the program uses. The nexus is the program’s
+entry point and its only owner of shared resources. The pools execute the
+generated code. This section maps how they fit together; the sections that
+follow specify each piece.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Gives the high-level picture of a running program. The nexus is the
-entry point that parses the request, reads the manifest, and dispatches calls.
-Pools are one long-lived process per language that execute the generated code.
-Explains how a call travels from the nexus into a pool, between pools, and
-back, and when data moves inline versus through shared memory. Serves as the
-map for the rest of the chapter.</p>
+<p><strong>The nexus</strong> is a single precompiled binary shared by every Morloc program.
+It reads the program’s manifest, interprets the request, starts the pools the
+request needs, sends the first call, and delivers the result. It runs in one
+of four modes:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Mode</th>
+<th class="tableblock halign-left valign-top">Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">One request from the command line, then exit. Starts only the pools the command can reach.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Daemon</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Long-running server for many requests over a Unix socket, TCP or HTTP. Starts every pool at startup.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Long-running Model Context Protocol server for agents, on stdio or HTTP. Starts every pool at startup.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Call packet</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reads one prebuilt call from a file and writes the reply to a file. Used for jobs on cluster nodes.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A command whose body calls no foreign function is <strong>pure</strong>. The nexus evaluates
+it itself and starts no pools.</p>
+</div>
+<div class="paragraph">
+<p><strong>A pool</strong> is one long-lived process per language. It holds every function
+the program uses from that language, compiled or loaded together, and serves
+calls on its own socket. Calls between functions in the same pool are
+ordinary native calls: no serialization and no IPC.</p>
+</div>
+<div class="paragraph">
+<p><strong>A call that crosses languages</strong> goes directly from the calling pool to the
+callee’s pool. The nexus is not on the path. Every cross-process call opens
+one connection, sends one call packet, and receives one reply packet.</p>
+</div>
+<div class="imageblock kroki">
+<div class="content">
+<img loading="lazy" src="../static/img/diag-59440dc2c47612dc9b26fc2809b04987f920cf98795a953da52b5aac4c735c67.svg" alt="Diagram">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Data travels in one of three ways.</strong> Every value that leaves a process is
+first serialized to the language-neutral binary form described in
+<a href="build-voidstar.html">Voidstar format and schema strings</a>. Where that serialized form then goes depends on its size
+and on whether shared memory is available:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Route</th>
+<th class="tableblock halign-left valign-top">When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inline</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The serialized value is at most the inline threshold (64 KiB by default). It is copied into the packet.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shared memory</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The value is larger. It is written into shared memory and the packet carries a pointer to it (<a href="build-shm.html">Shared memory layout</a>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">File</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The value is larger and shared memory is disabled. It is written to a temporary file and the packet carries the path.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>A shared-memory pointer is relative: it names a block by volume and offset,
+so it means the same block in every process of the program. This lets a pool
+read a large argument where its sender wrote it, without a copy across the
+socket.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ownership.</strong> The nexus creates the program’s shared-memory namespace and
+temporary directory, and it alone removes them. Each pool watches a pipe whose
+write end only the nexus holds, and exits when the nexus does. Startup,
+shutdown and crash handling are specified in <a href="build-lifecycle.html">Process lifecycle</a>.</p>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>

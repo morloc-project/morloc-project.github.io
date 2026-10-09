@@ -1,5 +1,69 @@
-# 13.6. Voidstar format and schema strings
+# 13.7. Voidstar format and schema strings
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-voidstar.html | prev: https://morloc-project.github.io/docs/build-architecture/build-shm.md | next: https://morloc-project.github.io/docs/build-architecture/build-tables.md
 
-**STUB**: Specifies voidstar, the language-neutral binary layout every serialized value takes: the layout of each primitive, string, array, tuple, record, optional and sum type, along with alignment and the rules for nested data. Defines the schema string grammar that describes a layout, and how a schema and a buffer together let any language read a value with no other type information.
+> **Voidstar** is the binary layout every value takes when it leaves a language: C-like fixed-width slots, with variable-length parts reached through relative pointers. A **schema string** is a compact description of a type’s layout. A buffer plus its schema is enough for any language to read the value, with no other type information. Every binding reads and writes this one layout, so a value crosses between any two languages with no intermediate format.
+
+## 13.7.1. Schema strings
+
+A schema is a string of type codes in prefix order. Codes that take children are followed by them; codes that take a count are followed by it.
+
+| Code | Type | Followed by |
+| --- | --- | --- |
+| `z` | Unit | nothing |
+| `b` | Bool | nothing |
+| `i1` `i2` `i4` `i8` | Signed integer of 1, 2, 4, 8 bytes | \- |
+| `u1` `u2` `u4` `u8` | Unsigned integer | \- |
+| `f4` `f8` | Float (`Real` is `f8`) | \- |
+| `j` | `Int`, arbitrary precision | nothing |
+| `s` | String (UTF-8) | nothing |
+| `a` | Array | the element schema; `a:N` declares the length as decimal *N* |
+| `t` | Tuple | count, then each element schema |
+| `m` | Record | count, then for each field its name and schema |
+| `?` | Optional | the inner schema |
+| `e` | Enum (no constructor has fields) | count, then constructor names |
+| `v` | Variant (sum type) | count, then for each arm its name, field count and field schemas |
+| `T` | Table ([Tables and tensors on the wire](https://morloc-project.github.io/docs/build-architecture/build-tables.md)) | optionally `:` count, then column names and schemas |
+| `F` `O` `I` | Input file, output stream, input stream ([Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md)) | nothing |
+| `&` | Names the schema that follows, for recursion | name, then the schema |
+| `^` | Refers back to an enclosing `&` | name |
+
+Counts and name lengths are base-64 numbers. A value below 64 is one digit from `0-9`, `a-z`, `A-Z`, `+`, `/` (0 to 63). A larger value is written as `=`, its low digit, and the rest of the number, recursively: 100 is `=A1`. Names are written as their length followed by their bytes. Enums and variants have at most 256 constructors, and nesting is limited to 128 levels.
+
+A schema may also carry **hints** in angle brackets (`<dict>`) naming the concrete type a language should build. Hints do not change the layout and are dropped from the canonical form stored in packets.
+
+Examples, from real programs:
+
+| Schema | Type |
+| --- | --- |
+| `j` | `Int` |
+| `v23Err1s2Ok1z` | `Try Str ()`: arm `Err` with one `s` field, arm `Ok` with one `z` field |
+| `m24names2idi4` | `{name :: Str, id :: I32}` |
+| `&4Treev24Leaf04Node24Tree4Tree` | `data Tree = Leaf \| Node Tree Tree` |
+| `t3sjaau1` | A function value: home language, function index, captured values as packets |
+
+## 13.7.2. Layout
+
+Every value has a fixed-width **slot**. Integers are little-endian.
+
+| Code | Width | Align | Slot contents |
+| --- | --- | --- | --- |
+| `z` | 0 | 1 | Nothing. |
+| `b`, `i1`, `u1` | 1 | 1 | The value. |
+| `i2` …​ `f8` | 2, 4, 8 | natural | The value. |
+| `e` | 1 | 1 | Constructor ordinal, in declaration order. |
+| `s`, `a` | 16 | 8 | 8-byte count (bytes for a string, with no NUL; elements for an array), then a relative pointer to the data. An empty one holds the null pointer. |
+| `j` | 16 | 8 | 8-byte limb count, then a word. With one limb the word is the value itself. With more, it points to that many 64-bit limbs, least significant first, in two’s complement. |
+| `t`, `m` | computed | `t`: largest field; `m`: 8 | C struct rules: each field at the next offset aligned for it, total rounded up to the largest field alignment. Field names exist only in the schema. |
+| `?` | 8 | 8 | A relative pointer to the value, or null when absent. |
+| `v` | 16 | 8 | Byte 0 is the arm’s ordinal, bytes 1-7 zero, bytes 8-15 a pointer to the arm’s fields laid out as a tuple. An arm with no fields stores null. |
+
+Array elements are packed at the element’s width. The data of an array of numbers starts on a 64-byte boundary, so a binding can hand it to vector instructions or a numeric library without copying. A record `{name :: Str, age :: I32}` puts `name` at offset 0 and `age` at 16, with width 24.
+
+Variant and optional slots hold a pointer rather than the value itself so that every slot’s width is fixed. This is what lets a recursive type exist: a `Tree` slot is 16 bytes however deep the tree goes. For the same reason, a type may refer to itself only through an array, optional or variant.
+
+**Relative pointers.** A pointer is a signed 64-bit integer. Bits 62-48 name a shared-memory volume and bits 47-0 an offset into it ([Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md)); -1 is null. Because a pointer names a volume rather than an address, it means the same thing in every process that maps the volumes. When a value is copied out of shared memory into one self-contained buffer (to send inline or write to disk), its pointers use volume 0 and are offsets from the start of the buffer; loading the buffer back into shared memory rebases them.
+
+**Reading a value** takes only the schema and the buffer: the schema gives each slot’s width and each field’s offset, a pointer is followed to reach variable-length data, and a variant’s tag selects which arm’s schema governs its payload.
+
+**Other encodings.** A value can also be written as JSON or MessagePack, for the command line, files and caches. MessagePack writes tuples and records as arrays, enums as ordinals, and variants as `[tag, payload]`; JSON writes records as objects and constructors by name. Tables have neither form and travel only as Arrow.

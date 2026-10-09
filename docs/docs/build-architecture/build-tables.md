@@ -1,5 +1,33 @@
-# 13.7. Tables and tensors on the wire
+# 13.8. Tables and tensors on the wire
 
-Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-tables.html | prev: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md | next: https://morloc-project.github.io/docs/build-architecture/build-workers.md
+Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-tables.html | prev: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md | next: https://morloc-project.github.io/docs/build-architecture/build-streaming.md
 
-**STUB**: Specifies how tables and tensors cross language boundaries. Tables travel as Arrow columnar data; this section defines how a schema constrains them, and when they are passed with no copy. Tensors travel as dimension and data pairs; this section defines how dimensions are represented and checked.
+> Tables are columnar, and every language with a serious table library already agrees on one columnar memory format: Apache Arrow. So a table does not travel as voidstar. It travels as Arrow data laid out in one shared-memory block, which each language imports without copying. This section specifies that block, how a table’s declared columns constrain it, and how tensors, which are ordinary voidstar values, carry their dimensions.
+
+**The table block.** A table is always the whole value of a data packet, sent by pointer with format Arrow ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)), even when shared memory is otherwise disabled. Tables cannot be nested inside other values. The block holds a header, then node descriptors, buffer descriptors, a string table, and the data buffers, each buffer aligned to 64 bytes from the start of the block, with zeroed padding.
+
+| Offset | Size | Field | Meaning |
+| --- | --- | --- | --- |
+| 0 | 4 | magic | `0xA770DA7A`. |
+| 4 | 4 | version | 2\. Any other version is rejected. |
+| 8 | 4 | columns | Number of columns; equals the root node’s child count. |
+| 12 | 4 | nodes | Number of node descriptors. |
+| 16 | 8 | rows | Number of rows; equals the root node’s length. |
+| 24 | 8 | total size | Bytes in the block; every offset is checked against it. |
+| 32 | 8 | metadata offset | Reserved, 0. |
+| 40 | 4 | metadata length | Reserved, 0. |
+| 44 | 4 | buffers | Number of buffer descriptors. |
+| 48 | 4 | nodes offset | Where the node descriptors start. |
+| 52 | 4 | buffers offset | Where the buffer descriptors start. |
+| 56 | 4 | strings offset | Where the string table starts. |
+| 60 | 4 | strings length | Bytes in the string table. |
+
+A **node** is one Arrow array: the root is a struct whose children are the columns, and a nested column has nodes of its own. Each 64-byte node descriptor carries what the Arrow C Data Interface needs to rebuild the array: length, null count, flags, the format string and column name (as offsets into the string table), and the index and count of its buffers and children. Each 32-byte buffer descriptor gives a buffer’s offset and size within the block. Slices are compacted and dictionaries decoded before a table is written, so every node starts at offset 0 and has no dictionary.
+
+**Zero-copy import.** A receiver validates the block (every offset in bounds, every buffer long enough for its node), then builds Arrow C Data Interface structures whose buffers point into the block, holding a reference on it for as long as the table lives. Python receives a `pyarrow` record batch, R an `arrow` record batch, C++ a nanoarrow-based handle, and Rust an `arrow-rs` record batch, each without copying the data. Converting further, to a pandas or R data frame, is the language library’s own copy. Sending a table writes a new block, except that a pool returning a table it received, unchanged, passes the same block on.
+
+**Declared columns.** A table’s type lists columns (`T:` in its schema; [Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)), and that list is a lower bound: a table may have more columns, which travel after the declared ones. A declared column may be a boolean, integer, float or string, or an optional of one of these; any Arrow type may appear among the extra columns. On send, a declared column of another type is cast if the cast loses nothing, and refused otherwise. On receive, every declared column must be present with an acceptable type, and a column not declared optional must have no nulls. The number of rows is not part of the type and is not checked.
+
+**Tables from files.** A table argument given as a file is read in the pool, not the nexus. Arrow IPC and Parquet are recognized by their magic bytes; otherwise the extension (`.csv`, `.tsv`, `.json`) or the content decides. CSV columns bind to declared columns by header name. As output, the nexus writes a table as JSON rows, JSON lines, CSV, TSV, Arrow IPC or Parquet.
+
+**Tensors** are not a runtime type. A tensor is a pair of its dimensions and its elements in one flat, row-major array, and travels as that ordinary voidstar tuple: `Matrix 2 2 Real` has schema `t2t2jja:4f8`. Because the array of numbers is 64-byte aligned in shared memory, Python receives a read-only numpy view over it with no copy. When the dimensions are known at compile time, the array’s length is checked against their product.

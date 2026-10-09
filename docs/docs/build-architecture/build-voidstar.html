@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li class="active"><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li><a href="build-workers.html">13.8. Worker model</a></li>
-<li><a href="build-errors.html">13.9. Error propagation</a></li>
-<li><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li><a href="build-workers.html">13.4. Worker model</a></li>
+<li><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li class="current active"><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -731,19 +772,291 @@
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Voidstar format and schema strings"><div class="sect2">
-<h3 id="build-voidstar"><a class="anchor" href="#build-voidstar"></a>13.6. Voidstar format and schema strings</h3>
+<h3 id="build-voidstar"><a class="anchor" href="#build-voidstar"></a>13.7. Voidstar format and schema strings</h3>
+<div class="quoteblock abstract">
+<blockquote>
+<strong>Voidstar</strong> is the binary layout every value takes when it leaves a language:
+C-like fixed-width slots, with variable-length parts reached through
+relative pointers. A <strong>schema string</strong> is a compact description of a type’s
+layout. A buffer plus its schema is enough for any language to read the
+value, with no other type information. Every binding reads and writes this
+one layout, so a value crosses between any two languages with no
+intermediate format.
+</blockquote>
+</div>
+<div class="sect3">
+<h4 id="_schema_strings"><a class="anchor" href="#_schema_strings"></a>13.7.1. Schema strings</h4>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies voidstar, the language-neutral binary layout every
-serialized value takes: the layout of each primitive, string, array, tuple,
-record, optional and sum type, along with alignment and the rules for nested
-data. Defines the schema string grammar that describes a layout, and how a
-schema and a buffer together let any language read a value with no other type
-information.</p>
+<p>A schema is a string of type codes in prefix order. Codes that take children
+are followed by them; codes that take a count are followed by it.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Code</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Followed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>z</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>i1</code> <code>i2</code> <code>i4</code> <code>i8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Signed integer of 1, 2, 4, 8 bytes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>u1</code> <code>u2</code> <code>u4</code> <code>u8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unsigned integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>f4</code> <code>f8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Float (<code>Real</code> is <code>f8</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>j</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int</code>, arbitrary precision</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>s</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String (UTF-8)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Array</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">the element schema; <code>a:N</code> declares the length as decimal <em>N</em></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Tuple</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count, then each element schema</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>m</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Record</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count, then for each field its name and schema</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>?</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">the inner schema</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>e</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enum (no constructor has fields)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count, then constructor names</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>v</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Variant (sum type)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count, then for each arm its name, field count and field schemas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>T</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Table (<a href="build-tables.html">Tables and tensors on the wire</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">optionally <code>:</code> count, then column names and schemas</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>F</code> <code>O</code> <code>I</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Input file, output stream, input stream (<a href="build-streaming.html">Streaming and memory mapping</a>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nothing</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&amp;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Names the schema that follows, for recursion</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name, then the schema</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>^</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Refers back to an enclosing <code>&amp;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">name</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Counts and name lengths are base-64 numbers. A value below 64 is one digit
+from <code>0-9</code>, <code>a-z</code>, <code>A-Z</code>, <code>+</code>, <code>/</code> (0 to 63). A larger value is written as
+<code>=</code>, its low digit, and the rest of the number, recursively: 100 is <code>=A1</code>.
+Names are written as their length followed by their bytes. Enums and variants
+have at most 256 constructors, and nesting is limited to 128 levels.</p>
+</div>
+<div class="paragraph">
+<p>A schema may also carry <strong>hints</strong> in angle brackets (<code>&lt;dict&gt;</code>) naming the
+concrete type a language should build. Hints do not change the layout and are
+dropped from the canonical form stored in packets.</p>
+</div>
+<div class="paragraph">
+<p>Examples, from real programs:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Schema</th>
+<th class="tableblock halign-left valign-top">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>j</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Int</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>v23Err1s2Ok1z</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Try Str ()</code>: arm <code>Err</code> with one <code>s</code> field, arm <code>Ok</code> with one <code>z</code> field</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>m24names2idi4</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{name :: Str, id :: I32}</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&amp;4Treev24Leaf04Node2<sup>4Tree</sup>4Tree</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data Tree = Leaf | Node Tree Tree</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t3sjaau1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A function value: home language, function index, captured values as packets</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_layout"><a class="anchor" href="#_layout"></a>13.7.2. Layout</h4>
+<div class="paragraph">
+<p>Every value has a fixed-width <strong>slot</strong>. Integers are little-endian.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Code</th>
+<th class="tableblock halign-left valign-top">Width</th>
+<th class="tableblock halign-left valign-top">Align</th>
+<th class="tableblock halign-left valign-top">Slot contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>z</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nothing.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>b</code>, <code>i1</code>, <code>u1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>i2</code> …​ <code>f8</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2, 4, 8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">natural</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>e</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Constructor ordinal, in declaration order.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>s</code>, <code>a</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-byte count (bytes for a string, with no NUL; elements for an array), then a relative pointer to the data. An empty one holds the null pointer.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>j</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8-byte limb count, then a word. With one limb the word is the value itself. With more, it points to that many 64-bit limbs, least significant first, in two’s complement.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t</code>, <code>m</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">computed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>t</code>: largest field; <code>m</code>: 8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C struct rules: each field at the next offset aligned for it, total rounded up to the largest field alignment. Field names exist only in the schema.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>?</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A relative pointer to the value, or null when absent.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>v</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Byte 0 is the arm’s ordinal, bytes 1-7 zero, bytes 8-15 a pointer to the arm’s fields laid out as a tuple. An arm with no fields stores null.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Array elements are packed at the element’s width. The data of an array of
+numbers starts on a 64-byte boundary, so a binding can hand it to vector
+instructions or a numeric library without copying. A record <code>{name :: Str,
+age :: I32}</code> puts <code>name</code> at offset 0 and <code>age</code> at 16, with width 24.</p>
+</div>
+<div class="paragraph">
+<p>Variant and optional slots hold a pointer rather than the value itself so
+that every slot’s width is fixed. This is what lets a recursive type exist: a
+<code>Tree</code> slot is 16 bytes however deep the tree goes. For the same reason, a
+type may refer to itself only through an array, optional or variant.</p>
+</div>
+<div class="paragraph">
+<p><strong>Relative pointers.</strong> A pointer is a signed 64-bit integer. Bits 62-48 name a
+shared-memory volume and bits 47-0 an offset into it (<a href="build-shm.html">Shared memory layout</a>); -1 is
+null. Because a pointer names a volume rather than an address, it means the
+same thing in every process that maps the volumes. When a value is copied out
+of shared memory into one self-contained buffer (to send inline or write to
+disk), its pointers use volume 0 and are offsets from the start of the
+buffer; loading the buffer back into shared memory rebases them.</p>
+</div>
+<div class="paragraph">
+<p><strong>Reading a value</strong> takes only the schema and the buffer: the schema gives
+each slot’s width and each field’s offset, a pointer is followed to reach
+variable-length data, and a variant’s tag selects which arm’s schema governs
+its payload.</p>
+</div>
+<div class="paragraph">
+<p><strong>Other encodings.</strong> A value can also be written as JSON or MessagePack, for
+the command line, files and caches. MessagePack writes tuples and records as
+arrays, enums as ordinals, and variants as <code>[tag, payload]</code>; JSON writes
+records as objects and constructors by name. Tables have neither form and
+travel only as Arrow.</p>
+</div>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="build-shm.html">Previous: 13.5. Shared memory layout</a>
-<a class="next" rel="next" href="build-tables.html">Next: 13.7. Tables and tensors on the wire</a>
+<a class="prev" rel="prev" href="build-shm.html">Previous: 13.6. Shared memory layout</a>
+<a class="next" rel="next" href="build-tables.html">Next: 13.8. Tables and tensors on the wire</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

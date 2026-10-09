@@ -65,8 +65,8 @@
 <meta property="og:title" content="Worker model - Morloc Manual">
 <meta property="og:url" content="https://morloc-project.github.io/docs/build-architecture/build-workers.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/build-architecture/build-workers.html">
-<link rel="prev" href="build-tables.html">
-<link rel="next" href="build-errors.html">
+<link rel="prev" href="build-lifecycle.html">
+<link rel="next" href="build-packets.html">
 <link rel="alternate" type="text/markdown" href="build-workers.md">
 </head>
 <body class="book toc2 toc-left">
@@ -653,11 +653,42 @@
 <li><a href="../ecosystem-architecture/index.html">12. Ecosystem Architecture</a>
 <ul class="sectlevel2">
 <li><a href="../ecosystem-architecture/eco-overview.html">12.1. Overview</a></li>
-<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.2. Runtime bootstrap</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.3. Module resolution</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.4. Environment solving</a></li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.5. Freezing and execution environments</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a></li>
+<li><a href="../ecosystem-architecture/eco-environments.html">12.2. Environments</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html">12.3. Runtime bootstrap</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_releases">12.3.1. Releases</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_building_an_environment">12.3.2. Building an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<ul class="sectlevel3">
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+</ul>
+</li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
 </ul>
 </li>
 <li class="current"><a href="index.html">13. Build Architecture</a>
@@ -665,15 +696,25 @@
 <li><a href="build-overview.html">13.1. Runtime overview</a></li>
 <li><a href="build-artifacts.html">13.2. Compilation artifacts</a></li>
 <li><a href="build-lifecycle.html">13.3. Process lifecycle</a></li>
-<li><a href="build-packets.html">13.4. Packet protocol</a></li>
-<li><a href="build-shm.html">13.5. Shared memory layout</a></li>
-<li><a href="build-voidstar.html">13.6. Voidstar format and schema strings</a></li>
-<li><a href="build-tables.html">13.7. Tables and tensors on the wire</a></li>
-<li class="active"><a href="build-workers.html">13.8. Worker model</a></li>
-<li><a href="build-errors.html">13.9. Error propagation</a></li>
-<li><a href="build-streaming.html">13.10. Streaming and memory mapping</a></li>
+<li class="active"><a href="build-workers.html">13.4. Worker model</a></li>
+<li><a href="build-packets.html">13.5. Packet protocol</a></li>
+<li><a href="build-shm.html">13.6. Shared memory layout</a></li>
+<li><a href="build-voidstar.html">13.7. Voidstar format and schema strings</a>
+<ul class="sectlevel3">
+<li><a href="build-voidstar.html#_schema_strings">13.7.1. Schema strings</a></li>
+<li><a href="build-voidstar.html#_layout">13.7.2. Layout</a></li>
+</ul>
+</li>
+<li><a href="build-tables.html">13.8. Tables and tensors on the wire</a></li>
+<li><a href="build-streaming.html">13.9. Streaming and memory mapping</a></li>
+<li><a href="build-errors.html">13.10. Error propagation</a></li>
 <li><a href="build-collect.html">13.11. Collect, fold, parse and render</a></li>
-<li><a href="build-runs.html">13.12. Run directory, caching and logging</a></li>
+<li><a href="build-runs.html">13.12. Logs and result caching</a>
+<ul class="sectlevel3">
+<li><a href="build-runs.html#_log_directory">13.12.1. Log directory</a></li>
+<li><a href="build-runs.html#_result_cache">13.12.2. Result cache</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="../compiler-architecture/index.html">14. Compiler Architecture</a>
@@ -731,18 +772,111 @@
 <div id="content">
 <nav class="breadcrumb" data-pagefind-ignore><a href="index.html">13. Build Architecture</a></nav>
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Worker model"><div class="sect2">
-<h3 id="build-workers"><a class="anchor" href="#build-workers"></a>13.8. Worker model</h3>
+<h3 id="build-workers"><a class="anchor" href="#build-workers"></a>13.4. Worker model</h3>
+<div class="quoteblock abstract">
+<blockquote>
+A pool serves many calls at once: concurrent requests to a daemon, parallel
+maps, and calls that come back into a pool while it is already waiting on
+another. This section specifies how the nexus and the pools divide that work
+among threads and processes, how pools grow and shrink, and the one rule that
+keeps calls between pools from deadlocking.
+</blockquote>
+</div>
 <div class="paragraph">
-<p><strong>STUB</strong>: Specifies concurrency inside a running program: the threads in the
-nexus, the worker pool inside each language process, and how workers are
-created, scaled, and parked. Defines the locks and their scope, the guarantees
-about ordering of calls and replies, and how parallel calls from one pool into
-another are kept from deadlocking.</p>
+<p><strong>The nexus.</strong> A one-shot nexus makes one call and waits for it. A daemon or
+MCP server runs an accept thread and a fixed set of request workers (four
+more than the number of pools, between 4 and 32); a request waits in a queue
+until a worker is free. In every mode, a <code>SIGCHLD</code> handler reaps child
+processes as they exit, so a pool’s death is noticed at once.</p>
+</div>
+<div class="paragraph">
+<p><strong>Pools.</strong> Each pool has one process that owns its socket, and a set of
+<strong>workers</strong> that run user code. How a worker is made depends on the language:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Language</th>
+<th class="tableblock halign-left valign-top">Workers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C++, Rust</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Threads. An accept thread queues each connection; a worker thread takes it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python, Linux default</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forked processes. A coordinator process, which loads no user code and runs no threads, forks the workers; each worker loads the user’s sources after the fork.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python, macOS default</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Threads, since forking a running Python interpreter is unsafe there. Selected anywhere with <code>MORLOC_PY_POOL=thread</code> (or <code>fork</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">R</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forked processes. Idle workers accept on the pool’s socket directly.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Forked workers are created only from a process with a single thread, because
+a forked child inherits only the thread that forked it, and any lock another
+thread held at that moment would stay locked forever. Loading user code after
+the fork keeps libraries that start their own threads out of the coordinator.</p>
+</div>
+<div class="paragraph">
+<p><strong>The no-deadlock rule.</strong> A pool never leaves an incoming call waiting while
+every one of its workers is blocked on another pool. Cross-language calls can
+nest in any pattern: a Python function calls C++, which calls back into
+Python. If the only Python worker were waiting on C++, the callback would
+wait forever. So:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A thread pool starts a new worker whenever a call arrives and no worker is
+free.</p>
+</li>
+<li>
+<p>A forked pool counts a worker as blocked while it waits on another pool (a
+foreign call, or a read or write on a channel), and forks a new worker when
+every worker is blocked. A call that arrives while some worker is merely
+computing waits for it.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Calls that arrive one after another reuse a single worker; only real
+concurrency adds workers. There is no upper bound, because any bound would
+reintroduce the deadlock.</p>
+</div>
+<div class="paragraph">
+<p><strong>Shrinking.</strong> Each pool starts with one worker. A worker beyond the first
+that stays idle for 5 seconds exits (<code>MORLOC_POOL_IDLE_TIMEOUT_MS</code> changes
+this for C++ and Rust). R workers never exit before the pool does.</p>
+</div>
+<div class="paragraph">
+<p><strong>Ordering.</strong> Every call travels on its own connection with exactly one
+request and one reply, so a reply always reaches the caller that asked.
+Concurrent calls have no ordering guarantee relative to one another. A
+pool’s own sequential code (a <code>map</code> in one worker, say) runs in order.</p>
+</div>
+<div class="paragraph">
+<p><strong>Locks.</strong> State shared between processes is guarded by locks that survive
+the death of their holder: if a process dies holding one, the next process
+to take it is told, and treats what it protects as damaged rather than
+waiting forever (<a href="build-shm.html">Shared memory layout</a>). Within a process, locks are always taken in
+one global order, so two threads can never each hold a lock the other wants.</p>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
-<a class="prev" rel="prev" href="build-tables.html">Previous: 13.7. Tables and tensors on the wire</a>
-<a class="next" rel="next" href="build-errors.html">Next: 13.9. Error propagation</a>
+<a class="prev" rel="prev" href="build-lifecycle.html">Previous: 13.3. Process lifecycle</a>
+<a class="next" rel="next" href="build-packets.html">Next: 13.5. Packet protocol</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">
