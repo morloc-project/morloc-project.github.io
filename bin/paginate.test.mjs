@@ -231,6 +231,18 @@ test("the sidebar is the full TOC with the current chapter and section marked", 
 	assert.match(records, /<a href="\.\.\/intro\/index\.html#one-program">1\.1\. One program<\/a>/);
 });
 
+test("the sidebar of every emitted page is marked as collapsible; all.html's is not", () => {
+	const result = run();
+
+	for (const [path, content] of result.files) {
+		if (!path.endsWith(".html")) continue;
+
+		assert.match(content, /<div id="toc" class="toc2 paged">/, `${path} sidebar is not marked paged`);
+	}
+
+	assert.doesNotMatch(fixture, /class="toc2 paged"/);
+});
+
 test("the sidebar opens the current page's subsections and no other page's", () => {
 	const records = file(run(), "docs/features/records.html");
 

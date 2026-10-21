@@ -351,7 +351,8 @@ function rewriteLinks($, root, page, model, prefix) {
 // The sidebar: asciidoctor's own TOC markup with hrefs pointed at pages, a
 // search box under the title, and the current page marked `active`. An entry
 // whose sublist should be open is marked `current`: the current chapter, and
-// any heading on the current page that has subheadings.
+// any heading on the current page that has subheadings. The `paged` class
+// limits the collapsing to these pages, so all.html keeps its TOC open.
 function sidebar(tocHtml, page, model, prefix) {
 	const t = cheerio.load(tocHtml, null, false);
 	const dir = page ? page.dir : "";
@@ -372,6 +373,7 @@ function sidebar(tocHtml, page, model, prefix) {
 		if (page && target === page && target.slug === id) li.addClass("active");
 	});
 
+	t("#toc").addClass("paged");
 	t("#toctitle").after('<div id="search" data-pagefind-ignore></div>');
 
 	return t.html();
@@ -538,6 +540,7 @@ function toMarkdown($, page, model, siteUrl) {
 	});
 	root.find(".katex-mathml").remove();
 	root.find("button.copy-button").remove();
+	root.find(".diagram-dark").remove();
 
 	root.find('a[href^="#"]').each((_, a) => {
 		const id = $(a).attr("href").slice(1);

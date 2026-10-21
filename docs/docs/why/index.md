@@ -2,11 +2,11 @@
 
 Morloc Manual | https://morloc-project.github.io/docs/why/ | prev: https://morloc-project.github.io/docs/intro/index.md | next: https://morloc-project.github.io/docs/getting-started/index.md
 
-Every command line tool solves the same problems a second time. Argument parsing, input and output formatting, compression, streaming, exit codes, introspection: none of it is the tool’s actual work, all of it admits many reasonable answers, and every tool picks its own. Consistency across an ecosystem is then reachable only if every author agrees on a wide range of conventions and writes their code accordingly.
+Every command line tool must reimplement solutions to the same set of problems. Argument parsing, input and output formatting, compression, streaming, exit codes, introspection: none of this is the tool’s actual work, all of it admits many reasonable answers, and every tool picks its own. Consistency across an ecosystem is then reachable only if every author agrees on a wide range of conventions and writes their code accordingly.
 
-The costs of that are structural rather than accidental. A tool’s `--help` is prose written at its author’s whim, so no machine can build a reliable inventory of an environment. Two tools exchange structured data only if they already agree on a format, so anything richer than a byte stream needs a shared framework or a lossy encoding. A user who wants one more feature, or one fewer, has no move short of asking the maintainer. And because the command line is the only face a tool has, every other caller — a library, a network client, a model — gets a fresh layer of boilerplate laid over it, generating system calls and parsing text back out. That face also forces a shape on the work: a tool takes its input from the filesystem and delivers its output there, and calling it means spawning a process, whether or not the computation needed any of that.
+This lack of consistency causes wide ranging problems. A tool’s `--help` is prose written at its author’s whim, so no machine can build a reliable inventory of an environment. Two tools exchange structured data only if they already agree on a format, so anything richer than a byte stream needs a socially agreed upon file format convention. A user who wants one more feature, or one fewer, has no move short of asking the maintainer. And because the command line is the only face a tool has, every other caller — a library, a network client, a model — gets a fresh layer of boilerplate laid over it, generating system calls and parsing text back out. That face also forces a shape on the work: a tool takes its input from the filesystem and delivers its output there, and calling it means spawning a process, whether or not the computation needed any of that.
 
-Morloc’s answer to each of these is the same answer: derive the interface from the type instead of writing it. The sections below are that answer applied in different directions.
+Morloc’s answer to all these issues is to derive the interface from the type instead of writing it. The sections below are that answer applied in different directions.
 
 ## 2.1. The interface is derived, not written
 
@@ -59,7 +59,7 @@ The same program serves over HTTP, TCP, and Unix sockets, and answers `--json-he
 
 ## 2.2. Values cross boundaries, not file formats
 
-A Morloc command writes its return type, serialized. A command that accepts that type reads it. Neither end invents a file format and neither end writes a parser.
+A Morloc program writes its serialized return type. A program that accepts that type reads it. Neither end invents a file format and neither end writes a parser.
 
 Here is a second program. A C++ function counts every k-length subsequence of a string and hands back a `std::map<std::string, int>`. A Python function takes the Shannon entropy of a count table and expects a `dict`. Morloc knows both as `Map Str Int`, so composing them is an application and nothing else:
 
@@ -187,7 +187,7 @@ labeled-groups:
   expensive_step: { cache: true }
 ```
 
-Every call into `expensive_step@slowfn` is now memoized to disk. The freshness check is content-based rather than mtime-based: editing an unrelated comment does not invalidate the cache, copying the program to a new path does not either, and two machines that build byte-identical pool sources share it. The same group config carries `log: true`, and a label may cover a complex term rather than a single call, so an entire branch of the execution tree can be cached, logged, or — this is the part still in development — dispatched to a remote worker.
+Every call into `expensive_step@slowfn` is now memoized to disk. The freshness check is content-based rather than mtime-based: editing an unrelated comment does not invalidate the cache, copying the program to a new path does not either, and two machines that build byte-identical pool sources share it. The same group config carries `log: true`, and since a label wraps any function you name, an entire branch of the execution tree can be cached, logged, or — this is the part still in development — dispatched to a remote worker.
 
 Failure is handled in the same spirit. A build flag wraps every foreign call so that anything which throws dumps its arguments to disk and records the chain of calls that reached it, which makes a failure inspectable without reproducing it. Builds without the flag pay nothing. See [Caching](https://morloc-project.github.io/docs/runs/caching.md), [Logging](https://morloc-project.github.io/docs/runs/logging.md), [Debugging](https://morloc-project.github.io/docs/runs/debugging.md), and [Running on a cluster](https://morloc-project.github.io/docs/apis/execution-contexts.md).
 
@@ -220,11 +220,11 @@ None of that infrastructure exists yet. There is no registry, no type-directed s
 
 ## 2.9. Where the project stands
 
-Morloc has been in development for about ten years. I use it for my own work, but it is not yet used widely by anyone else.
+Morloc has been in development for about ten years. I use it for my own work, but it is not yet widely used by others. The core features are all present. My main work currently is working through the long tail of edge cases and design optimization.
 
-Solid: the compiler and its type system, C++/Python/Rust/R as fully supported languages, the generated CLI, HTTP, socket and MCP interfaces, environment and dependency management through `mim`, and a standard library covering the common data structures, text, math, tables, and tensors.
+The compiler and basic type system are mostly complete, though the more advanced types still need work. Workflow features — provenance management, re-entrancy, caching, and job deployment — are working as prototypes, but need refinment and much broader support. Environment management, dependency handling and deployment are well developed through `mim`.
 
-Thin or unfinished: library coverage far from complete, remote execution (the SLURM dispatch that makes Morloc usable as a cluster workflow language) is in development, editor support is current for vim and Pygments and stale for VS Code/Zed, some aspects of the type system are still experimental, and the module registry is unbuilt.
+Beyond the compiler, the core libraries are slim and need very careful design. Language support also needs to be streamlined and extended to new languages. Zig is the next language on my list, though at some point I should add boring languages like JavaScript.
 
 ## 2.10. What I need
 
@@ -232,7 +232,6 @@ I’m looking for people who can:
 
 -   **Write a module.** Take your program, give it types, and publish it.
 -   **Report what breaks.** A bug report is worth more to me than a patch right now. Unexpected behavior, a bad error message, a gap in this manual, and anything that was harder than it should have been all count.
-    
-    -   **Fix the editor tooling.** Add support for your favorite editor.
-    -   **Bring a language.** Every new language brings fun design questions, I would be happy to work with you in bringing your language into the Morloc ecosystem.
-    -   **Tell me the right way to build a type system.** There is a lot of interesting theory to hash through. There’s a paper or two buried somewhere in all of this.
+-   **Fix the editor tooling.** Add support for your favorite editor.
+-   **Bring a language.** Every new language brings fun design questions, I would be happy to work with you in bringing your language into the Morloc ecosystem.
+-   **Tell me the right way to build a type system.** There is a lot of interesting theory to hash through. There’s a paper or two buried somewhere in all of this.

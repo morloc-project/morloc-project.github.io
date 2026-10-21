@@ -66,13 +66,13 @@
 <meta property="og:url" content="https://morloc-project.github.io/docs/runs/caching.html">
 <link rel="canonical" href="https://morloc-project.github.io/docs/runs/caching.html">
 <link rel="prev" href="run-directory.html">
-<link rel="next" href="compression.html">
+<link rel="next" href="remote-jobs.html">
 <link rel="alternate" type="text/markdown" href="caching.md">
 </head>
 <body class="book toc2 toc-left">
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="copy-glyph" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path></symbol></svg>
 <div id="header">
-<div id="toc" class="toc2">
+<div id="toc" class="toc2 paged">
 <div id="toctitle">Table of Contents</div><div id="search" data-pagefind-ignore=""></div>
 <ul class="sectlevel1">
 <li><a href="../intro/index.html">1. Intro</a>
@@ -133,6 +133,7 @@
 <li><a href="../features/foreign-functions.html#mapping-native-types">4.2.3. Native type mappings</a></li>
 <li><a href="../features/foreign-functions.html#_sourcing_builtins_and_other_non_exports">4.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="../features/foreign-functions.html#_keyword_shaped_foreign_operators">4.2.5. Keyword-shaped foreign operators</a></li>
+<li><a href="../features/foreign-functions.html#sourced-values">4.2.6. What sourced code may do with values</a></li>
 </ul>
 </li>
 <li><a href="../features/booleans.html">4.3. Booleans</a>
@@ -390,6 +391,7 @@
 <ul class="sectlevel3">
 <li><a href="../clis/input-shape.html#_a_worked_example">6.7.1. A worked example</a></li>
 <li><a href="../clis/input-shape.html#_shape_follows_the_wire_form">6.7.2. Shape follows the wire form</a></li>
+<li><a href="../clis/input-shape.html#form-table">6.7.3. Tables with a header</a></li>
 </ul>
 </li>
 <li><a href="../clis/reading-stdin.html">6.8. Reading a stream from standard input</a>
@@ -468,39 +470,48 @@
 <li class="current active"><a href="caching.html">7.4. Caching</a>
 <ul class="sectlevel3">
 <li><a href="caching.html#_declaring_a_cached_call">7.4.1. Declaring a cached call</a></li>
-<li><a href="caching.html#_what_goes_in_the_hash">7.4.2. What goes in the hash</a></li>
-<li><a href="caching.html#cache-layout">7.4.3. Storage layout</a></li>
-<li><a href="caching.html#_reading_and_writing">7.4.4. Reading and writing</a></li>
+<li><a href="caching.html#_what_a_cached_label_covers">7.4.2. What a cached label covers</a></li>
+<li><a href="caching.html#cache-layout">7.4.3. Where the cache lives</a></li>
 </ul>
 </li>
-<li><a href="compression.html">7.5. Compression</a>
+<li><a href="remote-jobs.html">7.5. Remote job submission</a>
 <ul class="sectlevel3">
-<li><a href="compression.html#_compression_in_write">7.5.1. Compression in <code>@write</code></a></li>
-<li><a href="compression.html#_compression_in_morloc_nexus_run">7.5.2. Compression in <code>morloc-nexus run</code></a></li>
-<li><a href="compression.html#_compression_level_table">7.5.3. Compression-level table</a></li>
-<li><a href="compression.html#_algorithm_agnostic_surface">7.5.4. Algorithm-agnostic surface</a></li>
-<li><a href="compression.html#_caching_is_unaffected">7.5.5. Caching is unaffected</a></li>
+<li><a href="remote-jobs.html#_sending_a_call_to_a_job">7.5.1. Sending a call to a job</a></li>
+<li><a href="remote-jobs.html#_describing_the_job">7.5.2. Describing the job</a></li>
+<li><a href="remote-jobs.html#_what_runs_in_the_job">7.5.3. What runs in the job</a></li>
+<li><a href="remote-jobs.html#_effects">7.5.4. Effects</a></li>
+<li><a href="remote-jobs.html#_results">7.5.5. Results</a></li>
+<li><a href="remote-jobs.html#_what_a_job_can_receive">7.5.6. What a job can receive</a></li>
 </ul>
 </li>
-<li><a href="debugging.html">7.6. Debugging</a>
+<li><a href="compression.html">7.6. Compression</a>
 <ul class="sectlevel3">
-<li><a href="debugging.html#_enabling_at_compile_time">7.6.1. Enabling at compile time</a></li>
-<li><a href="debugging.html#_a_failing_run">7.6.2. A failing run</a></li>
-<li><a href="debugging.html#debug-knobs">7.6.3. Runtime knobs</a></li>
-<li><a href="debugging.html#dump-location">7.6.4. Where dumps land</a></li>
-<li><a href="debugging.html#_content_addressed_dedup">7.6.5. Content-addressed dedup</a></li>
-<li><a href="debugging.html#_frame_status_markers">7.6.6. Frame status markers</a></li>
-<li><a href="debugging.html#_recovering_an_input_via_load">7.6.7. Recovering an input via <code>@load</code></a></li>
-<li><a href="debugging.html#_interaction_with_the_cache">7.6.8. Interaction with the cache</a></li>
+<li><a href="compression.html#_compression_in_write">7.6.1. Compression in <code>@write</code></a></li>
+<li><a href="compression.html#_compression_in_morloc_nexus_run">7.6.2. Compression in <code>morloc-nexus run</code></a></li>
+<li><a href="compression.html#_compression_level_table">7.6.3. Compression-level table</a></li>
+<li><a href="compression.html#_algorithm_agnostic_surface">7.6.4. Algorithm-agnostic surface</a></li>
+<li><a href="compression.html#_caching_is_unaffected">7.6.5. Caching is unaffected</a></li>
 </ul>
 </li>
-<li><a href="random-access-and-streaming.html">7.7. Random access and streaming</a>
+<li><a href="debugging.html">7.7. Debugging</a>
 <ul class="sectlevel3">
-<li><a href="random-access-and-streaming.html#_random_access_with_ifile">7.7.1. Random access with IFile</a></li>
-<li><a href="random-access-and-streaming.html#_sequential_writing_with_ostream">7.7.2. Sequential writing with OStream</a></li>
-<li><a href="random-access-and-streaming.html#_sequential_reading_with_istream">7.7.3. Sequential reading with IStream</a></li>
-<li><a href="random-access-and-streaming.html#_typed_standard_streams">7.7.4. Typed standard streams</a></li>
-<li><a href="random-access-and-streaming.html#stream-env-vars">7.7.5. Environment variables</a></li>
+<li><a href="debugging.html#_enabling_at_compile_time">7.7.1. Enabling at compile time</a></li>
+<li><a href="debugging.html#_a_failing_run">7.7.2. A failing run</a></li>
+<li><a href="debugging.html#debug-knobs">7.7.3. Runtime knobs</a></li>
+<li><a href="debugging.html#dump-location">7.7.4. Where dumps land</a></li>
+<li><a href="debugging.html#_content_addressed_dedup">7.7.5. Content-addressed dedup</a></li>
+<li><a href="debugging.html#_frame_status_markers">7.7.6. Frame status markers</a></li>
+<li><a href="debugging.html#_recovering_an_input_via_load">7.7.7. Recovering an input via <code>@load</code></a></li>
+<li><a href="debugging.html#_interaction_with_the_cache">7.7.8. Interaction with the cache</a></li>
+</ul>
+</li>
+<li><a href="random-access-and-streaming.html">7.8. Random access and streaming</a>
+<ul class="sectlevel3">
+<li><a href="random-access-and-streaming.html#_random_access_with_ifile">7.8.1. Random access with IFile</a></li>
+<li><a href="random-access-and-streaming.html#_sequential_writing_with_ostream">7.8.2. Sequential writing with OStream</a></li>
+<li><a href="random-access-and-streaming.html#_sequential_reading_with_istream">7.8.3. Sequential reading with IStream</a></li>
+<li><a href="random-access-and-streaming.html#_typed_standard_streams">7.8.4. Typed standard streams</a></li>
+<li><a href="random-access-and-streaming.html#stream-env-vars">7.8.5. Environment variables</a></li>
 </ul>
 </li>
 </ul>
@@ -540,9 +551,10 @@
 <ul class="sectlevel3">
 <li><a href="../apis/deploy-dependencies.html#_the_smiles_example">9.2.1. The smiles example</a></li>
 <li><a href="../apis/deploy-dependencies.html#_declaring_dependencies">9.2.2. Declaring dependencies</a></li>
-<li><a href="../apis/deploy-dependencies.html#_installing_the_program">9.2.3. Installing the program</a></li>
-<li><a href="../apis/deploy-dependencies.html#_one_solved_world_per_environment">9.2.4. One solved world per environment</a></li>
-<li><a href="../apis/deploy-dependencies.html#_when_an_environment_is_rebuilt">9.2.5. When an environment is rebuilt</a></li>
+<li><a href="../apis/deploy-dependencies.html#tool-deps">9.2.3. Command-line tools (<code>tool-deps</code>)</a></li>
+<li><a href="../apis/deploy-dependencies.html#_installing_the_program">9.2.4. Installing the program</a></li>
+<li><a href="../apis/deploy-dependencies.html#_one_solved_world_per_environment">9.2.5. One solved world per environment</a></li>
+<li><a href="../apis/deploy-dependencies.html#_when_an_environment_is_rebuilt">9.2.6. When an environment is rebuilt</a></li>
 </ul>
 </li>
 <li><a href="../apis/deploy-serving.html">9.3. Serving</a>
@@ -574,12 +586,10 @@
 </li>
 <li><a href="../apis/execution-contexts.html">9.6. Running on a cluster</a>
 <ul class="sectlevel3">
-<li><a href="../apis/execution-contexts.html#_labeling_a_term">9.6.1. Labeling a term</a></li>
-<li><a href="../apis/execution-contexts.html#_describing_a_labels_resources">9.6.2. Describing a label’s resources</a></li>
-<li><a href="../apis/execution-contexts.html#_enabling_dispatch">9.6.3. Enabling dispatch</a></li>
-<li><a href="../apis/execution-contexts.html#dispatch-bridge">9.6.4. Running with the dispatch bridge</a></li>
-<li><a href="../apis/execution-contexts.html#_data_on_the_shared_filesystem">9.6.5. Data on the shared filesystem</a></li>
-<li><a href="../apis/execution-contexts.html#_checking_the_cluster_setup">9.6.6. Checking the cluster setup</a></li>
+<li><a href="../apis/execution-contexts.html#_enabling_dispatch">9.6.1. Enabling dispatch</a></li>
+<li><a href="../apis/execution-contexts.html#dispatch-bridge">9.6.2. Running with the dispatch bridge</a></li>
+<li><a href="../apis/execution-contexts.html#_data_on_the_shared_filesystem">9.6.3. Data on the shared filesystem</a></li>
+<li><a href="../apis/execution-contexts.html#_checking_the_cluster_setup">9.6.4. Checking the cluster setup</a></li>
 </ul>
 </li>
 </ul>
@@ -661,34 +671,36 @@
 <li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<li><a href="../ecosystem-architecture/eco-caching.html">12.4. Caching</a></li>
+<li><a href="../ecosystem-architecture/eco-remote.html">12.5. Remote jobs</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.6. Module resolution</a>
 <ul class="sectlevel3">
-<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.6.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.6.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.6.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.6.4. Foreign dependencies</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.7. Environment solving</a>
 <ul class="sectlevel3">
-<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.7.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.7.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.7.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.7.4. When solving happens</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.8. Serving</a>
 <ul class="sectlevel3">
-<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.8.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.8.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.8.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.8.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.8.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.8.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.8.7. Serving an environment</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.9. Freezing</a></li>
 </ul>
 </li>
 <li><a href="../build-architecture/index.html">13. Build Architecture</a>
@@ -774,10 +786,10 @@
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Caching"><div class="sect2">
 <h3 id="caching"><a class="anchor" href="#caching"></a>7.4. Caching</h3>
 <div class="paragraph">
-<p>Mark any labeled call site <code>cache: true</code> in the program YAML and
-its result is memoized to disk. The next call with equivalent
-inputs against unchanged source code is served from the cache rather
-than recomputed.</p>
+<p>Mark a label <code>cache: true</code> in the program YAML and every call through it is
+memoized to disk. The next call with equal arguments, against unchanged
+source code, is served from the cache rather than computed again, in this run
+or any later one.</p>
 </div>
 <div class="paragraph">
 <p>The freshness check is content-based, not time-based. Morloc has
@@ -800,68 +812,93 @@ build rather than a cache hit.</p>
 <div class="sect3">
 <h4 id="_declaring_a_cached_call"><a class="anchor" href="#_declaring_a_cached_call"></a>7.4.1. Declaring a cached call</h4>
 <div class="listingblock">
+<div class="title">slow.loc</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">labeled-groups</span><span class="tok-p">:</span>
-<span class="tok-w">  </span><span class="tok-nt">expensive_step</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt"> cache</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nv">true</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">}</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">slow</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">square</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"slow.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"slow_square"</span><span class="tok-p">)</span>
+
+<span class="tok-n">slow_square</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-n">square</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+<span class="tok-n">square</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">expensive</span><span class="tok-nb">@slow_square</span><span class="tok-w"> </span><span class="tok-n">x</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="listingblock">
+<div class="title">slow.py</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">expensive_step</span><span class="tok-nb">@slowfn</span><span class="tok-w"> </span><span class="tok-n">xs</span></code></pre>
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">sys</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">slow_square</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">):</span>
+    <span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-s2">"computing"</span><span class="tok-p">,</span> <span class="tok-n">x</span><span class="tok-p">,</span> <span class="tok-n">file</span><span class="tok-o">=</span><span class="tok-n">sys</span><span class="tok-o">.</span><span class="tok-n">stderr</span><span class="tok-p">)</span>
+    <span class="tok-k">return</span> <span class="tok-n">x</span> <span class="tok-o">*</span> <span class="tok-n">x</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="title">slow.yaml</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">labeled-groups</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">expensive</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt"> cache</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nv">true</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
-<p>Every call into <code>expensive_step@slowfn</code> is memoized under the
-<code>expensive_step</code> cache label. The same group config also controls
-per-step logging (<code>log: true</code>); the two flags are independent and
-may be combined.</p>
+<p>The first call computes, and the second finds the result on disk:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>slow<span class="tok-w"> </span>slow.loc
+<span class="tok-gp">$ </span>./slow<span class="tok-w"> </span>square<span class="tok-w"> </span><span class="tok-m">4</span>
+<span class="tok-go">computing 4</span>
+<span class="tok-go">16</span>
+<span class="tok-gp">$ </span>./slow<span class="tok-w"> </span>square<span class="tok-w"> </span><span class="tok-m">4</span>
+<span class="tok-go">16</span>
+<span class="tok-gp">$ </span>./slow<span class="tok-w"> </span>square<span class="tok-w"> </span><span class="tok-m">5</span>
+<span class="tok-go">computing 5</span>
+<span class="tok-go">25</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>The same group config also controls per-step logging (<code>log: true</code>); the two
+flags are independent and may be combined.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_what_goes_in_the_hash"><a class="anchor" href="#_what_goes_in_the_hash"></a>7.4.2. What goes in the hash</h4>
+<h4 id="_what_a_cached_label_covers"><a class="anchor" href="#_what_a_cached_label_covers"></a>7.4.2. What a cached label covers</h4>
 <div class="paragraph">
-<p>A cached entry is keyed by:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>call_key = xxh64(pool_source_fingerprint, midx, arg_content_hashes ...)</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>where:</p>
+<p>A label wraps one call of the function it is written on, and the cache
+answers for that call alone. Two things follow:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong><code>pool_source_fingerprint</code></strong> is <code>xxh64</code> of the rendered pool
-source text, seed-chained over the contents of any files listed
-under <code>hash-include:</code> in the program YAML. Editing the body of
-the cached function, of any function it calls, of any imported
-module that compiled into the same pool, or of any declared
-external data file, all shift this fingerprint.</p>
+<p>The call’s arguments are computed before the cache is checked, so they are
+computed even on a hit. In <code>expensive@slow_square (prepare x)</code>, <code>prepare x</code>
+runs every time. To skip it on a hit, name the whole computation and label
+the name: with <code>squarePrepared x = slow_square (prepare x)</code>, write
+<code>expensive@squarePrepared x</code>.</p>
 </li>
 <li>
-<p><strong><code>midx</code></strong> is the compiler-assigned manifold id, deterministic
-per build.</p>
-</li>
-<li>
-<p><strong><code>arg_content_hashes</code></strong> are content-aware hashes of each
-argument’s <strong>value</strong>, walked through its msgpack schema. Two
-structurally equal inputs hash the same regardless of how their
-packet stored the data (inline bytes, shared-memory pointer, or
-temp file), and pointer bits are never themselves hashed.</p>
+<p>A label on a suspension (see <a href="../features/effects.html">Effects and delayed evaluation</a>), or on a call that returns one,
+caches each run of the suspension: the first run computes and stores its
+result, and every later run with the same captured values reads it.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>The freshness test is therefore: same code + same code dependencies
-+ same input values → cache hit. Anything else → miss.</p>
+<p><code>cache: true</code> is your claim that the call returns the same value whenever it
+is made with the same arguments. Morloc does not check it, so do not cache a
+call whose result should change from one run to the next.</p>
+</div>
+<div class="paragraph">
+<p>A call that fails is not cached. Running it again with the same arguments
+fails the same way rather than returning a value that was never computed.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="cache-layout"><a class="anchor" href="#cache-layout"></a>7.4.3. Storage layout</h4>
+<h4 id="cache-layout"><a class="anchor" href="#cache-layout"></a>7.4.3. Where the cache lives</h4>
 <div class="paragraph">
-<p>The cache lives under one of these directories, in resolution order:</p>
+<p>The cache lives under the first of these that is set:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -892,78 +929,31 @@ to the same cache.</p></td>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Inside, two file types coexist:</p>
+<p>Inside, each label has a directory of small index files, and the values
+themselves are stored once each under <code>data/</code>, shared by every label:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code><span></span> . ~/.cache/morloc/cache/
- │
- ├── expensive_step/
- │   ├── 3f4a91d62b08e7d2.packet
- │   └── b772aa1c0e4ef801.packet
- ├── another_label/
- │   └── ...
- └── data/
-     ├── ef46db3751d8e999.dat
-     └── ...</code></pre>
-<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+<pre>~/.cache/morloc/cache/
+|-- expensive/
+|   |-- 98c21d2ac043688f.dat
+|   `-- bf38289c8a399429.dat
+`-- data/
+    |-- 7c2e0dc2ec1a8103.dat
+    `-- ef97ee16737dff50.dat</pre>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong><code>&lt;label&gt;/&lt;call_key&gt;.packet</code></strong> is a small morloc data packet
-(<code>PACKET_TYPE_DATA</code>, source=FILE, format=MSGPACK) that points to
-a dat file under <code>data/</code>. One entry per distinct cached call.</p>
-</li>
-<li>
-<p><strong><code>data/&lt;data_hash&gt;.dat</code></strong> holds the cached value as
-schema-agnostic msgpack bytes. The filename is <code>xxh64</code> of those
-bytes, so equal return values consolidate onto one on-disk copy
-regardless of which label cached them or which pool language
-produced them.</p>
-</li>
-</ul>
 </div>
 <div class="paragraph">
-<p>The content-addressed split gives natural deduplication: a Python
-pool and an R pool that both cache the same dataset (say, a genome
-pulled from an external database) write the data once. A source
-edit that produces the same return value writes a new <code>.packet</code>
-pointer but reuses the existing <code>.dat</code>.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_reading_and_writing"><a class="anchor" href="#_reading_and_writing"></a>7.4.4. Reading and writing</h4>
-<div class="paragraph">
-<p>On lookup, the runtime reads the <code>.packet</code> file and returns its
-bytes; the language pool’s <code>get_value</code> follows the FILE-source
-pointer through to the dat file. The on-disk format is opaque to
-the language pool — it sees only bytes that round-trip through the
-standard packet API, so future format changes (inline-small
-optimization, compression, alternative backends) require no
-recompile of pool code.</p>
-</div>
-<div class="paragraph">
-<p>On store, the runtime materializes the input packet to msgpack
-(dereferencing any shared-memory or file-backed payload), hashes
-those bytes to choose the dat filename, skips the write if an
-identical dat already exists, and finally writes the small pointer
-packet under the label dir. Both writes go through an atomic tmp<br>
-rename, so a partial file is never observed by another reader and
-concurrent writers to the same key cannot corrupt the on-disk
-state.</p>
-</div>
-<div class="paragraph">
-<p>A cached call whose foreign body raises is <strong>not</strong> memoized — the
-cache wrap only stores on the happy path. A re-run with the same
-inputs fails the same way rather than silently serving a stale
-entry.</p>
+<p>Morloc never deletes an entry that is still valid. Deleting the whole
+directory, or one label’s directory, is safe while no program is using it,
+and empties the cache. How a call’s key is computed and how entries are
+written safely is specified in <a href="../ecosystem-architecture/eco-caching.html">Caching</a>.</p>
 </div>
 </div>
 </div></div>
 <nav class="page-nav" data-pagefind-ignore>
 <a class="prev" rel="prev" href="run-directory.html">Previous: 7.3. Run directory</a>
-<a class="next" rel="next" href="compression.html">Next: 7.5. Compression</a>
+<a class="next" rel="next" href="remote-jobs.html">Next: 7.5. Remote job submission</a>
 </nav>
 </div>
 <div class="pwa-install-div hidden">

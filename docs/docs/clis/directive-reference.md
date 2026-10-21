@@ -32,11 +32,11 @@ Every docstring directive that affects the generated interface, grouped by where
 | `@many` | Accept several argv tokens and assemble them into a list. The argument type must be a list; as a positional it must be the last one. |
 | `@stdin` | Make a `Str` positional optional and read standard input when it is omitted. See [Reading a stream from standard input](https://morloc-project.github.io/docs/clis/reading-stdin.md). |
 | `@source inline` / `file` | Where the bytes come from. See [Input shape](https://morloc-project.github.io/docs/clis/input-shape.md). |
-| `@form list` / `bytes` / `bytes-only` / `packet` | How the bytes are read. |
+| `@form list` / `table` / `bytes` / `bytes-only` / `packet` | How the bytes are read. `table` reads a file with a header row; see [Tables with a header](https://morloc-project.github.io/docs/clis/input-shape.md#form-table). |
 | `@check.path r` / `w` / `x` / `rw` | Require the argument to be a path satisfying the mode. |
 | `@list.source`, `@list.form`, `@list.check.<kind>` | The same three, applied to each element of a `@form list` argument. |
 | `@unroll` | On a record argument: split it into one flag per field. `@unroll false` opts one use out. |
-| `@parse <name>=<function> [.ext …​]` | Accept the argument as a file in another format, read by `<function>` when the value ends in one of the extensions or is prefixed with `<name>:`. Repeat it once per format. See [Reading files in other formats](https://morloc-project.github.io/docs/clis/arguments.md#parse-arguments). |
+| `@parse <name>=<function> [.ext ...]` | Accept the argument as a file in another format, read by `<function>` when the value ends in one of the extensions or is prefixed with `<name>:`. Repeat it once per format. See [Reading files in other formats](https://morloc-project.github.io/docs/clis/arguments.md#parse-arguments). |
 
 **Table 9. On a type, record, or record field definition**
 
@@ -53,9 +53,9 @@ Every docstring directive that affects the generated interface, grouped by where
 | --- | --- |
 | `@default` | On a `@with` / `@render` directive: this action fires when no action flag and no `-f` is given. At most one per command. |
 | `@stream` | On a `@with` / `@render` directive of a `@collect` command: apply the handler to each batch instead of the gathered stream. |
-| `@fold=<term>` | On a `@with` / `@render` directive of a `@collect` command: fold the stream into one accumulator with `<term> :: b → [a] → b` and apply the handler to that. Requires `@init` and `@combine`; excludes `@stream`. |
+| `@fold=<term>` | On a `@with` / `@render` directive of a `@collect` command: fold the stream into one accumulator with `<term> :: b -> [a] -> b` and apply the handler to that. Requires `@init` and `@combine`; excludes `@stream`. |
 | `@init=<term>` | Under `@fold`: `<term> :: b` starts every accumulator, and is the answer for an empty stream. Must be an identity for `@combine`. |
-| `@combine=<term>` | Under `@fold`: `<term> :: b → b → b` merges the accumulators of the threads a producer drove its sink from. Must be associative, and commutative if that producer is threaded. |
+| `@combine=<term>` | Under `@fold`: `<term> :: b -> b -> b` merges the accumulators of the threads a producer drove its sink from. Must be associative, and commutative if that producer is threaded. |
 | `@offset` | As a handler argument under `@stream`: the number of elements already written. |
 | `@value` | As a handler argument: the value being formatted. Appended last if not written explicitly. |
 | `$1`, `$2`, …​ | As a handler argument: the command’s own Nth argument. |

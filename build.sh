@@ -63,8 +63,8 @@ fi
 echo "Building site..."
 
 # Start from an empty manual directory so a renamed section cannot leave an
-# orphan page behind. Kroki's diagram cache in .asciidoctor/ survives, so a
-# rebuild does not depend on kroki.io being reachable.
+# orphan page behind. Rendered diagrams are cached in diagrams/ (see
+# bin/mermaid.rb), so a rebuild contacts kroki.io only for new diagrams.
 mkdir -p "${manual}"
 find "${manual}" -mindepth 1 -maxdepth 1 ! -name .asciidoctor -exec rm -rf {} +
 
@@ -92,9 +92,10 @@ cp -r "${script_dir}/src/static" "${manual}"
 # One page holding the whole manual. linkcss writes asciidoctor's stylesheet
 # and the pygments token stylesheet beside the other css instead of embedding
 # them in every page.
-asciidoctor -r asciidoctor-kroki -r asciidoctor-bibtex --doctype=book \
+asciidoctor -r "${script_dir}/bin/mermaid.rb" -r asciidoctor-bibtex --doctype=book \
   "${script_dir}/src/index.adoc" -a webfonts! \
   -a linkcss -a copycss -a stylesdir=static/css \
+  -a mermaid-cache-dir="${script_dir}/diagrams" \
   -o "${manual}/all.html"
 
 cp "${script_dir}"/syntax/css/*.css "${manual}/static/css"

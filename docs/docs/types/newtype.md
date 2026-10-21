@@ -60,7 +60,7 @@ $ ./prog shout 'smith'
 "SMITH"
 ```
 
-`Surname` resolves to `LastName`, which resolves to `Str`, which resolves to `"str"` in Python. Writing `type Py ⇒ Surname = "str"` would be redundant — and, as the next section shows, is rejected.
+`Surname` resolves to `LastName`, which resolves to `Str`, which resolves to `"str"` in Python. Writing `type Py => Surname = "str"` would be redundant — and, as the next section shows, is rejected.
 
 ## 5.4.3. Docstring inheritance
 

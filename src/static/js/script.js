@@ -143,6 +143,20 @@ document.addEventListener("click", (e) => {
 	});
 });
 
+// Sidebar folding on the single-page manual
+//
+// A section page's open branch is set at build time (`paged`). all.html has
+// no pages to navigate to, so open the branch holding the heading the URL
+// hash names, and follow the hash as the reader clicks.
+
+const toc = document.querySelector("#toc");
+
+if (toc && !toc.classList.contains("paged")) {
+	toc.classList.add("folding");
+	openTocBranch();
+	window.addEventListener("hashchange", openTocBranch);
+}
+
 // Back to top button
 
 if (header && backToTopBtn) {
@@ -166,6 +180,35 @@ function dismissPWAInstallPrompt() {
 
 	pwaInstallDiv.classList.add("pwa-install-div-dismiss");
 	setTimeout(() => pwaInstallDiv.classList.add("hidden"), 2000);
+}
+
+// The target may be a heading deeper than the TOC lists, or any id inside a
+// section, so climb to the nearest enclosing section that has an entry.
+function openTocBranch() {
+	toc.querySelectorAll("li.current, li.active").forEach((li) =>
+		li.classList.remove("current", "active")
+	);
+
+	let el = location.hash
+		? document.getElementById(decodeURIComponent(location.hash.slice(1)))
+		: null;
+	let link = null;
+
+	for (; el && !link; el = el.parentElement) {
+		const heading = el.matches(".sect1, .sect2, .sect3")
+			? el.querySelector(":scope > h2, :scope > h3, :scope > h4")
+			: el;
+
+		if (heading && heading.id)
+			link = toc.querySelector(`a[href="#${CSS.escape(heading.id)}"]`);
+	}
+
+	if (!link) return;
+
+	link.parentElement.classList.add("active");
+
+	for (let li = link.parentElement; li; li = li.parentElement.closest("li"))
+		li.classList.add("current");
 }
 
 function scrollToTop(entries, observer) {

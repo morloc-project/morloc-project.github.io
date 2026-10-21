@@ -77,7 +77,22 @@ Python requires the source because a package’s name can mean different things 
 
 A program’s dependencies are the union of its own and those of every module it imports. `smiles` imports `root-py`, whose needs come along with it.
 
-## 9.2.3. Installing the program
+## 9.2.3. Command-line tools (`tool-deps`)
+
+Some modules run a program rather than import a library: an aligner, a report generator. Declare such a program under `tool-deps`, naming the conda package that provides it. This entry, from a module that runs the STAR aligner, pins the version with `==`:
+
+```yaml
+tool-deps:
+  star: { version: "==2.7.11b", channel: "bioconda" }
+```
+
+A tool is always a conda package, from conda-forge or from the channel you name. The environment’s solve installs it with everything else, and its executables are on the environment’s `PATH`, so your code calls the program by its executable’s name, which need not be the package’s: the `star` package installs `STAR`.
+
+Tools belong to the module, not to one of its languages. A Rust module that runs STAR declares it here, since `rust-deps` names only crates; so does a Python module that starts a program with `subprocess`. Like any dependency, a tool comes along with the module that declares it. A program only your tests run, such as a reference tool you compare results with, belongs in the `package.yaml` beside the test program, so that nothing importing your module installs it.
+
+Run the program inside its environment, as `mim run` does. Started from a shell whose `PATH` lacks the environment’s `bin` directory, it finds whatever executable of that name comes first on your `PATH`, or none.
+
+## 9.2.4. Installing the program
 
 ```console
 $ mim install ./smiles
@@ -89,6 +104,8 @@ $ mim install ./smiles
 2.  adds them to the environment’s requirements and solves the whole set with pixi, rebuilding the container image if the toolchain changed;
 3.  compiles the program inside the environment;
 4.  copies the program’s directory and build into the environment, under its module name, and puts a launcher named `smiles` on the environment’s `PATH`.
+
+The compile in step 3 checks the requirements again and solves only if they changed. A program with local Python packages (see [Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)) is solved once more after it, because those packages are added to the environment only as the program installs.
 
 The first install of `smiles` is the slow one: RDKit and its libraries are downloaded and solved. Once it finishes, `smiles` runs like any command inside the environment:
 
@@ -117,15 +134,15 @@ After you change a program’s code or its `package.yaml`, install it again with
 $ mim install --force ./smiles
 ```
 
-## 9.2.4. One solved world per environment
+## 9.2.5. One solved world per environment
 
 An environment has a single set of packages, shared by every program installed in it. `mim` keeps it as a pixi project in the environment’s data directory: `pixi.toml` holds the combined requirements of every installed program plus any languages and package files you set with `mim modify`, and `pixi.lock` records the exact version of every package the solve chose. That locked set is the environment’s **solved world**.
 
-One world means one version of each package. When two programs constrain the same package, both constraints must hold, and the solve finds a version that satisfies them together. If none exists, the install fails with the solver’s explanation and the environment keeps its previous world. Two programs asking for the same conda package from different channels is an error naming the package, since a package can come from only one channel.
+One world means one version of each package. When two programs constrain the same package, both constraints must hold, and the solve finds a version that satisfies them together. If none exists, the install fails with the solver’s explanation and the environment keeps its previous world. Two programs asking for the same conda package from different channels is an error naming the package, since a package can come from only one channel. That holds across dependency keys too: a package one module lists under `py-deps` and another under `tool-deps` must name the same channel.
 
 Because the world is shared, installing a new program can move the version of a package another program uses, within that program’s own constraints. When two programs need versions that cannot coexist, put them in separate environments.
 
-## 9.2.5. When an environment is rebuilt
+## 9.2.6. When an environment is rebuilt
 
 The world is solved again whenever the requirements may have changed:
 

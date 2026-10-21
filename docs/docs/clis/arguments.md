@@ -2,7 +2,7 @@
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/arguments.html | prev: https://morloc-project.github.io/docs/clis/docstrings.md | next: https://morloc-project.github.io/docs/clis/record-arguments.md
 
-By default every argument in a signature is a positional, in the order it appears. `summarize :: [Hit] → [(Str, Int)]` takes one argument, so the command takes one token. Save a search first, since the rest of the chapter reuses it:
+By default every argument in a signature is a positional, in the order it appears. `summarize :: [Hit] -> [(Str, Int)]` takes one argument, so the command takes one token. Save a search first, since the rest of the chapter reuses it:
 
 ```console
 $ ./sift scan the notes > hits.json
@@ -327,9 +327,9 @@ The function’s type follows from the argument’s:
 
 | Argument type | Function type |
 | --- | --- |
-| `T` | `Str → <IO> T` |
-| `?T` (an option) | `Str → <IO> T` |
-| `IStream a` or `IFile [a]` | `Str → ([a] → <IO> ()) → <IO> ()`: it reads the file and hands each batch to the function it is given |
+| `T` | `Str -> <IO> T` |
+| `?T` (an option) | `Str -> <IO> T` |
+| `IStream a` or `IFile [a]` | `Str -> ([a] -> <IO> ()) -> <IO> ()`: it reads the file and hands each batch to the function it is given |
 
 An `IStream` argument is read while the command runs: the function runs alongside the command, which receives exactly the batches the function produced, in order, each as soon as it is ready. The function keeps at most a few batches ahead of the command, so the input is never held in memory. A command that stops reading early — one that looks at the head of a large file, or takes a prefix of input that never ends — stops the function too.
 

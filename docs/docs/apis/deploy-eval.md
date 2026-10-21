@@ -67,12 +67,12 @@ An eval expression is code written by whoever can reach the server, so it runs u
 -   **No local modules.** Imports resolve only to installed modules, never to files on the server’s disk.
 -   **No new code.** An expression cannot `source` foreign functions or declare types, typeclasses, or instances.
 -   **No direct IO.** IO intrinsics such as `@write` and `@open` may not appear in the expression. A function from an allowed module may still do IO internally, so the IO a caller can reach is exactly what your modules export.
--   **Resource limits.** Each evaluation runs in its own process, capped at 2 GB of compiler memory and 30 seconds of CPU time.
+-   **Resource limits.** Each evaluation runs in its own process, capped at 2 GB of compiler memory and 30 seconds of CPU time (35 seconds hard), and stopped after 120 seconds of wall time.
 -   **Read-only container.** A Docker or Podman server runs with a read-only root filesystem, so an expression cannot change the installed software.
 
 Each request is typechecked and compiled from scratch before it runs, so even a small expression takes a moment. Nothing about one request is kept for the next.
 
-The token rule is stricter for eval than for the rest of the server. On the default loopback bind, eval needs no token. On an exposed server, eval runs only for callers presenting the token, even if you started the server with `--allow-no-auth`; without a token it is **locked**: not listed among the MCP tools, reported as locked by `/discover`, and refused with `403`. `--eval-allow-no-auth` lifts this, for a deployment where something in front of the server already checks callers. When a token is set, `mim eval` sends the one in `MORLOC_MCP_TOKEN`, or the one given with `--auth-token`.
+The token rule is stricter for eval than for the rest of the server. On the default loopback bind, eval needs no token. On an exposed server, eval runs only for callers presenting the token, even if you started the server with `--allow-no-auth`; without a token it is **locked**: not listed among the MCP tools, reported as locked by `/discover`, and refused: with `403` over HTTP, with a JSON-RPC error over MCP. `--eval-allow-no-auth` lifts this, for a deployment where something in front of the server already checks callers. When a token is set, `mim eval` sends the one in `MORLOC_MCP_TOKEN`, or the one given with `--auth-token`.
 
 ## 9.4.4. Trying expressions locally
 

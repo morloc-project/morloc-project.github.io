@@ -17,9 +17,9 @@ A command whose body calls no foreign function is **pure**. The nexus evaluates 
 
 **A pool** is one long-lived process per language. It holds every function the program uses from that language, compiled or loaded together, and serves calls on its own socket. Calls between functions in the same pool are ordinary native calls: no serialization and no IPC.
 
-**A call that crosses languages** goes directly from the calling pool to the callee’s pool. The nexus is not on the path. Every cross-process call opens one connection, sends one call packet, and receives one reply packet.
+**A call that crosses languages** goes directly from the calling pool to the callee’s pool. The nexus is not on the path. A connection carries one call packet and then its reply packet at a time. A thread that calls a C++ or Rust pool keeps its connection for its next call, since setting one up costs about as much as the round trip itself; a call into Python or R opens a connection of its own.
 
-![Diagram](https://morloc-project.github.io/docs/static/img/diag-59440dc2c47612dc9b26fc2809b04987f920cf98795a953da52b5aac4c735c67.svg)
+![Diagram](https://morloc-project.github.io/docs/static/img/mermaid-4494ea1c347c7e54e6bb7ab36d329fac.svg)
 
 **Data travels in one of three ways.** Every value that leaves a process is first serialized to the language-neutral binary form described in [Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md). Where that serialized form then goes depends on its size and on whether shared memory is available:
 
@@ -31,4 +31,4 @@ A command whose body calls no foreign function is **pure**. The nexus evaluates 
 
 A shared-memory pointer is relative: it names a block by volume and offset, so it means the same block in every process of the program. This lets a pool read a large argument where its sender wrote it, without a copy across the socket.
 
-**Ownership.** The nexus creates the program’s shared-memory namespace and temporary directory, and it alone removes them. Each pool watches a pipe whose write end only the nexus holds, and exits when the nexus does. Startup, shutdown and crash handling are specified in [Process lifecycle](https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md).
+**Ownership.** The nexus creates the program’s shared-memory namespace and temporary directory, and it alone removes them. It is also the only writer of every output stream and of standard output: pools hand it their batches through shared memory, and it writes the files ([Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md)). Each pool watches a pipe whose write end only the nexus holds, and exits when the nexus does. Startup, shutdown and crash handling are specified in [Process lifecycle](https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md).

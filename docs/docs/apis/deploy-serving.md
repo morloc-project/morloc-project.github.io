@@ -28,7 +28,7 @@ $ mim start -p 8005:8005
 | --- | --- |
 | `POST /mcp` | The MCP endpoint, for AI assistants |
 | `POST /call/<module>/<command>` | Call one function with JSON arguments |
-| `GET /discover` | List the modules on the API and their commands |
+| `GET /discover` | List the modules on the API |
 | `GET /discover/<module>` | Describe one module’s commands and arguments |
 | `GET /health` | Liveness check |
 
@@ -57,7 +57,7 @@ $ mim start -p 8005:8005 --expose --allow-plaintext
 
 ## 9.3.4. Calling the JSON API
 
-`/call/<module>/<command>` takes the function’s arguments as a JSON array, in order, and returns the result in a JSON envelope:
+`/call/<module>/<command>` takes the function’s arguments as JSON and returns the result in a JSON envelope. Give the arguments as an array, in order:
 
 ```console
 $ curl -s http://localhost:8005/call/smiles/mw \
@@ -66,7 +66,38 @@ $ curl -s http://localhost:8005/call/smiles/mw \
 {"status":"ok","result":135.13}
 ```
 
-A failed call returns `{"status":"error","error":"…​"}` with HTTP status 500. `/discover` lists every module in the API view with its commands, and `/discover/smiles` gives each command’s arguments, types, and docstrings, so a client can find out what to call without reading the source.
+or by name, under `args`:
+
+```console
+$ curl -s http://localhost:8005/call/smiles/mw \
+    -H "Authorization: Bearer $MORLOC_MCP_TOKEN" \
+    -d '{"args": {"_1": "NC1=NC=NC2=C1N=CN2"}}'
+{"status":"ok","result":135.13}
+```
+
+The names are the ones the command line uses: an option or flag by its long name, a positional argument by its place, `_1`, `_2`, and so on. A record argument’s fields may be named one by one. An argument you leave out gets the value the command line would give it — its default, a flag’s declared default, `null` for an optional one — so a call by name needs only what is required. The array form must fill every slot. An argument the command line may read from standard input must be given here: the server has no standard input to offer.
+
+A command with output actions ([Output actions](https://morloc-project.github.io/docs/clis/output-actions.md)) runs its default one, as on the command line. Add `?render=<action>` to pick another, or `?render=raw` for the function’s own value; a media-typed result comes back as raw bytes with its `Content-Type`.
+
+A failed call returns `{"status":"error","class":"…​","error":"…​"}`. The class says what went wrong, and the HTTP status follows it:
+
+```console
+$ curl -s http://localhost:8005/call/smiles/mw -d '{"args": {"smiles": "CCO"}}'
+{"status":"error","class":"bad-request","error":"unknown argument 'smiles'"}
+```
+
+| Class | Status | Meaning |
+| --- | --- | --- |
+| `bad-request` | 400 | A bad argument, an unknown name or action, an argument given twice |
+| `not-found` | 404 | No such module or command |
+| `limit` | 413 | The request is larger than the server takes |
+| `failure` | 500 | The function raised, returned an `Err`, or its pool died |
+| `reply-limit` | 500 | The result is too large to send |
+| `recovering` | 503 | The server is restarting a crashed pool; retry after the `Retry-After` delay |
+
+Calls run concurrently, several to one module included. A Python or R pool is the exception: it takes calls one at a time while each computes, so two slow calls into the same Python function finish one after the other.
+
+`/discover` lists every module in the API view with the URL of its help, and `/discover/smiles` gives each command’s arguments, types, and docstrings, so a client can find out what to call without reading the source.
 
 ## 9.3.5. Connecting an AI assistant
 

@@ -21,7 +21,7 @@ time     :: ???
 coinToss :: ???
 ```
 
-We could try to make them into honest functions by handing them an explicit world or an explicit random seed — `time :: TemporalState → Time` and `coinToss :: RNG → (Bool, RNG)` — and thread that state through every call that needs it. This can work, but it pulls extra plumbing into every signature.
+We could try to make them into honest functions by handing them an explicit world or an explicit random seed — `time :: TemporalState -> Time` and `coinToss :: RNG -> (Bool, RNG)` — and thread that state through every call that needs it. This can work, but it pulls extra plumbing into every signature.
 
 Morloc takes a different route: it gives the effect a **name** at the type level. `<Rand> Bool` is not a `Bool`; it is a **suspended computation** that, when run, performs the `Rand` effect and yields a `Bool`. Where the original problem was "this looks like a value but doesn’t act like one", the solution is to give it a type that says so.
 
@@ -113,8 +113,8 @@ A `do`\-block strings statements together. It is the only construct in which eff
 
 | Form | Meaning |
 | --- | --- |
-| `x ← e` | Run `e`, bind the result to `x`. |
-| `Ok x ← e` | Run `e`, match the result against a refutable pattern, and throw if it does not match. |
+| `x <- e` | Run `e`, bind the result to `x`. |
+| `Ok x <- e` | Run `e`, match the result against a refutable pattern, and throw if it does not match. |
 | `e` | (bare) Run `e`. Nothing reads the result. |
 | `let x = e` | Bind `x` to `e` without running anything. |
 
@@ -141,9 +141,9 @@ $ ./effects example
 17
 ```
 
-Trace it once and the model sticks: `let t = sideEffect 3` binds a suspension and runs nothing; the bare `sideEffect 1` runs and nothing reads its result; `x ← sideEffect 5` runs and binds 10; `let y = add x 1` is pure arithmetic giving 11; `z ← t` finally runs the suspension bound at the top, giving 6; and `add y z` returns 17.
+Trace it once and the model sticks: `let t = sideEffect 3` binds a suspension and runs nothing; the bare `sideEffect 1` runs and nothing reads its result; `x <- sideEffect 5` runs and binds 10; `let y = add x 1` is pure arithmetic giving 11; `z <- t` finally runs the suspension bound at the top, giving 6; and `add y z` returns 17.
 
-Both layout-indented form (as above) and brace form (`do { x ← e; y ← f; …​ }`) are accepted.
+Both layout-indented form (as above) and brace form (`do { x <- e; y <- f; ... }`) are accepted.
 
 ### A bare statement checks its result
 
@@ -262,9 +262,9 @@ Error: evaluation failed: IO error: No such file or directory (os error 2)
 $ ./save bareThenUnit out.json '["a"]'
 ```
 
-**\`unwrap**
+**\`+unwrap**
 
-Try Str a → a\` comes from the standard library and does exactly what the bare-statement rule does: hand back the `Ok` payload, or throw the `Err` message. It is the explicit form of the same decision. The two failing runs above differ only in who reports: `asData` returns the failure and the program prints it as its result, while the other two throw and the program dies. Both exit non-zero.
+Try Str a → a+\` comes from the standard library and does exactly what the bare-statement rule does: hand back the `Ok` payload, or throw the `Err` message. It is the explicit form of the same decision. The two failing runs above differ only in who reports: `asData` returns the failure and the program prints it as its result, while the other two throw and the program dies. Both exit non-zero.
 
 ### When `do` is needed and when it isn’t
 
@@ -279,7 +279,7 @@ Use a `do`\-block when you need to sequence multiple statements, bind intermedia
 
 ### The `!` eval prefix
 
-Inside an expression, `!e` runs `e` in place. It is surface syntax only: the compiler rewrites it to a `←` bind at the nearest enclosing scope and threads the bound name through. Effects propagate outward exactly as they would if you had written the bind by hand.
+Inside an expression, `!e` runs `e` in place. It is surface syntax only: the compiler rewrites it to a `<-` bind at the nearest enclosing scope and threads the bound name through. Effects propagate outward exactly as they would if you had written the bind by hand.
 
 ```morloc
 readValue :: <IO> Int

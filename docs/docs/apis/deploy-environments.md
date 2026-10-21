@@ -7,7 +7,7 @@ An **environment** is a named, self-contained Morloc installation: the Morloc co
 If you do not have `mim` yet, install it as described in [Installing `mim`](https://morloc-project.github.io/docs/getting-started/installing.md#installing-mim):
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/morloc-project/morloc-manager/main/scripts/install.sh | sh
+$ curl -fsSL https://morloc.io/install.sh | sh
 ```
 
 ## 9.1.1. Native and container environments
@@ -178,7 +178,7 @@ $ mim start --flagfile alt.yaml -p 9090:9090        # a second server, other fla
 
 ## 9.1.7. Removing environments
 
-`mim rm` removes environments by name. For a container environment it also stops its server, removes its image, and removes the volume that held its toolchain. If you remove the default, the default is cleared and `mim` tells you how to set a new one.
+`mim rm` removes environments by name. It stops the environment’s server, and for a container environment it also removes its image and the volume that held its toolchain. If something cannot be removed (an image still in use, an engine that does not answer, files that are not yours), `rm` stops, says what is left, and keeps the environment so you can run it again. If you remove the default, the default is cleared and `mim` tells you how to set a new one.
 
 ```console
 $ mim rm smiles

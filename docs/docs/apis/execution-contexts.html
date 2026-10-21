@@ -72,7 +72,7 @@
 <body class="book toc2 toc-left">
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="copy-glyph" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path></symbol></svg>
 <div id="header">
-<div id="toc" class="toc2">
+<div id="toc" class="toc2 paged">
 <div id="toctitle">Table of Contents</div><div id="search" data-pagefind-ignore=""></div>
 <ul class="sectlevel1">
 <li><a href="../intro/index.html">1. Intro</a>
@@ -133,6 +133,7 @@
 <li><a href="../features/foreign-functions.html#mapping-native-types">4.2.3. Native type mappings</a></li>
 <li><a href="../features/foreign-functions.html#_sourcing_builtins_and_other_non_exports">4.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="../features/foreign-functions.html#_keyword_shaped_foreign_operators">4.2.5. Keyword-shaped foreign operators</a></li>
+<li><a href="../features/foreign-functions.html#sourced-values">4.2.6. What sourced code may do with values</a></li>
 </ul>
 </li>
 <li><a href="../features/booleans.html">4.3. Booleans</a>
@@ -390,6 +391,7 @@
 <ul class="sectlevel3">
 <li><a href="../clis/input-shape.html#_a_worked_example">6.7.1. A worked example</a></li>
 <li><a href="../clis/input-shape.html#_shape_follows_the_wire_form">6.7.2. Shape follows the wire form</a></li>
+<li><a href="../clis/input-shape.html#form-table">6.7.3. Tables with a header</a></li>
 </ul>
 </li>
 <li><a href="../clis/reading-stdin.html">6.8. Reading a stream from standard input</a>
@@ -468,39 +470,48 @@
 <li><a href="../runs/caching.html">7.4. Caching</a>
 <ul class="sectlevel3">
 <li><a href="../runs/caching.html#_declaring_a_cached_call">7.4.1. Declaring a cached call</a></li>
-<li><a href="../runs/caching.html#_what_goes_in_the_hash">7.4.2. What goes in the hash</a></li>
-<li><a href="../runs/caching.html#cache-layout">7.4.3. Storage layout</a></li>
-<li><a href="../runs/caching.html#_reading_and_writing">7.4.4. Reading and writing</a></li>
+<li><a href="../runs/caching.html#_what_a_cached_label_covers">7.4.2. What a cached label covers</a></li>
+<li><a href="../runs/caching.html#cache-layout">7.4.3. Where the cache lives</a></li>
 </ul>
 </li>
-<li><a href="../runs/compression.html">7.5. Compression</a>
+<li><a href="../runs/remote-jobs.html">7.5. Remote job submission</a>
 <ul class="sectlevel3">
-<li><a href="../runs/compression.html#_compression_in_write">7.5.1. Compression in <code>@write</code></a></li>
-<li><a href="../runs/compression.html#_compression_in_morloc_nexus_run">7.5.2. Compression in <code>morloc-nexus run</code></a></li>
-<li><a href="../runs/compression.html#_compression_level_table">7.5.3. Compression-level table</a></li>
-<li><a href="../runs/compression.html#_algorithm_agnostic_surface">7.5.4. Algorithm-agnostic surface</a></li>
-<li><a href="../runs/compression.html#_caching_is_unaffected">7.5.5. Caching is unaffected</a></li>
+<li><a href="../runs/remote-jobs.html#_sending_a_call_to_a_job">7.5.1. Sending a call to a job</a></li>
+<li><a href="../runs/remote-jobs.html#_describing_the_job">7.5.2. Describing the job</a></li>
+<li><a href="../runs/remote-jobs.html#_what_runs_in_the_job">7.5.3. What runs in the job</a></li>
+<li><a href="../runs/remote-jobs.html#_effects">7.5.4. Effects</a></li>
+<li><a href="../runs/remote-jobs.html#_results">7.5.5. Results</a></li>
+<li><a href="../runs/remote-jobs.html#_what_a_job_can_receive">7.5.6. What a job can receive</a></li>
 </ul>
 </li>
-<li><a href="../runs/debugging.html">7.6. Debugging</a>
+<li><a href="../runs/compression.html">7.6. Compression</a>
 <ul class="sectlevel3">
-<li><a href="../runs/debugging.html#_enabling_at_compile_time">7.6.1. Enabling at compile time</a></li>
-<li><a href="../runs/debugging.html#_a_failing_run">7.6.2. A failing run</a></li>
-<li><a href="../runs/debugging.html#debug-knobs">7.6.3. Runtime knobs</a></li>
-<li><a href="../runs/debugging.html#dump-location">7.6.4. Where dumps land</a></li>
-<li><a href="../runs/debugging.html#_content_addressed_dedup">7.6.5. Content-addressed dedup</a></li>
-<li><a href="../runs/debugging.html#_frame_status_markers">7.6.6. Frame status markers</a></li>
-<li><a href="../runs/debugging.html#_recovering_an_input_via_load">7.6.7. Recovering an input via <code>@load</code></a></li>
-<li><a href="../runs/debugging.html#_interaction_with_the_cache">7.6.8. Interaction with the cache</a></li>
+<li><a href="../runs/compression.html#_compression_in_write">7.6.1. Compression in <code>@write</code></a></li>
+<li><a href="../runs/compression.html#_compression_in_morloc_nexus_run">7.6.2. Compression in <code>morloc-nexus run</code></a></li>
+<li><a href="../runs/compression.html#_compression_level_table">7.6.3. Compression-level table</a></li>
+<li><a href="../runs/compression.html#_algorithm_agnostic_surface">7.6.4. Algorithm-agnostic surface</a></li>
+<li><a href="../runs/compression.html#_caching_is_unaffected">7.6.5. Caching is unaffected</a></li>
 </ul>
 </li>
-<li><a href="../runs/random-access-and-streaming.html">7.7. Random access and streaming</a>
+<li><a href="../runs/debugging.html">7.7. Debugging</a>
 <ul class="sectlevel3">
-<li><a href="../runs/random-access-and-streaming.html#_random_access_with_ifile">7.7.1. Random access with IFile</a></li>
-<li><a href="../runs/random-access-and-streaming.html#_sequential_writing_with_ostream">7.7.2. Sequential writing with OStream</a></li>
-<li><a href="../runs/random-access-and-streaming.html#_sequential_reading_with_istream">7.7.3. Sequential reading with IStream</a></li>
-<li><a href="../runs/random-access-and-streaming.html#_typed_standard_streams">7.7.4. Typed standard streams</a></li>
-<li><a href="../runs/random-access-and-streaming.html#stream-env-vars">7.7.5. Environment variables</a></li>
+<li><a href="../runs/debugging.html#_enabling_at_compile_time">7.7.1. Enabling at compile time</a></li>
+<li><a href="../runs/debugging.html#_a_failing_run">7.7.2. A failing run</a></li>
+<li><a href="../runs/debugging.html#debug-knobs">7.7.3. Runtime knobs</a></li>
+<li><a href="../runs/debugging.html#dump-location">7.7.4. Where dumps land</a></li>
+<li><a href="../runs/debugging.html#_content_addressed_dedup">7.7.5. Content-addressed dedup</a></li>
+<li><a href="../runs/debugging.html#_frame_status_markers">7.7.6. Frame status markers</a></li>
+<li><a href="../runs/debugging.html#_recovering_an_input_via_load">7.7.7. Recovering an input via <code>@load</code></a></li>
+<li><a href="../runs/debugging.html#_interaction_with_the_cache">7.7.8. Interaction with the cache</a></li>
+</ul>
+</li>
+<li><a href="../runs/random-access-and-streaming.html">7.8. Random access and streaming</a>
+<ul class="sectlevel3">
+<li><a href="../runs/random-access-and-streaming.html#_random_access_with_ifile">7.8.1. Random access with IFile</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_sequential_writing_with_ostream">7.8.2. Sequential writing with OStream</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_sequential_reading_with_istream">7.8.3. Sequential reading with IStream</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_typed_standard_streams">7.8.4. Typed standard streams</a></li>
+<li><a href="../runs/random-access-and-streaming.html#stream-env-vars">7.8.5. Environment variables</a></li>
 </ul>
 </li>
 </ul>
@@ -540,9 +551,10 @@
 <ul class="sectlevel3">
 <li><a href="deploy-dependencies.html#_the_smiles_example">9.2.1. The smiles example</a></li>
 <li><a href="deploy-dependencies.html#_declaring_dependencies">9.2.2. Declaring dependencies</a></li>
-<li><a href="deploy-dependencies.html#_installing_the_program">9.2.3. Installing the program</a></li>
-<li><a href="deploy-dependencies.html#_one_solved_world_per_environment">9.2.4. One solved world per environment</a></li>
-<li><a href="deploy-dependencies.html#_when_an_environment_is_rebuilt">9.2.5. When an environment is rebuilt</a></li>
+<li><a href="deploy-dependencies.html#tool-deps">9.2.3. Command-line tools (<code>tool-deps</code>)</a></li>
+<li><a href="deploy-dependencies.html#_installing_the_program">9.2.4. Installing the program</a></li>
+<li><a href="deploy-dependencies.html#_one_solved_world_per_environment">9.2.5. One solved world per environment</a></li>
+<li><a href="deploy-dependencies.html#_when_an_environment_is_rebuilt">9.2.6. When an environment is rebuilt</a></li>
 </ul>
 </li>
 <li><a href="deploy-serving.html">9.3. Serving</a>
@@ -574,12 +586,10 @@
 </li>
 <li class="current active"><a href="execution-contexts.html">9.6. Running on a cluster</a>
 <ul class="sectlevel3">
-<li><a href="execution-contexts.html#_labeling_a_term">9.6.1. Labeling a term</a></li>
-<li><a href="execution-contexts.html#_describing_a_labels_resources">9.6.2. Describing a label’s resources</a></li>
-<li><a href="execution-contexts.html#_enabling_dispatch">9.6.3. Enabling dispatch</a></li>
-<li><a href="execution-contexts.html#dispatch-bridge">9.6.4. Running with the dispatch bridge</a></li>
-<li><a href="execution-contexts.html#_data_on_the_shared_filesystem">9.6.5. Data on the shared filesystem</a></li>
-<li><a href="execution-contexts.html#_checking_the_cluster_setup">9.6.6. Checking the cluster setup</a></li>
+<li><a href="execution-contexts.html#_enabling_dispatch">9.6.1. Enabling dispatch</a></li>
+<li><a href="execution-contexts.html#dispatch-bridge">9.6.2. Running with the dispatch bridge</a></li>
+<li><a href="execution-contexts.html#_data_on_the_shared_filesystem">9.6.3. Data on the shared filesystem</a></li>
+<li><a href="execution-contexts.html#_checking_the_cluster_setup">9.6.4. Checking the cluster setup</a></li>
 </ul>
 </li>
 </ul>
@@ -661,34 +671,36 @@
 <li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<li><a href="../ecosystem-architecture/eco-caching.html">12.4. Caching</a></li>
+<li><a href="../ecosystem-architecture/eco-remote.html">12.5. Remote jobs</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.6. Module resolution</a>
 <ul class="sectlevel3">
-<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.6.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.6.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.6.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.6.4. Foreign dependencies</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.7. Environment solving</a>
 <ul class="sectlevel3">
-<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.7.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.7.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.7.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.7.4. When solving happens</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.8. Serving</a>
 <ul class="sectlevel3">
-<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.8.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.8.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.8.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.8.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.8.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.8.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.8.7. Serving an environment</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.9. Freezing</a></li>
 </ul>
 </li>
 <li><a href="../build-architecture/index.html">13. Build Architecture</a>
@@ -775,12 +787,11 @@
 <h3 id="execution-contexts"><a class="anchor" href="#execution-contexts"></a>9.6. Running on a cluster</h3>
 <div class="paragraph">
 <p>A server answers requests on one machine. Some work is too big for one
-machine: a function that needs 32 GB and eight cores, called once per sample
-across hundreds of samples. Morloc lets you mark such a function with a
-<strong>label</strong>, and attach to the label a description of the resources it needs.
-With dispatch enabled, each call to a labeled function becomes a separate job
-on a SLURM cluster, and its result comes back into the program as if it had
-run locally.</p>
+machine, and <a href="../runs/remote-jobs.html">Remote job submission</a> showed how a label sends each call through it to
+a separate job on a SLURM cluster. This section covers what the cluster and
+the environment need for that to work: turning submission on, running a
+containerized program against the host’s SLURM, and putting the data where
+compute nodes can read it.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -791,128 +802,21 @@ run locally.</p>
 <td class="content">
 <div class="title">Experimental Feature</div>
 <div class="paragraph">
-<p>SLURM dispatch is not covered by an end-to-end test yet. Labels and their
-configuration work, and without dispatch the labeled terms run in-process as
-shown below; the job submission path is described from the source.</p>
+<p>Job submission is tested against a stand-in for <code>sbatch</code> and <code>sacct</code> that runs
+each job on the same machine, not on a real cluster.</p>
 </div>
 </td>
 </tr>
 </tbody></table>
 </div>
 <div class="sect3">
-<h4 id="_labeling_a_term"><a class="anchor" href="#_labeling_a_term"></a>9.6.1. Labeling a term</h4>
+<h4 id="_enabling_dispatch"><a class="anchor" href="#_enabling_dispatch"></a>9.6.1. Enabling dispatch</h4>
 <div class="paragraph">
-<p>A label is a name followed by <code>@</code>, written in front of a function name where
-the function is used:</p>
-</div>
-<div class="listingblock">
-<div class="title">heavy.loc</div>
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">heavy</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-p">)</span>
-
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"heavy.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"run"</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">"reduce"</span><span class="tok-p">)</span>
-
-<span class="tok-n">run</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Int</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-
-<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-w"> </span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">big</span><span class="tok-nb">@run</span></code></pre>
-<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
-</div>
-<div class="listingblock">
-<div class="title">heavy.py</div>
-<div class="content">
-<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">run</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">):</span>
-    <span class="tok-k">return</span> <span class="tok-nb">len</span><span class="tok-p">(</span><span class="tok-n">x</span><span class="tok-p">)</span>
-
-<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">reduce</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">):</span>
-    <span class="tok-k">return</span> <span class="tok-nb">sum</span><span class="tok-p">(</span><span class="tok-n">xs</span><span class="tok-p">)</span></code></pre>
-<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
-</div>
-<div class="paragraph">
-<p>Here <code>run</code> is mapped over the inputs, and every call to it carries the label
-<code>big</code>. A label goes on a single name, never on a larger expression:
-<code>big@(reduce xs)</code> is a syntax error. To send a larger computation to a job,
-give it a name and label the name. Labels nest, because a labeled function can
-itself use labeled functions:</p>
-</div>
-<div class="listingblock">
-<div class="title">pipeline.loc</div>
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">pipeline</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">analyzeMany</span><span class="tok-p">)</span>
-
-<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"pipeline.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"munge"</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">"analyze"</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">"reduce"</span><span class="tok-p">)</span>
-
-<span class="tok-n">munge</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span>
-<span class="tok-n">analyze</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
-<span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Real</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
-
-<span class="tok-n">bigStep</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
-<span class="tok-n">bigStep</span><span class="tok-w"> </span><span class="tok-n">input</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">reduce</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">big</span><span class="tok-nb">@analyze</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">munge</span><span class="tok-w"> </span><span class="tok-n">input</span><span class="tok-p">))</span>
-
-<span class="tok-n">analyzeMany</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Str</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[(</span><span class="tok-nc">Str</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-p">)]</span>
-<span class="tok-n">analyzeMany</span><span class="tok-w"> </span><span class="tok-n">inputs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">zip</span><span class="tok-w"> </span><span class="tok-n">inputs</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">big</span><span class="tok-nb">@bigStep</span><span class="tok-w"> </span><span class="tok-n">inputs</span><span class="tok-p">)</span></code></pre>
-<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
-</div>
-<div class="paragraph">
-<p>Each <code>bigStep</code> call can become a job, and each job can submit a further job
-for each <code>analyze</code> call. Removing the label from <code>analyze</code> runs those calls
-inside the <code>bigStep</code> job instead.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_describing_a_labels_resources"><a class="anchor" href="#_describing_a_labels_resources"></a>9.6.2. Describing a label’s resources</h4>
-<div class="paragraph">
-<p>A label is configured in the module’s YAML file, named after the source file
-(<code>heavy.yaml</code> beside <code>heavy.loc</code>). Every label used in the module must have an
-entry under <code>labeled-groups</code>, and a <code>remote:</code> block describes the job:</p>
-</div>
-<div class="listingblock">
-<div class="title">heavy.yaml</div>
-<div class="content">
-<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">labeled-groups</span><span class="tok-p">:</span>
-<span class="tok-w">  </span><span class="tok-nt">big</span><span class="tok-p">:</span>
-<span class="tok-w">    </span><span class="tok-nt">remote</span><span class="tok-p">:</span>
-<span class="tok-w">      </span><span class="tok-nt">threads</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">8</span><span class="tok-w">          </span><span class="tok-c1"># sbatch --cpus-per-task</span>
-<span class="tok-w">      </span><span class="tok-nt">memory</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">32</span><span class="tok-w">          </span><span class="tok-c1"># GB, sbatch --mem=32G</span>
-<span class="tok-w">      </span><span class="tok-nt">time</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">"01:00:00"</span><span class="tok-w">    </span><span class="tok-c1"># sbatch --time, as HH:MM:SS or D-HH:MM:SS</span>
-<span class="tok-w">      </span><span class="tok-nt">gpus</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">0</span><span class="tok-w">             </span><span class="tok-c1"># sbatch --gres=gpu:N</span></code></pre>
-<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
-</div>
-<div class="paragraph">
-<p><code>time</code> must be a SLURM time string; a bare number is refused:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>heavy<span class="tok-w"> </span>heavy.loc
-<span class="tok-go">Failed to parse module config file 'heavy.loc': Aeson exception:</span>
-<span class="tok-go">Error in $['labeled-groups'].big.remote.time: Expected a string for SLURM time</span></code></pre>
-<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
-</div>
-<div class="paragraph">
-<p>Until dispatch is enabled, a labeled term runs in the program as usual, so the
-same program works on a laptop:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>heavy<span class="tok-w"> </span>heavy.loc
-<span class="tok-gp">$ </span>./heavy<span class="tok-w"> </span>foo<span class="tok-w"> </span><span class="tok-s1">'["a","bcd","ef"]'</span>
-<span class="tok-go">6</span>
-<span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>make<span class="tok-w"> </span>-o<span class="tok-w"> </span>pipeline<span class="tok-w"> </span>pipeline.loc
-<span class="tok-gp">$ </span>./pipeline<span class="tok-w"> </span>analyzeMany<span class="tok-w"> </span><span class="tok-s1">'["a,bb","ccc"]'</span>
-<span class="tok-go">[["a,bb",3],["ccc",3]]</span></code></pre>
-<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_enabling_dispatch"><a class="anchor" href="#_enabling_dispatch"></a>9.6.3. Enabling dispatch</h4>
-<div class="paragraph">
-<p>The compiler emits job dispatch only when the environment’s build
-configuration asks for it, which <code>morloc init --slurm</code> sets. <code>mim</code> runs
-<code>morloc init</code> without that flag whenever it builds the environment, so run it
-again inside the environment once the environment exists:</p>
+<p>The compiler emits job submission only when asked. <code>morloc make --slurm</code>
+asks for one build; the environment’s build configuration asks for every
+build, which <code>morloc init --slurm</code> sets. <code>mim</code> runs <code>morloc init</code> without that
+flag whenever it builds the environment, so run it again inside the
+environment once the environment exists:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -928,7 +832,7 @@ rebuild the program.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="dispatch-bridge"><a class="anchor" href="#dispatch-bridge"></a>9.6.4. Running with the dispatch bridge</h4>
+<h4 id="dispatch-bridge"><a class="anchor" href="#dispatch-bridge"></a>9.6.2. Running with the dispatch bridge</h4>
 <div class="paragraph">
 <p>A program inside a container cannot call <code>sbatch</code> on the host. <code>mim run
 --slurm-bridge</code> connects the two:</p>
@@ -951,9 +855,9 @@ rebuild the program.</p>
 <code>/run/morloc-bridge.sock</code> and its path in <code>MORLOC_BRIDGE_SOCKET</code>;</p>
 </li>
 <li>
-<p>for each call to a label with a <code>remote:</code> block, receives from the program a
-<code>mim run</code> command that would run just that call, and submits it with
-<code>sbatch --wrap</code>, using the label’s resources;</p>
+<p>for each call to a label with a <code>remote:</code> block, receives from the program
+the command that runs just that call, and submits it with <code>sbatch --wrap</code>,
+inside a <code>mim run</code> of the same environment and with the label’s resources;</p>
 </li>
 <li>
 <p>answers the program’s status checks by asking <code>sacct</code> about the job.</p>
@@ -975,60 +879,19 @@ the shared filesystem, but Apptainer environments cannot be built yet (see
 </div>
 </div>
 <div class="sect3">
-<h4 id="_data_on_the_shared_filesystem"><a class="anchor" href="#_data_on_the_shared_filesystem"></a>9.6.5. Data on the shared filesystem</h4>
+<h4 id="_data_on_the_shared_filesystem"><a class="anchor" href="#_data_on_the_shared_filesystem"></a>9.6.3. Data on the shared filesystem</h4>
 <div class="paragraph">
-<p>Arguments and results travel between the program and its jobs as files in a
-cache directory, <code>~/.cache/morloc/cache/_remote/</code> (set <code>MORLOC_CACHE_BASE</code> or
-<code>XDG_CACHE_HOME</code> to move it). Compute nodes must see that directory at the
-same path, as they do when your home directory is on a shared filesystem.</p>
-</div>
-<div class="hdlist">
-<table>
-<tbody><tr>
-<td class="hdlist1">
-<code>&lt;arg-hash&gt;.dat</code>
-</td>
-<td class="hdlist2">
-<p>one argument’s data, written once and named by its hash</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>&lt;call-hash&gt;-call.dat</code>
-</td>
-<td class="hdlist2">
-<p>the call itself, which refers to its arguments'
-files, so it stays small whatever their size</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>&lt;result-hash&gt;.dat</code>
-</td>
-<td class="hdlist2">
-<p>the result, named by a hash of the function’s source
-and its arguments' hashes</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>&lt;result-hash&gt;.out</code>, <code>.err</code>
-</td>
-<td class="hdlist2">
-<p>the job’s standard output and error</p>
-</td>
-</tr>
-</tbody></table>
-</div>
-<div class="paragraph">
-<p>Because results are named by what produced them, running the same call again
-with the same arguments finds the result already there and submits no job.
-Changing the function’s source changes the hash, so a stale result is never
-reused.</p>
+<p>Arguments and results travel between a program and its jobs as files in a
+directory under the cache base, <code>~/.cache/morloc/cache/_remote/</code> by default
+(set <code>MORLOC_CACHE_BASE</code> or <code>XDG_CACHE_HOME</code> to move it). Compute nodes must
+see that directory at the same path, as they do when your home directory is
+on a shared filesystem. Each call has a directory of its own there, deleted
+once its result is read; a failed job’s directory stays, with the job’s
+standard error in it. <a href="../ecosystem-architecture/eco-remote.html">Remote jobs</a> specifies the files and the commands.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_checking_the_cluster_setup"><a class="anchor" href="#_checking_the_cluster_setup"></a>9.6.6. Checking the cluster setup</h4>
+<h4 id="_checking_the_cluster_setup"><a class="anchor" href="#_checking_the_cluster_setup"></a>9.6.4. Checking the cluster setup</h4>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight nowrap"><code data-lang="console"><span></span><span class="tok-gp">$ </span>mim<span class="tok-w"> </span>doctor<span class="tok-w"> </span>--env<span class="tok-w"> </span>hpc<span class="tok-w"> </span>--slurm</code></pre>

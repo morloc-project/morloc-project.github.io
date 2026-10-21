@@ -1,4 +1,4 @@
-# 12.7. Freezing
+# 12.9. Freezing
 
 Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md | next: https://morloc-project.github.io/docs/build-architecture/index.md
 
@@ -23,4 +23,4 @@ Morloc moves data between pools through shared memory, which container engines l
 
 **Labels.** Once it leaves the manager nothing tracks the image, so it describes itself: the Morloc version, the source environment, the programs, each adapter’s modules, whether eval is on, and the suggested shared-memory size.
 
-**Slim images.** A slim image omits what only building needs: compilers, the solver, the Morloc compiler, the runtime’s headers and source, and the build-only packages, found by walking the solved packages' dependencies from the requested ones without passing through a build tool. It keeps every interpreter and library the programs load. Since eval compiles code, an environment with eval enabled cannot be frozen slim. After a slim image is built, every program is started inside it and every runtime library’s links are resolved, so a missing library is found at freeze time rather than in production.
+**Slim images.** A slim image omits what only building needs: compilers, the solver, the Morloc compiler, the runtime’s headers and source, and the build-only packages, found by walking the solved packages' dependencies from the requested ones without passing through a build tool. It keeps every interpreter and library the programs load, and every tool a program declares together with everything that tool depends on, even a package that would otherwise count as build-only. Since eval compiles code, an environment with eval enabled cannot be frozen slim. After a slim image is built, every program is started inside it and every runtime library’s links are resolved, so a missing library is found at freeze time rather than in production.

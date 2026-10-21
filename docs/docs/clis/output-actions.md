@@ -38,7 +38,7 @@ $ ./sift scan the notes -c
 4
 ```
 
-A formatter is an ordinary typechecked function `A → B` where `A` unifies with the command’s return payload. `countHits` is `[Hit] → U64`, so the composed command returns a `U64`. `size` from the standard library would have done as well; `countHits` exists only to carry the docstring.
+A formatter is an ordinary typechecked function `A -> B` where `A` unifies with the command’s return payload. `countHits` is `[Hit] -> U64`, so the composed command returns a `U64`. `size` from the standard library would have done as well; `countHits` exists only to carry the docstring.
 
 Because each flag produces a different type, `-h` reports the return as a table instead of a single line:
 
@@ -245,19 +245,16 @@ Return:
 
 It does more than label. The HTTP daemon returns the raw bytes with a matching `Content-Type` instead of a JSON envelope, and the MCP server delivers them as an inline image block rather than an array of numbers — see [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). A media-typed return must reduce to `Str` or a byte array (`[U8]`), or a list of either; anything else is rejected at compile time.
 
-> **Note**
-> `@mime` does not yet change what the CLI writes. Without an action flag the bytes still come out as a JSON array of numbers, so a `@render` sink is currently how you get a file (`reports/0029`):
-> 
-> ```console
-> $ ./ramp 4 | head -c 60
-> [137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,4,0,0,0
-> 
-> $ ./ramp 4 -w > out.png
-> $ file out.png
-> out.png: PNG image data, 4 x 4, 8-bit grayscale, non-interlaced
-> ```
-> 
-> The `ident` handler above exists for exactly this reason.
+The CLI writes the same bytes: a command whose return type carries `@mime` prints its raw content, so the output can go straight to a file. `-f` still asks for another form:
+
+```console
+$ ./ramp 4 > out.png
+$ file out.png
+out.png: PNG image data, 4 x 4, 8-bit grayscale, non-interlaced
+
+$ ./ramp -f json 4 | head -c 40
+[137,80,78,71,13,10,26,10,0,0,0,13,73,72
+```
 
 ## 6.10.5. Several outputs in one run
 
@@ -302,4 +299,5 @@ A `-f` that one of the outputs cannot take — `csv` for a value that is not
 -   Action directives belong in the signature preamble — the `--'` lines directly above `name ::` — not on argument docstrings, record fields, or type aliases.
 -   The command needs an explicit signature.
 -   Flag names must not collide with the command’s own `@arg` / `@true` / `@false` names, with each other, or with `-h` / `--help` or `--no-stdout`.
+-   `--raw` is reserved: `raw` selects the command’s own value where an action is chosen by name (HTTP `?render=raw`, MCP `_render`).
 -   Two directives whose long flags collapse to the same internal name (say `--bar-baz` and `--bar_baz`) are rejected, as is a synthesized entry name that collides with a top-level identifier in the module.

@@ -4,7 +4,7 @@ Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/nexu
 
 `morloc-nexus file` plays the role of the UNIX `file` utility for Morloc-compatible data files. It recognises morloc packets (`data-packet`, `call-packet`, `stream-packet`, `ping-packet`), JSON, MessagePack, CSV, Arrow IPC, Parquet, ASCII / UTF-8 text, and empty files.
 
-Default output is exactly one line per input file, formatted as `<path>: <type> key=value …​`. The stream is grep / awk / sort friendly: `morloc-nexus file * | wc -l` always equals the number of input files.
+Default output is exactly one line per input file, formatted as `<path>: <type> key=value ...`. The stream is grep / awk / sort friendly: `morloc-nexus file * | wc -l` always equals the number of input files.
 
 For example:
 
@@ -34,7 +34,7 @@ For the remaining formats, classification reads up to one kilobyte of the file a
 | `-F`, `--no-file` | Suppress the `<path>:` prefix. |
 | --- | --- |
 | `-D`, `--no-description` | Suppress every `key=value` field; keep only the type token. `-FD` combined yields a clean type stream for programmatic use. |
-| `-v`, `--verbose` | Break the one-line rule. CALL packets emit one indented `arg[i]: data-packet …​` line per argument. CSV files emit one indented `<name>:<type>` line per column, with type inferred as one of `int`, `float`, `str`, `bool`, `date`, `time`, or `other`. STREAM packets emit the extended footer diag (writer pid, flush timestamps, oversize count, largest sub-packet, EOF tail window). |
+| `-v`, `--verbose` | Break the one-line rule. CALL packets emit one indented `arg[i]: data-packet ...` line per argument. CSV files emit one indented `<name>:<type>` line per column, with type inferred as one of `int`, `float`, `str`, `bool`, `date`, `time`, or `other`. STREAM packets emit the extended footer diag (writer pid, flush timestamps, oversize count, largest sub-packet, EOF tail window). |
 | `-n`, `--bytes SIZE` | Bytes read for content-based detection. Accepts a K / M / G suffix. Default `1k`. Morloc-packet detection always uses just the 32-byte header regardless. |
 | `--json` | Emit one JSON object per file. JSON output is unaffected by `-F` / `-D` / `-v` and always includes the full structure, including CSV column names and types. |
 | `--validate` | After classifying, fully load each file through the exact same loader the `run` subcommand uses, then discard the result. Appends `validated=yes`, `validated=no error="<msg>"`, or `validated=structure-only`. If `file --validate` passes, `run` (or `view`) reading the same file will not fail at the load stage. |

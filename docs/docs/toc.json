@@ -8,7 +8,7 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "d2af6cd9cf12bc8643e345f44ed95c21a021001d"
+  "source": "8954db11d6336510ae988b5f0825c86f6023b86c"
  },
  "pages": [
   {
@@ -41,7 +41,7 @@
    "md": "https://morloc-project.github.io/docs/why/index.md",
    "chapter": "why",
    "level": 1,
-   "summary": "Every command line tool solves the same problems a second time.",
+   "summary": "Every command line tool must reimplement solutions to the same set of problems.",
    "headings": [
     {
      "id": "derived-interface",
@@ -318,6 +318,11 @@
      "id": "_keyword_shaped_foreign_operators",
      "title": "Keyword-shaped foreign operators",
      "number": "4.2.5."
+    },
+    {
+     "id": "sourced-values",
+     "title": "What sourced code may do with values",
+     "number": "4.2.6."
     }
    ]
   },
@@ -1518,6 +1523,11 @@
      "id": "_shape_follows_the_wire_form",
      "title": "Shape follows the wire form",
      "number": "6.7.2."
+    },
+    {
+     "id": "form-table",
+     "title": "Tables with a header",
+     "number": "6.7.3."
     }
    ]
   },
@@ -1819,7 +1829,7 @@
    "md": "https://morloc-project.github.io/docs/runs/caching.md",
    "chapter": "runs",
    "level": 2,
-   "summary": "Mark any labeled call site cache: true in the program YAML and its result is memoized to disk.",
+   "summary": "Mark a label cache: true in the program YAML and every call through it is memoized to disk.",
    "headings": [
     {
      "id": "_declaring_a_cached_call",
@@ -1827,24 +1837,61 @@
      "number": "7.4.1."
     },
     {
-     "id": "_what_goes_in_the_hash",
-     "title": "What goes in the hash",
+     "id": "_what_a_cached_label_covers",
+     "title": "What a cached label covers",
      "number": "7.4.2."
     },
     {
      "id": "cache-layout",
-     "title": "Storage layout",
+     "title": "Where the cache lives",
      "number": "7.4.3."
-    },
-    {
-     "id": "_reading_and_writing",
-     "title": "Reading and writing",
-     "number": "7.4.4."
     }
    ]
   },
   {
    "number": "7.5.",
+   "title": "Remote job submission",
+   "id": "remote-jobs",
+   "url": "https://morloc-project.github.io/docs/runs/remote-jobs.html",
+   "md": "https://morloc-project.github.io/docs/runs/remote-jobs.md",
+   "chapter": "runs",
+   "level": 2,
+   "summary": "A labeled call can run as a separate job on a SLURM cluster.",
+   "headings": [
+    {
+     "id": "_sending_a_call_to_a_job",
+     "title": "Sending a call to a job",
+     "number": "7.5.1."
+    },
+    {
+     "id": "_describing_the_job",
+     "title": "Describing the job",
+     "number": "7.5.2."
+    },
+    {
+     "id": "_what_runs_in_the_job",
+     "title": "What runs in the job",
+     "number": "7.5.3."
+    },
+    {
+     "id": "_effects",
+     "title": "Effects",
+     "number": "7.5.4."
+    },
+    {
+     "id": "_results",
+     "title": "Results",
+     "number": "7.5.5."
+    },
+    {
+     "id": "_what_a_job_can_receive",
+     "title": "What a job can receive",
+     "number": "7.5.6."
+    }
+   ]
+  },
+  {
+   "number": "7.6.",
    "title": "Compression",
    "id": "compression",
    "url": "https://morloc-project.github.io/docs/runs/compression.html",
@@ -1856,84 +1903,84 @@
     {
      "id": "_compression_in_write",
      "title": "Compression in @write",
-     "number": "7.5.1."
+     "number": "7.6.1."
     },
     {
      "id": "_compression_in_morloc_nexus_run",
      "title": "Compression in morloc-nexus run",
-     "number": "7.5.2."
+     "number": "7.6.2."
     },
     {
      "id": "_compression_level_table",
      "title": "Compression-level table",
-     "number": "7.5.3."
+     "number": "7.6.3."
     },
     {
      "id": "_algorithm_agnostic_surface",
      "title": "Algorithm-agnostic surface",
-     "number": "7.5.4."
+     "number": "7.6.4."
     },
     {
      "id": "_caching_is_unaffected",
      "title": "Caching is unaffected",
-     "number": "7.5.5."
+     "number": "7.6.5."
     }
    ]
   },
   {
-   "number": "7.6.",
+   "number": "7.7.",
    "title": "Debugging",
    "id": "debugging",
    "url": "https://morloc-project.github.io/docs/runs/debugging.html",
    "md": "https://morloc-project.github.io/docs/runs/debugging.md",
    "chapter": "runs",
    "level": 2,
-   "summary": "When a foreign function throws — a Python ZeroDivisionError, a C++ std::invalid_argument, an R stop(…​) — the default behavior of a morloc-built program is...",
+   "summary": "When a foreign function throws — a Python ZeroDivisionError, a C++ std::invalid_argument, an R stop(...) — the default behavior of a morloc-built program is...",
    "headings": [
     {
      "id": "_enabling_at_compile_time",
      "title": "Enabling at compile time",
-     "number": "7.6.1."
+     "number": "7.7.1."
     },
     {
      "id": "_a_failing_run",
      "title": "A failing run",
-     "number": "7.6.2."
+     "number": "7.7.2."
     },
     {
      "id": "debug-knobs",
      "title": "Runtime knobs",
-     "number": "7.6.3."
+     "number": "7.7.3."
     },
     {
      "id": "dump-location",
      "title": "Where dumps land",
-     "number": "7.6.4."
+     "number": "7.7.4."
     },
     {
      "id": "_content_addressed_dedup",
      "title": "Content-addressed dedup",
-     "number": "7.6.5."
+     "number": "7.7.5."
     },
     {
      "id": "_frame_status_markers",
      "title": "Frame status markers",
-     "number": "7.6.6."
+     "number": "7.7.6."
     },
     {
      "id": "_recovering_an_input_via_load",
      "title": "Recovering an input via @load",
-     "number": "7.6.7."
+     "number": "7.7.7."
     },
     {
      "id": "_interaction_with_the_cache",
      "title": "Interaction with the cache",
-     "number": "7.6.8."
+     "number": "7.7.8."
     }
    ]
   },
   {
-   "number": "7.7.",
+   "number": "7.8.",
    "title": "Random access and streaming",
    "id": "random-access-and-streaming",
    "url": "https://morloc-project.github.io/docs/runs/random-access-and-streaming.html",
@@ -1945,27 +1992,27 @@
     {
      "id": "_random_access_with_ifile",
      "title": "Random access with IFile",
-     "number": "7.7.1."
+     "number": "7.8.1."
     },
     {
      "id": "_sequential_writing_with_ostream",
      "title": "Sequential writing with OStream",
-     "number": "7.7.2."
+     "number": "7.8.2."
     },
     {
      "id": "_sequential_reading_with_istream",
      "title": "Sequential reading with IStream",
-     "number": "7.7.3."
+     "number": "7.8.3."
     },
     {
      "id": "_typed_standard_streams",
      "title": "Typed standard streams",
-     "number": "7.7.4."
+     "number": "7.8.4."
     },
     {
      "id": "stream-env-vars",
      "title": "Environment variables",
-     "number": "7.7.5."
+     "number": "7.8.5."
     }
    ]
   },
@@ -2136,19 +2183,24 @@
      "number": "9.2.2."
     },
     {
+     "id": "tool-deps",
+     "title": "Command-line tools (tool-deps)",
+     "number": "9.2.3."
+    },
+    {
      "id": "_installing_the_program",
      "title": "Installing the program",
-     "number": "9.2.3."
+     "number": "9.2.4."
     },
     {
      "id": "_one_solved_world_per_environment",
      "title": "One solved world per environment",
-     "number": "9.2.4."
+     "number": "9.2.5."
     },
     {
      "id": "_when_an_environment_is_rebuilt",
      "title": "When an environment is rebuilt",
-     "number": "9.2.5."
+     "number": "9.2.6."
     }
    ]
   },
@@ -2274,34 +2326,24 @@
    "summary": "A server answers requests on one machine.",
    "headings": [
     {
-     "id": "_labeling_a_term",
-     "title": "Labeling a term",
-     "number": "9.6.1."
-    },
-    {
-     "id": "_describing_a_labels_resources",
-     "title": "Describing a label’s resources",
-     "number": "9.6.2."
-    },
-    {
      "id": "_enabling_dispatch",
      "title": "Enabling dispatch",
-     "number": "9.6.3."
+     "number": "9.6.1."
     },
     {
      "id": "dispatch-bridge",
      "title": "Running with the dispatch bridge",
-     "number": "9.6.4."
+     "number": "9.6.2."
     },
     {
      "id": "_data_on_the_shared_filesystem",
      "title": "Data on the shared filesystem",
-     "number": "9.6.5."
+     "number": "9.6.3."
     },
     {
      "id": "_checking_the_cluster_setup",
      "title": "Checking the cluster setup",
-     "number": "9.6.6."
+     "number": "9.6.4."
     }
    ]
   },
@@ -2620,6 +2662,28 @@
   },
   {
    "number": "12.4.",
+   "title": "Caching",
+   "id": "eco-caching",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-caching.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-caching.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "What is cached.",
+   "headings": []
+  },
+  {
+   "number": "12.5.",
+   "title": "Remote jobs",
+   "id": "eco-remote",
+   "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-remote.html",
+   "md": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-remote.md",
+   "chapter": "ecosystem-architecture",
+   "level": 2,
+   "summary": "When a call becomes a job.",
+   "headings": []
+  },
+  {
+   "number": "12.6.",
    "title": "Module resolution",
    "id": "eco-modules",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.html",
@@ -2631,27 +2695,27 @@
     {
      "id": "_finding_a_module",
      "title": "Finding a module",
-     "number": "12.4.1."
+     "number": "12.6.1."
     },
     {
      "id": "_identity",
      "title": "Identity",
-     "number": "12.4.2."
+     "number": "12.6.2."
     },
     {
      "id": "_installing_2",
      "title": "Installing",
-     "number": "12.4.3."
+     "number": "12.6.3."
     },
     {
      "id": "_foreign_dependencies",
      "title": "Foreign dependencies",
-     "number": "12.4.4."
+     "number": "12.6.4."
     }
    ]
   },
   {
-   "number": "12.5.",
+   "number": "12.7.",
    "title": "Environment solving",
    "id": "eco-solving",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html",
@@ -2663,27 +2727,27 @@
     {
      "id": "_the_build_hook",
      "title": "The build hook",
-     "number": "12.5.1."
+     "number": "12.7.1."
     },
     {
      "id": "_one_world_per_environment",
      "title": "One world per environment",
-     "number": "12.5.2."
+     "number": "12.7.2."
     },
     {
      "id": "_solving",
      "title": "Solving",
-     "number": "12.5.3."
+     "number": "12.7.3."
     },
     {
      "id": "_when_solving_happens",
      "title": "When solving happens",
-     "number": "12.5.4."
+     "number": "12.7.4."
     }
    ]
   },
   {
-   "number": "12.6.",
+   "number": "12.8.",
    "title": "Serving",
    "id": "eco-serving",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html",
@@ -2695,42 +2759,42 @@
     {
      "id": "_server_modes",
      "title": "Server modes",
-     "number": "12.6.1."
+     "number": "12.8.1."
     },
     {
      "id": "_endpoints",
      "title": "Endpoints",
-     "number": "12.6.2."
+     "number": "12.8.2."
     },
     {
      "id": "_commands_as_mcp_tools",
      "title": "Commands as MCP tools",
-     "number": "12.6.3."
+     "number": "12.8.3."
     },
     {
      "id": "_pool_crash_recovery",
      "title": "Pool crash recovery",
-     "number": "12.6.4."
+     "number": "12.8.4."
     },
     {
      "id": "_eval",
      "title": "Eval",
-     "number": "12.6.5."
+     "number": "12.8.5."
     },
     {
      "id": "_security_model",
      "title": "Security model",
-     "number": "12.6.6."
+     "number": "12.8.6."
     },
     {
      "id": "_serving_an_environment",
      "title": "Serving an environment",
-     "number": "12.6.7."
+     "number": "12.8.7."
     }
    ]
   },
   {
-   "number": "12.7.",
+   "number": "12.9.",
    "title": "Freezing",
    "id": "eco-freezing",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html",

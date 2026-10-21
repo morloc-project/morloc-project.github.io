@@ -28,7 +28,7 @@ The `Eq` and `Ord` typeclasses in `root` provide the standard comparisons. They 
 | `==` | equal |
 | `!=` | not equal |
 | `<` | less than |
-| `⇐` | less than or equal |
+| `<=` | less than or equal |
 | `>` | greater than |
 | `>=` | greater than or equal |
 
@@ -115,9 +115,9 @@ integer division or modulo by zero
 
 | Function | Signature |
 | --- | --- |
-| `any` | `Foldable f ⇒ (a → Bool) → f a → Bool` |
-| `all` | `Foldable f ⇒ (a → Bool) → f a → Bool` |
-| `elem` | `(Foldable f, Eq a) ⇒ a → f a → Bool` |
+| `any` | `Foldable f => (a -> Bool) -> f a -> Bool` |
+| `all` | `Foldable f => (a -> Bool) -> f a -> Bool` |
+| `elem` | `(Foldable f, Eq a) => a -> f a -> Bool` |
 
 `any` is `True` when the predicate holds for at least one element, `all` when it holds for every element, and `elem` tests membership using `==`.
 

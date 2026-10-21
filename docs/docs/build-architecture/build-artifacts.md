@@ -27,8 +27,8 @@ Compiled languages (C++, Rust) are built into a pool binary. Interpreted languag
 
 | Launcher | Created by | Runs |
 | --- | --- | --- |
-| CLI | default (`-o` names it, `--no-cli` suppresses it) | `morloc-nexus run <manifest> …​` |
-| Daemon | `--daemon-out NAME` | `morloc-nexus daemon <manifest> …​` |
+| CLI | default (`-o` names it, `--no-cli` suppresses it) | `morloc-nexus run <manifest> ...` |
+| Daemon | `--daemon-out NAME` | `morloc-nexus daemon <manifest> ...` |
 
 There is no MCP launcher. `morloc-nexus mcp` takes either launcher or the manifest itself as its target. Every nexus mode that names a program accepts both forms.
 

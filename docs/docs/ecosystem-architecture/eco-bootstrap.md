@@ -1,6 +1,6 @@
 # 12.3. Runtime bootstrap
 
-Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md
+Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-caching.md
 
 > Before any program can be compiled, an installation needs a compiler and a runtime built for the machine it runs on. The compiler is distributed as a prebuilt binary in a release; the runtime is built from source on the target by `morloc init`, against the toolchain the environment provides. This section specifies what a release contains, how `mim` verifies and installs it, what `morloc init` produces, and when it rebuilds.
 

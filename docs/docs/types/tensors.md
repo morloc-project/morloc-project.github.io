@@ -236,6 +236,6 @@ U64\` from `Sizeable` to read a length at runtime whatever the signature says.
 
 ## 5.7.6. What is checked, and what is not
 
-Morloc checks that the dimensions in your compositions agree. It does not check that a foreign function honours the signature you gave it. A C++ function declared `Matrix m n Real → Matrix n m Real` that actually returns its input unchanged will not be caught. This is the same bargain as a C header file: the types are a contract and the implementation is trusted to keep it.
+Morloc checks that the dimensions in your compositions agree. It does not check that a foreign function honours the signature you gave it. A C++ function declared `Matrix m n Real -> Matrix n m Real` that actually returns its input unchanged will not be caught. This is the same bargain as a C header file: the types are a contract and the implementation is trusted to keep it.
 
 Arithmetic constraints are checked when every variable involved is known. When some stay free the check is deferred, and if they are never resolved it does not happen at all.

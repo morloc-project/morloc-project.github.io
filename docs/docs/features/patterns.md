@@ -146,7 +146,7 @@ $ ./patterns c8     -- .[0:2].(.a.[0].0, .b.[0].y) rows    deep mixed chain
 [[10,200],[30,400]]
 ```
 
-Remember that these are JSON outputs, so a tuple prints as an array: `c6` returns three two-tuples, which JSON shows as `[[0,100],…​]`.
+Remember that these are JSON outputs, so a tuple prints as an array: `c6` returns three two-tuples, which JSON shows as `[[0,100],...]`.
 
 Brackets are getters only. There is no setter form (`.[i] = v $ xs`) in this release, and multi-axis brackets (`.[i,j]` for matrices and tensors) are not available yet either. Both are planned.
 
@@ -190,6 +190,6 @@ class IndexLike i where
 
 For a plain container, source an `Indexable` and a `Sliceable` instance per target language. For a container parameterized by a dimensional `Nat` such as `Vector n a`, source `Indexable` and `SliceableDim` instead; the compiler picks `SliceableDim` automatically when `Sliceable` is absent.
 
-If someone passes an expression of a custom integer-like type at a bound position, the compiler casts it through that type’s `IndexLike` instance. So you can extend bracket syntax to accept new bound types — a `Char` index, a fixed-point coordinate — by adding an `IndexLike` instance whose `*to_index*` returns `?I64`. Pass `Null` through as `Nothing` so it composes with the omitted positions in `.[i:]`, `.[:j]`, and `.[::]`.
+If someone passes an expression of a custom integer-like type at a bound position, the compiler casts it through that type’s `IndexLike` instance. So you can extend bracket syntax to accept new bound types — a `Char` index, a fixed-point coordinate — by adding an `IndexLike` instance whose `*to_index*` returns `?I64`.
 
 Because the dispatch lives in libraries rather than in the compiler, a module that does not import the standard library is free to substitute a different typeclass hierarchy. Bracket syntax simply errors at codegen if no matching instance is in scope.

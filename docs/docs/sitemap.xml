@@ -59,6 +59,7 @@
 <url><loc>https://morloc-project.github.io/docs/runs/benchmarking.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/runs/run-directory.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/runs/caching.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/runs/remote-jobs.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/runs/compression.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/runs/debugging.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/runs/random-access-and-streaming.html</loc></url>
@@ -89,6 +90,8 @@
 <url><loc>https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/ecosystem-architecture/eco-caching.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/ecosystem-architecture/eco-remote.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html</loc></url>

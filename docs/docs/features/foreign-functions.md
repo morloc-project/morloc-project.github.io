@@ -17,7 +17,7 @@ The language tag (`Cpp`, `Py`, `R`, `Rust`) decides which toolchain compiles the
 
 ### Block form
 
-There is a second spelling. `source …​ where` opens an indented block with one term per line, which leaves room for a docstring above each:
+There is a second spelling. `source ... where` opens an indented block with one term per line, which leaves room for a docstring above each:
 
 ```morloc
 source Py from "foo.py" where
@@ -45,7 +45,7 @@ Prose docstring lines are allowed too and are carried as documentation.
 
 Skip this unless a foreign function returns a closure rather than taking all its arguments at once. It assumes nothing beyond the section above.
 
-In a pure functional language, `a → (b → c)` and `a → b → c` are the same type. A function of two arguments **is** a function of one argument returning a function of one argument; currying makes the distinction vanish. Morloc’s type system takes that view — the two spellings are interchangeable, and the compiler reports both the same way.
+In a pure functional language, `a -> (b -> c)` and `a -> b -> c` are the same type. A function of two arguments **is** a function of one argument returning a function of one argument; currying makes the distinction vanish. Morloc’s type system takes that view — the two spellings are interchangeable, and the compiler reports both the same way.
 
 Real languages usually do not. In Python the two are different objects with different call syntax:
 
@@ -61,7 +61,7 @@ def shift(offset, xs):
     return [offset + x for x in xs]
 ```
 
-Both have the Morloc type `Real → [Real] → [Real]`, and nothing in that type says which shape the Python side has. By default Morloc assumes the flat one and emits a single call with every argument. Hand it `scale` and the pool dies:
+Both have the Morloc type `Real -> [Real] -> [Real]`, and nothing in that type says which shape the Python side has. By default Morloc assumes the flat one and emits a single call with every argument. Hand it `scale` and the pool dies:
 
 ```console
 TypeError: scale() takes 1 positional argument but 2 were given
@@ -110,9 +110,9 @@ For deeper nesting, give one value per leading group:
 
 Each value must be at least 1 and must leave at least one argument for the group after it, since the final group is implicit. So `rsize: 2` on a two-argument function is rejected — it would consume both arguments and leave an empty call behind.
 
-`rsize` is the only place the curried-versus-flat distinction is recorded. Writing the type as `Real → ([Real] → [Real])` does not imply it and does not change the emitted call.
+`rsize` is the only place the curried-versus-flat distinction is recorded. Writing the type as `Real -> ([Real] -> [Real])` does not imply it and does not change the emitted call.
 
-The other direction is a function morloc passes to a source. There the source’s signature says how the source calls it, by how the parameter’s type is written: a parameter `(a → b → c)` is called with both arguments at once, and `(a → (b → c))` with one argument, the source then applying the function that returns. Morloc hands over any function of that type in that grouping, however the function was defined. If the function does work before the lambda it returns, that work runs when the source applies the first group, once per such call.
+The other direction is a function morloc passes to a source. There the source’s signature says how the source calls it, by how the parameter’s type is written: a parameter `(a -> b -> c)` is called with both arguments at once, and `(a -> (b -> c))` with one argument, the source then applying the function that returns. Morloc hands over any function of that type in that grouping, however the function was defined. If the function does work before the lambda it returns, that work runs when the source applies the first group, once per such call.
 
 The C++ side is an ordinary header:
 
@@ -163,7 +163,7 @@ snd :: (a, b) -> b
 sum :: [Real] -> Real
 ```
 
-The syntax is borrowed from Haskell. Square brackets are homogeneous lists, parenthesized comma-separated values are tuples, and arrows are functions. In `map`, `(a → b)` is a function from a generic `a` to a generic `b`, `[a]` is the input list, and `[b]` is the output. `snd` pulls the second element out of a two-tuple. `sum` reduces a list of reals to one real.
+The syntax is borrowed from Haskell. Square brackets are homogeneous lists, parenthesized comma-separated values are tuples, and arrows are functions. In `map`, `(a -> b)` is a function from a generic `a` to a generic `b`, `[a]` is the input list, and `[b]` is the output. `snd` pulls the second element out of a two-tuple. `sum` reduces a list of reals to one real.
 
 The brackets are sugar. Written out, the same signatures are:
 
@@ -257,7 +257,7 @@ def snd(pair):
 source Py from "foo.py" ("morloc_sum" as sum, "snd")
 ```
 
-Both work. The same rule applies to anything that is not a module-level name: a term from a third-party package must be locally defined (`def bar(…​)`) or explicitly imported (`from somemodule import bar`) in the sourced file.
+Both work. The same rule applies to anything that is not a module-level name: a term from a third-party package must be locally defined (`def bar(...)`) or explicitly imported (`from somemodule import bar`) in the sourced file.
 
 ## 4.2.5. Keyword-shaped foreign operators
 
@@ -281,3 +281,32 @@ n4 = (n2 or n3)
 ```
 
 The backtick contents are emitted verbatim, so any two-argument infix operator the target language recognises works the same way: Python `is`, `in`, `not in`, R `%in%`, and so on.
+
+## 4.2.6. What sourced code may do with values
+
+Morloc decides where values are copied, moved and shared, and changes those decisions between versions to make programs faster. A sourced function sees the same value however Morloc placed it only if it treats its arguments as values. These rules are the price of that freedom; a program that breaks one has no defined result.
+
+**Never change an argument.** A function that needs a changed value changes its own copy and returns it.
+
+-   C++: take each argument by value or by `const T&`, never `T&`. A `T&` parameter does not build: Morloc passes every named value as const, so the C++ compiler reports
+    
+    ```console
+    pools/cpp/pool.cpp:1525:35: error: binding reference of type 'std::vector<int>&' to 'std::add_const_t<std::vector<int> >' {aka 'const std::vector<int>'} discards qualifiers
+    ```
+    
+    C++ code that calls a function Morloc passed to it calls it the same way, never with a non-const reference.
+    
+-   Rust: never take `&mut`. Morloc passes a `Copy` value by value and anything else as `&T`, so a `&mut T` parameter does not build. Do not change an argument through `Cell`, `RefCell`, `Mutex` or an atomic either; that is not detected.
+-   Python: no `list.sort()`, `append`, item or attribute assignment, `dict.update`, or in-place numpy operation (`a += 1`, `out=`) on an argument. Copy first.
+-   R: changing a local copy is fine, since R copies on modify. Do not change an argument by reference: an environment, an R6 or reference class object, ``data.table’s `:=`` and `set*` functions, or an external pointer.
+
+**Return a value that owns its data.** A C++ result is not, and does not hold, a reference, pointer, `std::string_view`, `std::span` or other view into an argument, and is not a lambda capturing an argument by reference. A `const T&` to data that outlives every call, such as a static, is fine; Morloc copies it. A Rust result borrows from no argument, which rustc already enforces. A Python result may share objects with its arguments, including a numpy view onto one, since reference counting keeps the data alive.
+
+**A mapped type behaves as a value.** A C++ or Rust type that a Morloc type maps to (`type Cpp ⇒ T = "…​"`, `record Cpp ⇒ R = "…​"`):
+
+-   copies into an independent, equal value, and copying, moving or destroying it does nothing a program depends on: no output, counters, files or locks;
+-   is not a pointer, reference, view or `std::weak_ptr`, and has no such field; a `std::shared_ptr<const T>` is fine;
+-   can be built from moved fields and moved itself: no constructor takes a field by non-const reference, and no field type deletes its move constructor;
+-   is safe to read through a `const` reference (C++) or `&` (Rust) from several threads at once.
+
+Work that must happen at a definite time, such as writing a file or releasing a lock, belongs in an effectful function Morloc calls in order, not in a copy constructor or destructor.

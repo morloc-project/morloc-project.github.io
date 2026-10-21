@@ -15,7 +15,7 @@ cpp-deps:
 
 `cpp-deps` are provisioned from the [conda-forge](https://conda-forge.org/) package database — installing the library’s headers and shared objects into the environment. `conda` is the default (and only) source, so the bare form above is equivalent to `boost: {version: ">=1.80", source: conda}`. The compiler takes the union across every imported module and the solver intersects conflicting constraints.
 
-A `cpp-deps` entry may also name a conda `channel` other than conda-forge (see the Python chapter for the full rules), for a library that lives on a subordinate channel.
+A `cpp-deps` entry may also name a conda `channel` other than conda-forge (see the Python chapter for the full rules), for a library that lives on a subordinate channel. A program your C++ code runs, rather than a library it links, is declared under `tool-deps` ([Command-line tools (`tool-deps`)](https://morloc-project.github.io/docs/apis/deploy-dependencies.md#tool-deps)).
 
 ## 10.2.2. Link flags (`dependencies`)
 

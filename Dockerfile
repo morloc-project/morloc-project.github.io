@@ -26,10 +26,10 @@ RUN set -eu; \
     rm "/tmp/${tarball}"; \
     node --version && npm --version
 
-# Install Ruby gems (asciidoctor-kroki renders mermaid via the Kroki service,
+# Install Ruby gems (bin/mermaid.rb renders mermaid via the Kroki service,
 # so no headless browser is needed at build time). These are not pinned; the
 # manual records the asciidoctor version it was built with in toc.json.
-RUN gem install --no-document asciidoctor asciidoctor-bibtex pygments.rb asciidoctor-kroki
+RUN gem install --no-document asciidoctor asciidoctor-bibtex pygments.rb
 
 # Node packages used by build.sh: katex (math), cheerio + turndown (the page
 # split and its markdown twins), pagefind (search index; its binary arrives as

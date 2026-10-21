@@ -352,30 +352,30 @@ The compiler recognises a small set of named operators on kinded types. They loo
 
 | Function | Kind signature | Reads as | Example reduction |
 | --- | --- | --- | --- |
-| `Singleton k v` | `Str → Type → Rec` | one-field record | `Singleton "x" Int` → `{x = Int}` |
-| `Restrict r l` | `Rec → List Str → Rec` | project to the fields in `l`, in input order | `Restrict {x=Int, y=Str, z=Real} ['x, 'z]` → `{x=Int, z=Real}` |
-| `ProjectField r f` | `Rec → Str → Type` | look up one field’s type | `ProjectField {x=Int, y=Str} "x"` → `Int` |
-| `Keys r` | `Rec → Set Str` | the set of field names | `Keys {x=Int, y=Str}` → `{x, y}` |
-| `ListToSet l` | `List a → Set a` | drop order and duplicates | `ListToSet ['x, 'y, 'x]` → `{x, y}` |
+| `Singleton k v` | `Str -> Type -> Rec` | one-field record | `Singleton "x" Int` → `{x = Int}` |
+| `Restrict r l` | `Rec -> List Str -> Rec` | project to the fields in `l`, in input order | `Restrict {x=Int, y=Str, z=Real} ['x, 'z]` → `{x=Int, z=Real}` |
+| `ProjectField r f` | `Rec -> Str -> Type` | look up one field’s type | `ProjectField {x=Int, y=Str} "x"` → `Int` |
+| `Keys r` | `Rec -> Set Str` | the set of field names | `Keys {x=Int, y=Str}` → `{x, y}` |
+| `ListToSet l` | `List a -> Set a` | drop order and duplicates | `ListToSet ['x, 'y, 'x]` → `{x, y}` |
 | `Size c` | `List a` / `Set a` / `Rec` → `Nat` | number of elements | `Size {x=Int, y=Str}` → `2` |
 
 Some of the same operations have a symbolic form. The parser sees `+`, `-`, `*` and `/` in type position and the solver picks the meaning from the kinds of the arguments:
 
 | Operator | Kinds | Meaning |
 | --- | --- | --- |
-| `n + m` | `Nat → Nat → Nat` | addition |
-| `n - m` | `Nat → Nat → Nat` | subtraction (may go negative) |
-| `n * m` | `Nat → Nat → Nat` | multiplication |
-| `n / m` | `Nat → Nat → Nat` | integer division |
-| `r + s` | `Rec → Rec → Rec` | merge two schemas |
-| `r - f` | `Rec → Str → Rec` | drop one field by name |
-| `r - l` | `Rec → List Str → Rec` | drop the fields named in `l` |
+| `n + m` | `Nat -> Nat -> Nat` | addition |
+| `n - m` | `Nat -> Nat -> Nat` | subtraction (may go negative) |
+| `n * m` | `Nat -> Nat -> Nat` | multiplication |
+| `n / m` | `Nat -> Nat -> Nat` | integer division |
+| `r + s` | `Rec -> Rec -> Rec` | merge two schemas |
+| `r - f` | `Rec -> Str -> Rec` | drop one field by name |
+| `r - l` | `Rec -> List Str -> Rec` | drop the fields named in `l` |
 
 "Reduction" means the compiler walks the expression and simplifies it where it can. `Singleton "x" Int` becomes `{x = Int}` — still a `Rec` expression, now in canonical form. The result is never a `Type`. The reductions exist so that constraints can be discharged when their arguments happen to be ground, not so that you can build inhabitable types out of kind-level fragments.
 
 ## 5.6.7. Reference: constraints
 
-A constraint restricts what a polymorphic variable may be. It goes to the left of `⇒`:
+A constraint restricts what a polymorphic variable may be. It goes to the left of `=>`:
 
 ```morloc
 foo :: (Constraint1 args, Constraint2 args) => a -> b
@@ -397,7 +397,7 @@ Constraint violation: Subset: literal set missing 'q'
 Constraint violation: Disjoint: shared element(s) 'x'
 ```
 
-You rarely write these. The compiler emits them from the shape of a signature: a `Restrict r l` anywhere in a signature emits `Subset (ListToSet l) (Keys r)`, and extending a schema with a new key emits a `Disjoint` against the keys already there. That is why the `select` example above rejected `"zip"` without a single `⇒` in sight.
+You rarely write these. The compiler emits them from the shape of a signature: a `Restrict r l` anywhere in a signature emits `Subset (ListToSet l) (Keys r)`, and extending a schema with a new key emits a `Disjoint` against the keys already there. That is why the `select` example above rejected `"zip"` without a single `=>` in sight.
 
 Write the explicit form only for a constraint the compiler could not derive from your signature’s shape — for instance, disjointness between two schema variables that never meet in a `+`:
 

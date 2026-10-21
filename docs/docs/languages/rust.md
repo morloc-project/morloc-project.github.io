@@ -28,7 +28,7 @@ rust-deps:
 
 Each entry is written into the pool `Cargo.toml` `[dependencies]`. The compiler takes the union of `rust-deps` across all imported modules; conflicting versions of the same crate are a build error.
 
-Crates come from [crates.io](https://crates.io), the only source Rust supports, so the bare form above is equivalent to `ndarray: {version: "0.16", source: crates}`; declaring any other source is a build error. The conda `channel` field is likewise conda-only and has no meaning for crates.
+Crates come from [crates.io](https://crates.io), the only source Rust supports, so the bare form above is equivalent to `ndarray: {version: "0.16", source: crates}`; declaring any other source is a build error. The conda `channel` field is likewise conda-only and has no meaning for crates. A program your Rust code runs, rather than a crate it links, is declared under `tool-deps` ([Command-line tools (`tool-deps`)](https://morloc-project.github.io/docs/apis/deploy-dependencies.md#tool-deps)).
 
 ## 10.5.3. Local crates (`local-deps`)
 

@@ -60,7 +60,7 @@ If the optional `registry` field is set in `~/.morloc/config.yaml`, bare names a
 
 The `morloc install -h` help screen carries a shorter example block for quick reference.
 
-Installed modules are stored in `~/.local/share/morloc/lib/` and can be imported in any Morloc script.
+Installed modules are stored in `~/.local/share/morloc/src/morloc/plane/default/` (under `$MORLOC_STATE` instead of `~/.local/share/morloc` when that is set) and can be imported in any Morloc script.
 
 To view the modules that are currently installed, you can run `morloc list`. This will list all installed modules, their version, and their short descriptions. Adding the `-v` option additionally prints the types of all exported terms.
 

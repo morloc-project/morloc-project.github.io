@@ -72,7 +72,7 @@
 <body class="book toc2 toc-left">
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="copy-glyph" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"></path><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"></path></symbol></svg>
 <div id="header">
-<div id="toc" class="toc2">
+<div id="toc" class="toc2 paged">
 <div id="toctitle">Table of Contents</div><div id="search" data-pagefind-ignore=""></div>
 <ul class="sectlevel1">
 <li><a href="../intro/index.html">1. Intro</a>
@@ -133,6 +133,7 @@
 <li><a href="../features/foreign-functions.html#mapping-native-types">4.2.3. Native type mappings</a></li>
 <li><a href="../features/foreign-functions.html#_sourcing_builtins_and_other_non_exports">4.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="../features/foreign-functions.html#_keyword_shaped_foreign_operators">4.2.5. Keyword-shaped foreign operators</a></li>
+<li><a href="../features/foreign-functions.html#sourced-values">4.2.6. What sourced code may do with values</a></li>
 </ul>
 </li>
 <li><a href="../features/booleans.html">4.3. Booleans</a>
@@ -390,6 +391,7 @@
 <ul class="sectlevel3">
 <li><a href="../clis/input-shape.html#_a_worked_example">6.7.1. A worked example</a></li>
 <li><a href="../clis/input-shape.html#_shape_follows_the_wire_form">6.7.2. Shape follows the wire form</a></li>
+<li><a href="../clis/input-shape.html#form-table">6.7.3. Tables with a header</a></li>
 </ul>
 </li>
 <li><a href="../clis/reading-stdin.html">6.8. Reading a stream from standard input</a>
@@ -468,39 +470,48 @@
 <li><a href="../runs/caching.html">7.4. Caching</a>
 <ul class="sectlevel3">
 <li><a href="../runs/caching.html#_declaring_a_cached_call">7.4.1. Declaring a cached call</a></li>
-<li><a href="../runs/caching.html#_what_goes_in_the_hash">7.4.2. What goes in the hash</a></li>
-<li><a href="../runs/caching.html#cache-layout">7.4.3. Storage layout</a></li>
-<li><a href="../runs/caching.html#_reading_and_writing">7.4.4. Reading and writing</a></li>
+<li><a href="../runs/caching.html#_what_a_cached_label_covers">7.4.2. What a cached label covers</a></li>
+<li><a href="../runs/caching.html#cache-layout">7.4.3. Where the cache lives</a></li>
 </ul>
 </li>
-<li><a href="../runs/compression.html">7.5. Compression</a>
+<li><a href="../runs/remote-jobs.html">7.5. Remote job submission</a>
 <ul class="sectlevel3">
-<li><a href="../runs/compression.html#_compression_in_write">7.5.1. Compression in <code>@write</code></a></li>
-<li><a href="../runs/compression.html#_compression_in_morloc_nexus_run">7.5.2. Compression in <code>morloc-nexus run</code></a></li>
-<li><a href="../runs/compression.html#_compression_level_table">7.5.3. Compression-level table</a></li>
-<li><a href="../runs/compression.html#_algorithm_agnostic_surface">7.5.4. Algorithm-agnostic surface</a></li>
-<li><a href="../runs/compression.html#_caching_is_unaffected">7.5.5. Caching is unaffected</a></li>
+<li><a href="../runs/remote-jobs.html#_sending_a_call_to_a_job">7.5.1. Sending a call to a job</a></li>
+<li><a href="../runs/remote-jobs.html#_describing_the_job">7.5.2. Describing the job</a></li>
+<li><a href="../runs/remote-jobs.html#_what_runs_in_the_job">7.5.3. What runs in the job</a></li>
+<li><a href="../runs/remote-jobs.html#_effects">7.5.4. Effects</a></li>
+<li><a href="../runs/remote-jobs.html#_results">7.5.5. Results</a></li>
+<li><a href="../runs/remote-jobs.html#_what_a_job_can_receive">7.5.6. What a job can receive</a></li>
 </ul>
 </li>
-<li><a href="../runs/debugging.html">7.6. Debugging</a>
+<li><a href="../runs/compression.html">7.6. Compression</a>
 <ul class="sectlevel3">
-<li><a href="../runs/debugging.html#_enabling_at_compile_time">7.6.1. Enabling at compile time</a></li>
-<li><a href="../runs/debugging.html#_a_failing_run">7.6.2. A failing run</a></li>
-<li><a href="../runs/debugging.html#debug-knobs">7.6.3. Runtime knobs</a></li>
-<li><a href="../runs/debugging.html#dump-location">7.6.4. Where dumps land</a></li>
-<li><a href="../runs/debugging.html#_content_addressed_dedup">7.6.5. Content-addressed dedup</a></li>
-<li><a href="../runs/debugging.html#_frame_status_markers">7.6.6. Frame status markers</a></li>
-<li><a href="../runs/debugging.html#_recovering_an_input_via_load">7.6.7. Recovering an input via <code>@load</code></a></li>
-<li><a href="../runs/debugging.html#_interaction_with_the_cache">7.6.8. Interaction with the cache</a></li>
+<li><a href="../runs/compression.html#_compression_in_write">7.6.1. Compression in <code>@write</code></a></li>
+<li><a href="../runs/compression.html#_compression_in_morloc_nexus_run">7.6.2. Compression in <code>morloc-nexus run</code></a></li>
+<li><a href="../runs/compression.html#_compression_level_table">7.6.3. Compression-level table</a></li>
+<li><a href="../runs/compression.html#_algorithm_agnostic_surface">7.6.4. Algorithm-agnostic surface</a></li>
+<li><a href="../runs/compression.html#_caching_is_unaffected">7.6.5. Caching is unaffected</a></li>
 </ul>
 </li>
-<li><a href="../runs/random-access-and-streaming.html">7.7. Random access and streaming</a>
+<li><a href="../runs/debugging.html">7.7. Debugging</a>
 <ul class="sectlevel3">
-<li><a href="../runs/random-access-and-streaming.html#_random_access_with_ifile">7.7.1. Random access with IFile</a></li>
-<li><a href="../runs/random-access-and-streaming.html#_sequential_writing_with_ostream">7.7.2. Sequential writing with OStream</a></li>
-<li><a href="../runs/random-access-and-streaming.html#_sequential_reading_with_istream">7.7.3. Sequential reading with IStream</a></li>
-<li><a href="../runs/random-access-and-streaming.html#_typed_standard_streams">7.7.4. Typed standard streams</a></li>
-<li><a href="../runs/random-access-and-streaming.html#stream-env-vars">7.7.5. Environment variables</a></li>
+<li><a href="../runs/debugging.html#_enabling_at_compile_time">7.7.1. Enabling at compile time</a></li>
+<li><a href="../runs/debugging.html#_a_failing_run">7.7.2. A failing run</a></li>
+<li><a href="../runs/debugging.html#debug-knobs">7.7.3. Runtime knobs</a></li>
+<li><a href="../runs/debugging.html#dump-location">7.7.4. Where dumps land</a></li>
+<li><a href="../runs/debugging.html#_content_addressed_dedup">7.7.5. Content-addressed dedup</a></li>
+<li><a href="../runs/debugging.html#_frame_status_markers">7.7.6. Frame status markers</a></li>
+<li><a href="../runs/debugging.html#_recovering_an_input_via_load">7.7.7. Recovering an input via <code>@load</code></a></li>
+<li><a href="../runs/debugging.html#_interaction_with_the_cache">7.7.8. Interaction with the cache</a></li>
+</ul>
+</li>
+<li><a href="../runs/random-access-and-streaming.html">7.8. Random access and streaming</a>
+<ul class="sectlevel3">
+<li><a href="../runs/random-access-and-streaming.html#_random_access_with_ifile">7.8.1. Random access with IFile</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_sequential_writing_with_ostream">7.8.2. Sequential writing with OStream</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_sequential_reading_with_istream">7.8.3. Sequential reading with IStream</a></li>
+<li><a href="../runs/random-access-and-streaming.html#_typed_standard_streams">7.8.4. Typed standard streams</a></li>
+<li><a href="../runs/random-access-and-streaming.html#stream-env-vars">7.8.5. Environment variables</a></li>
 </ul>
 </li>
 </ul>
@@ -540,9 +551,10 @@
 <ul class="sectlevel3">
 <li><a href="../apis/deploy-dependencies.html#_the_smiles_example">9.2.1. The smiles example</a></li>
 <li><a href="../apis/deploy-dependencies.html#_declaring_dependencies">9.2.2. Declaring dependencies</a></li>
-<li><a href="../apis/deploy-dependencies.html#_installing_the_program">9.2.3. Installing the program</a></li>
-<li><a href="../apis/deploy-dependencies.html#_one_solved_world_per_environment">9.2.4. One solved world per environment</a></li>
-<li><a href="../apis/deploy-dependencies.html#_when_an_environment_is_rebuilt">9.2.5. When an environment is rebuilt</a></li>
+<li><a href="../apis/deploy-dependencies.html#tool-deps">9.2.3. Command-line tools (<code>tool-deps</code>)</a></li>
+<li><a href="../apis/deploy-dependencies.html#_installing_the_program">9.2.4. Installing the program</a></li>
+<li><a href="../apis/deploy-dependencies.html#_one_solved_world_per_environment">9.2.5. One solved world per environment</a></li>
+<li><a href="../apis/deploy-dependencies.html#_when_an_environment_is_rebuilt">9.2.6. When an environment is rebuilt</a></li>
 </ul>
 </li>
 <li><a href="../apis/deploy-serving.html">9.3. Serving</a>
@@ -574,12 +586,10 @@
 </li>
 <li><a href="../apis/execution-contexts.html">9.6. Running on a cluster</a>
 <ul class="sectlevel3">
-<li><a href="../apis/execution-contexts.html#_labeling_a_term">9.6.1. Labeling a term</a></li>
-<li><a href="../apis/execution-contexts.html#_describing_a_labels_resources">9.6.2. Describing a label’s resources</a></li>
-<li><a href="../apis/execution-contexts.html#_enabling_dispatch">9.6.3. Enabling dispatch</a></li>
-<li><a href="../apis/execution-contexts.html#dispatch-bridge">9.6.4. Running with the dispatch bridge</a></li>
-<li><a href="../apis/execution-contexts.html#_data_on_the_shared_filesystem">9.6.5. Data on the shared filesystem</a></li>
-<li><a href="../apis/execution-contexts.html#_checking_the_cluster_setup">9.6.6. Checking the cluster setup</a></li>
+<li><a href="../apis/execution-contexts.html#_enabling_dispatch">9.6.1. Enabling dispatch</a></li>
+<li><a href="../apis/execution-contexts.html#dispatch-bridge">9.6.2. Running with the dispatch bridge</a></li>
+<li><a href="../apis/execution-contexts.html#_data_on_the_shared_filesystem">9.6.3. Data on the shared filesystem</a></li>
+<li><a href="../apis/execution-contexts.html#_checking_the_cluster_setup">9.6.4. Checking the cluster setup</a></li>
 </ul>
 </li>
 </ul>
@@ -661,34 +671,36 @@
 <li><a href="../ecosystem-architecture/eco-bootstrap.html#_what_morloc_init_produces">12.3.3. What <code>morloc init</code> produces</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-modules.html">12.4. Module resolution</a>
+<li><a href="../ecosystem-architecture/eco-caching.html">12.4. Caching</a></li>
+<li><a href="../ecosystem-architecture/eco-remote.html">12.5. Remote jobs</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html">12.6. Module resolution</a>
 <ul class="sectlevel3">
-<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.4.1. Finding a module</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.4.2. Identity</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.4.3. Installing</a></li>
-<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.4.4. Foreign dependencies</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_finding_a_module">12.6.1. Finding a module</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_identity">12.6.2. Identity</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_installing_2">12.6.3. Installing</a></li>
+<li><a href="../ecosystem-architecture/eco-modules.html#_foreign_dependencies">12.6.4. Foreign dependencies</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-solving.html">12.5. Environment solving</a>
+<li><a href="../ecosystem-architecture/eco-solving.html">12.7. Environment solving</a>
 <ul class="sectlevel3">
-<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.5.1. The build hook</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.5.2. One world per environment</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.5.3. Solving</a></li>
-<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.5.4. When solving happens</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_the_build_hook">12.7.1. The build hook</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_one_world_per_environment">12.7.2. One world per environment</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_solving">12.7.3. Solving</a></li>
+<li><a href="../ecosystem-architecture/eco-solving.html#_when_solving_happens">12.7.4. When solving happens</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-serving.html">12.6. Serving</a>
+<li><a href="../ecosystem-architecture/eco-serving.html">12.8. Serving</a>
 <ul class="sectlevel3">
-<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.6.1. Server modes</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.6.2. Endpoints</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.6.3. Commands as MCP tools</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.6.4. Pool crash recovery</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.6.5. Eval</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.6.6. Security model</a></li>
-<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.6.7. Serving an environment</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_server_modes">12.8.1. Server modes</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_endpoints">12.8.2. Endpoints</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_commands_as_mcp_tools">12.8.3. Commands as MCP tools</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_pool_crash_recovery">12.8.4. Pool crash recovery</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_eval">12.8.5. Eval</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_security_model">12.8.6. Security model</a></li>
+<li><a href="../ecosystem-architecture/eco-serving.html#_serving_an_environment">12.8.7. Serving an environment</a></li>
 </ul>
 </li>
-<li><a href="../ecosystem-architecture/eco-freezing.html">12.7. Freezing</a></li>
+<li><a href="../ecosystem-architecture/eco-freezing.html">12.9. Freezing</a></li>
 </ul>
 </li>
 <li><a href="../build-architecture/index.html">13. Build Architecture</a>
@@ -774,30 +786,29 @@
 <h2 id="why"><a class="anchor" href="#why"></a>2. Why Morloc?</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Every command line tool solves the same problems a second time. Argument
-parsing, input and output formatting, compression, streaming, exit codes,
-introspection: none of it is the tool’s actual work, all of it admits many
-reasonable answers, and every tool picks its own. Consistency across an
-ecosystem is then reachable only if every author agrees on a wide range of
+<p>Every command line tool must reimplement solutions to the same set of
+problems. Argument parsing, input and output formatting, compression, streaming,
+exit codes, introspection: none of this is the tool’s actual work, all of it
+admits many reasonable answers, and every tool picks its own. Consistency across
+an ecosystem is then reachable only if every author agrees on a wide range of
 conventions and writes their code accordingly.</p>
 </div>
 <div class="paragraph">
-<p>The costs of that are structural rather than accidental. A tool’s <code>--help</code> is
+<p>This lack of consistency causes wide ranging problems. A tool’s <code>--help</code> is
 prose written at its author’s whim, so no machine can build a reliable inventory
 of an environment. Two tools exchange structured data only if they already agree
-on a format, so anything richer than a byte stream needs a shared framework or a
-lossy encoding. A user who wants one more feature, or one fewer, has no move
-short of asking the maintainer. And because the command line is the only face a
-tool has, every other caller — a library, a network client, a model — gets a
-fresh layer of boilerplate laid over it, generating system calls and parsing
-text back out. That face also forces a shape on the work: a tool takes its input
-from the filesystem and delivers its output there, and calling it means spawning
-a process, whether or not the computation needed any of that.</p>
+on a format, so anything richer than a byte stream needs a socially agreed upon
+file format convention. A user who wants one more feature, or one fewer, has no
+move short of asking the maintainer. And because the command line is the only
+face a tool has, every other caller — a library, a network client, a model — gets a fresh layer of boilerplate laid over it, generating system calls and
+parsing text back out. That face also forces a shape on the work: a tool takes
+its input from the filesystem and delivers its output there, and calling it
+means spawning a process, whether or not the computation needed any of that.</p>
 </div>
 <div class="paragraph">
-<p>Morloc’s answer to each of these is the same answer: derive the interface from
-the type instead of writing it. The sections below are that answer applied in
-different directions.</p>
+<p>Morloc’s answer to all these issues is to derive the interface from the type
+instead of writing it. The sections below are that answer applied in different
+directions.</p>
 </div>
 <div class="sect2">
 <h3 id="derived-interface"><a class="anchor" href="#derived-interface"></a>2.1. The interface is derived, not written</h3>
@@ -865,8 +876,8 @@ and MCP views, and <a href="../clis/interface-as-data.html">The interface as dat
 <div class="sect2">
 <h3 id="values-cross-boundaries"><a class="anchor" href="#values-cross-boundaries"></a>2.2. Values cross boundaries, not file formats</h3>
 <div class="paragraph">
-<p>A Morloc command writes its return type, serialized. A command that accepts
-that type reads it. Neither end invents a file format and neither end writes a
+<p>A Morloc program writes its serialized return type. A program that accepts that
+type reads it. Neither end invents a file format and neither end writes a
 parser.</p>
 </div>
 <div class="paragraph">
@@ -1076,10 +1087,8 @@ without touching the function.</p>
 check is content-based rather than mtime-based: editing an unrelated comment
 does not invalidate the cache, copying the program to a new path does not
 either, and two machines that build byte-identical pool sources share it. The
-same group config carries <code>log: true</code>, and a label may cover a complex term
-rather than a single call, so an entire branch of the execution tree can be
-cached, logged, or — this is the part still in development — dispatched to a
-remote worker.</p>
+same group config carries <code>log: true</code>, and since a label wraps any function
+you name, an entire branch of the execution tree can be cached, logged, or — this is the part still in development — dispatched to a remote worker.</p>
 </div>
 <div class="paragraph">
 <p>Failure is handled in the same spirit. A build flag wraps every foreign call so
@@ -1180,20 +1189,22 @@ search, and no plane but the default one.</p>
 <h3 id="project-status"><a class="anchor" href="#project-status"></a>2.9. Where the project stands</h3>
 <div class="paragraph">
 <p>Morloc has been in development for about ten years. I use it for my own work,
-but it is not yet used widely by anyone else.</p>
+but it is not yet widely used by others. The core features are all present. My
+main work currently is working through the long tail of edge cases and design
+optimization.</p>
 </div>
 <div class="paragraph">
-<p>Solid: the compiler and its type system, C++/Python/Rust/R as fully supported
-languages, the generated CLI, HTTP, socket and MCP interfaces, environment and
-dependency management through <code>mim</code>, and a standard library covering the common
-data structures, text, math, tables, and tensors.</p>
+<p>The compiler and basic type system are mostly complete, though the more advanced
+types still need work. Workflow features — provenance management, re-entrancy,
+caching, and job deployment — are working as prototypes, but need refinment and
+much broader support. Environment management, dependency handling and deployment
+are well developed through <code>mim</code>.</p>
 </div>
 <div class="paragraph">
-<p>Thin or unfinished: library coverage far from complete, remote execution (the
-SLURM dispatch that makes Morloc usable as a cluster workflow language) is in
-development, editor support is current for vim and Pygments and stale for VS
-Code/Zed, some aspects of the type system are still experimental, and the module
-registry is unbuilt.</p>
+<p>Beyond the compiler, the core libraries are slim and need very careful
+design. Language support also needs to be streamlined and extended to new
+languages. Zig is the next language on my list, though at some point I should
+add boring languages like JavaScript.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1210,8 +1221,7 @@ registry is unbuilt.</p>
 <p><strong>Report what breaks.</strong> A bug report is worth more to me than a patch right
 now. Unexpected behavior, a bad error message, a gap in this manual, and
 anything that was harder than it should have been all count.</p>
-<div class="ulist">
-<ul>
+</li>
 <li>
 <p><strong>Fix the editor tooling.</strong> Add support for your favorite editor.</p>
 </li>
@@ -1223,9 +1233,6 @@ be happy to work with you in bringing your language into the Morloc ecosystem.</
 <p><strong>Tell me the right way to build a type system.</strong> There is a lot of
 interesting theory to hash through. There’s a paper or two buried somewhere in
 all of this.</p>
-</li>
-</ul>
-</div>
 </li>
 </ul>
 </div>

@@ -9,7 +9,7 @@ Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/run-d
 
 Every persistent-logging invocation of a morloc-built executable is one **run**. The run gets a unique id and a directory on disk holding the run’s artifacts: a top-level log file teed from stderr, per-label log files for `log: true` labels, and a `summary.json` sentinel.
 
-The directory is opt-in. A bare `./my_program …​` invocation never creates one; pass `--log-dir <path>` (or set `MORLOC_LOG_DIR`) to activate. Interactive use stays clutter-free; cron jobs and servers opt in and get the structured artifacts.
+The directory is opt-in. A bare `./my_program ...` invocation never creates one; pass `--log-dir <path>` (or set `MORLOC_LOG_DIR`) to activate. Interactive use stays clutter-free; cron jobs and servers opt in and get the structured artifacts.
 
 The directory layout, after a run with `--log-dir runs/` and at least one labeled term with `log: true`, looks like:
 

@@ -224,15 +224,14 @@ $ ./optional collapsed2
 7
 ```
 
-If you genuinely need layered nullability — telling "the lookup failed" apart from "the lookup succeeded but the field was unset" — encode the distinction in a type of your own:
+If you genuinely need layered nullability — telling "the lookup failed" apart from "the lookup succeeded but the field was unset" — give each outcome its own constructor (see [Sum types](https://morloc-project.github.io/docs/features/sum-types.md)):
 
 ```morloc
-record LookupResult = LookupResult
-  { tableMissing :: Bool   -- step 1 failure
-  , fieldMissing :: Bool   -- step 2 failure
-  , value :: ?Int          -- present when both succeeded
-  }
-```
+data Lookup = TableMissing | FieldMissing | Found Int
 
-> **Note**
-> Sum types — tagged unions such as `data Result = Found Int | Missing` — are planned but not yet supported. Their cross-language design is the open problem, since not every backend has a first-class sum representation.
+describe :: Lookup -> Str
+describe r = match r
+  | TableMissing = "no such table"
+  | FieldMissing = "field unset"
+  | (Found x) = "value " <> show x
+```

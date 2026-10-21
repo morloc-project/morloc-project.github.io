@@ -30,7 +30,7 @@ A `@render` handler returns bytes (`Str`, `[Str]`, `Vector U8` or a list of `Vec
 
 **Several outputs.** When an action writes to a file, or a command has more than one action, the run is **staged**:
 
-![Diagram](https://morloc-project.github.io/docs/static/img/diag-99fe3d09edc27db5c3fd0d2a44a3594ce1b9ab118e4f6ff39e9739c550e4c01a.svg)
+![Diagram](https://morloc-project.github.io/docs/static/img/mermaid-f89fe193bc4902f592b5ac41682092b7.svg)
 
 1.  A stage process runs the command once and saves its value, its collected stream and its arguments as packet files. If standard output wants the command’s own output, the stage also writes it there as it runs.
 2.  Each action is replayed in its own process on the saved output, writing to a temporary file beside its target.

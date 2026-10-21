@@ -1,8 +1,8 @@
-# 7.6. Debugging
+# 7.7. Debugging
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/debugging.html | prev: https://morloc-project.github.io/docs/runs/compression.md | next: https://morloc-project.github.io/docs/runs/random-access-and-streaming.md
 
-When a foreign function throws — a Python `ZeroDivisionError`, a C++ `std::invalid_argument`, an R `stop(…​)` — the default behavior of a morloc-built program is to surface the language-level error message and exit with non-zero status. That tells the operator something failed but not **why**: the inputs that triggered the throw are gone, and the stack across the dispatcher boundary doesn’t survive into the user’s terminal.
+When a foreign function throws — a Python `ZeroDivisionError`, a C++ `std::invalid_argument`, an R `stop(...)` — the default behavior of a morloc-built program is to surface the language-level error message and exit with non-zero status. That tells the operator something failed but not **why**: the inputs that triggered the throw are gone, and the stack across the dispatcher boundary doesn’t survive into the user’s terminal.
 
 Compile-time debug-trace mode fills that gap. When enabled at build, every foreign-call manifold gains a try/catch wrap that:
 
@@ -14,7 +14,7 @@ The pool dispatcher concatenates the rendered trace into the fail packet’s err
 
 There is **zero** runtime cost in a build without `--debug`: no wraps are emitted, no per-frame state is allocated. Production binaries can ship unchanged; debugging is a recompile.
 
-## 7.6.1. Enabling at compile time
+## 7.7.1. Enabling at compile time
 
 Pass `--debug` to `morloc make`:
 
@@ -24,7 +24,7 @@ morloc make --debug -o my_program main.loc
 
 The flag is a build-time switch only. It affects code generation, so the `--debug` and non-`--debug` variants are two physically different binaries. There is no runtime flag that re-enables tracing on a binary compiled without `--debug`.
 
-## 7.6.2. A failing run
+## 7.7.2. A failing run
 
 A trivial example: `boomP n = idpy (pyThrowAtZero n)`, where `pyThrowAtZero` raises on `n == 0`.
 
@@ -42,7 +42,7 @@ The arg’s value is in `e8b6f11aa7a0ccb4.pkt` — a msgpack-encoded copy of
 
 For a cross-pool failure (Python calls C, C throws), each pool’s catch contributes its own frames; the trace shows both pools' state stacked with the innermost (the C++ throw site) at the top.
 
-## 7.6.3. Runtime knobs
+## 7.7.3. Runtime knobs
 
 The compile-time wrap is unconditional, but four runtime knobs shape **what** the catch records when it fires. All four can be set on the nexus command line or via environment variables; the CLI flag wins when both are present.
 
@@ -50,10 +50,10 @@ The compile-time wrap is unconditional, but four runtime knobs shape **what** th
 | --- | --- |
 | `--log-dir PATH` (or `MORLOC_LOG_DIR=PATH`) | Same flag that activates persistent logging (see "Run directory"). When set, debug-trace dumps land under `PATH/<run_id>/debug/inputs/` and the rendered trace appears in `summary.json`. |
 | `--debug-cache-depth N` (or `MORLOC_DEBUG_CACHE_DEPTH=N`) | Maximum number of disk writes per dispatch. Default `1`. Set to `0` for unlimited. Only successful writes count, so a single huge run with one outlier arg gets that arg dumped without burning the budget on later trivial args. Limit is per-dispatch, not per-process; each fresh dispatch starts the counter at zero. |
-| `--debug-cache-max BYTES` (or `MORLOC_DEBUG_CACHE_MAX=BYTES`) | Per-arg size cap on the msgpack-encoded payload. Args whose encoded bytes exceed this are recorded by hash but not written to disk. The rendered trace shows `(hash=…​, size exceeded MORLOC_DEBUG_CACHE_MAX)` for skipped args. Suffix `k`/`m`/`g` for KiB/MiB/GiB. Default `0` (unlimited). |
+| `--debug-cache-max BYTES` (or `MORLOC_DEBUG_CACHE_MAX=BYTES`) | Per-arg size cap on the msgpack-encoded payload. Args whose encoded bytes exceed this are recorded by hash but not written to disk. The rendered trace shows `(hash=..., size exceeded MORLOC_DEBUG_CACHE_MAX)` for skipped args. Suffix `k`/`m`/`g` for KiB/MiB/GiB. Default `0` (unlimited). |
 | `--debug-recursion-cap N` (or `MORLOC_DEBUG_RECURSION_CAP=N`) | Per-manifold-id frame limit. A recursive function that throws at the bottom of an N-deep stack would otherwise produce N frame entries for the same manifold; this cap silently drops entries past the limit and appends a one-line note that the cap was hit. Default `3`. Set to `0` for unlimited. |
 
-## 7.6.4. Where dumps land
+## 7.7.4. Where dumps land
 
 Resolution order for the debug-dump directory, highest precedence first:
 
@@ -65,23 +65,23 @@ Resolution order for the debug-dump directory, highest precedence first:
 
 The default fallback exists because the wrap is a debugging tool and the most common case is "I just want to see what crashed my function" — no orchestrator, no opt-in flag, no setup. The fallback is only reached when the binary was compiled with `--debug` (no wraps fire otherwise), so non-debug builds never create `.morloc-debug/`.
 
-## 7.6.5. Content-addressed dedup
+## 7.7.5. Content-addressed dedup
 
 The dump filename is the xxh64 of the msgpack-encoded arg bytes. Two args with identical content — the same `Int 42`, the same reference genome passed through five frames — write the same file once and are referenced by hash in each frame’s trace line. Disk cost scales with **distinct** inputs, not with frame count.
 
-## 7.6.6. Frame status markers
+## 7.7.6. Frame status markers
 
 A frame’s trace line for each arg is one of:
 
--   `arg[0] :: f8 → .morloc-debug/inputs/<hash>.pkt` — written to disk.
--   `arg[0] :: f8 (hash=…​, size exceeded MORLOC_DEBUG_CACHE_MAX)` — arg’s msgpack payload was over the per-arg size cap; the hash is recorded but no file was written.
+-   `arg[0] :: f8 -> .morloc-debug/inputs/<hash>.pkt` — written to disk.
+-   `arg[0] :: f8 (hash=..., size exceeded MORLOC_DEBUG_CACHE_MAX)` — arg’s msgpack payload was over the per-arg size cap; the hash is recorded but no file was written.
 -   `arg[0] :: f8 (hash=…​, depth cap reached — raise --debug-cache-depth to dump more)` — this dispatch already wrote `--debug-cache-depth` args; this one fell off the budget.
 -   `arg[0] :: f8 (hash=…​, write failed — check that the debug dir is writable)` — the directory was resolvable but `mkdir` or the atomic write returned an error (read-only mount, no permission, full disk).
 -   `arg[0] :: f8 (serialize failed)` — the arg’s schema couldn’t be resolved or the msgpack encoder errored. No hash is meaningful.
 
 The four marker variants exist because the failure cause changes the right next step: a depth-cap miss is a knob adjustment; a write-failed is a filesystem problem; a size-exceeded is a per-arg vs whole-run budget tradeoff.
 
-## 7.6.7. Recovering an input via `@load`
+## 7.7.7. Recovering an input via `@load`
 
 Each `.pkt` is a single msgpack value (the morloc wire form of the dumped arg). The morloc `@load path` intrinsic can read these directly — no separate decoder is required — because the same code path that loads `@savem`\-written files also handles bare msgpack:
 
@@ -106,6 +106,6 @@ loadArgOrZero path = do
   match r | (Ok v) = v | (Err _) = 0
 ```
 
-## 7.6.8. Interaction with the cache
+## 7.7.8. Interaction with the cache
 
 Stage-3 caching and debug-trace mode are independent layers and combine naturally. A cached call that hits the cache never enters the foreign function, so no debug-trace frame fires. A cached call that misses, falls through to the foreign function, and throws produces a frame just like an uncached call would. The two systems share no state.

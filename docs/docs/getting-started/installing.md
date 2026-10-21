@@ -11,10 +11,10 @@ Morloc runs on Linux and on Apple Silicon macOS. On Windows, install through the
 One command, on Linux (x86-64 or ARM) or Apple Silicon macOS:
 
 ```console
-$ curl -fsSL https://raw.githubusercontent.com/morloc-project/morloc-manager/main/scripts/install.sh | sh
+$ curl -fsSL https://morloc.io/install.sh | sh
 ```
 
-This downloads the prebuilt `mim` binary for your platform, checks it against the published SHA-256 when that checksum is reachable, and installs it into `~/.local/bin` (or `$XDG_BIN_HOME`, if you set it). No `sudo` is needed. Two environment variables adjust it:
+This downloads the prebuilt `mim` binary for your platform, checks it against the published SHA-256 (refusing to install it if it cannot), and installs it into `~/.local/bin` (or `$XDG_BIN_HOME`, if you set it). No `sudo` is needed. Two environment variables adjust it:
 
 | Variable | Effect |
 | --- | --- |

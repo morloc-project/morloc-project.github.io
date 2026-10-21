@@ -175,7 +175,7 @@ That check comes from the `Restrict r l` in \`selectCols’s own signature; you 
 `selectColsDyn` gives up on static checking entirely, which is the point of having it: the column list is not known until the program runs. What it does not do is make up for that at runtime.
 
 > **Warning: selectColsDyn does not check the schema you claim**
-> `r2` is a free variable that the caller pins down, and nothing confronts that claim with the columns that actually come back. A function declared `[Str] → Table 4 {state = Str}` will happily return a table of `pop`:
+> `r2` is a free variable that the caller pins down, and nothing confronts that claim with the columns that actually come back. A function declared `[Str] -> Table 4 {state = Str}` will happily return a table of `pop`:
 > 
 > ```console
 > $ ./dyn pick '["state"]'
@@ -400,7 +400,7 @@ cpp
 py
 ```
 
-Two pools, and the table itself never leaves shared memory. Import both `table-py` and `table-cpp` and the compiler would collapse the program onto one language instead; the explicit `type Py ⇒ Table …​` line above supplies the Python form without the Python operations, which is what forces the split.
+Two pools, and the table itself never leaves shared memory. Import both `table-py` and `table-cpp` and the compiler would collapse the program onto one language instead; the explicit `type Py => Table ...` line above supplies the Python form without the Python operations, which is what forces the split.
 
 ## 5.8.7. Reading and writing table files
 
@@ -408,19 +408,14 @@ A `Table` argument can be a literal JSON string or a path, and the runtime detec
 
 | Form | How it is recognised |
 | --- | --- |
-| JSON | Row-oriented `[{col: v, …​}, …​]` or column-oriented `{col: [v, …​], …​}`; the two are equivalent |
+| JSON | Row-oriented `[{col: v, ...}, ...]` or column-oriented `{col: [v, ...], ...}`; the two are equivalent |
 | Arrow IPC | the `ARROW1` magic |
 | Parquet | the `PAR1` magic at head and tail |
-| CSV / TSV | the `.csv` / `.tsv` extension; a header row is required |
+| CSV / TSV | anything else; a header row is required, and it decides whether the file is tab- or comma-separated |
 
-The schema in your signature drives validation, and a file that does not match it is rejected before the data reaches a pool:
+The file’s name is never consulted. A CSV or TSV header must contain every column the signature declares, in any order; any other column is kept as optional text, so a column of zip codes keeps its leading zeros. Each cell is read by the rules in [Tables with a header](https://morloc-project.github.io/docs/clis/input-shape.md#form-table): an empty cell is null, which only an optional column may hold.
 
-```console
-$ ./census summarize bad.csv
-Error: failed to parse argument #0: file 'bad.csv': Declared column 'pop' missing from CSV header
-$ ./census summarize wrong.csv
-Error: failed to parse argument #0: file 'wrong.csv': Failed to read CSV: Parser error: Error while parsing value 'abc' as type 'Int64' for column 1 at line 1. Row data: '[WA,abc]'
-```
+A file that does not match the schema is refused, but where: a table is read by the pool that holds it, so a missing column or a bad cell currently ends that pool with an internal error naming the line and column, rather than failing cleanly. Marking the argument `@form table` ([Tables with a header](https://morloc-project.github.io/docs/clis/input-shape.md#form-table)) moves the header check before the command runs.
 
 A nullable Arrow or Parquet column is accepted into a non-optional Morloc column as long as it holds no nulls at runtime. One actual null and it is refused:
 

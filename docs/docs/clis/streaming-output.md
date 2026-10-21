@@ -55,11 +55,11 @@ The output actions of [Output actions](https://morloc-project.github.io/docs/cli
 
 | Directive | Handler type | Behavior |
 | --- | --- | --- |
-| `@with` | `[a] → b` (or `IFile [a] → b`) | Gather the whole stream, apply once; `b` is serialized by `-f`. |
-| `@with …​ @stream` | `[a] → [b]` | Apply to each batch as it arrives, at constant memory; the `b` elements are serialized by `-f`. |
-| `@render` | `[a] → Str` / `[a] → [U8]` (or `IFile [a] → …​`) | Gather the whole stream, apply once, write the bytes verbatim. |
-| `@render …​ @stream` | `[a] → Str` / `[a] → [U8]` | Apply to each batch, write each result’s bytes verbatim. |
-| `@with`/`@render …​ @fold=` | as above, with `b` in place of `[a]` | Fold the stream into one accumulator, apply once to it. See [`@fold`: one accumulator instead of a list](#stream-fold). |
+| `@with` | `[a] -> b` (or `IFile [a] -> b`) | Gather the whole stream, apply once; `b` is serialized by `-f`. |
+| `@with ... @stream` | `[a] -> [b]` | Apply to each batch as it arrives, at constant memory; the `b` elements are serialized by `-f`. |
+| `@render` | `[a] -> Str` / `[a] -> [U8]` (or `IFile [a] -> ...`) | Gather the whole stream, apply once, write the bytes verbatim. |
+| `@render ... @stream` | `[a] -> Str` / `[a] -> [U8]` | Apply to each batch, write each result’s bytes verbatim. |
+| `@with`/`@render ... @fold=` | as above, with `b` in place of `[a]` | Fold the stream into one accumulator, apply once to it. See [`@fold`: one accumulator instead of a list](#stream-fold). |
 
 ``sift’s `stream`` declares one action from three of those cells:
 
@@ -142,8 +142,8 @@ A gather holds the whole stream before the handler sees any of it. `@fold` keeps
 | Modifier | Type | Role |
 | --- | --- | --- |
 | `@init` | `b` | Starts every accumulator, and is the answer for an empty stream. |
-| `@fold` | `b → [a] → b` | Folds one batch in. It takes the batch, not the element. |
-| `@combine` | `b → b → b` | Merges two accumulators. |
+| `@fold` | `b -> [a] -> b` | Folds one batch in. It takes the batch, not the element. |
+| `@combine` | `b -> b -> b` | Merges two accumulators. |
 
 The handler receives `b` instead of `[a]`. Nothing else about the command changes: a folding action and a gathering one sit on the same `@collect`, and the flag the caller gives decides which runs.
 

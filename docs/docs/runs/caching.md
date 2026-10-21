@@ -1,8 +1,8 @@
 # 7.4. Caching
 
-Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/caching.html | prev: https://morloc-project.github.io/docs/runs/run-directory.md | next: https://morloc-project.github.io/docs/runs/compression.md
+Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/caching.html | prev: https://morloc-project.github.io/docs/runs/run-directory.md | next: https://morloc-project.github.io/docs/runs/remote-jobs.md
 
-Mark any labeled call site `cache: true` in the program YAML and its result is memoized to disk. The next call with equivalent inputs against unchanged source code is served from the cache rather than recomputed.
+Mark a label `cache: true` in the program YAML and every call through it is memoized to disk. The next call with equal arguments, against unchanged source code, is served from the cache rather than computed again, in this run or any later one.
 
 The freshness check is content-based, not time-based. Morloc has **no** notion of "the source file is newer than the cache entry, so re-run." Editing a comment in an unrelated function will not invalidate any cache. Copying the program to a new path will not either. Two builds on two machines that emit byte-identical pool sources share the same cache namespace. This is a deliberate departure from `make`, `snakemake`, `nextflow`, and similar tools that use mtime as a freshness signal and routinely re-run the world after a `git checkout` or a clock skew.
 
@@ -10,36 +10,67 @@ The build parameters passed with `-X` (see the build parameters section) also pa
 
 ## 7.4.1. Declaring a cached call
 
-```yaml
-labeled-groups:
-  expensive_step: { cache: true }
-```
+**slow.loc**
 
 ```morloc
-foo xs = expensive_step@slowfn xs
+module slow (square)
+
+import root-py
+source Py from "slow.py" ("slow_square")
+
+slow_square :: Int -> Int
+
+square :: Int -> Int
+square x = expensive@slow_square x
 ```
 
-Every call into `expensive_step@slowfn` is memoized under the `expensive_step` cache label. The same group config also controls per-step logging (`log: true`); the two flags are independent and may be combined.
+**slow.py**
 
-## 7.4.2. What goes in the hash
+```python
+import sys
 
-A cached entry is keyed by:
-
+def slow_square(x):
+    print("computing", x, file=sys.stderr)
+    return x * x
 ```
-call_key = xxh64(pool_source_fingerprint, midx, arg_content_hashes ...)
+
+**slow.yaml**
+
+```yaml
+labeled-groups:
+  expensive: { cache: true }
 ```
 
-where:
+The first call computes, and the second finds the result on disk:
 
--   **`pool_source_fingerprint`** is `xxh64` of the rendered pool source text, seed-chained over the contents of any files listed under `hash-include:` in the program YAML. Editing the body of the cached function, of any function it calls, of any imported module that compiled into the same pool, or of any declared external data file, all shift this fingerprint.
--   **`midx`** is the compiler-assigned manifold id, deterministic per build.
--   **`arg_content_hashes`** are content-aware hashes of each argument’s **value**, walked through its msgpack schema. Two structurally equal inputs hash the same regardless of how their packet stored the data (inline bytes, shared-memory pointer, or temp file), and pointer bits are never themselves hashed.
+```console
+$ morloc make -o slow slow.loc
+$ ./slow square 4
+computing 4
+16
+$ ./slow square 4
+16
+$ ./slow square 5
+computing 5
+25
+```
 
-The freshness test is therefore: same code + same code dependencies + same input values → cache hit. Anything else → miss.
+The same group config also controls per-step logging (`log: true`); the two flags are independent and may be combined.
 
-## 7.4.3. Storage layout
+## 7.4.2. What a cached label covers
 
-The cache lives under one of these directories, in resolution order:
+A label wraps one call of the function it is written on, and the cache answers for that call alone. Two things follow:
+
+-   The call’s arguments are computed before the cache is checked, so they are computed even on a hit. In `expensive@slow_square (prepare x)`, `prepare x` runs every time. To skip it on a hit, name the whole computation and label the name: with `squarePrepared x = slow_square (prepare x)`, write `expensive@squarePrepared x`.
+-   A label on a suspension (see [Effects and delayed evaluation](https://morloc-project.github.io/docs/features/effects.md)), or on a call that returns one, caches each run of the suspension: the first run computes and stores its result, and every later run with the same captured values reads it.
+
+`cache: true` is your claim that the call returns the same value whenever it is made with the same arguments. Morloc does not check it, so do not cache a call whose result should change from one run to the next.
+
+A call that fails is not cached. Running it again with the same arguments fails the same way rather than returning a value that was never computed.
+
+## 7.4.3. Where the cache lives
+
+The cache lives under the first of these that is set:
 
 | Source | Notes |
 | --- | --- |
@@ -47,31 +78,16 @@ The cache lives under one of these directories, in resolution order:
 | `$XDG_CACHE_HOME/morloc/cache` | If `XDG_CACHE_HOME` is set. |
 | `~/.cache/morloc/cache` | Default. |
 
-Inside, two file types coexist:
+Inside, each label has a directory of small index files, and the values themselves are stored once each under `data/`, shared by every label:
 
 ```
- . ~/.cache/morloc/cache/
- │
- ├── expensive_step/
- │   ├── 3f4a91d62b08e7d2.packet
- │   └── b772aa1c0e4ef801.packet
- ├── another_label/
- │   └── ...
- └── data/
-     ├── ef46db3751d8e999.dat
-     └── ...
+~/.cache/morloc/cache/
+|-- expensive/
+|   |-- 98c21d2ac043688f.dat
+|   `-- bf38289c8a399429.dat
+`-- data/
+    |-- 7c2e0dc2ec1a8103.dat
+    `-- ef97ee16737dff50.dat
 ```
 
--   **`<label>/<call_key>.packet`** is a small morloc data packet (`PACKET_TYPE_DATA`, source=FILE, format=MSGPACK) that points to a dat file under `data/`. One entry per distinct cached call.
--   **`data/<data_hash>.dat`** holds the cached value as schema-agnostic msgpack bytes. The filename is `xxh64` of those bytes, so equal return values consolidate onto one on-disk copy regardless of which label cached them or which pool language produced them.
-
-The content-addressed split gives natural deduplication: a Python pool and an R pool that both cache the same dataset (say, a genome pulled from an external database) write the data once. A source edit that produces the same return value writes a new `.packet` pointer but reuses the existing `.dat`.
-
-## 7.4.4. Reading and writing
-
-On lookup, the runtime reads the `.packet` file and returns its bytes; the language pool’s `get_value` follows the FILE-source pointer through to the dat file. The on-disk format is opaque to the language pool — it sees only bytes that round-trip through the standard packet API, so future format changes (inline-small optimization, compression, alternative backends) require no recompile of pool code.
-
-On store, the runtime materializes the input packet to msgpack (dereferencing any shared-memory or file-backed payload), hashes those bytes to choose the dat filename, skips the write if an identical dat already exists, and finally writes the small pointer packet under the label dir. Both writes go through an atomic tmp  
-rename, so a partial file is never observed by another reader and concurrent writers to the same key cannot corrupt the on-disk state.
-
-A cached call whose foreign body raises is **not** memoized — the cache wrap only stores on the happy path. A re-run with the same inputs fails the same way rather than silently serving a stale entry.
+Morloc never deletes an entry that is still valid. Deleting the whole directory, or one label’s directory, is safe while no program is using it, and empties the cache. How a call’s key is computed and how entries are written safely is specified in [Caching](https://morloc-project.github.io/docs/ecosystem-architecture/eco-caching.md).

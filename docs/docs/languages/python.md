@@ -16,7 +16,7 @@ py-deps:
 
 Unlike the other languages, `source` is **mandatory** for Python: a bare `matplotlib: ">=3.5"` is a build error, because the correct database cannot be guessed safely. Names are used exactly as written (there is no PyPI-to-conda renaming table), so under `source: "conda"` use the conda-forge package name where it differs from the PyPI name.
 
-The compiler takes the union of `py-deps` across every imported module; two modules constraining the same package differently are intersected by the solver rather than being an error.
+The compiler takes the union of `py-deps` across every imported module; two modules constraining the same package differently are intersected by the solver rather than being an error. A program your Python code runs, rather than a package it imports, is declared under `tool-deps` ([Command-line tools (`tool-deps`)](https://morloc-project.github.io/docs/apis/deploy-dependencies.md#tool-deps)).
 
 ### conda channels
 
@@ -30,7 +30,7 @@ py-deps:
 
 The `channel` field implies `source: conda` (channels are a conda-only concept), so `pysam` above needs no explicit `source`. conda-forge remains the universal default and the highest-priority base; a named channel such as [bioconda](https://bioconda.github.io/) sits **below** it under strict priority and can only supply packages conda-forge lacks. The environment’s channel list is **derived** automatically from the channels its modules declare — channels are never configured at the environment level, because a package’s database of record is a property of the module that needs it, not of where it is deployed.
 
-`channel` is valid only on a conda dependency: pairing it with `source: pypi` is a build error. And because a package has a single database of record, two modules that draw the same package from **different** channels is a build error naming both modules — unlike differing version constraints, which are simply intersected.
+`channel` is valid only on a conda dependency: pairing it with `source: pypi` is a build error. And because a package has a single database of record, two modules that draw the same package from **different** channels is a build error naming both modules, whichever dependency keys they list it under — unlike differing version constraints, which are simply intersected.
 
 ## 10.3.2. Local packages (`local-deps`)
 

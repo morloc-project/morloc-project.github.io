@@ -11,7 +11,7 @@ The log lines go to stderr, so the program’s stdout (the computed result and a
 Two things turn logging on for a term:
 
 1.  The term must be labeled in source code. A labeled term is written `label@term`. For example, `a@map` is the term `map` with label `a`. Labels are per-call-site, so `(a@foo x, b@foo y)` labels two distinct invocations of the same `foo`.
-2.  The label must appear in the program’s `.yaml` config under `labeled-groups` with `log: true`. The config lives next to the `.loc` source: for `main.loc`, the config is `main.yaml`.
+2.  The label must appear under `labeled-groups`, with `log: true`, in the `.yaml` beside the module that contains it: `main.yaml` for a label in `main.loc`, `cli.yaml` for one in an imported `cli.loc`.
 
 A minimal config:
 
@@ -21,6 +21,8 @@ labeled-groups:
 ```
 
 A label group can be applied to many terms (`big@read`, `big@parse`, `big@save`); all of them log under the same group.
+
+A label goes on the name of a function or of a suspension (see [Effects and delayed evaluation](https://morloc-project.github.io/docs/features/effects.md)), never on a larger expression. On a function it logs each call made through the labeled name, but not the calls the function makes itself, recursive ones included. A call’s arguments are computed before its start line, so its time does not include them. On a suspension, or on a call that returns one, a label logs each run of the suspension, since building a suspension does no work.
 
 ## 7.1.2. Template placeholders
 
@@ -122,7 +124,7 @@ Background colors:
 
 ## 7.1.4. Terminal detection and NO\_COLOR
 
-Color codes from `{c:…​}` placeholders (or raw ANSI escapes a user writes directly into a template) are emitted unchanged when stderr is a terminal **and** the environment variable `NO_COLOR` is unset. In every other case — stderr redirected to a pipe or file, or `NO_COLOR` set to any value — the runtime strips all CSI sequences before writing, so the output is plain text.
+Color codes from `{c:...}` placeholders (or raw ANSI escapes a user writes directly into a template) are emitted unchanged when stderr is a terminal **and** the environment variable `NO_COLOR` is unset. In every other case — stderr redirected to a pipe or file, or `NO_COLOR` set to any value — the runtime strips all CSI sequences before writing, so the output is plain text.
 
 This means the same program produces colored output when run interactively:
 

@@ -20,9 +20,9 @@ Three `morloc make` flags let you override the default policy when it is wrong f
 
 | Build flags | Behavior |
 | --- | --- |
-| (none) | Inline `⇐ 64k`, shared memory above. |
+| (none) | Inline `<= 64k`, shared memory above. |
 | `--inline-size 0` | Never inline; all cross-pool transfers go through shared memory. |
-| `--no-shm` | Inline `⇐ 64k`, temp files above. No `/dev/shm` traffic. |
+| `--no-shm` | Inline `<= 64k`, temp files above. No `/dev/shm` traffic. |
 | `--inline-size 0 --no-shm` | Every cross-pool transfer is a temp file. Slowest mode, but works on systems with no shared memory at all. |
 
 ## 8.5.2. Examples

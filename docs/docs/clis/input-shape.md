@@ -5,7 +5,7 @@ Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/input
 The defaults from [Arguments](https://morloc-project.github.io/docs/clis/arguments.md) cover most arguments: a scalar is read from argv, a compound value is inline JSON or a file. Three directives override that when an argument needs a particular shape.
 
 -   `@source` says where the bytes come from: `inline` (the argv token **is** the value) or `file` (the argv token is a path and the file’s contents are the value).
--   `@form` says how the bytes are read: `list`, `bytes`, `bytes-only`, or `packet`.
+-   `@form` says how the bytes are read: `list`, `table`, `bytes`, `bytes-only`, or `packet`.
 -   `@check.<kind>` states an invariant the argument must satisfy before the command runs. The only kind today is `path`.
 
 For a list, the same three exist per element as `@list.source`, `@list.form`, and `@list.check.<kind>`, describing what each **line** of the outer file means.
@@ -41,7 +41,8 @@ Which combinations are legal depends on the argument’s wire type. The tables b
 
 | Modifier | Effect |
 | --- | --- |
-| `@form list` | argv is a file (or `-`) with one element per line, or an inline JSON array. A token whose first byte is `[` is parsed as JSON; anything else is a path. Tuple elements accept a JSON array per line, TSV, or CSV. |
+| `@form list` | argv is a file (or `-`) with one element per line, or an inline JSON array. A token whose first byte is `[` is parsed as JSON; anything else is a path. Tuple and record elements also accept TSV or CSV rows with no header, columns in field order. |
+| `@form table` | Only on a list of records. argv is a path (or `-`) to a table whose header row names the fields: CSV, TSV, Arrow IPC, Parquet or a Morloc packet. See [Tables with a header](#form-table). |
 | `@form list` + `@list.source file` | Each line of the outer file is a path to a per-element file, each classified on its own (JSON / MessagePack / packet). |
 | `@form list` + `@list.source file` + `@list.form packet` | Each line is a path, and each per-element file must be a Morloc packet. |
 | `@form list` + `@list.source file` + `@list.form bytes` (or `bytes-only`) | Each line is a path, and each file is read as packed raw bytes. The element type must be an array of fixed-width scalars. |
@@ -51,11 +52,12 @@ Which combinations are legal depends on the argument’s wire type. The tables b
 
 | Modifier | Effect |
 | --- | --- |
-| *(default, the only valid case)* | argv is JSON, or a path to a file holding JSON / MessagePack / a packet. No outer modifiers are allowed. |
+| *(default)* | argv is JSON, or a path to a file holding JSON / MessagePack / a packet. A `Table` also reads CSV, TSV, Arrow IPC and Parquet files. |
+| `@form table` | Only on a `Table`. As the default, but never JSON or an inline value. See [Tables with a header](#form-table). |
 
 ## 6.7.1. A worked example
 
-``sift’s `scanAll`` uses two of these. The pattern list is a file with one pattern per line, and the search root must be a directory that exists:
+The `scanAll` in `sift` uses two of these. The pattern list is a file with one pattern per line, and the search root must be a directory that exists:
 
 ```morloc
 --' Search for any of several patterns, one per line of a file
@@ -147,13 +149,98 @@ $ ./tally counts.jsonl
 ```
 
 > **Note**
-> **`@form list` is headerless.** A delimited file read this way is parsed row by row with no header, because tuples have no column names — a header row would be read as data and fail the schema check on the first field. There is no option to skip one:
+> **`@form list` is headerless.** A delimited file read this way is parsed row by row with no header, because columns are bound to tuple slots and record fields by position, not by name. A header row is read as data. It is rejected only when one of its names fails to parse as its column’s type, as `count` does here; if every column is `Str`, the header is loaded as a record without error. There is no option to skip one:
 > 
 > ```console
 > $ printf 'name\tcount\napple\t3\n' > hdr.tsv
 > $ ./tally hdr.tsv
 > Error: failed to parse argument #0: serialization error: JSON parse error: expected value at line 1 column 10
->   hint: the first row (`name	count`) looks like a column-name header. `form: list` is headerless -- remove the header row, or declare the argument as `Table` if you need column names.
+>   hint: the first row (`name	count`) looks like a column-name header. `form: list` is headerless -- remove the header row, or read the file with `@form table`, which binds columns by name.
 > ```
 > 
-> If you need column names, declare the argument as a `Table`. The `Table` loader honors headers and aligns columns by name; `@form list` is for streams of rows.
+> A file with a header belongs to `@form table`, below.
+
+## 6.7.3. Tables with a header
+
+`@form table` reads a file whose first row names its columns. On a list of records, each column binds to the field it names, so the columns may come in any order; on a `Table` it fixes how the file is read, as described at the end of this section. Every cell is checked against its field’s type before your function runs.
+
+**genes.loc**
+
+```morloc
+module genes (load, spans)
+
+import root-py
+
+record Gene = Gene
+  { name :: Str
+  , chrom :: Str
+  , start :: Int
+  , end :: Int
+  }
+
+--' Load genes from a table
+load ::
+  --' A table with columns name, chrom, start and end
+  --' @form table
+  [Gene] -> [Gene]
+load gs = gs
+
+--' Length of each gene
+spans ::
+  --' A table with columns name, chrom, start and end
+  --' @form table
+  [Gene] -> [Int]
+spans gs = map (\g -> .end g - .start g) gs
+```
+
+```console
+$ printf 'name\tchrom\tstart\tend\ntp53\tchr17\t7661779\t7687538\nbrca1\tchr17\t43044295\t43125364\n' > genes.tsv
+$ ./genes load genes.tsv
+[{"name":"tp53","chrom":"chr17","start":7661779,"end":7687538},{"name":"brca1","chrom":"chr17","start":43044295,"end":43125364}]
+$ ./genes spans genes.tsv
+[25759,81069]
+```
+
+The header also decides the delimiter. The first row is split on tabs and then on commas, and whichever split names the fields wins, so a tab-separated file saved as `.txt` or `.csv` reads correctly and the file’s name is never consulted. CSV quoting works as usual:
+
+```console
+$ printf 'chrom,start,end,name\nchr17,7661779,7687538,tp53\nchr17,43044295,43125364,"brca1, isoform 2"\n' > genes.csv
+$ ./genes load genes.csv
+[{"name":"tp53","chrom":"chr17","start":7661779,"end":7687538},{"name":"brca1, isoform 2","chrom":"chr17","start":43044295,"end":43125364}]
+```
+
+A header that does not name exactly the record’s fields, or a cell that is not its field’s type, is reported with its line and column:
+
+```console
+$ printf 'name,chrom,start\ntp53,chr17,7661779\n' > short.csv
+$ ./genes spans short.csv
+Error: failed to parse argument #0: line 1: the header (name,chrom,start) does not match the expected columns (name, chrom, start, end); missing: `end`
+$ printf 'name,chrom,start,end\ntp53,chr17,7661779,7687538\nbrca1,chr17,43044295,NA\n' > na.csv
+$ ./genes spans na.csv
+Error: failed to parse argument #0: line 3, column `end`: "NA" is not Int
+```
+
+How a cell spells a value:
+
+-   **Empty**: an empty cell, as in `fred,42,,true`, is null. Only an optional field (`?Int`, `?Str`) may hold it. A quoted empty cell, `""`, is the empty string.
+-   **`Bool`**: `true` or `false`, in any case, so `TRUE` and `False` read too.
+-   **Numbers**: integers are decimal with an optional `-`; reals may have a fraction and an exponent (`1.5e-3`), or be `nan`, `inf` or `-inf`. A value out of range for its type is an error.
+-   **Enums**: the constructor’s name.
+-   **`Str`**: the cell’s text exactly, spaces included.
+
+Nothing else is accepted. In particular `NA`, as R writes a missing value, is an error rather than a null; write the file with `na=""` instead.
+
+A field may be any of those types or an optional of one. A field holding a list or a record is a build error, and so is `@form table` on a list of tuples or on a `Map`, which have no names to match a header against; they keep `@form list`. `@form table` is for a positional argument: an option, or a field of an unrolled record, would need a `@default`, and a default is JSON.
+
+Besides delimited text, the argument may be an Arrow IPC or Parquet file, whose columns bind by name in the same way, or a Morloc packet of the declared type. `-` reads standard input. An inline value and a JSON file are both errors.
+
+The same form comes back out: `-f csv` and `-f tsv` write a list of records as a header and one line per record, and the result reads back as the same records:
+
+```console
+$ ./genes -f csv load genes.csv
+name,chrom,start,end
+tp53,chr17,7661779,7687538
+"brca1, isoform 2",chr17,43044295,43125364
+```
+
+On a `Table` argument, `@form table` keeps the declared columns' rules — the header must contain them, and any other column is kept as optional text — and refuses JSON and inline values. The header is checked before your command runs. The rest of the file is read by the pool that holds the table, and a bad cell there currently ends the pool with an internal error that names the cell, rather than failing cleanly.

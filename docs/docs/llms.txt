@@ -8,7 +8,7 @@
 
 ## 2. Why Morloc?
 
-- [2. Why Morloc?](https://morloc-project.github.io/docs/why/index.md): Every command line tool solves the same problems a second time.
+- [2. Why Morloc?](https://morloc-project.github.io/docs/why/index.md): Every command line tool must reimplement solutions to the same set of problems.
 
 ## 3. Getting Started
 
@@ -80,10 +80,11 @@
 - [7.1. Logging](https://morloc-project.github.io/docs/runs/logging.md): Morloc programs can emit per-call log lines around any labeled term in source.
 - [7.2. Benchmarking](https://morloc-project.github.io/docs/runs/benchmarking.md): log: true reports every call as it happens.
 - [7.3. Run directory](https://morloc-project.github.io/docs/runs/run-directory.md): Every persistent-logging invocation of a morloc-built executable is one run.
-- [7.4. Caching](https://morloc-project.github.io/docs/runs/caching.md): Mark any labeled call site cache: true in the program YAML and its result is memoized to disk.
-- [7.5. Compression](https://morloc-project.github.io/docs/runs/compression.md): Morloc data packets carry a compression byte in their header, so any packet written to disk can transparently round-trip through a compressor.
-- [7.6. Debugging](https://morloc-project.github.io/docs/runs/debugging.md): When a foreign function throws — a Python ZeroDivisionError, a C++ std::invalid_argument, an R stop(…​) — the default behavior of a morloc-built program is...
-- [7.7. Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md): Three abstract types describe a value that lives in a file rather than in memory:
+- [7.4. Caching](https://morloc-project.github.io/docs/runs/caching.md): Mark a label cache: true in the program YAML and every call through it is memoized to disk.
+- [7.5. Remote job submission](https://morloc-project.github.io/docs/runs/remote-jobs.md): A labeled call can run as a separate job on a SLURM cluster.
+- [7.6. Compression](https://morloc-project.github.io/docs/runs/compression.md): Morloc data packets carry a compression byte in their header, so any packet written to disk can transparently round-trip through a compressor.
+- [7.7. Debugging](https://morloc-project.github.io/docs/runs/debugging.md): When a foreign function throws — a Python ZeroDivisionError, a C++ std::invalid_argument, an R stop(...) — the default behavior of a morloc-built program is...
+- [7.8. Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md): Three abstract types describe a value that lives in a file rather than in memory:
 
 ## 8. Modules and Libraries
 
@@ -126,10 +127,12 @@
 - [12.1. Overview](https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md): Who invokes whom.
 - [12.2. Environments](https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md): Identity.
 - [12.3. Runtime bootstrap](https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md)
-- [12.4. Module resolution](https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md)
-- [12.5. Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md)
-- [12.6. Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)
-- [12.7. Freezing](https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md): Which environments.
+- [12.4. Caching](https://morloc-project.github.io/docs/ecosystem-architecture/eco-caching.md): What is cached.
+- [12.5. Remote jobs](https://morloc-project.github.io/docs/ecosystem-architecture/eco-remote.md): When a call becomes a job.
+- [12.6. Module resolution](https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md)
+- [12.7. Environment solving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.md)
+- [12.8. Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)
+- [12.9. Freezing](https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md): Which environments.
 
 ## 13. Build Architecture
 

@@ -18,9 +18,7 @@
 :toc: left
 :toclevels: 3
 :includedir: content
-:kroki-server-url: https://kroki.io
-:kroki-fetch-diagram:
-:kroki-default-format: svg
+:mermaid-server-url: https://kroki.io
 
 // The preamble is the manual's home page (docs/index.html); bin/paginate.mjs
 // lifts it out of the chapters. Keep it to about one screen. Ids are not
@@ -38,7 +36,7 @@ HTTP/TCP/UDS/MCP servers.
 --
 [.home-feature]
 ====
-*The interface is derived.* The same module is a command line tool, a server
+*The interface is derived.* From one module derive a command line tool, a server
 over HTTP, TCP, and Unix sockets, and a set of MCP tool definitions. Each is
 projected from checked types, so none can drift from the functions.
 <<derived-interface,More>>
@@ -54,18 +52,48 @@ in a fully polyglot setting. <<features,More>>
 [.home-feature]
 ====
 *Fine grained logging, benchmarking and debugging.* Add hooks to expressions and
-monitor their runtime, caching behavior, and more. Full multi-language
-tracebacks with optional input data capture at failure points.
+monitor their runtime, caching behavior, job submissions, and more. Full
+multi-language tracebacks with optional input data capture at failure points.
 <<annotations,More>>
 ====
 
 [.home-feature]
 ====
-*Design with types, reuse across implementations.* Write a test suite once
-against a type signature and run it against every language that implements
-it. <<tests-follow-the-type,More>>
+*Design with types, reuse across implementations.* Write a test suite or
+benchmarking harness once against a type signature and run it against every
+language that implements it. <<tests-follow-the-type,More>>
 ====
+
+// [.home-feature]
+// ====
+// *Gain a consistent highly efficient compression schema for each language.*
+// ====
+//
+// [.home-feature]
+// ====
+//
+// *Functional scaling.** Build libraries across languages that are consistent by
+// construction.
+// ====
+
 --
+
+// Why Morloc?
+//
+//  * Efficiency -
+//
+//  * Effability - understand the shape of a tool through the minimal,
+//    machine-checked type signature and associated documentation. Reduce reams of
+//    AI slop with a few focused signatures. Maintain the big picture and let AI
+//    handle the details.
+//
+//  * Maintainability - rather than maintaining a fleet of tools that each have their
+//    own bespoke infrastructure designed around them, just maintain the minimal
+//    algorithmic core. Less cost to write, maintain, and extend.
+//
+//  * Functional scaling - build libraries across languages that compose safely.
+//
+//  * Pedagogy -
 
 
 
@@ -186,28 +214,28 @@ libraries, and your existing code. What Morloc adds is a type and a name.
 [#why.onepage]
 == Why Morloc?
 
-Every command line tool solves the same problems a second time. Argument
-parsing, input and output formatting, compression, streaming, exit codes,
-introspection: none of it is the tool's actual work, all of it admits many
-reasonable answers, and every tool picks its own. Consistency across an
-ecosystem is then reachable only if every author agrees on a wide range of
+Every command line tool must reimplement solutions to the same set of
+problems. Argument parsing, input and output formatting, compression, streaming,
+exit codes, introspection: none of this is the tool's actual work, all of it
+admits many reasonable answers, and every tool picks its own. Consistency across
+an ecosystem is then reachable only if every author agrees on a wide range of
 conventions and writes their code accordingly.
 
-The costs of that are structural rather than accidental. A tool's `--help` is
+This lack of consistency causes wide ranging problems. A tool's `--help` is
 prose written at its author's whim, so no machine can build a reliable inventory
 of an environment. Two tools exchange structured data only if they already agree
-on a format, so anything richer than a byte stream needs a shared framework or a
-lossy encoding. A user who wants one more feature, or one fewer, has no move
-short of asking the maintainer. And because the command line is the only face a
-tool has, every other caller -- a library, a network client, a model -- gets a
-fresh layer of boilerplate laid over it, generating system calls and parsing
-text back out. That face also forces a shape on the work: a tool takes its input
-from the filesystem and delivers its output there, and calling it means spawning
-a process, whether or not the computation needed any of that.
+on a format, so anything richer than a byte stream needs a socially agreed upon
+file format convention. A user who wants one more feature, or one fewer, has no
+move short of asking the maintainer. And because the command line is the only
+face a tool has, every other caller -- a library, a network client, a model --
+gets a fresh layer of boilerplate laid over it, generating system calls and
+parsing text back out. That face also forces a shape on the work: a tool takes
+its input from the filesystem and delivers its output there, and calling it
+means spawning a process, whether or not the computation needed any of that.
 
-Morloc's answer to each of these is the same answer: derive the interface from
-the type instead of writing it. The sections below are that answer applied in
-different directions.
+Morloc's answer to all these issues is to derive the interface from the type
+instead of writing it. The sections below are that answer applied in different
+directions.
 
 [[derived-interface]]
 === The interface is derived, not written
@@ -271,8 +299,8 @@ and MCP views, and <<interface-as-data>> the introspection formats.
 [[values-cross-boundaries]]
 === Values cross boundaries, not file formats
 
-A Morloc command writes its return type, serialized. A command that accepts
-that type reads it. Neither end invents a file format and neither end writes a
+A Morloc program writes its serialized return type. A program that accepts that
+type reads it. Neither end invents a file format and neither end writes a
 parser.
 
 Here is a second program. A {cpp} function counts every k-length subsequence of
@@ -463,10 +491,9 @@ Every call into `expensive_step@slowfn` is now memoized to disk. The freshness
 check is content-based rather than mtime-based: editing an unrelated comment
 does not invalidate the cache, copying the program to a new path does not
 either, and two machines that build byte-identical pool sources share it. The
-same group config carries `log: true`, and a label may cover a complex term
-rather than a single call, so an entire branch of the execution tree can be
-cached, logged, or -- this is the part still in development -- dispatched to a
-remote worker.
+same group config carries `log: true`, and since a label wraps any function
+you name, an entire branch of the execution tree can be cached, logged, or --
+this is the part still in development -- dispatched to a remote worker.
 
 Failure is handled in the same spirit. A build flag wraps every foreign call so
 that anything which throws dumps its arguments to disk and records the chain of
@@ -548,18 +575,20 @@ search, and no plane but the default one.
 === Where the project stands
 
 Morloc has been in development for about ten years. I use it for my own work,
-but it is not yet used widely by anyone else.
+but it is not yet widely used by others. The core features are all present. My
+main work currently is working through the long tail of edge cases and design
+optimization.
 
-Solid: the compiler and its type system, {cpp}/Python/Rust/R as fully supported
-languages, the generated CLI, HTTP, socket and MCP interfaces, environment and
-dependency management through `mim`, and a standard library covering the common
-data structures, text, math, tables, and tensors.
+The compiler and basic type system are mostly complete, though the more advanced
+types still need work. Workflow features -- provenance management, re-entrancy,
+caching, and job deployment -- are working as prototypes, but need refinment and
+much broader support. Environment management, dependency handling and deployment
+are well developed through `mim`.
 
-Thin or unfinished: library coverage far from complete, remote execution (the
-SLURM dispatch that makes Morloc usable as a cluster workflow language) is in
-development, editor support is current for vim and Pygments and stale for VS
-Code/Zed, some aspects of the type system are still experimental, and the module
-registry is unbuilt.
+Beyond the compiler, the core libraries are slim and need very careful
+design. Language support also needs to be streamlined and extended to new
+languages. Zig is the next language on my list, though at some point I should
+add boring languages like JavaScript.
 
 [[what-i-need]]
 === What I need
@@ -570,10 +599,10 @@ I'm looking for people who can:
 * *Report what breaks.* A bug report is worth more to me than a patch right
   now. Unexpected behavior, a bad error message, a gap in this manual, and
   anything that was harder than it should have been all count.
-- **Fix the editor tooling.** Add support for your favorite editor.
-- **Bring a language.** Every new language brings fun design questions, I would
+* **Fix the editor tooling.** Add support for your favorite editor.
+* **Bring a language.** Every new language brings fun design questions, I would
   be happy to work with you in bringing your language into the Morloc ecosystem.
-- **Tell me the right way to build a type system.** There is a lot of
+* **Tell me the right way to build a type system.** There is a lot of
   interesting theory to hash through. There's a paper or two buried somewhere in
   all of this.
 
@@ -640,6 +669,7 @@ include::{includedir}/cli-reference.asc[]
 include::{includedir}/runs-logging.asc[]
 include::{includedir}/runs-rundir.asc[]
 include::{includedir}/runs-caching.asc[]
+include::{includedir}/runs-remote.asc[]
 include::{includedir}/runs-compression.asc[]
 include::{includedir}/runs-debugging.asc[]
 include::{includedir}/runs-streaming.asc[]
@@ -686,6 +716,8 @@ include::{includedir}/arch-eco-intro.asc[]
 include::{includedir}/arch-eco-overview.asc[]
 include::{includedir}/arch-eco-environments.asc[]
 include::{includedir}/arch-eco-bootstrap.asc[]
+include::{includedir}/arch-eco-caching.asc[]
+include::{includedir}/arch-eco-remote.asc[]
 include::{includedir}/arch-eco-modules.asc[]
 include::{includedir}/arch-eco-solving.asc[]
 include::{includedir}/arch-eco-serving.asc[]

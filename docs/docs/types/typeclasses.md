@@ -51,11 +51,11 @@ Three things in that module are worth naming.
 
 ****A signature may carry a class constraint.** \`title**
 
-Pretty a ⇒ a → Str\` says `title` works for any type that has a `Pretty` instance. Everything to the left of `⇒` is a constraint; multiple constraints are comma-separated and
+Pretty a ⇒ a → Str\` says `title` works for any type that has a `Pretty` instance. Everything to the left of `=>` is a constraint; multiple constraints are comma-separated and
 
-**parenthesized, as in \`root’s \`sum**
+**parenthesized, as in \`root’s \`+sum**
 
-(Foldable f, Integral a) ⇒ f a → a\`.
+(Foldable f, Integral a) ⇒ f a → a+\`.
 
 **A class body holds signatures only.** Morloc has no default method implementations. Writing a body inside a `class` block is a parse error:
 
@@ -135,18 +135,18 @@ A method does not have to come from a foreign language. `zero = 0` is an ordinar
 
 ## 5.2.2. Superclasses
 
-A class may require another class. Write the requirement to the left of `⇒` in the class head:
+A class may require another class. Write the requirement to the left of `=>` in the class head:
 
 ```morloc
 class Pretty a => Boxed a where
     box :: a -> Str
 ```
 
-Any type with a `Boxed` instance must also have a `Pretty` instance, and a function constrained on `Boxed a` may use `pretty` as well as `box`. This is how `root` layers its numeric hierarchy: `class Integral a ⇒ Numeric a` means every `Numeric` type is also `Integral`.
+Any type with a `Boxed` instance must also have a `Pretty` instance, and a function constrained on `Boxed a` may use `pretty` as well as `box`. This is how `root` layers its numeric hierarchy: `class Integral a => Numeric a` means every `Numeric` type is also `Integral`.
 
 ## 5.2.3. Instances with contexts
 
-An instance for a type with parameters may need instances at those parameters. Declare them before `⇒`:
+An instance for a type with parameters may need instances at those parameters. Declare them before `=>`:
 
 ```morloc
 instance Sz a => Sz (List a) where

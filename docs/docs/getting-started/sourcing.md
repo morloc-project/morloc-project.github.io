@@ -18,7 +18,7 @@ double meters2feet(double meters){
 }
 ```
 
-This is ordinary C++. It includes no Morloc headers and knows nothing about Morloc — that is the point. Now source it:
+This is ordinary C++. It includes no Morloc headers and knows nothing about Morloc — that is the point. The one thing Morloc asks of sourced code is that it treat its arguments as values and never change them ([What sourced code may do with values](https://morloc-project.github.io/docs/features/foreign-functions.md#sourced-values)). Now source it:
 
 **units.loc**
 

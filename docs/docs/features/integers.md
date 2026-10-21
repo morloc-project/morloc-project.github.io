@@ -72,8 +72,9 @@ On the wire `Int` is variable-width: values up to 64 bits fit in 16 bytes inline
 | Python | `int` | Arbitrary precision |
 | C++ | `int` | 32-bit signed (`-2^31` to `2^31 - 1`) |
 | R | `integer` | 32-bit signed |
+| Rust | `i64` | 64-bit signed |
 
-This asymmetry is the thing to remember about `Int`. A value that a Python pool holds happily may not fit in the C++ or R pool it is handed to. If a field needs more than 32 bits on those backends, declare it `I64` or `U64`, which map to `int64_t` in C++ and to R’s `numeric` (53-bit integer precision via double).
+This asymmetry is the thing to remember about `Int`. A value that a Python pool holds happily may not fit in the C++ or R pool it is handed to. If a field needs more than 32 bits on those backends, declare it `I64` or `U64`. `I64` maps to `int64_t` in C++, `i64` in Rust and a bit64 `integer64` in R, all exact. `U64` maps to `uint64_t` in C++ and `u64` in Rust, and to R’s `numeric`, which is exact only up to 2^53.
 
 ## 4.4.4. Big integers from Python
 
@@ -187,16 +188,16 @@ The caret points at the literal, not at the binding name, so when the same liter
 
 When values are known to be bounded, fixed-width types map directly onto the target language’s native types:
 
-| Morloc type | C++ | Python | R |
-| --- | --- | --- | --- |
-| `I8` | `int8_t` | `int` | `integer` |
-| `I16` | `int16_t` | `int` | `integer` |
-| `I32` | `int32_t` | `int` | `integer` |
-| `I64` | `int64_t` | `int` | `numeric` (double) |
-| `U8` | `uint8_t` | `int` | `raw` |
-| `U16` | `uint16_t` | `int` | `integer` |
-| `U32` | `uint32_t` | `int` | `numeric` (double) |
-| `U64` | `uint64_t` | `int` | `numeric` (double) |
+| Morloc type | C++ | Python | R | Rust |
+| --- | --- | --- | --- | --- |
+| `I8` | `int8_t` | `int` | `integer` | `i8` |
+| `I16` | `int16_t` | `int` | `integer` | `i16` |
+| `I32` | `int32_t` | `int` | `numeric` (double) | `i32` |
+| `I64` | `int64_t` | `int` | `integer64` (bit64) | `i64` |
+| `U8` | `uint8_t` | `int` | `integer` | `u8` |
+| `U16` | `uint16_t` | `int` | `integer` | `u16` |
+| `U32` | `uint32_t` | `int` | `numeric` (double) | `u32` |
+| `U64` | `uint64_t` | `int` | `numeric` (double) | `u64` |
 
 These serialize directly: the wire format is identical to the in-memory representation, with no conversion step. That makes them the right choice for numerical code and for interop with C libraries that require specific widths.
 
@@ -265,7 +266,7 @@ $ ./bytes byteOrReport 9999
 
 U8\` ascription is doing the work the old signature used to: `tryInto` is polymorphic in its target, so something has to say which conversion you meant.
 
-`Int` gets the most restrictive treatment, because its width varies by backend: 32-bit in R and C++, unbounded in Python. Every `Int` to fixed-width conversion goes through `tryInto` — even `Int → I64` — and converting `U32` or wider **into** `Int` does too. That keeps behaviour the same everywhere.
+`Int` gets the most restrictive treatment, because its width varies by backend: 32-bit in R and C++, unbounded in Python. Every `Int` to fixed-width conversion goes through `tryInto` — even `Int -> I64` — and converting `U32` or wider **into** `Int` does too. That keeps behaviour the same everywhere.
 
 ## 4.4.9. Negation and unary minus
 
@@ -342,9 +343,9 @@ $ morloc eval -e "5 -1"
 General type error: Application of non-functional expression of type: Int
 ```
 
-**With \`f**
+**With \`+f**
 
-Int → Int\` defined as `f x = x * 10`, the three spellings behave as the table says:
+Int → Int+\` defined as `f x = x * 10`, the three spellings behave as the table says:
 
 ```console
 $ ./dashtest t1     -- t1 = f -1

@@ -17,7 +17,8 @@ The top of the document records the compiler version, names the program, and lis
     "name": "sift",
     "description": [
       "Search notes and count what turns up"
-    ]
+    ],
+    "epilogues": []
   },
   "groups": []
 }
@@ -96,7 +97,8 @@ Each command follows. `summarize` is the simplest one in `sift`:
       }
     }
   },
-  "terminals": []
+  "terminals": [],
+  "epilogues": []
 }
 ```
 
@@ -139,6 +141,14 @@ Every type appears three ways, because three different readers want it: `morloc`
 ]
 ```
 
+`epilogues` appears on the program and on each command. It holds that docstring’s `@epilogue` blocks (see [The example program](https://morloc-project.github.io/docs/clis/example-program.md)), one string per block with its lines joined by newlines. `-h` prints them only from `-hh` up; the JSON always carries them, verbatim. With the module’s `Examples:` block from that section, `sift` reports:
+
+```json
+"epilogues": [
+  "Examples:\n  sift scan needle ./notes\n  sift total needle ./notes"
+]
+```
+
 None of this is written by hand or kept in a sidecar file. It is derived from the same types and docstrings as the help text, on the same build, which is what makes it worth trusting: a description that can go stale is a description you have to verify, and this one cannot. Point a script at a directory of Morloc programs and you can build an accurate inventory of every command in it, with argument types, without knowing anything about any of them.
 
 ## 6.13.1. Other views of the same commands
@@ -147,14 +157,17 @@ Two more flags render the same information for model clients:
 
 | Flag | Output |
 | --- | --- |
-| `--mcp-tools` | An MCP `tools/list` definition: one entry per command, with a JSON Schema `inputSchema` and `outputSchema`. |
+| `--mcp-tools` | An MCP `tools/list` definition: one entry per command, with a JSON Schema `inputSchema`, and an `outputSchema` when the command returns a record and has no output actions. |
 | `--mcp-config` | A client MCP server config — an `mcpServers` JSON entry using the stdio transport — so the program can be registered with a model client by redirecting one command into a config file. |
 
-Commands whose types cannot cross the MCP boundary are excluded, and the reason is printed on standard error rather than left for you to discover:
+Every command of `sift` becomes a tool. An argument the command line may read from standard input is required here, since a remote caller has no standard input to give: `total` takes the path of its counts file, and its tool lists that argument as required.
 
 ```console
 $ ./sift --mcp-tools > tools.json
-morloc mcp: excluding command 'total' from the tool surface (reads from @stdin)
+$ python3 -c "import json; t = json.load(open('tools.json'))['tools']; print([x['name'] for x in t])"
+['scan', 'scanAll', 'summarize', 'total', 'stream']
 ```
+
+A command whose result cannot be sent at all, a file handle or a stream handle, is left out, and the reason is printed on standard error rather than left for you to discover.
 
 Serving the same module over MCP and HTTP is covered in [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). It is worth reading together with this section, because they are the same point from three directions: the command line is one view of a typed library, not the thing the library is built on. A CLI, an HTTP endpoint, and an MCP tool are three renderings of one set of functions, and none of them is written by hand.

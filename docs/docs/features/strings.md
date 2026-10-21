@@ -149,7 +149,7 @@ A **literal** is caught while compiling, because the generated source would not 
 ```console
 $ morloc make nul.loc
 nul.loc:13:12: error:
-This string literal contains a NUL byte, which the r pool cannot represent in its native string type. Move the literal to a language that can (Python, C++, Julia, or the nexus itself), or remove the NUL byte. See the allow_string_null field in the language's lang.yaml.
+This string literal contains a NUL byte, which the r pool cannot represent in its native string type. Move the literal to a language that can (Python, C++, or the nexus itself), or remove the NUL byte. See the allow_string_null field in the language's lang.yaml.
    |
 13 | rNul = idr nulStr
    |            ^

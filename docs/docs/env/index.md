@@ -93,6 +93,7 @@ Set by the nexus and read by the pools it launches.
 | `MORLOC_MANIFEST_PATH` | Absolute (canonicalized) path of the program manifest, exported to pools for tooling that must re-enter the same program. | *(canonical manifest path)* | (pending) |
 | `MORLOC_NEXUS_STDIO_SOCK` | Unix socket the nexus binds for its stdio server; a pool connects to it to route `@stdin` / `@stdout` / `@stderr` back to the nexus. Unset means the pool was not started by a nexus. | *(unset)* | (pending) |
 | `MORLOC_STDOUT_COMPRESSION_LEVEL` | The nexus’s explicit `-z N`, when one was given. A pool writing a stream to `@stdout` compresses every sub-packet at this level instead of the `@write` level. Unset means the `@write` level stands. | *(unset)* | [Compression](https://morloc-project.github.io/docs/runs/compression.md) |
+| `MORLOC_POOL_IDLE_TIMEOUT_MS` | How long, in milliseconds, a pool worker beyond the first may stay idle before it exits. Read by the C++, Rust and Python pools; R workers never exit early. | 60000 | [Worker model](https://morloc-project.github.io/docs/build-architecture/build-workers.md) |
 
 ## 17.9. Nexus inspection tools (`view` / `file`)
 
@@ -100,7 +101,7 @@ Set by the nexus and read by the pools it launches.
 | --- | --- | --- | --- |
 | `MORLOC_VIEW_MAX_BUFFER_BYTES` | Override the buffered-path size threshold that the `view` / `file` guardrail refuses without `--force`. | 1 GiB | [Size guardrails and `--force`](https://morloc-project.github.io/docs/utilities/nexus-view.md#view-size-guardrails) |
 | `MORLOC_FILE_MAX_SCAN_SUBPACKETS` | Cap on sub-packets scanned when classifying a footer-less stream file. | `10000` | [Stream packets](https://morloc-project.github.io/docs/utilities/nexus-file.md#stream-packets) |
-| `MORLOC_CSV_SNIFF_ROWS` | Data rows Arrow scans to infer a CSV schema. `0` falls back to `String` columns; a non-numeric value falls back to the default. The whole file is never scanned. | `100` | (pending) |
+| `MORLOC_CSV_SNIFF_ROWS` | Data rows `morloc-nexus file` scans to report the column types of a CSV file. `0` reports every column as text; a non-numeric value falls back to the default. The whole file is never scanned. Reading a table argument infers nothing: undeclared columns are text. | `100` | (pending) |
 
 ## 17.10. String safety
 

@@ -1,1 +1,2 @@
+- [C++ binder namespace review](cpp-binder-namespace-review.md) - 2026-10-21; MlcNode not ADL, Arrow structs stay global, extern "C" not namespaced
 - [@parse/drainStream perf review](parse-drain-perf-review.md) - 2026-09-28; noopDrain is StaticArgs-specialized, py numpy views need tracker, stdin EOF-on-empty

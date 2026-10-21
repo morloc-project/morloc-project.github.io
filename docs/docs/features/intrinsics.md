@@ -28,8 +28,8 @@ Intrinsics are compiler-generated special functions. They are prefixed with `@` 
 | `@stdin` | `<IO> (Try Str (IStream a))` | Open process stdin as a typed `IStream` of morloc binary packets. Element type set by inline ascription. See [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md). A second `@stdin` in the same nexus gives an `Err` arm via the uniqueness guard; read-time failures surface at `@next`. |
 | `@stdout` | `<IO> (OStream a)` | Open process stdout as a typed `OStream` of morloc binary packets. Element type set by inline ascription. |
 | `@stderr` | `<IO> (OStream a)` | Open process stderr as a typed `OStream` of morloc binary packets. Element type set by inline ascription. Useful for structured diagnostics that downstream tools can parse. |
-| `@collect` | `(([a] -> <IO, e> ()) -> <IO, e> ()) -> <IO, e> ()` | Drive a streaming-output command. Takes a producer that is handed a *sink* (`[a] → <IO, e> ()`); `@collect` supplies the default sink — write each batch to the nexus-formatted `@stdout` — and manages the stream lifecycle. Formatter directives (`@with` / `@render`, with the `@stream` modifier for per-batch application) rewrite the sink to transform or gather the stream per CLI flag. |
-| `@tell` | `<IO> U64` | The number of elements written so far to the current output stream. Lets an offset-form formatter handler (`U64 → [a] → …​`) annotate each batch with its running position in the stream. |
+| `@collect` | `(([a] -> <IO, e> ()) -> <IO, e> ()) -> <IO, e> ()` | Drive a streaming-output command. Takes a producer that is handed a *sink* (`[a] -> <IO, e> ()`); `@collect` supplies the default sink — write each batch to the nexus-formatted `@stdout` — and manages the stream lifecycle. Formatter directives (`@with` / `@render`, with the `@stream` modifier for per-batch application) rewrite the sink to transform or gather the stream per CLI flag. |
+| `@tell` | `<IO> U64` | The number of elements written so far to the current output stream. Lets an offset-form formatter handler (`U64 -> [a] -> ...`) annotate each batch with its running position in the stream. |
 | `@hash` | a -> Str | Hash a value via MessagePack serialization (xxhash), returns a 16-character hex string |
 | `@version` | `Str` | The compiler version string (resolved at compile time) |
 | `@compiled` | `Str` | The compilation timestamp (resolved at compile time) |
@@ -118,7 +118,7 @@ roundTrip x path = do
   v
 ```
 
-The bare `@savem` writes the integer to the given path; nothing reads its result, so a write failure stops the block there (see [A bare statement checks its result](https://morloc-project.github.io/docs/features/effects.md#bare-statement-checks)). `Ok v ← @load path` reads the value back and unwraps it, throwing if the load failed. The signature is plain `<IO> Int`, because neither failure survives as a value.
+The bare `@savem` writes the integer to the given path; nothing reads its result, so a write failure stops the block there (see [A bare statement checks its result](https://morloc-project.github.io/docs/features/effects.md#bare-statement-checks)). `Ok v <- @load path` reads the value back and unwraps it, throwing if the load failed. The signature is plain `<IO> Int`, because neither failure survives as a value.
 
 ```console
 $ ./sv roundTrip 42 tmp.bin
@@ -269,11 +269,11 @@ $ ./intrinsics typeofTup
 | `z` | `Null` / `()` (Unit) |
 | `?X` | `Optional X` — `?` prefix followed by an inner schema |
 | `aX` | `List X` (and `Array`, `Deque`, `Vector`) — `a` prefix followed by an inner schema; fixed-dim arrays append `:N` |
-| `tN X1X2…​XN` | Tuple of `N` elements — `t`, a length code, then one schema per element, run together with no separators |
-| `mN <len><key>X…​` | Named record of `N` fields — `m`, a field count, then `(key length, key text, schema)` per field, with no separators |
-| `T` / `T:N …​` | Arrow table primitive; bare `T` is row-polymorphic, `T:N` declares `N` required columns |
+| `tN X1X2...XN` | Tuple of `N` elements — `t`, a length code, then one schema per element, run together with no separators |
+| `mN <len><key>X...` | Named record of `N` fields — `m`, a field count, then `(key length, key text, schema)` per field, with no separators |
+| `T` / `T:N ...` | Arrow table primitive; bare `T` is row-polymorphic, `T:N` declares `N` required columns |
 | `*` | Unknown (unresolved) type |
-| `<typename>…​` | Optional concrete-type hint prefix (e.g., `<Money>j` for `type Money = Int`) |
+| `<typename>...` | Optional concrete-type hint prefix (e.g., `<Money>j` for `type Money = Int`) |
 
 There are no separators anywhere in the encoding. Reading a few real ones is the quickest way to internalize it:
 
@@ -296,7 +296,7 @@ Failure in Morloc is a value, not an effect: a fallible operation returns `Try e
 
 `@throw` raises an exception from morloc code. It generates a native `raise`/`throw`/`stop` statement in the language of the pool where the expression is evaluated, halting execution and unwinding the call stack.
 
-The signature is `Str → a`. The message is any `Str` expression, so string interpolation with `#{expr}` works naturally. The return type is polymorphic: since `@throw` never returns a value, its return type can unify with whatever the surrounding context expects, letting `@throw` inhabit any branch of a conditional. There is no effect row, for the same reason — a computation that does not return has nothing for a row to describe.
+The signature is `Str -> a`. The message is any `Str` expression, so string interpolation with `#{expr}` works naturally. The return type is polymorphic: since `@throw` never returns a value, its return type can unify with whatever the surrounding context expects, letting `@throw` inhabit any branch of a conditional. There is no effect row, for the same reason — a computation that does not return has nothing for a row to describe.
 
 ```morloc
 module main (tryRead)
@@ -375,7 +375,7 @@ $ ./intr describeRead a.bad
 
 Anything may be wrapped. Unlike the intrinsic it replaces, `@try` demands no marker on its argument saying that failure is possible, because no such marker exists any more: a sourced function raises in its own language whether or not its signature hints at it, and `@try` is how you find out. Wrapping an argument that cannot fail is harmless — the result is always `Ok` — and wasted words.
 
-At runtime, `@try` uses the language’s native try/catch machinery. In Python it becomes a `try/except Exception`, in C++ `try { } catch (const std::exception&)`, in R `tryCatch(…​, error = …​)`. Any exception is caught: `MorlocException` raised by `@throw`, foreign-library errors (a Python `KeyError`, a C++ `std::out_of_range`), and cross-pool fail packets, which the calling pool re-throws as a native exception.
+At runtime, `@try` uses the language’s native try/catch machinery. In Python it becomes a `try/except Exception`, in C++ `try { } catch (const std::exception&)`, in R `tryCatch(..., error = ...)`. Any exception is caught: `MorlocException` raised by `@throw`, foreign-library errors (a Python `KeyError`, a C++ `std::out_of_range`), and cross-pool fail packets, which the calling pool re-throws as a native exception.
 
 ### Chaining attempts
 

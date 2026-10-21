@@ -46,7 +46,7 @@ $ ./floats boltzmann
 
 Note the explicit `+` on the printed exponent.
 
-A literal with neither a decimal point nor an exponent is an `Int`, not a `Real`. Write `1.0` or `1e0` when you want a floating-point one.
+A literal with neither a decimal point nor an exponent is an integer literal. It is an `Int` unless its context expects a `Real`, and then it is that `Real`: `w :: Real` with `w = 1`, or `[1, 0xff, 2.5] :: [Real]`, needs no decimal points.
 
 ## 4.5.2. IEEE 754 and non-finite values
 

@@ -4,7 +4,7 @@ Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/feat
 
 A **pattern** describes the shape of a value using the same notation you would use to build it. Morloc matches values against patterns in two ways.
 
-**Irrefutable patterns** destructure a value into named parts at binding positions: lambda parameters, function-definition arguments, `let` left-hand sides, and `do`\-block `←` binds. Every well-typed receiver matches, so these patterns contain only variable names, wildcards, and structural constructors — no literals, no alternatives. That is what makes them irrefutable.
+**Irrefutable patterns** destructure a value into named parts at binding positions: lambda parameters, function-definition arguments, `let` left-hand sides, and `do`\-block `<-` binds. Every well-typed receiver matches, so these patterns contain only variable names, wildcards, and structural constructors — no literals, no alternatives. That is what makes them irrefutable.
 
 **Refutable patterns** dispatch on the shape of a value through a list of `|`\-clauses. A clause can fail to match, because a literal matches only itself, so clauses are tried in order and the first that matches wins. Clauses appear either in a function’s definition, dispatching on its arguments, or in a `match` expression, dispatching on any value you hand it.
 
@@ -126,7 +126,7 @@ pmx.loc:9:18: unexpected ','
   expected one of: '}', ';'
 ```
 
-Function-definition and lambda positions are unaffected: neither `\` nor a function name is a layout keyword, so `foo {a = x, b = y} = x` and `\ {a = x, b = y} → x` parse without parentheses. Tuple and as-patterns on `let` and `do` are also fine unparenthesized, because they do not start with `{`.
+Function-definition and lambda positions are unaffected: neither `\` nor a function name is a layout keyword, so `foo {a = x, b = y} = x` and `\ {a = x, b = y} -> x` parse without parentheses. Tuple and as-patterns on `let` and `do` are also fine unparenthesized, because they do not start with `{`.
 
 ## 4.10.2. Refutable patterns
 

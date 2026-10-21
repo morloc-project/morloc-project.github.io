@@ -187,7 +187,7 @@ columns = map (Rect 2.5)
 
 `Circle 2.0` builds a value. In a pattern, `(Circle r)` matches a circle and binds `r` to its radius. A constructor pattern with fields needs the parentheses, since the fields would otherwise read as further arguments of the clause — which is exactly what they are in `grow`, whose clauses each carry two patterns, one per argument.
 
-A constructor is a function of its fields, so it partially applies like any other. `Rect 2.5` in `columns` is a `Real → Shape` waiting for a height.
+A constructor is a function of its fields, so it partially applies like any other. `Rect 2.5` in `columns` is a `Real -> Shape` waiting for a height.
 
 ```console
 $ morloc make -o shapes shapes.loc
@@ -305,7 +305,7 @@ $ ./ast eval '{"Add":[{"Lit":[1.5]},{"Neg":[{"Wrap":[{"Lit":[2.0]}]}]}]}'
 -0.5
 ```
 
-A record may sit on such a cycle too, as long as a `data` is on it as well — with one caveat. A record on a cycle is a recursive record, and in C and Rust a recursive record still has to be a type you write yourself; the compiler does not yet generate one (\`record Cpp => Node = "struct"\` on a cycle fails at build time). In C that leaves no way through at all, since a header you write is included before the `data` type it would have to name. Python and R take the shape as it is.
+A record may sit on such a cycle too, as long as a `data` is on it as well — with one caveat. A record on a cycle is a recursive record, and in C and Rust a recursive record still has to be a type you write yourself; the compiler does not yet generate one (\`+record Cpp => Node = "struct"+\` on a cycle fails at build time). In C that leaves no way through at all, since a header you write is included before the `data` type it would have to name. Python and R take the shape as it is.
 
 What may not close a cycle is a set of records or aliases alone:
 
@@ -376,7 +376,7 @@ The alias is the only qualifier there is. A module’s own name is not one —
 
 Every language gets a representation of a `data` type, and by default the compiler writes it: an `enum class` in C++, a `#[repr(u8)]` enum in Rust, an ordinal in Python, an ordered factor in R. You declare nothing, and functions written in Morloc work across all four.
 
-Native code you **source** is a different matter, because it has to name the type to take it apart. Rust can name a generated type directly. C++ cannot: a sourced header is included before the compiler’s own declarations, so a header that mentions `Shape` must declare `Shape` itself, and you tell Morloc that with a per-language declaration — the same `⇒` form records already use:
+Native code you **source** is a different matter, because it has to name the type to take it apart. Rust can name a generated type directly. C++ cannot: a sourced header is included before the compiler’s own declarations, so a header that mentions `Shape` must declare `Shape` itself, and you tell Morloc that with a per-language declaration — the same `=>` form records already use:
 
 ```morloc
 data Cpp => Shape = "Shape"
@@ -509,14 +509,14 @@ Nothing in `e` or `v` carries the **type’s** name — only a recursive typ
 
 **What a data type looks like in each language**
 
-For the reader writing native code against a Morloc `data` type. Each row is what a **sourced** function receives and must return. Morloc generates these declarations itself unless you map the type with `data <Lang> ⇒ T = "<name>"`, in which case your file declares it and must match the layout below.
+For the reader writing native code against a Morloc `data` type. Each row is what a **sourced** function receives and must return. Morloc generates these declarations itself unless you map the type with `data <Lang> => T = "<name>"`, in which case your file declares it and must match the layout below.
 
 | Language | Constructors without fields | Constructors with fields |
 | --- | --- | --- |
 | Python | The ordinal, as an `int`. A list of them is a byte buffer, the same object a `[U8]` produces. | `("Circle", (2.0,))` — the constructor’s name and a tuple of its fields. |
 | R | An ordered `factor`, so `<` compares in declaration order. Codes are 1-based, so a code is the wire tag plus one; the levels are the constructor names in declaration order. | `list("Circle", list(2.0))` — the name and a list of fields. |
 | C++ | `enum class Color : uint8_t` with explicit discriminants, so the native value and the wire tag are the same byte. | A wrapper struct holding a `std::variant` of `std::shared_ptr` to one struct per arm. |
-| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | Generated: an enum whose arms each hold one `::rustmorloc::RecBox` of a tuple of their fields. A `RecBox` is reference-counted: cloning it shares the fields instead of copying them, and dropping a long chain does not recurse. Build an arm with `RecBox::new..,` and read its fields through `Deref`; `into_inner` moves the tuple out when the box has a single owner. A type you map yourself with `data Rust ⇒` declares its arms with `Box` instead (`Link(Box<(i64, Chain)>)`); a mapped type with `RecBox` arms does not compile. Not `Copy`. |
+| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | Generated: an enum whose arms each hold one `::rustmorloc::RecBox` of a tuple of their fields. A `RecBox` is reference-counted: cloning it shares the fields instead of copying them, and dropping a long chain does not recurse. Build an arm with `RecBox::new..,` and read its fields through `Deref`; `into_inner` moves the tuple out when the box has a single owner. A type you map yourself with `data Rust =>` declares its arms with `Box` instead (`Link(Box<(i64, Chain)>)`); a mapped type with `RecBox` arms does not compile. Not `Copy`. |
 
 The generated C++ and Rust declarations, for the `Shape` of this section:
 
@@ -553,7 +553,7 @@ Arm fields have no names in Morloc, so the C++ form names them `f0`, `f1`, and s
 
 Every arm is behind a pointer in both compiled languages even when its fields would fit inline. That is what gives a recursive type a finite size, and it is uniform so that no per-type analysis decides it.
 
-A type with parameters maps to a template, exactly as an alias does (`type Cpp ⇒ (List a) = "std::vector<$1>" a`), and each instantiation names the template with that instantiation’s arguments: `Box Int` is `MyBox<int>` and `Box Str` is `MyBox<std::string>`. In C++ the arms are templates too, named by appending `_<Constructor>` to the wrapper’s **head** and taking the same arguments — `MyBox<$1>` has the arms `MyBox_Empty<$1>` and `MyBox_Full<$1>`. In Rust it is an ordinary generic enum.
+A type with parameters maps to a template, exactly as an alias does (`type Cpp => (List a) = "std::vector<$1>" a`), and each instantiation names the template with that instantiation’s arguments: `Box Int` is `MyBox<int>` and `Box Str` is `MyBox<std::string>`. In C++ the arms are templates too, named by appending `_<Constructor>` to the wrapper’s **head** and taking the same arguments — `MyBox<$1>` has the arms `MyBox_Empty<$1>` and `MyBox_Full<$1>`. In Rust it is an ordinary generic enum.
 
 ```morloc
 data Box a = Empty | Full a
