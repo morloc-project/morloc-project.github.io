@@ -1,10 +1,10 @@
-# 10.6. Futhark
+# 9.6. Futhark
 
 Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/futhark.html | prev: https://morloc-project.github.io/docs/languages/rust.md | next: https://morloc-project.github.io/docs/utilities/index.md
 
-## 10.6.1. Futhark backends and GPU devices
+## 9.6.1. Futhark backends and GPU devices
 
-Futhark kernels are the first structured consumer of build parameters. Two keys are recognized:
+Futhark code is compiled for a backend chosen with two build parameters ([Build parameters](https://morloc-project.github.io/docs/languages/build-parameters.md)):
 
 -   `backend` — the Futhark compilation backend: one of `c` (the default, sequential CPU), `multicore` (parallel CPU), `opencl`, `cuda`, `hip`, or `ispc`. The GPU backends (`opencl`, `cuda`, `hip`) are what make Futhark run on a GPU.
 -   `device` — which device to run on, for a GPU backend, using Futhark’s device selector syntax (`#0`, `#1`, …​). It is only valid together with a GPU backend.

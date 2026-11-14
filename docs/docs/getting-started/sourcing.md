@@ -1,4 +1,4 @@
-# 3.3. Sourcing a foreign function
+# 2.3. Sourcing a foreign function
 
 Morloc Manual > Getting Started | https://morloc-project.github.io/docs/getting-started/sourcing.html | prev: https://morloc-project.github.io/docs/getting-started/first-program.md | next: https://morloc-project.github.io/docs/getting-started/abstract-modules.md
 

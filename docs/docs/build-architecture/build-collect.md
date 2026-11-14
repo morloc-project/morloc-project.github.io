@@ -1,4 +1,4 @@
-# 13.11. Collect, fold, parse and render
+# 12.11. Collect, fold, parse and render
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-collect.html | prev: https://morloc-project.github.io/docs/build-architecture/build-errors.md | next: https://morloc-project.github.io/docs/build-architecture/build-runs.md
 

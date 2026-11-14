@@ -1,4 +1,4 @@
-# 9.1. Creating Morloc environments
+# 8.1. Creating Morloc environments
 
 Morloc Manual > Deployment | https://morloc-project.github.io/docs/apis/deploy-environments.html | prev: https://morloc-project.github.io/docs/apis/index.md | next: https://morloc-project.github.io/docs/apis/deploy-dependencies.md
 
@@ -10,7 +10,7 @@ If you do not have `mim` yet, install it as described in [Installing `mim`](http
 $ curl -fsSL https://morloc.io/install.sh | sh
 ```
 
-## 9.1.1. Native and container environments
+## 8.1.1. Native and container environments
 
 `mim` builds an environment in one of two ways, called **backends**.
 
@@ -23,13 +23,13 @@ Both behave the same for writing, building, and serving programs. The difference
 $ mim new --engine podman --set-default smiles
 ```
 
-`--engine` takes `podman`, `docker`, `apptainer` (or its older name `singularity`), or `none` for the native backend. Apptainer is experimental (see [Installing Morloc](https://morloc-project.github.io/docs/getting-started/installing.md)). Leave `--engine` off and `mim` picks the native backend on hosts that support it, or the one container engine it finds installed. If it finds several, it asks you to name one. The first choice you make is remembered for later environments.
+`--engine` takes `podman`, `docker`, `apptainer` (or its older name `singularity`), or `none` for the native backend. Apptainer environments cannot be built yet (see [Installing Morloc](https://morloc-project.github.io/docs/getting-started/installing.md)). Leave `--engine` off and `mim` picks the native backend on hosts that support it, or the one container engine it finds installed. If it finds several, it asks you to name one. The first choice you make is remembered for later environments.
 
 The name, `smiles` here, is optional. Without one, the environment is named after the Morloc version it tracks: `latest`, or `v0.105.2` when you pin a version with `--morloc-version 0.105.2`.
 
 The first `mim new` is slow. It downloads the Morloc compiler, solves the toolchain, and, for a container environment, builds an image (named `localhost/morloc-env:<name>`). Later environments reuse the downloaded compiler, and rebuilding with unchanged requirements skips the solve.
 
-## 9.1.2. The default environment
+## 8.1.2. The default environment
 
 Every `mim` command acts on one environment: the one named with `--env`, or otherwise the **default**. The first environment you create becomes the default on its own; `--set-default` makes any later one the default as it is created. To change it afterwards:
 
@@ -46,7 +46,7 @@ $ mim info smiles --packages   # every package in the solved toolchain
 $ mim doctor --env smiles      # health checks; non-zero exit on failure
 ```
 
-## 9.1.3. Local and system environments
+## 8.1.3. Local and system environments
 
 An environment lives in one of two **scopes**:
 
@@ -77,7 +77,7 @@ additionalimagestores = ["/var/lib/containers/storage"]
 
 On some distributions, Fedora and Debian among them, a shared store can cause storage locking conflicts, which is why `mim` suggests Docker for system environments.
 
-## 9.1.4. Working inside an environment
+## 8.1.4. Working inside an environment
 
 `mim run` executes one command in an environment, and `mim shell` opens an interactive shell in it. Everything after `--` is the command:
 
@@ -98,7 +98,7 @@ $ mim run --env-var http_proxy -- printenv http_proxy              # copy the ho
 
 On a host with SELinux enforcing (Fedora, RHEL), `mim` relabels the mounted directory with the `:z` suffix so the container may read it. Relabeling some directories would be unsafe, so `mim` refuses to run from `/`, or from `/tmp` or `/var/tmp` and anything below them. Run from your home directory itself and it skips the working-directory mount with a warning. Work in a project directory such as `~/smiles-project`.
 
-## 9.1.5. Changing an environment
+## 8.1.5. Changing an environment
 
 `mim modify` changes an environment’s settings. Some changes take effect at once; others alter the toolchain and rebuild the environment at its current Morloc version. A rebuild that fails rolls the settings back, so a typo never leaves the environment broken.
 
@@ -126,7 +126,7 @@ $ mim update --env smiles --reinit                # discard the solve and start 
 
 Moving the Morloc version does not recompile the programs already installed; reinstall them afterwards ([Dependency management](https://morloc-project.github.io/docs/apis/deploy-dependencies.md)).
 
-## 9.1.6. Extra container flags
+## 8.1.6. Extra container flags
 
 Anything a container engine needs beyond what `mim` passes on its own — a GPU device, a proxy, a bind mount, a hostname — goes in an **engine flag file**. It is a YAML document divided by **phase**, the engine command an environment runs: `build` (the image build, at `new`, `update`, a `modify` that rebuilds, and `freeze`), `run` (`run`, `shell`, `install`), and `start` (the serving container). Under each phase, an engine section (`docker`, `podman`, `apptainer`) lists the flags that engine gets, and `all` lists flags every engine gets:
 
@@ -176,7 +176,7 @@ $ mim start --flagfile alt.yaml -p 9090:9090        # a second server, other fla
 
 `--platform` is refused in the file and on the command line, because the environment’s architecture (`mim new --arch`) decides it and the toolchain was solved for that architecture. The native backend has no engine to pass flags to, so `--flagfile` and `-x` are errors there.
 
-## 9.1.7. Removing environments
+## 8.1.7. Removing environments
 
 `mim rm` removes environments by name. It stops the environment’s server, and for a container environment it also removes its image and the volume that held its toolchain. If something cannot be removed (an image still in use, an engine that does not answer, files that are not yours), `rm` stops, says what is left, and keeps the environment so you can run it again. If you remove the default, the default is cleared and `mim` tells you how to set a new one.
 

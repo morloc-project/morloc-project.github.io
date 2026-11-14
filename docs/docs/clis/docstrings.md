@@ -1,18 +1,21 @@
-# 6.3. Docstrings
+# 5.3. Docstrings
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/docstrings.html | prev: https://morloc-project.github.io/docs/clis/argument-zones.md | next: https://morloc-project.github.io/docs/clis/arguments.md
 
 A docstring is a comment that the compiler keeps. An ordinary `--` comment is discarded after parsing; a `--'` comment is attached to whatever follows it and travels through to the generated interface. That is the whole authoring surface for the CLI: you never configure the parser, you annotate the code.
 
-Docstrings attach in five places, and each one lands somewhere different in the help:
+Docstrings attach in six places, and each one lands somewhere different:
 
 | Above | Becomes |
 | --- | --- |
 | `module` | The program’s description, shown at the top of `./prog -h`. |
 | a term’s signature | The command’s description, shown at the top of `./prog <cmd> -h`. |
 | a type inside a signature | That argument’s description; on the last type, the return description. |
-| a `type` or `record` definition | The description of every argument and return that uses that type. A record must use the `record X where` form; see the warning below. |
+| a `type` or `record` definition | The description of every argument and return that uses that type. A record must use the `record X where` form. |
 | a `record` field | That field’s description, when the record is split into one flag per field (see [Record arguments](https://morloc-project.github.io/docs/clis/record-arguments.md)). |
+| a `source` list item | Directives for that foreign term, such as `@name` (see [Foreign functions](https://morloc-project.github.io/docs/features/foreign-functions.md)). |
+
+A docstring above anything else documents nothing, and in your own modules the compiler warns that it is ignored.
 
 The third and fourth interact usefully. ``sift’s `scan`` documents its arguments inline:
 
@@ -95,7 +98,7 @@ Return: Str
 
 An inline docstring on an argument wins over the one inherited from its type, so a signature can specialize a description where it matters and inherit it everywhere else.
 
-## 6.3.1. Directives
+## 5.3.1. Directives
 
 A docstring line is either **prose** or a **directive**. A directive begins with `@`:
 
@@ -125,7 +128,7 @@ Every directive is listed in [Directive reference](https://morloc-project.github
 > A misspelled directive is treated as prose, but the build says so. Writing `@metvar FILE` warns and keeps going:
 > 
 > ```console
-> warning: unknown docstring directive 'metvar' (recognized: name, literal, many, stdin, unroll, default, metavar, arg, true, false, return, source, form, check.<kind>, list.source, list.form, list.check.<kind>, with, mime); if this line was meant as prose, prefix its content with '\' to suppress this warning
+> warning: docstring directive 'metvar' is not recognized (did you mean one of: metavar?); if this line was meant as prose, prefix its content with '\' to suppress this warning
 > ```
 > 
 > The warning prints whether or not the build succeeds. If a directive appears to have no effect, check the build output first, then its spelling against [Directive reference](https://morloc-project.github.io/docs/clis/directive-reference.md).

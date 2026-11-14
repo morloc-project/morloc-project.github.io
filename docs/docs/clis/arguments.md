@@ -1,4 +1,4 @@
-# 6.4. Arguments
+# 5.4. Arguments
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/arguments.html | prev: https://morloc-project.github.io/docs/clis/docstrings.md | next: https://morloc-project.github.io/docs/clis/record-arguments.md
 
@@ -91,7 +91,7 @@ $ ./sift scan the notes | ./sift summarize -
 
 Only one argument per command may claim stdin; a second `-` is an error rather than a silent read of zero bytes.
 
-## 6.4.1. When an argument is wrong
+## 5.4.1. When an argument is wrong
 
 An argument that looks like a path — it contains a `/`, or ends in a recognized data extension — but does not exist is reported as a missing file rather than parsed as inline data:
 
@@ -113,7 +113,7 @@ Failures exit non-zero, so a Morloc command is safe to put in a `set -e` script 
 > **Note**
 > Errors number arguments from zero (`argument #0`) while `--help` numbers positionals from one. `argument #0` is the argument printed as `1:`.
 
-## 6.4.2. Options, flags, and repeats
+## 5.4.2. Options, flags, and repeats
 
 An argument becomes an option instead of a positional when you give it a flag name with `@arg`. An option can be omitted, so it also needs a `@default`:
 
@@ -152,7 +152,7 @@ $ morloc make -o sift sift.loc
 In sift:scan, argument #3, field ignoreCase: a Bool argument cannot use `@arg`. Use `@true <opt>` (default false, the flag turns it on) or `@false <opt>` (default true, the flag turns it off) instead.
 ```
 
-Both spellings are delivered, and help shows the flag with the `true` default it turns off. Adding `@false -s/--skip-empty` to a `reportEmpty` field gives:
+Help shows an `@false` flag with the `true` default it turns off. Adding `@false -s/--skip-empty` to a `reportEmpty` field gives:
 
 ```console
   -s, --skip-empty              Report each file even when it has no hits
@@ -167,7 +167,7 @@ $ ./calc cat + a b c
 "a+b+c"
 ```
 
-## 6.4.3. Naming
+## 5.4.3. Naming
 
 `@name` gives a command a name of its own, independent of the Morloc term. `calc` exports `join` and calls the subcommand `cat`:
 
@@ -234,7 +234,7 @@ decode [('key', 'KEY'), ('ciphertext', 'CIPHERTEXT')]
 
 An unnamed positional is identified by index alone in both places, which is worth avoiding on anything a model or a script will call.
 
-## 6.4.4. Ending option parsing
+## 5.4.4. Ending option parsing
 
 A bare `--` ends option parsing: every token after it is a positional, even one that looks like a flag. This is rarely needed, since `-4.0` and `-7` are already treated as positionals, but it is the way to pass a string that looks like a short option:
 
@@ -245,7 +245,7 @@ $ ./sift scan -- -p notes
 
 Note what that costs: after `--`, the command’s own `-p` formatter is a positional too, so a search for the literal text `-p` cannot also ask for plain output.
 
-## 6.4.5. Reading files in other formats
+## 5.4.5. Reading files in other formats
 
 `@parse` lets an argument be given as a file in a format Morloc does not read itself — a CSV, a FASTA file, a column of numbers — and names the function that reads it. The command stays typed over the values it computes on, and the file is read before the command runs.
 
@@ -333,7 +333,7 @@ The function’s type follows from the argument’s:
 
 An `IStream` argument is read while the command runs: the function runs alongside the command, which receives exactly the batches the function produced, in order, each as soon as it is ready. The function keeps at most a few batches ahead of the command, so the input is never held in memory. A command that stops reading early — one that looks at the head of a large file, or takes a prefix of input that never ends — stops the function too.
 
-An `IFile [a]` argument, which the command may read in any order, is read into a temporary file first (see [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md)). Temporary files go under `$MORLOC_TMPDIR`, else `$TMPDIR`, else `/tmp`, and are removed when the run ends, however it ends short of `kill -9`.
+An `IFile [a]` argument, which the command may read in any order, is read into a temporary file first (see [Random access and streaming](https://morloc-project.github.io/docs/features/random-access-and-streaming.md)). Temporary files go under `$MORLOC_TMPDIR`, else `$TMPDIR`, else `/tmp`, and are removed when the run ends, however it ends short of `kill -9`.
 
 If the function fails, the run exits non-zero with the argument, the format and the path. For a value or `IFile` argument the command does not run:
 
@@ -360,4 +360,4 @@ Positional arguments:
 ...
 ```
 
-`@parse` belongs to the command line. A daemon, MCP or call-packet caller passes values, as before. It is not available on a `Str` argument (the function would be handed the string it is supposed to produce), on `@many`, `@unroll` or `@form list` arguments, on flags, or on an argument whose type has a type variable. The command or one of its format functions must be a foreign function: an all-Morloc command has no pool to read the file in.
+`@parse` belongs to the command line. A daemon or MCP caller passes values directly. It is not available on a `Str` argument (the function would be handed the string it is supposed to produce), on `@many`, `@unroll` or `@form list` arguments, on flags, or on an argument whose type has a type variable. The command or one of its format functions must be a foreign function: an all-Morloc command has no pool to read the file in.

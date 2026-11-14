@@ -1,4 +1,4 @@
-# 7.4. Caching
+# 6.4. Caching
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/caching.html | prev: https://morloc-project.github.io/docs/runs/run-directory.md | next: https://morloc-project.github.io/docs/runs/remote-jobs.md
 
@@ -6,9 +6,9 @@ Mark a label `cache: true` in the program YAML and every call through it is memo
 
 The freshness check is content-based, not time-based. Morloc has **no** notion of "the source file is newer than the cache entry, so re-run." Editing a comment in an unrelated function will not invalidate any cache. Copying the program to a new path will not either. Two builds on two machines that emit byte-identical pool sources share the same cache namespace. This is a deliberate departure from `make`, `snakemake`, `nextflow`, and similar tools that use mtime as a freshness signal and routinely re-run the world after a `git checkout` or a clock skew.
 
-The build parameters passed with `-X` (see the build parameters section) also participate in the key, since they can change the compiled output without changing the pool source — switching a Futhark backend or adding a compiler flag is treated as a distinct build rather than a cache hit.
+The build parameters passed with `-X` (see [Build parameters](https://morloc-project.github.io/docs/languages/build-parameters.md)) also participate in the key, since they can change the compiled output without changing the pool source — switching a Futhark backend or adding a compiler flag is treated as a distinct build rather than a cache hit.
 
-## 7.4.1. Declaring a cached call
+## 6.4.1. Declaring a cached call
 
 **slow.loc**
 
@@ -57,7 +57,7 @@ computing 5
 
 The same group config also controls per-step logging (`log: true`); the two flags are independent and may be combined.
 
-## 7.4.2. What a cached label covers
+## 6.4.2. What a cached label covers
 
 A label wraps one call of the function it is written on, and the cache answers for that call alone. Two things follow:
 
@@ -68,7 +68,7 @@ A label wraps one call of the function it is written on, and the cache answers f
 
 A call that fails is not cached. Running it again with the same arguments fails the same way rather than returning a value that was never computed.
 
-## 7.4.3. Where the cache lives
+## 6.4.3. Where the cache lives
 
 The cache lives under the first of these that is set:
 

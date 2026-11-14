@@ -1,4 +1,4 @@
-# 5.2. Overload terms with typeclasses
+# 4.2. Overload terms with typeclasses
 
 Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/typeclasses.html | prev: https://morloc-project.github.io/docs/types/term-polymorphism.md | next: https://morloc-project.github.io/docs/types/infix-operators.md
 
@@ -45,45 +45,7 @@ $ ./pretty describeReals '[1.5]'
 ["value: 1.5"]
 ```
 
-Three things in that module are worth naming.
-
-**One instance may cover several types.** `instance Pretty Int , Pretty Real where` declares two instances that share a body. Python’s `str` handles both, so writing the `source` line twice would be noise. The standard library uses this form heavily — `root-py` declares a dozen `RealLike` instances in one block.
-
-****A signature may carry a class constraint.** \`title**
-
-Pretty a ⇒ a → Str\` says `title` works for any type that has a `Pretty` instance. Everything to the left of `=>` is a constraint; multiple constraints are comma-separated and
-
-**parenthesized, as in \`root’s \`+sum**
-
-(Foldable f, Integral a) ⇒ f a → a+\`.
-
-**A class body holds signatures only.** Morloc has no default method implementations. Writing a body inside a `class` block is a parse error:
-
-```console
-$ morloc typecheck dm.loc
-dm.loc:6:16: unexpected identifier 'xs'
-    |
-  6 |     prettyList xs = "list"
-    |                ^
-  expected '::'
-```
-
-Put the shared logic in an ordinary constrained function instead, the way `title` does above.
-
-> **Important: A generic function cannot be an entry point**
-> An exported term whose type still has a class constraint is dropped from the generated program, because the compiler cannot pick an instance without a concrete type. Export `title` directly and it does not become a command:
-> 
-> ```console
-> $ morloc make -o generic generic.loc
-> Warning: skipping generic export 'title'
-> $ ./generic title 1
-> error: unexpected argument 'title' found
-> ...
-> ```
-> 
-> Export a monomorphic wrapper instead — `describeInts` and `describeReals` above — and keep the generic function internal.
-
-## 5.2.1. One class, many languages
+## 4.2.1. One class, many languages
 
 An instance may source implementations from several languages at once. The compiler then has a choice of instance bodies for the same method, and the usual collapse applies: it takes whichever one keeps the program in one language.
 
@@ -126,14 +88,14 @@ A add(A x, A y){
 A method does not have to come from a foreign language. `zero = 0` is an ordinary Morloc definition, and it is polymorphic in the same way any other term is: `zero` in the `Int` instance is the integer literal, `zero` in the `Real` instance is the floating-point one.
 
 > **Warning: This example collides with root**
-> `Addable` redeclares `zero` and `(+)`, which `root` already supplies through its `Integral` class. Two classes cannot define the same term, so this module compiles only in isolation — with `import internal` for the primitive types, not `import root-py`:
+> `Addable` redeclares `zero` and `(+)`, which `root` already supplies through its `Integral` class. Two classes cannot define the same term, so this module typechecks only in isolation — with `import internal` for the primitive types, not `import root-py` — and `internal` has no Python forms, so it cannot be built that way:
 > 
 > ```console
 > $ morloc typecheck main.loc
 > In module 'main': The typeclasses 'Integral' and 'Addable' have conflicting definitions of the term 'zero'
 > ```
 
-## 5.2.2. Superclasses
+## 4.2.2. Superclasses
 
 A class may require another class. Write the requirement to the left of `=>` in the class head:
 
@@ -144,9 +106,9 @@ class Pretty a => Boxed a where
 
 Any type with a `Boxed` instance must also have a `Pretty` instance, and a function constrained on `Boxed a` may use `pretty` as well as `box`. This is how `root` layers its numeric hierarchy: `class Integral a => Numeric a` means every `Numeric` type is also `Integral`.
 
-## 5.2.3. Instances with contexts
+## 4.2.3. Instances with contexts
 
-An instance for a type with parameters may need instances at those parameters. Declare them before `=>`:
+An instance for a type with parameters may need instances at those parameters. Declare them before `=>`. Here `Sz` is a class with one method, `sz :: a → Int`:
 
 ```morloc
 instance Sz a => Sz (List a) where
@@ -155,7 +117,7 @@ instance Sz a => Sz (List a) where
 
 Inside the body, `sz x` at `a` is allowed because of `Sz a`, and `Sz (List Int)` exists wherever `Sz Int` does.
 
-## 5.2.4. Importing a class from another module
+## 4.2.4. Importing a class from another module
 
 A class is exported and imported by its name. Its methods are not separately importable and may not appear in an export list:
 
@@ -199,3 +161,92 @@ $ ./prog shout 7
 ```
 
 This is the shape every language-specific standard library module takes. `root` declares `Eq`, `Ord`, `Functor`, `Foldable` and the rest; `root-py`, `root-cpp` and `root-r` import those names and fill in instances. Nothing in `root` knows which languages exist.
+
+## 4.2.5. Deriving instances
+
+Some instances follow from the shape of a type alone. Equality, ordering, a printed form and a hash can be defined once for every value Morloc can serialize, so you do not have to write them. A `deriving` clause on a `data`, `record` or `newtype` declaration (a nominal copy of another type, covered in [Naming a type: `type` and `newtype`](https://morloc-project.github.io/docs/types/newtype.md)) asks the compiler for them:
+
+**shapes.loc**
+
+```morloc
+module main (sameShape, larger, describe, fingerprint)
+
+import root-py
+
+data Shape = Circle Real | Rect Real Real
+  deriving (Eq, Ord, Show, Hashable)
+
+sameShape :: Shape -> Shape -> Bool
+sameShape a b = a == b
+
+larger :: Shape -> Shape -> Shape
+larger = max
+
+describe :: Shape -> Str
+describe = show
+
+fingerprint :: Shape -> Str
+fingerprint = hash
+```
+
+```console
+$ morloc make -o shapes shapes.loc
+$ ./shapes sameShape '{"Circle":[1.0]}' '{"Circle":[1]}'
+true
+$ ./shapes larger '{"Rect":[2,1]}' '{"Circle":[3]}'
+{"Rect":[2,1]}
+$ ./shapes describe '{"Rect":[2,1]}'
+"{\"Rect\":[2,1]}"
+$ ./shapes fingerprint '{"Rect":[2,1]}'
+"e1a2ddc07d5d9530"
+```
+
+No foreign code was written, and none is needed. A derived instance works on the value in the form it takes when it crosses between languages, the same form the command line reads and prints. The instances of the fields are never consulted, so the answers do not depend on which language runs the comparison. Swap `root-py` for `root-cpp` or `root-r` and every line above prints the same thing, hash included.
+
+The classes you can derive are these:
+
+**`Eq`**
+
+`==` is structural equality.
+
+**`Ord`**
+
+`<=` compares fields left to right. A `data` value orders by the position of its constructor in the declaration first, so every `Circle` is less than every `Rect`, and then by its fields. Lists compare element by element, strings by their UTF-8 bytes, and an absent optional value sorts before a present one.
+
+**`Show`**
+
+`show` gives the JSON text the command line would print.
+
+**`Hashable`**
+
+`hash` gives a hex string, equal for equal values.
+
+**`Packable`**
+
+Only on a `newtype`: it gives `pack`, the conversion from the wrapped type to the newtype. [Serializing custom types with `Packable`](https://morloc-project.github.io/docs/types/packable.md) covers the class and when a newtype needs it.
+
+Floats are compared by their bits, not by IEEE equality: `NaN == NaN` is true and `-0.0 == 0.0` is false, and `Ord` puts `-0.0` before `0.0`. That keeps the rule that equal values have equal hashes.
+
+> **Warning: Derived equality compares the serialized form as it is**
+> A type whose serialized form is not unique gets an equality that can tell equal things apart. A `Map` crosses languages as a list of pairs, so two maps with the same entries inserted in different orders are not `==` under a derived instance. If your type needs equality up to some normal form, write the instance yourself.
+
+A deriving clause and a hand-written instance of the same class for the same type is an error, since the compiler cannot know which one you meant:
+
+```console
+$ morloc make -o both both.loc
+both.loc:7:1: error:
+The instance Eq (Name) is also derived by its type's deriving clause; keep one.
+  |
+7 | instance Eq Name where
+  | ^
+```
+
+And any other class is rejected where it is named:
+
+```console
+$ morloc make -o other other.loc
+other.loc:5:30: cannot derive 'Functor'; a declaration may derive Eq, Ord, Show and Hashable, and a newtype also Packable
+    |
+  5 | newtype Name = Str deriving (Functor)
+    |                              ^
+```

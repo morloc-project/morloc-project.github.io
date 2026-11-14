@@ -1,6 +1,6 @@
-# 4.12. Conditionals
+# 3.12. Conditionals
 
-Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/conditionals.html | prev: https://morloc-project.github.io/docs/features/where-and-let.md | next: https://morloc-project.github.io/docs/features/recursion.md
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/conditionals.html | prev: https://morloc-project.github.io/docs/features/where-and-let.md | next: https://morloc-project.github.io/docs/features/pattern-matching.md
 
 Guards are Morloc’s conditional branching. A guard clause starts with `?`, followed by a condition and a result. A `:` default closes the chain and is always required:
 
@@ -33,7 +33,7 @@ $ ./guards clamp 0 10 42
 10
 ```
 
-## 4.12.1. Guards with `where`
+## 3.12.1. Guards with `where`
 
 A `where` clause can supply bindings used in both the conditions and the results:
 
@@ -57,7 +57,7 @@ $ ./guards classify 5
 "small"
 ```
 
-## 4.12.2. Guards in other positions
+## 3.12.2. Guards in other positions
 
 A guard may be the body of a `let` binding:
 
@@ -83,9 +83,9 @@ $ ./guards labelOf -4
 "label: non-pos"
 ```
 
-## 4.12.3. Guards inside a pattern clause
+## 3.12.3. Guards inside a pattern clause
 
-Guards compose with refutable pattern matching ([Pattern Matching](https://morloc-project.github.io/docs/features/pattern-matching.md)). A `|`\-clause may use a guard as its body, so one definition can match on an argument’s shape and then branch on a condition. Variables bound by the clause pattern are in scope in the guard:
+The next section, [Pattern Matching](https://morloc-project.github.io/docs/features/pattern-matching.md), lets a definition give several `|`\-clauses, each matching a different shape or value of its argument; the first that matches wins. A clause may use a guard as its body, so one definition can match on an argument’s shape and then branch on a condition. Variables bound by the clause pattern are in scope in the guard:
 
 ```morloc
 sign :: Int -> Str

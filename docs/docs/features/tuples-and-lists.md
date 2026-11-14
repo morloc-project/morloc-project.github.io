@@ -1,4 +1,4 @@
-# 4.7. Tuples and Lists
+# 3.8. Tuples and Lists
 
 Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/tuples-and-lists.html | prev: https://morloc-project.github.io/docs/features/strings.md | next: https://morloc-project.github.io/docs/features/records.md
 
@@ -6,7 +6,7 @@ Tuples and lists are the two containers you will reach for first. A tuple has a 
 
 Both become JSON arrays on the wire, so from JSON alone you cannot tell whether `[1,2,3]` is a three-element list of integers or a three-integer tuple. The type is what distinguishes them, and the type is not in the JSON.
 
-## 4.7.1. Tuples
+## 3.8.1. Tuples
 
 A tuple stores a fixed number of terms of differing type:
 
@@ -29,7 +29,7 @@ big :: Tuple12 Int Int Int Int Int Int Int Int Int Int Int Int
 
 That said, past a few members a record with named fields is easier to read and harder to get wrong. See [Records](https://morloc-project.github.io/docs/features/records.md).
 
-## 4.7.2. Lists
+## 3.8.2. Lists
 
 Lists are homogeneous and variable length. The base type is `List a`, and `[a]` is sugar for it:
 

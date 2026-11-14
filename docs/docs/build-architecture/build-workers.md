@@ -1,10 +1,10 @@
-# 13.4. Worker model
+# 12.4. Worker model
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-workers.html | prev: https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md | next: https://morloc-project.github.io/docs/build-architecture/build-packets.md
 
 > A pool serves many calls at once: concurrent requests to a daemon, parallel maps, and calls that come back into a pool while it is already waiting on another. This section specifies how the nexus and the pools divide that work among threads and processes, how pools grow and shrink, and the one rule that keeps calls between pools from deadlocking.
 
-**The nexus.** A one-shot nexus makes one call and waits for it. A daemon or MCP server runs an accept thread and a fixed set of request workers (four more than the number of pools, between 4 and 32); a request waits in a queue until a worker is free. In every mode, a `SIGCHLD` handler reaps child processes as they exit, so a pool’s death is noticed at once, and each open output stream has a writer thread with its compression jobs ([Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md)).
+**The nexus.** A one-shot nexus makes one call and waits for it. A daemon runs an accept thread and a fixed set of request workers (four more than the number of pools, between 4 and 32); a request waits in a queue until a worker is free. An MCP server over HTTP serves up to 128 connections, each on its own thread, and runs at most as many `tools/call` requests at once as a daemon has workers. In every mode, a `SIGCHLD` handler reaps child processes as they exit, so a pool’s death is noticed at once, and each open output stream has a writer thread with its compression jobs ([Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md)).
 
 **Pools.** Each pool has one process that owns its socket, and a set of **workers** that run user code. How a worker is made depends on the language:
 

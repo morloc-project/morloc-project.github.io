@@ -1,10 +1,10 @@
-# 9.3. Serving
+# 8.3. Serving
 
 Morloc Manual > Deployment | https://morloc-project.github.io/docs/apis/deploy-serving.html | prev: https://morloc-project.github.io/docs/apis/deploy-dependencies.md | next: https://morloc-project.github.io/docs/apis/deploy-eval.md
 
 An installed program is a command line tool inside its environment. **Serving** makes its functions callable from outside: by an AI assistant over the Model Context Protocol (MCP), and by any HTTP client over a JSON API. Both come from the same exported functions, types, and docstrings that produce the command line interface, so there is nothing more to write. Serving takes two commands: `mim view` declares what to serve, and `mim start` serves it.
 
-## 9.3.1. Choosing what to serve
+## 8.3.1. Choosing what to serve
 
 A **view** is the set of installed modules that answer on an adapter. MCP and the JSON API each have their own view. Installing a program never makes it reachable on its own; you add it to a view:
 
@@ -16,7 +16,7 @@ $ mim view rm smiles                 # take smiles out of every view
 
 `--as` takes `mcp`, `api`, or both, comma-separated. A module must be installed before it can be added. Views are stored with the environment’s configuration and take effect the next time the environment is served.
 
-## 9.3.2. Starting a server
+## 8.3.2. Starting a server
 
 ```console
 $ mim start -p 8005:8005
@@ -40,7 +40,7 @@ By default the server listens on the host’s loopback address, `127.0.0.1`. Onl
 $ mim start -p 8005:8005 --force
 ```
 
-## 9.3.3. Serving to other machines
+## 8.3.3. Serving to other machines
 
 To reach the server from elsewhere, `--expose` binds it on every interface (`0.0.0.0`). An exposed server must be protected by a **token**, a shared secret that every client sends with each request:
 
@@ -55,7 +55,7 @@ $ mim start -p 8005:8005 --expose --allow-plaintext
 
 `--allow-no-auth` serves an exposed server with no token at all. It exists for a trusted private network or a gateway that already checks callers, and is a bad idea anywhere else.
 
-## 9.3.4. Calling the JSON API
+## 8.3.4. Calling the JSON API
 
 `/call/<module>/<command>` takes the function’s arguments as JSON and returns the result in a JSON envelope. Give the arguments as an array, in order:
 
@@ -82,7 +82,9 @@ A command with output actions ([Output actions](https://morloc-project.github.io
 A failed call returns `{"status":"error","class":"…​","error":"…​"}`. The class says what went wrong, and the HTTP status follows it:
 
 ```console
-$ curl -s http://localhost:8005/call/smiles/mw -d '{"args": {"smiles": "CCO"}}'
+$ curl -s http://localhost:8005/call/smiles/mw \
+    -H "Authorization: Bearer $MORLOC_MCP_TOKEN" \
+    -d '{"args": {"smiles": "CCO"}}'
 {"status":"error","class":"bad-request","error":"unknown argument 'smiles'"}
 ```
 
@@ -99,7 +101,7 @@ Calls run concurrently, several to one module included. A Python or R pool is th
 
 `/discover` lists every module in the API view with the URL of its help, and `/discover/smiles` gives each command’s arguments, types, and docstrings, so a client can find out what to call without reading the source.
 
-## 9.3.5. Connecting an AI assistant
+## 8.3.5. Connecting an AI assistant
 
 When the MCP view is not empty, `mim start` prints a client configuration entry on standard output, and its status messages on standard error. The entry has this shape:
 
@@ -118,7 +120,7 @@ $ claude mcp add --transport http smiles http://<host>:8005/mcp \
 
 Each exported function becomes one MCP tool, named `<module>*<command>*` *(`smiles`*`mw`), with the docstrings as its description and the argument types as its input schema. The protocol details — the handshake, how arguments map to tool properties, and what is not exposed — are in [Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md).
 
-## 9.3.6. Watching and stopping servers
+## 8.3.6. Watching and stopping servers
 
 ```console
 $ mim status            # every running server: env, mode, modules, URL

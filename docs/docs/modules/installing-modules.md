@@ -1,6 +1,6 @@
-# 8.2. Installing modules
+# 7.1. Installing modules
 
-Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/installing-modules.html | prev: https://morloc-project.github.io/docs/modules/importing-modules.md | next: https://morloc-project.github.io/docs/modules/universal-library.md
+Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/installing-modules.html | prev: https://morloc-project.github.io/docs/modules/index.md | next: https://morloc-project.github.io/docs/modules/universal-library.md
 
 The default Morloc modules are hosted on GitHub under the [morloclib](https://github.com/morloclib) organization. Modules can be installed with the `morloc install` command:
 
@@ -60,31 +60,28 @@ If the optional `registry` field is set in `~/.morloc/config.yaml`, bare names a
 
 The `morloc install -h` help screen carries a shorter example block for quick reference.
 
-Installed modules are stored in `~/.local/share/morloc/src/morloc/plane/default/` (under `$MORLOC_STATE` instead of `~/.local/share/morloc` when that is set) and can be imported in any Morloc script.
+Installed modules are stored in `~/.local/share/morloc/src/morloc/plane/default/` (under `$MORLOC_STATE` instead of `~/.local/share/morloc` when that is set) and can be imported in any Morloc program, as [Importing modules](https://morloc-project.github.io/docs/features/importing-modules.md) describes.
 
 To view the modules that are currently installed, you can run `morloc list`. This will list all installed modules, their version, and their short descriptions. Adding the `-v` option additionally prints the types of all exported terms.
 
-To view just the exports of one desired module, you can include pattern that matches the module of interest:
+To view the exports of one module, add a pattern. It matches any module whose name contains the pattern’s characters in order, so `il` would match `internal` too:
 
-```bash
-$ morloc list -v il
+```console
+$ morloc list -v internal
 Modules:
-  internal
-    pack :: a -> b
-    unpack :: b -> a
-    (.) :: (b -> c) -> (a -> b) -> a -> c
-    ($) :: (a -> b) -> a -> b
+  internal 0.6.0  The universal and required implicit Morloc module
+    $ :: (b -> a) -> b -> a
+    . :: (b -> a) -> (c -> b) -> c -> a
+...
 ```
 
-Here `il` matches any module with a name including the ordered characters `i` and `l` — only `internal` in this case.
+## 7.1.1. Configuring the C++ build
 
-## 8.2.1. Configuring the C++ build
-
-When a Morloc program contains C sources, the compiler invokes \`g\` (or whatever `$CXX` resolves to) to build the C++ side of the program. Three optional `package.yaml` fields tune that build: two structured fields (`cpp-version` and `dependencies`) that translate into specific flag patterns, and one verbatim field (`cxx-flags`) that passes arbitrary flags through unchanged. For build steps that go beyond flag-tweaking, a fourth field — `setup` — runs a shell script at install time.
+When a Morloc program contains C++ sources, the compiler invokes `g++` (or whatever `$CXX` resolves to) to build the C++ side of the program. Three optional `package.yaml` fields tune that build: two structured fields (`cpp-version` and `dependencies`) that translate into specific flag patterns, and one verbatim field (`cxx-flags`) that passes arbitrary flags through unchanged. For build steps that go beyond flag-tweaking, a fourth field — `setup` — runs a shell script at install time.
 
 **`cpp-version: 20`**
 
-Selects the C standard. Translates directly into a \`-std=cNN\` flag (default `20`).
+Selects the C++ standard. Translates directly into a `-std=c++NN` flag (default `20`).
 
 ```yaml
 cpp-version: 20
@@ -92,7 +89,7 @@ cpp-version: 20
 
 **`dependencies: [foo, bar]`**
 
-Names shared libraries the C code links against. For each entry \`name\`, Morloc looks for \`lib<name>.so\` under \`~/.local/share/morloc/lib\` and a \`<name>.h\` / \`.hpp\` / \`.hxx\` under \`~/.local/share/morloc/include\`, then emits the matching \`-l\`, \`-I\`, \`-L\`, and \`-Wl,-rpath\` flags. Use this when your C code does `#include <foo.hpp>` and links against a `libfoo.so` that another Morloc package installed.
+Names shared libraries the C++ code links against. For each entry `name`, Morloc looks for `lib<name>.so` under `~/.local/share/morloc/lib` and a `<name>.h` / `.hpp` / `.hxx` under `~/.local/share/morloc/include`, then emits the matching `-l`, `-I`, `-L`, and `-Wl,-rpath` flags. Use this when your C++ code does `#include <foo.hpp>` and links against a `libfoo.so` that another Morloc module installed.
 
 ```yaml
 dependencies:
@@ -111,7 +108,7 @@ cxx-flags:
   - -DENABLE_FAST_PATH
 ```
 
-The three fields combine in the obvious way:
+The three fields combine:
 
 ```yaml
 name: vector-ops
@@ -124,7 +121,7 @@ cxx-flags:
   - -DEIGEN_NO_DEBUG
 ```
 
-When one package depends on another, the downstream package inherits all three fields from its dependencies: a consumer of `vector-ops` above will automatically get `-leigen-cppmorloc` and the listed `cxx-flags` on its own C++ compile line.
+When one module depends on another, the downstream module inherits all three fields from its dependencies: a consumer of `vector-ops` above will automatically get `-leigen-cppmorloc` and the listed `cxx-flags` on its own C++ compile line.
 
 For build steps that go beyond what these flags can express — running `cmake`, building a vendored library from source, fetching pre-built artifacts, or installing a Python or R package — use the more general `setup` field, which names a shell script that runs once at install time:
 

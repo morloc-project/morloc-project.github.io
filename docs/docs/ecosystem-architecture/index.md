@@ -1,4 +1,4 @@
-# 12. Ecosystem Architecture
+# 11. Ecosystem Architecture
 
 Morloc Manual | https://morloc-project.github.io/docs/ecosystem-architecture/ | prev: https://morloc-project.github.io/docs/utilities/nexus-view.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md
 

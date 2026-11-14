@@ -1,6 +1,6 @@
-# 4.8. Records
+# 3.9. Records
 
-Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/records.html | prev: https://morloc-project.github.io/docs/features/tuples-and-lists.md | next: https://morloc-project.github.io/docs/features/patterns.md
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/records.html | prev: https://morloc-project.github.io/docs/features/tuples-and-lists.md | next: https://morloc-project.github.io/docs/features/optionals.md
 
 A record is a named, fixed set of named fields. It is the right shape when a tuple would leave you counting positions.
 
@@ -11,9 +11,17 @@ record Person = Person
     }
 ```
 
+The same declaration has a layout form, one field per indented line, which reads better for long records:
+
+```morloc
+record Person where
+  name :: Str
+  age :: Int
+```
+
 Records map to whatever each language uses for the job: a `dict` in Python, a `list` in R, a `struct` in C++. Internally the layout is positional, but the surface language always binds by name.
 
-## 4.8.1. Native representations
+## 3.9.1. Native representations
 
 The concrete forms must share the general record’s field names and types, so those are not repeated. You only name the container:
 
@@ -42,7 +50,7 @@ person_t incAge(person_t person){
 }
 ```
 
-The R and Python sides operate on their native containers directly:
+The R and Python sides operate on their native containers directly. Each returns a changed copy rather than changing its argument; the C++ version gets its copy by taking the struct by value ([What sourced code may do with values](https://morloc-project.github.io/docs/features/foreign-functions.md#sourced-values)):
 
 **foo.R**
 
@@ -57,11 +65,10 @@ incAge <- function(person){
 
 ```python
 def incAge(person):
-    person["age"] += 1
-    return person
+    return {**person, "age": person["age"] + 1}
 ```
 
-## 4.8.2. Record literals match by field name
+## 3.9.2. Record literals match by field name
 
 Field values bind to declared fields by **name**. The order in a literal is irrelevant, so these two are the same value:
 
@@ -117,7 +124,7 @@ recbad.loc:8:33: duplicate field in record literal: name
     |                                 ^
 ```
 
-## 4.8.3. One record across three languages
+## 3.9.3. One record across three languages
 
 Because the record has a native form in each language, a function that operates on it can be sourced from any of them, and they compose:
 

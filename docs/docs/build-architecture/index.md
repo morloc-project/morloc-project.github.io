@@ -1,4 +1,4 @@
-# 13. Build Architecture
+# 12. Build Architecture
 
 Morloc Manual | https://morloc-project.github.io/docs/build-architecture/ | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.md | next: https://morloc-project.github.io/docs/build-architecture/build-overview.md
 

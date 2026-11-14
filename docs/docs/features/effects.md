@@ -1,34 +1,12 @@
-# 4.15. Effects and delayed evaluation
+# 3.17. Effects and delayed evaluation
 
-Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/effects.html | prev: https://morloc-project.github.io/docs/features/sum-types.md | next: https://morloc-project.github.io/docs/features/optionals.md
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/effects.html | prev: https://morloc-project.github.io/docs/features/recursion.md | next: https://morloc-project.github.io/docs/features/random-access-and-streaming.md
 
-## 4.15.1. Why effects need a name
+An **effect** is something a computation does to or reads from the world: a file read, a network call, a random draw. A Morloc function maps its arguments to a result, and that is its whole meaning. But `readFile` read twice may return two different strings, so **when** it runs matters; and a coin toss or the current time is not a value at all.
 
-Morloc is a functional language. A function maps a value in one domain to a value in another, and the mapping is the function’s whole meaning. That works neatly for arithmetic, for string manipulation, for transforming records. It runs into trouble the moment we try to talk about anything that touches the world.
+Morloc gives the effect a name in the type. `<Rand> Bool` is not a `Bool`; it is a **suspension**: a computation that, when run, performs the `Rand` effect and yields a `Bool`.
 
-Consider `readFile`:
-
-```morloc
-readFile :: Str -> Str
-```
-
-This looks like a function from a filename to a string. Indeed it **is** a function at any given instant on a given machine: the filename names a particular file, and the file has particular contents. But files change. If we read the same file twice in the same program, we may get two different answers. So it matters **when** we call the function and we may want to call it a several different points in time.
-
-The same problem shows up for "values" that are not really values. What is the type of the current time? What is the type of a coin toss?
-
-```morloc
-time     :: ???
-coinToss :: ???
-```
-
-We could try to make them into honest functions by handing them an explicit world or an explicit random seed — `time :: TemporalState -> Time` and `coinToss :: RNG -> (Bool, RNG)` — and thread that state through every call that needs it. This can work, but it pulls extra plumbing into every signature.
-
-Morloc takes a different route: it gives the effect a **name** at the type level. `<Rand> Bool` is not a `Bool`; it is a **suspended computation** that, when run, performs the `Rand` effect and yields a `Bool`. Where the original problem was "this looks like a value but doesn’t act like one", the solution is to give it a type that says so.
-
-> **Note**
-> `<E> T` is a **suspended computation** that performs effects `E` and yields a `T`. It is not a `T`. You obtain a `T` by running it.
-
-## 4.15.2. The mental model
+## 3.17.1. The mental model
 
 -   `<E> T` is a suspension. Holding one in a variable does nothing, and neither does passing it, storing it in a record or list, or returning it. It is a value, and the same value in every position.
 -   The bind arrow `<-` runs a suspension once and gives you a result. Run it twice and it runs twice: nothing is remembered between runs.
@@ -39,7 +17,7 @@ Morloc takes a different route: it gives the effect a **name** at the type level
 
 Effect labels are names that the compiler propagates and checks for coverage. What an effect **means** — what `IO` permits at runtime, what `Rand` looks like operationally — is the business of the library that defines the effect, not the compiler. The compiler’s job is to keep the labels honest; libraries build behaviour on top.
 
-## 4.15.3. Failure is not an effect
+## 3.17.2. Failure is not an effect
 
 An effect row says what a computation may **do**. Whether it succeeded is a property of what it **returns**, so failure is not an effect and Morloc does not track it as one. A fallible operation returns a value that is either the answer or the reason there isn’t one:
 
@@ -76,7 +54,7 @@ The effect row still carries `IO`, because looking the port up does touch the wo
 
 Failure that is **not** a value is still possible, and common: any function you source can raise in its own language, and Morloc does not see that coming. `@try` turns such a raise into a `Try` and `@throw` produces one deliberately; both are covered in [Failure and recovery](https://morloc-project.github.io/docs/features/intrinsics.md#failure-and-recovery). The honest summary is that a signature tells you what a call may do and what it returns, and not every way it can go wrong — a trade made for signatures that stay readable, since almost every function that touches the world can fail somehow.
 
-## 4.15.4. Syntax
+## 3.17.3. Syntax
 
 ### Declaring an effect
 
@@ -140,8 +118,6 @@ example = do
 $ ./effects example
 17
 ```
-
-Trace it once and the model sticks: `let t = sideEffect 3` binds a suspension and runs nothing; the bare `sideEffect 1` runs and nothing reads its result; `x <- sideEffect 5` runs and binds 10; `let y = add x 1` is pure arithmetic giving 11; `z <- t` finally runs the suspension bound at the top, giving 6; and `add y z` returns 17.
 
 Both layout-indented form (as above) and brace form (`do { x <- e; y <- f; ... }`) are accepted.
 
@@ -211,7 +187,7 @@ Error: run failed
   at portOf [py] (mid=6, effects.loc:1:68)
 ```
 
-The thrown message is the unmatched value, rendered. For a `Try` that carries the failure’s own message inside it, which is why the load error shows up in the traceback above.
+The thrown message is the unmatched value, rendered. A `Try` carries the failure’s own message, which is why `no port for gopher` shows up in the traceback above.
 
 ### A `do`\-block does not return a `Try`
 
@@ -304,7 +280,7 @@ readOnce = \_ -> !(addOne 1)
     -- equivalent to `\_ -> do { v <- addOne 1 ; v }`
 ```
 
-Inside an `if` (or guard) branch each branch gets its own scope, so only the taken branch’s effect fires. Inside an existing `do`\-block, `!e` becomes a bind inserted immediately before the current statement, preserving left-to-right effect order.
+Inside a guard, each branch gets its own scope, so only the taken branch’s effect fires. Inside an existing `do`\-block, `!e` becomes a bind inserted immediately before the current statement, preserving left-to-right effect order.
 
 The prefix binds tightly: `f !x` parses as `f (!x)`, not as `!(f x)`. Use parentheses for the latter.
 
@@ -314,27 +290,20 @@ The prefix binds tightly: `f !x` parses as `f (!x)`, not as `!(f x)`. Use parent
 -   `!e` as a bare non-final `do`\-statement — bare statements already run.
 -   `let x = !e` (or any `!` whose scope would land above the `let`) — `let` binds pure values; hoisting an effect above the binding would make the line read misleadingly. Use `x <- e` inside a `do`\-block. A `!` sealed by an inner boundary (a lambda body, a nested `do`, a guard branch under the let) is unaffected.
 
-## 4.15.5. The reading: a suspension is a value
+## 3.17.4. The rules
 
-`<E> T` is a **suspension**: a value that, when run, may perform the effects in `E` and yields a `T`. It is not a `T`, and a `T` is not a suspension. There is no coercion between them in either direction. The only way from `<E> T` to `T` is to run it, with `<-` inside a `do`\-block; the only way from `T` to `<E> T` is to build a suspension around it, with `do`:
+The rest of this section is reference: the typing rules behind the mental model, effect row variables for combinators, and escapable effects. You can write effectful programs without it.
 
-```morloc
-foo :: <IO> Int
-foo = do 42                  -- a suspension that yields 42 and performs nothing
-```
+There is no coercion between `<E> T` and `T` in either direction: running it with `<-` is the only way out of a suspension, and `do` is the only way in. The row `<E>` is an upper bound on what a run may do, so `do 42` already fills an `<IO> Int` slot, and Morloc needs no `pure` or `return` keyword. Keeping the two apart is what lets Morloc pass a suspension to another language as a callable, run it once per use, and know that nothing ran when it was merely held.
 
-`foo = 42` is a type error. The row `<E>` is an upper bound on what a run may do, so a suspension that performs nothing (`<> Int`) fits any slot (`<IO> Int`), which is why `do 42` is enough and no `pure` or `return` keyword exists. The `do` is the whole ceremony: it says, in one word, "this is a computation, not a value". That distinction is exactly what lets Morloc pass a suspension to another language as a callable, run it once per use, and know that nothing ran when it was merely held.
-
-## 4.15.6. The rules
-
-The whole type-checking story for effects is four rules.
+The type checker enforces four rules:
 
 1.  **A value is not a suspension.** `T` never fills an `<E> T` slot; `do v` does. A `do`\-block that runs nothing has type `<> T`, and the empty row is included in every row, so `do v` fills any `<E> T` slot.
 2.  **More effects are a supertype of fewer.** `<E1> T <: <E2> T` exactly when the concrete labels of `E1` are a subset of `E2`. A `<IO> Int` is usable where `<IO, Net> Int` is expected; the reverse is not.
 3.  **Effects don’t leak silently.** A value of type `<E> T` cannot be assigned to a slot of type `T`. It can fill a type variable, since it is a value like any other: `id (readValue)` is an `<IO> Int`, and a list of suspensions is a list. If you intend the effect to escape, you say so in the type.
 4.  **A `do`\-block collects.** Its row is the union of its statements' rows; its type is `<that-union> T`, where `T` is the type of its final statement.
 
-A few illustrations:
+**The rules at work**
 
 ```morloc
 -- Rule 1: a suspension of a value fills an <IO> slot; the value does not
@@ -417,13 +386,9 @@ Subtype error: an effectful value cannot be used where a non-effectful type is e
    |     ^
 ```
 
-There is one more guarantee the user sees but does not write down: an exported `<E> T` is run automatically at the boundary. The compiled program’s user receives a `T`. Effects do not escape the binary.
+## 3.17.5. Effect row variables
 
-## 4.15.7. Effect row variables
-
-Combinators that **thread** effects need to be able to talk about sets of unknown effects. For that, an effect row may include a single lowercase variable that represents a set of zero or more unknown effects:
-
-The function `mapE`, below, carries the all the effects of the mapping function to the final value:
+Combinators that **thread** effects need to be able to talk about sets of unknown effects. For that, an effect row may include a single lowercase variable that represents a set of zero or more unknown effects. `mapE` carries all the effects of the mapping function to the final value:
 
 ```morloc
 mapE :: (a -> <e> b) -> [a] -> <e> [b]
@@ -445,9 +410,9 @@ $ morloc typecheck rowvar.loc
 foo :: (Int -> <Rand,e@e0> Int) -> Int -> <Rand,e@e0> Int
 ```
 
-Had the signature said just `<Rand>`, only that effect would be permitted and any additional one would be a type error. The signature takes two arguments because `foo f x` does; getting that count wrong is an ordinary type error, reported at the definition.
+Had the signature said just `<Rand>`, only that effect would be permitted and any additional one would be a type error.
 
-## 4.15.8. Escapable and inescapable effects
+## 3.17.6. Escapable and inescapable effects
 
 The default form `effect E` is **inescapable**. An inescapable effect that appears in a function’s arguments must also appear in its result. The compiler enforces this on every signature, sourced or defined.
 
@@ -512,4 +477,4 @@ Inescapable effect 'Rand' appear(s) in an argument but not in the result row. An
    | ^
 ```
 
-Nothing in the standard library discharges an effect today; `escapable` is there for handlers you write. Failure used to be the built-in case — an `Err` effect discharged by a `@catch` intrinsic — and it no longer is, for the reason given in [Failure is not an effect](#failure-is-not-an-effect): failing is not something a computation does, it is what its result reports.
+Nothing in the standard library discharges an effect today; `escapable` is there for handlers you write.

@@ -1,8 +1,8 @@
-# 6.14. Directive reference
+# 5.14. Directive reference
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/directive-reference.html | prev: https://morloc-project.github.io/docs/clis/interface-as-data.md | next: https://morloc-project.github.io/docs/runs/index.md
 
-Every docstring directive that affects the generated interface, grouped by where it may be written. A directive written in the wrong place is not an error; it is kept as prose and the build warns, so check this table when one appears to do nothing.
+Every docstring directive that affects the generated interface, grouped by where it may be written. A directive written in the wrong place is a build error. An unknown directive is kept as prose and the build warns, so check this table when one appears to do nothing.
 
 **Table 6. On the module docstring — the --' lines directly above module**
 
@@ -28,14 +28,14 @@ Every docstring directive that affects the generated interface, grouped by where
 | `@default <json>` | The value used when an option is omitted, written as JSON. |
 | `@true <flags>` | On a `Bool`: the flag that sets it true. The default becomes false. |
 | `@false <flags>` | On a `Bool`: the flag that sets it false. The default becomes true. See the warning in [Arguments](https://morloc-project.github.io/docs/clis/arguments.md). |
-| `@metavar <NAME>` | Name the argument. Becomes the placeholder in help for an option, and the property name in the machine-readable views. |
+| `@metavar <NAME>` | Name the argument. Becomes its placeholder in help, and its `metavar` field in the machine-readable views. |
 | `@many` | Accept several argv tokens and assemble them into a list. The argument type must be a list; as a positional it must be the last one. |
 | `@stdin` | Make a `Str` positional optional and read standard input when it is omitted. See [Reading a stream from standard input](https://morloc-project.github.io/docs/clis/reading-stdin.md). |
 | `@source inline` / `file` | Where the bytes come from. See [Input shape](https://morloc-project.github.io/docs/clis/input-shape.md). |
 | `@form list` / `table` / `bytes` / `bytes-only` / `packet` | How the bytes are read. `table` reads a file with a header row; see [Tables with a header](https://morloc-project.github.io/docs/clis/input-shape.md#form-table). |
 | `@check.path r` / `w` / `x` / `rw` | Require the argument to be a path satisfying the mode. |
 | `@list.source`, `@list.form`, `@list.check.<kind>` | The same three, applied to each element of a `@form list` argument. |
-| `@unroll` | On a record argument: split it into one flag per field. `@unroll false` opts one use out. |
+| `@unroll` | On a record argument: split it into one flag per field. On a `data` argument: one exclusive flag per constructor (see [Sum type arguments](https://morloc-project.github.io/docs/clis/sum-type-arguments.md)). `@unroll false` opts one use out. |
 | `@parse <name>=<function> [.ext ...]` | Accept the argument as a file in another format, read by `<function>` when the value ends in one of the extensions or is prefixed with `<name>:`. Repeat it once per format. See [Reading files in other formats](https://morloc-project.github.io/docs/clis/arguments.md#parse-arguments). |
 
 **Table 9. On a type, record, or record field definition**
@@ -60,4 +60,4 @@ Every docstring directive that affects the generated interface, grouped by where
 | `@value` | As a handler argument: the value being formatted. Appended last if not written explicitly. |
 | `$1`, `$2`, …​ | As a handler argument: the command’s own Nth argument. |
 
-One more directive is a deprecated spelling rather than a feature: `literal: true` means `@source inline`. It still works, and the build warns when you use it.
+One more directive is a deprecated spelling rather than a feature: `@literal` means `@source inline`. It still works, and the build warns when you use it.

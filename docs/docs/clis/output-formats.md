@@ -1,4 +1,4 @@
-# 6.9. Output formats
+# 5.9. Output formats
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/output-formats.html | prev: https://morloc-project.github.io/docs/clis/reading-stdin.md | next: https://morloc-project.github.io/docs/clis/output-actions.md
 
@@ -21,7 +21,7 @@ The nexus option `-f` picks a different form. Which forms are available does not
 | `voidstar` | Morloc’s in-memory binary form, written out. Carries the value’s schema. |
 | `packet` | A Morloc wire packet: the value plus its schema and framing. This is what `@stdin` readers expect, and what `-z` compresses. |
 | `arrow`, `parquet` | Apache Arrow IPC and Parquet. Requires a `Table` return type. |
-| `csv` | Requires a `Table` return type. |
+| `csv`, `tsv` | A header row and one line per element. Requires a `Table` or a list of records whose fields are table cells. |
 
 Because the reader detects the format from the bytes, a value written in one form is read back without being told which:
 
@@ -45,10 +45,10 @@ Asking for a form the type cannot produce is an error, not a silent approximatio
 
 ```console
 $ ./sift -f csv summarize hits.json
-Error: --format=arrow|parquet|csv requires a Table return type
+Error: --format=csv|tsv requires a Table or a list of records whose fields are table cells
 ```
 
-Two more nexus options shape the output. `-o` writes to a file instead of stdout; terminal actions can also write files of their own, several in one run (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)). `-p` pretty-prints: JSON gets indentation, and a top-level `Str` is printed as text rather than as a quoted JSON string.
+Two more nexus options shape the output. `-o` writes to a file instead of stdout; output actions can also write files of their own, several in one run (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)). `-p` pretty-prints: JSON gets indentation, and a top-level `Str` is printed as text rather than as a quoted JSON string.
 
 ```console
 $ ./sift -p summarize hits.json
@@ -66,9 +66,9 @@ $ ./sift -p summarize hits.json
 
 `-z` compresses `-f packet` output; it is covered with the rest of the compression settings in [Compression](https://morloc-project.github.io/docs/runs/compression.md).
 
-## 6.9.1. Nothing to report
+## 5.9.1. Nothing to report
 
-A command that returns `()` or a top-level `Null` prints nothing at all. That matches the Unix convention that a tool with no result says nothing, and it is what you want when a Morloc command feeds `grep`, `xargs`, or a status check — a `()` carries no information, and a top-level `None` usually means "it ran and there was nothing to say".
+A command that returns `()` or a top-level `Null` prints nothing at all. That matches the Unix convention that a tool with no result says nothing, and it is what you want when a Morloc command feeds `grep`, `xargs`, or a status check — a `()` carries no information, and a top-level `null` usually means "it ran and there was nothing to say".
 
 A small program with an optional result, to show it with:
 
@@ -126,7 +126,7 @@ $ ./nulls pair
 [5,null]
 ```
 
-## 6.9.2. Failure
+## 5.9.2. Failure
 
 Errors go to standard error and the process exits non-zero, so a Morloc command behaves in a `set -e` script or a `&&` chain the way any other tool does:
 

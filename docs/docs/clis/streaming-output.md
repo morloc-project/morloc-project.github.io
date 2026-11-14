@@ -1,4 +1,4 @@
-# 6.11. Streaming output with `@collect`
+# 5.11. Streaming output with `@collect`
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/streaming-output.html | prev: https://morloc-project.github.io/docs/clis/output-actions.md | next: https://morloc-project.github.io/docs/clis/composing-tools.md
 
@@ -37,7 +37,7 @@ def produce(pattern, root, opts, sink):
         sink(hits_in(path, needles, fold))
 ```
 
-A morloc callback crossing into a Python function is an ordinary foreign call; nothing about the streaming machinery is visible from either side.
+A Morloc callback crossing into a Python function is an ordinary foreign call; nothing about the streaming machinery is visible from either side.
 
 With no action flag, every batch goes to standard output in the `-f` form:
 
@@ -49,7 +49,7 @@ $ ./sift -f jsonl stream the notes
 {"path":"notes\/2026\/plan.txt","line":2,"text":"ship the manual"}
 ```
 
-## 6.11.1. Actions on a stream
+## 5.11.1. Actions on a stream
 
 The output actions of [Output actions](https://morloc-project.github.io/docs/clis/output-actions.md) work here too, with one extra dimension. On an ordinary command a formatter sees the return value; on a streaming command it can see either the whole gathered stream or each batch as it arrives. The `@stream` modifier chooses:
 
@@ -61,7 +61,7 @@ The output actions of [Output actions](https://morloc-project.github.io/docs/cli
 | `@render ... @stream` | `[a] -> Str` / `[a] -> [U8]` | Apply to each batch, write each result’s bytes verbatim. |
 | `@with`/`@render ... @fold=` | as above, with `b` in place of `[a]` | Fold the stream into one accumulator, apply once to it. See [`@fold`: one accumulator instead of a list](#stream-fold). |
 
-``sift’s `stream`` declares one action from three of those cells:
+``sift’s `stream`` declares four actions, drawing on three of those rows:
 
 ```morloc
 --' Stream hits to standard output, one file at a time
@@ -89,7 +89,7 @@ $ ./sift stream the notes -c
 4
 ```
 
-## 6.11.2. `@offset`: where a batch sits in the stream
+## 5.11.2. `@offset`: where a batch sits in the stream
 
 A `@stream` handler is called once per batch and has no memory between calls, so anything that depends on position has to be told. `@offset` supplies the number of elements already written:
 
@@ -114,7 +114,7 @@ $ ./sift -f jsonl stream the notes -N
 
 `@offset` is only meaningful under `@stream`; using it elsewhere is an error.
 
-## 6.11.3. `IFile`: the gathered stream as a file
+## 5.11.3. `IFile`: the gathered stream as a file
 
 A whole-stream handler may take its receiver as `IFile [a]` instead of `[a]`. The stream is staged to a temporary file and the handler gets a random-access handle rather than a materialized list — the way to write a whole-stream handler that does not need the whole stream in memory. The temporary file is removed when the handler returns.
 
@@ -133,9 +133,9 @@ $ ./sift stream the notes -n
 4
 ```
 
-`IFile` and the rest of the random-access handles are covered in [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md).
+`IFile` and the other stream handles were introduced in [Random access and streaming](https://morloc-project.github.io/docs/features/random-access-and-streaming.md).
 
-## 6.11.4. `@fold`: one accumulator instead of a list
+## 5.11.4. `@fold`: one accumulator instead of a list
 
 A gather holds the whole stream before the handler sees any of it. `@fold` keeps one accumulator instead, so peak memory does not grow with the stream. It takes three terms beside the handler:
 
@@ -177,7 +177,7 @@ The producer must drive its sink from a worker pool rather than a thread per bat
 
 `@combine` must also be associative, and commutative if the producer is threaded: accumulators are merged in the order the threads reached the sink, which is not reproducible between runs.
 
-## 6.11.5. Streaming rules
+## 5.11.5. Streaming rules
 
 The rules in [Rules and rejections](https://morloc-project.github.io/docs/clis/output-actions.md#action-rules) all apply. More are specific to streaming:
 
@@ -188,7 +188,7 @@ The rules in [Rules and rejections](https://morloc-project.github.io/docs/clis/o
 -   `@fold` and `@stream` are mutually exclusive: `@stream` emits one result per batch, `@fold` one for the whole stream.
 -   `@fold` requires a reachable `@collect`, and all three of `@fold`, `@init` and `@combine`.
 
-## 6.11.6. What the help says a stream produces
+## 5.11.6. What the help says a stream produces
 
 A streaming command’s `Return:` block describes **standard output**, not the `()` the function returns. The two coincide for every other command and come apart here, so the block is worth reading closely:
 
@@ -196,14 +196,15 @@ A streaming command’s `Return:` block describes **standard output**, not the `
 $ ./sift stream -h
 ...
 Return:
-  default:       [Hit]
-  -p/--plain:    Str    (raw bytes)
-  -c/--count:    U64
-  -n/--staged:   Int
-  -N/--numbered: [Str]
+  type: [Hit]
+  actions:
+    -p/--plain:    Str    (raw bytes)
+    -c/--count:    U64
+    -n/--staged:   Int
+    -N/--numbered: [Str]
 ...
 ```
 
-Five rows, five different things on stdout. `default` is the batch element the sink writes; `-c` and `-n` gather and return a single value; `-N` transforms each batch and streams the result; and `(raw bytes)` marks the one row where `-f` no longer applies, because a `@render` action writes its handler’s bytes verbatim.
+Five rows, five different things on stdout. `type` is the batch element the sink writes; `-c` and `-n` gather and return a single value; `-N` transforms each batch and streams the result; and `(raw bytes)` marks the one row where `-f` no longer applies, because a `@render` action writes its handler’s bytes verbatim.
 
 The compiler works the element type out from the producer’s signature: a `@collect` argument takes exactly one parameter, the sink, so the sink is the last parameter of the producer’s declared type and the sink’s own parameter is what reaches standard output. A producer with no reachable signature — an inline lambda — leaves the row falling back to the return type; the help never claims `()` for a command that streams.

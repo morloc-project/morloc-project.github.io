@@ -1,4 +1,4 @@
-# 12.2. Environments
+# 11.2. Environments
 
 Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.md
 

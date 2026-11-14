@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://morloc-project.github.io/docs/intro/</loc></url>
 <url><loc>https://morloc-project.github.io/docs/why/</loc></url>
 <url><loc>https://morloc-project.github.io/docs/getting-started/</loc></url>
 <url><loc>https://morloc-project.github.io/docs/getting-started/installing.html</loc></url>
@@ -15,21 +14,24 @@
 <url><loc>https://morloc-project.github.io/docs/features/</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/functions.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/foreign-functions.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/features/importing-modules.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/booleans.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/integers.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/floats.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/strings.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/tuples-and-lists.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/records.html</loc></url>
-<url><loc>https://morloc-project.github.io/docs/features/patterns.html</loc></url>
-<url><loc>https://morloc-project.github.io/docs/features/pattern-matching.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/features/optionals.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/where-and-let.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/conditionals.html</loc></url>
-<url><loc>https://morloc-project.github.io/docs/features/recursion.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/features/pattern-matching.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/features/patterns.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/sum-types.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/features/recursion.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/effects.html</loc></url>
-<url><loc>https://morloc-project.github.io/docs/features/optionals.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/features/random-access-and-streaming.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/features/intrinsics.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/features/placement-costs.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/types/</loc></url>
 <url><loc>https://morloc-project.github.io/docs/types/term-polymorphism.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/types/typeclasses.html</loc></url>
@@ -62,9 +64,7 @@
 <url><loc>https://morloc-project.github.io/docs/runs/remote-jobs.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/runs/compression.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/runs/debugging.html</loc></url>
-<url><loc>https://morloc-project.github.io/docs/runs/random-access-and-streaming.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/modules/</loc></url>
-<url><loc>https://morloc-project.github.io/docs/modules/importing-modules.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/modules/installing-modules.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/modules/universal-library.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/modules/exposing-native-resources.html</loc></url>
@@ -114,10 +114,11 @@
 <url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-types.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.html</loc></url>
-<url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-sharing.html</loc></url>
-<url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.html</loc></url>
+<url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-ownership.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.html</loc></url>
 <url><loc>https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.html</loc></url>

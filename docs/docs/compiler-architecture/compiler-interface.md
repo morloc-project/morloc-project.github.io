@@ -1,5 +1,37 @@
-# 14.10. Interface generation
+# 13.11. Interface generation
 
 Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.md
 
-**STUB**: Specifies how exported functions become a program’s external interface. Covers how signatures, docstrings, and argument annotations are turned into the manifest’s command schema: names, positional and optional arguments, defaults, help text, and input and output formats. This schema is the single source from which the CLI, the HTTP API, and the MCP tools are all derived.
+> Interface generation turns the exports of a program’s main module into the command schema the manifest carries ([Compilation artifacts](https://morloc-project.github.io/docs/build-architecture/build-artifacts.md)). It reads each export’s general type, its docstrings and their directives, and produces, per command, its name, its arguments with their kinds, keys, defaults and help text, its return value, and its output actions. The nexus reads nothing else, so the command line, the HTTP API and the MCP tools are all built from this one schema. This section specifies how the schema is derived and which mistakes are refused at build rather than at run time. The directives themselves are documented for users in [Docstrings](https://morloc-project.github.io/docs/clis/docstrings.md), [Arguments](https://morloc-project.github.io/docs/clis/arguments.md) and [Directive reference](https://morloc-project.github.io/docs/clis/directive-reference.md).
+
+**Which exports become commands.** Every term the main module exports is a subcommand, named after the term unless `@name` renames it. Its docstring’s first line is its summary, and the module’s docstring describes the program. `--* group:` lines in the export list put the exports that follow into a named group of subcommands. Three kinds of export are treated specially:
+
+| Export | Treatment |
+| --- | --- |
+| Generic: its type still has a type variable | Not a command. The build warns, naming it, and builds the others. |
+| A function in an argument or the result, or a suspension below the root of one | Rejected at build, naming the position: a command’s arguments and result are data, and a function has no data form. |
+| A suspension at the root of an argument or the result | Adapted at the boundary: the command builds the suspension from the caller’s value, or runs it for the caller. |
+
+**Remote and pure commands.** A command whose body calls a foreign function is **remote**: the schema records the id of its entry manifold, the pool that holds it, and every pool the command can reach, so a one-shot run starts only those. A command that calls no foreign function is **pure**: the schema holds the expression itself, in a small language of literals, applications of built-in operations and intrinsics, and the command’s arguments, and the nexus evaluates it without starting a pool ([Runtime overview](https://morloc-project.github.io/docs/build-architecture/build-overview.md)). Build-time intrinsics in a pure command are fixed as they are in pools ([Code generation](https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.md)).
+
+**From docstring to argument.** Each argument’s docstring is the nearest one: written on the type in the signature, else on the type alias named there, else on the next alias down its chain. A term never inherits another term’s docstring by assignment. The directives then decide the argument’s kind:
+
+| Kind | Made by | Rules checked at build |
+| --- | --- | --- |
+| Positional | the default | Takes no `@default`. An optional (`?T`) positional may be left off, so every positional after one must be optional too. |
+| Option | `@arg` | Requires a `@default`, except under `@many` (default `[]`) and for a literal `?Str` (default null). |
+| Flag | `@true` or `@false` on a `Bool` argument | `@true` turns a false default on, `@false` turns a true default off; `@arg` is refused. A `Bool` with neither is a positional. |
+| Record group | `@unroll` on a record | Each field becomes its own option or flag, with its own docstring. |
+| Constructor choice | `@unroll` on a `data` type | One option per constructor; exactly one is given, unless the type is optional or has a default. |
+
+Further rules hold across a command’s arguments: at most one positional takes `@many`, and it is the last positional; at most one reads standard input, and it is the last positional; `@stdin`, `@many`, `@default` and `@unroll` reject the combinations that would give one slot two shapes. Each argument’s shape directives (`source`, `form`, `check.path`) are checked against its wire type ([Input shape](https://morloc-project.github.io/docs/clis/input-shape.md)), and a default is parsed and checked against the argument’s type, so a wrong default is a build error rather than a run-time one.
+
+**Keys.** Every argument is given one **key**, published in the schema, that every interface other than the command line uses to name it: an option or flag by its long spelling (else its short one), a positional by its `@name` or else by *and its 1-based place among the positionals, a field of an unrolled record by its field name. The compiler computes the key once, so no interface derives its own, and it rejects two arguments of one command that would publish the same key. Keys beginning with* are reserved for generated names and for `_render`, the output selector.
+
+**Two schemas per value.** Each argument and the return value carry two schema strings ([Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)). The **concrete** schema includes the hints of the language that will receive the value, and is what the nexus encodes the call with. The **general** schema has those hints removed, and is what the machine-readable help publishes, so the published contract does not change when a function moves to another language.
+
+**Output actions.** Each `@with` or `@render` directive ([Output actions](https://morloc-project.github.io/docs/clis/output-actions.md)) becomes an action of its command, recorded with its flag, its handler’s summary, whether it writes raw bytes (`@render`) or a typed value (`@with`), and whether it is the `@default`; a second `@default` is a build error. For each action the compiler also builds hidden commands: one that runs the parent and applies the handler to the fresh result, and one that applies the handler to output the parent saved earlier. The latter is omitted, with the reason recorded, when the action cannot run on saved output. Each action is classed by how it consumes the parent’s output: a whole value, a gathered stream, a stream processed batch by batch, or a fold. A streaming command also records the type of its batches, since its return type is `()`. An argument read through `@parse` gets a hidden entry command of its own that applies the parse functions before the call.
+
+![Diagram](https://morloc-project.github.io/docs/static/img/mermaid-57669d06addeddd2d33c405e38bdfdd6.svg)
+
+**One schema, every interface.** The command-line parser, the three help tiers, `--json-help` ([The interface as data](https://morloc-project.github.io/docs/clis/interface-as-data.md)), the daemon’s API and the MCP tool list are all built by the nexus from the command schema ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)). The command line reads each argument from its text form using the shape directives; every other interface takes the argument’s JSON value under its key. An argument left out takes the default the schema gives it on every interface.

@@ -1,4 +1,4 @@
-# 9.5. Freezing
+# 8.5. Freezing
 
 Morloc Manual > Deployment | https://morloc-project.github.io/docs/apis/deploy-freeze.html | prev: https://morloc-project.github.io/docs/apis/deploy-eval.md | next: https://morloc-project.github.io/docs/apis/execution-contexts.md
 
@@ -6,7 +6,7 @@ An environment is meant to change: you install programs, add packages, and rebui
 
 The image is built with the environment’s container engine, so freezing needs a Docker or Podman environment; a native or Apptainer environment, and a development environment made with `--dev`, cannot be frozen. The build happens on the machine that holds the environment, and you move the finished image.
 
-## 9.5.1. Building the image
+## 8.5.1. Building the image
 
 ```console
 $ mim freeze --tag smiles:0.1.0
@@ -16,7 +16,7 @@ Without `--tag` the image is named `morloc-<env>:<morloc version>`. The image is
 
 The result is a tag in the engine’s image store; nothing is written to your working directory. When the build finishes, `freeze` prints commands to try the image: open a shell in it, list its programs, and run the first one.
 
-## 9.5.2. What goes in
+## 8.5.2. What goes in
 
 Each installed program travels as the copy of its project directory that `mim install` made, so whatever else sat in that directory goes along. Before building, `freeze` lists every program with its size, and flags large files and tool state:
 
@@ -26,7 +26,7 @@ Each installed program travels as the copy of its project directory that `mim in
 
 `--force` answers yes to all of these, tool state included.
 
-## 9.5.3. Running the image
+## 8.5.3. Running the image
 
 The image’s default command serves the environment’s views, so the `mim view` declarations from [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md) and [Eval](https://morloc-project.github.io/docs/apis/deploy-eval.md) travel with it. Inside the container the server always listens on port 8080:
 
@@ -49,7 +49,7 @@ $ podman run --rm smiles:0.1.0 smiles mw CCO
 
 An environment with no views gives an image with no default command; it holds the programs and runs them only when named, as above.
 
-## 9.5.4. Moving the image
+## 8.5.4. Moving the image
 
 To carry the image as a file, add `--save`. This writes the engine’s own image archive, which includes every layer and loads on any machine with the same engine:
 
@@ -73,7 +73,7 @@ $ podman inspect -f '{{index .Config.Labels "morloc.programs"}}' smiles:0.1.0
 
 `mim status`, `logs`, and `stop` act on servers started with `mim start`, not on containers you run from an image.
 
-## 9.5.5. Slim images
+## 8.5.5. Slim images
 
 The image above is the full environment, compilers included. That is what lets it evaluate expressions, which compile code at request time. When the programs are all you need, `--slim` builds an image without the compilers, the Morloc compiler, pixi, or build headers, keeping every interpreter and package the programs use:
 

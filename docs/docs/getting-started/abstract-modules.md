@@ -1,4 +1,4 @@
-# 3.4. Writing code that is not tied to a language
+# 2.4. Writing code that is not tied to a language
 
 Morloc Manual > Getting Started | https://morloc-project.github.io/docs/getting-started/abstract-modules.html | prev: https://morloc-project.github.io/docs/getting-started/sourcing.md | next: https://morloc-project.github.io/docs/getting-started/mixing-languages.md
 

@@ -1,4 +1,4 @@
-# 6.13. The interface as data
+# 5.13. The interface as data
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/interface-as-data.html | prev: https://morloc-project.github.io/docs/clis/composing-tools.md | next: https://morloc-project.github.io/docs/clis/directive-reference.md
 
@@ -36,7 +36,7 @@ Each command follows. `summarize` is the simplest one in `sift`:
   ],
   "arguments": [
     {
-      "name": "arg0",
+      "name": "_1",
       "role": "positional",
       "position": 0,
       "metavar": null,
@@ -145,13 +145,13 @@ Every type appears three ways, because three different readers want it: `morloc`
 
 ```json
 "epilogues": [
-  "Examples:\n  sift scan needle ./notes\n  sift total needle ./notes"
+  "Examples:\n  sift scan needle ./notes\n  sift -f packet summarize hits.json | sift total"
 ]
 ```
 
 None of this is written by hand or kept in a sidecar file. It is derived from the same types and docstrings as the help text, on the same build, which is what makes it worth trusting: a description that can go stale is a description you have to verify, and this one cannot. Point a script at a directory of Morloc programs and you can build an accurate inventory of every command in it, with argument types, without knowing anything about any of them.
 
-## 6.13.1. Other views of the same commands
+## 5.13.1. Other views of the same commands
 
 Two more flags render the same information for model clients:
 
@@ -170,4 +170,4 @@ $ python3 -c "import json; t = json.load(open('tools.json'))['tools']; print([x[
 
 A command whose result cannot be sent at all, a file handle or a stream handle, is left out, and the reason is printed on standard error rather than left for you to discover.
 
-Serving the same module over MCP and HTTP is covered in [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). It is worth reading together with this section, because they are the same point from three directions: the command line is one view of a typed library, not the thing the library is built on. A CLI, an HTTP endpoint, and an MCP tool are three renderings of one set of functions, and none of them is written by hand.
+Serving the same module over MCP and HTTP is covered in [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md).

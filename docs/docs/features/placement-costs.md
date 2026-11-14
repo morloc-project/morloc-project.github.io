@@ -1,0 +1,73 @@
+# 3.20. Choosing where calls run
+
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/placement-costs.html | prev: https://morloc-project.github.io/docs/features/intrinsics.md | next: https://morloc-project.github.io/docs/types/index.md
+
+When a function has implementations in more than one language, for example the same name sourced from both a Python file and a C++ header ([One term may have many definitions](https://morloc-project.github.io/docs/types/term-polymorphism.md) covers this in full), the compiler chooses one of them for every call. It chooses the placement that crosses between languages the fewest times, counting first the crossings in code that may run many times per call. This section explains that rule and how to see the placement it picks.
+
+You do not need any of this to write a working program, and there is nothing to annotate: the placement depends only on your code.
+
+## 3.20.1. The rule
+
+The compiler compares placements by these, in order:
+
+1.  **Crossings, deepest first.** A crossing is a call from one pool into another, about 20 us whatever it carries. A function you pass to a sourced function, such as the step of a `map` or a `fold`, may be called many times per call, so its crossings count one level deeper than the call; so do the crossings in the body of a recursive function. One crossing at a deeper level outweighs any number at a shallower one.
+2.  **Language preference.** Among placements that cross equally often, C++ comes first, then Rust, then Python, then R.
+3.  **Size.** A sourced function beats a definition in Morloc that does the same work by calling several.
+
+Two sources of one function in one language are an error, since nothing could choose between them; import only one of them.
+
+## 3.20.2. Seeing the placement
+
+`morloc typecheck --realize` prints the placement of every exported function before the generated code. Each line is a named call and the language its implementation runs in, with what it calls indented beneath it. A `*` marks a line in a different language from the line above it: a crossing. The listing shows the program as it is built: a function defined in Morloc appears through the calls in its body, except a recursive one, which keeps its own line.
+
+Here `twice` has a Python and a C++ implementation:
+
+```morloc
+module main (doubled, shown)
+
+import root-py
+import root-cpp
+
+source Py from "f.py" ("twice", "show_int" as showInt)
+source Cpp from "f.hpp" ("twice")
+
+twice :: Int -> Int
+showInt :: Int -> Str
+
+doubled :: Int -> Int
+doubled x = twice x
+
+shown :: Int -> Str
+shown x = showInt (twice x)
+```
+
+```console
+$ morloc typecheck --realize main.loc
+placement:
+  doubled [cpp]
+    twice [cpp]
+  shown [py]
+    showInt [py]
+      twice [py]
+```
+
+`doubled` has no other calls, so nothing crosses either way and C++ wins by preference. In `shown`, moving `twice` to C++ would cross twice, so it stays in Python beside `showInt`.
+
+The next program maps a Python-only function over a list made in C++ and sums the result in C++; `mapEach` exists in both languages:
+
+```morloc
+total :: Int -> Int
+total n = totalOf (mapEach step (upto n))
+```
+
+```console
+$ morloc typecheck --realize main.loc
+placement:
+  total [cpp]
+    totalOf [cpp]
+      mapEach [py] *
+        step [py]
+        upto [cpp] *
+```
+
+Mapping in C++ would cross into Python once per element. Mapping in Python crosses twice in all, the list in and the result out, so `mapEach` runs in Python.

@@ -1,8 +1,8 @@
-# 4.3. Booleans
+# 3.4. Booleans
 
-Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/booleans.html | prev: https://morloc-project.github.io/docs/features/foreign-functions.md | next: https://morloc-project.github.io/docs/features/integers.md
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/booleans.html | prev: https://morloc-project.github.io/docs/features/importing-modules.md | next: https://morloc-project.github.io/docs/features/integers.md
 
-Booleans are written `True` and `False` and have the type `Bool`. The comparison and logical operators come from `root`, so a module that uses them imports one of the `root` implementations.
+Booleans are written `True` and `False` and have the type `Bool`. `&&` and `||` are built in. The comparison operators and the other logical functions come from `root`, so a module that uses them imports one of the `root` implementations.
 
 ```morloc
 yes :: Bool
@@ -19,7 +19,7 @@ $ ./bools yes
 true
 ```
 
-## 4.3.1. Comparison operators
+## 3.4.1. Comparison operators
 
 The `Eq` and `Ord` typeclasses in `root` provide the standard comparisons. They work over any type with the appropriate instance: integers, reals, strings, and tuples and lists of comparable values.
 
@@ -49,7 +49,7 @@ Warning: skipping generic export 'sameLength'
 
 The program still builds; only that one command is absent.
 
-## 4.3.2. Logical operators
+## 3.4.2. Logical operators
 
 | Operator | Meaning |
 | --- | --- |
@@ -81,7 +81,7 @@ false
 
 ### Short-circuiting
 
-`&&` and `||` short-circuit at run time: if the left operand settles the answer, the right one is never evaluated. This is worth demonstrating rather than asserting, because it is not obvious in a language where the two operands may run in different processes.
+`&&` and `||` short-circuit at run time: if the left operand settles the answer, the right one is never evaluated, in every language and wherever the operands run. They are built-in forms rather than ordinary functions, which is why no module can redefine them.
 
 ```morloc
 divZero :: Int -> Int
@@ -105,11 +105,10 @@ With `b` true, it does, and the error surfaces with the call chain that produced
 $ ./shortcircuit test true 5
 Error: run failed
 integer division or modulo by zero
-  at _ [py] (mid=1364, shortcircuit.loc:10:28)
-  at test [py] (mid=1, shortcircuit.loc:1:22)
+  at test [py] (mid=1, shortcircuit.loc:10:1)
 ```
 
-## 4.3.3. Boolean-valued list functions
+## 3.4.3. Boolean-valued list functions
 
 `root` provides three `Foldable` functions that answer questions about a container:
 
@@ -139,25 +138,6 @@ $ ./bools containsZero '[1,0,3]'
 true
 ```
 
-## 4.3.4. Guards
+## 3.4.4. Guards
 
-Booleans drive Morloc’s guard syntax. A guard alternative starts with `?` and selects the first branch whose condition is `True`; the `:` line is the fallthrough:
-
-```morloc
-classify :: Int -> Str
-classify x
-  ? x < 0     = "negative"
-  ? x == 0    = "zero"
-  : "positive"
-```
-
-```console
-$ ./bools classify -4
-"negative"
-$ ./bools classify 0
-"zero"
-$ ./bools classify 7
-"positive"
-```
-
-See [Conditionals](https://morloc-project.github.io/docs/features/conditionals.md) for the full description of guard syntax.
+Booleans drive Morloc’s conditional syntax, the `?`/`:` guard, covered in [Conditionals](https://morloc-project.github.io/docs/features/conditionals.md).

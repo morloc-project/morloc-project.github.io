@@ -1,4 +1,4 @@
-# 13.3. Process lifecycle
+# 12.3. Process lifecycle
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-lifecycle.html | prev: https://morloc-project.github.io/docs/build-architecture/build-artifacts.md | next: https://morloc-project.github.io/docs/build-architecture/build-workers.md
 

@@ -1,4 +1,4 @@
-# 13.9. Streaming and memory mapping
+# 12.9. Streaming and memory mapping
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-streaming.html | prev: https://morloc-project.github.io/docs/build-architecture/build-tables.md | next: https://morloc-project.github.io/docs/build-architecture/build-errors.md
 
@@ -36,7 +36,7 @@ A reader finds the footer from the end of the file through the tail, so random a
 1.  `@open` and `@append` ask the nexus to open the file. It takes an exclusive lock on the file, writes the head (or, for `@append`, finds the end of the last complete batch), registers the stream and starts its writer.
 2.  A `@write` from any process appends its elements to the stream’s buffer in shared memory, holding the stream’s lock only for the copy. One \`@write’s elements stay together; writes from different processes interleave only between writes, in the order they took the lock.
 3.  A full buffer is moved onto the stream’s queue and replaced by an empty one, still under the lock and without touching the file. The writer takes buffers off the queue in order, compresses them on several threads (as under Compression above), and appends them to the file in queue order, so compression never reorders elements.
-4.  The queue holds a bounded number of buffers (7 for a compressed stream, 1 for an uncompressed one). A writer that finds it full waits for the nexus, never for another pool, so streams add no way for pools to deadlock.
+4.  The queue holds a bounded number of buffers (for a compressed stream, the number of compression threads clamped to 2-4, at most 7, and lowered as more streams are written; 1 for an uncompressed one). A writer that finds it full waits for the nexus, never for another pool, so streams add no way for pools to deadlock.
 5.  `@flush` queues the buffered elements and returns once the nexus has written them, so a reader opened afterwards sees them. `@close` does the same and also waits for the final footer, so when it returns the file is complete, its lock is released and its path can be opened again at once.
 
 A process that exits or dies after its `@write` returned loses nothing: its elements are already in shared memory, and the nexus writes them when the stream is flushed or closed. A process that dies while holding the stream’s lock may leave the buffer half updated; the stream is then failed, the batches queued before it are still written, and the footer says `failed`. A stream the program never closes is discarded when its index is dropped or the run ends: what was queued is written, the unflushed elements are dropped, and the file keeps its temporary footer, the sign that its writer did not finish. A daemon recovering from a pool crash ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)) stops every writer before it discards shared memory, and each file ends with a `failed` status.

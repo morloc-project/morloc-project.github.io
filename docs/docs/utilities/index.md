@@ -1,12 +1,10 @@
-# 11. Utilities
+# 10. Utilities
 
 Morloc Manual | https://morloc-project.github.io/docs/utilities/ | prev: https://morloc-project.github.io/docs/languages/futhark.md | next: https://morloc-project.github.io/docs/utilities/nexus-file.md
 
-The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: `file` (identifies a file) and `view` (loads and re-emits a file in a chosen format).
+The nexus has two subcommands that work on data files without a compiled Morloc program: `file` identifies a file, and `view` loads it and re-emits it in a chosen format. Call them on `morloc-nexus` directly; they take no manifest, so no program launcher is involved.
 
-Both are invoked directly via `morloc-nexus`, not through a wrapper script, since they don’t take a manifest.
-
-A typical workflow for ad-hoc inspection of binary morloc data:
+To inspect a binary result:
 
 ```console
 $ ./myprog -f packet -o result.packet mycmd

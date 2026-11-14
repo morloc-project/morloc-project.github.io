@@ -1,4 +1,4 @@
-# 3.9. Troubleshooting
+# 2.9. Troubleshooting
 
 Morloc Manual > Getting Started | https://morloc-project.github.io/docs/getting-started/troubleshooting.html | prev: https://morloc-project.github.io/docs/getting-started/editor-support.md | next: https://morloc-project.github.io/docs/features/index.md
 

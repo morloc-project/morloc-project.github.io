@@ -1,8 +1,8 @@
-# 10.3. Python
+# 9.3. Python
 
 Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/python.html | prev: https://morloc-project.github.io/docs/languages/cpp.md | next: https://morloc-project.github.io/docs/languages/r.md
 
-## 10.3.1. Dependencies (`py-deps`)
+## 9.3.1. Dependencies (`py-deps`)
 
 Declare a module’s Python dependencies in its `package.yaml` under `py-deps`. Every entry must state its `source` — the package database it is drawn from — because Python packages split across two incompatible worlds:
 
@@ -30,9 +30,9 @@ py-deps:
 
 The `channel` field implies `source: conda` (channels are a conda-only concept), so `pysam` above needs no explicit `source`. conda-forge remains the universal default and the highest-priority base; a named channel such as [bioconda](https://bioconda.github.io/) sits **below** it under strict priority and can only supply packages conda-forge lacks. The environment’s channel list is **derived** automatically from the channels its modules declare — channels are never configured at the environment level, because a package’s database of record is a property of the module that needs it, not of where it is deployed.
 
-`channel` is valid only on a conda dependency: pairing it with `source: pypi` is a build error. And because a package has a single database of record, two modules that draw the same package from **different** channels is a build error naming both modules, whichever dependency keys they list it under — unlike differing version constraints, which are simply intersected.
+`channel` is valid only on a conda dependency: pairing it with `source: pypi` is a build error. And because a package has a single database of record, two modules that draw the same package from **different** channels is a build error naming both modules, whichever dependency keys they list it under — unlike differing version constraints, which are intersected.
 
-## 10.3.2. Local packages (`local-deps`)
+## 9.3.2. Local packages (`local-deps`)
 
 A Python package that lives in your project tree rather than in a package database — typically the helper package you are writing alongside the Morloc program — is declared under `local-deps`. The section is keyed by language, and each entry gives a path relative to the module’s directory:
 

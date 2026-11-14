@@ -1,4 +1,4 @@
-# 5.4. Naming a type: `type` and `newtype`
+# 4.4. Naming a type: `type` and `newtype`
 
 Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/newtype.html | prev: https://morloc-project.github.io/docs/types/infix-operators.md | next: https://morloc-project.github.io/docs/types/packable.md
 
@@ -10,9 +10,9 @@ Morloc gives you two keywords for putting a name on a type, and the choice betwe
 
 A third form, a declaration with no right-hand side at all, declares an opaque primitive. That is covered at the end.
 
-## 5.4.1. `type`: transparent aliases
+## 4.4.1. `type`: transparent aliases
 
-An alias is fully substitutable with its right-hand side anywhere a type can appear — in signatures, annotations, container parameters, `Packable` instances, everywhere.
+An alias is fully substitutable with its right-hand side anywhere a type can appear — in signatures, annotations, container parameters, instances, everywhere.
 
 ```morloc
 type Filename = Str
@@ -23,7 +23,7 @@ A `Filename` goes wherever a `Str` is expected and a `Str` goes wherever a `File
 
 Aliases are useful for three things: naming (a signature reads better when a `Filename` is called a `Filename`), shortening long type expressions (`type Coord = (Real, Real)`), and attaching per-argument CLI documentation, which is described below.
 
-## 5.4.2. Alias chains resolve on their own
+## 4.4.2. Alias chains resolve on their own
 
 [Native type mappings](https://morloc-project.github.io/docs/features/foreign-functions.md#mapping-native-types) showed how a general type is mapped to each language:
 
@@ -60,61 +60,15 @@ $ ./prog shout 'smith'
 "SMITH"
 ```
 
-`Surname` resolves to `LastName`, which resolves to `Str`, which resolves to `"str"` in Python. Writing `type Py => Surname = "str"` would be redundant — and, as the next section shows, is rejected.
+`Surname` resolves to `LastName`, which resolves to `Str`, which resolves to `"str"` in Python. Writing `type Py => Surname = "str"` would be redundant — and, as shown below, is rejected.
 
-## 5.4.3. Docstring inheritance
+## 4.4.3. Docstring inheritance
 
-An alias inherits docstring directives from its parent and may override individual fields. This is what makes per-argument CLI documentation work: both aliases below are `Str` for typechecking and codegen, but each carries its own description.
-
-**crypt.loc**
-
-```morloc
-module main (encrypt)
-
-import root-py
-
---' A secret key
---' metavar: KEY
-type Key = Str
-
---' The message to encrypt
-type PlainText = Str
-
---' An encrypted message
-type CipherText = Str
-
---' Encrypt a message with a key
-encrypt :: Key -> PlainText -> CipherText
-encrypt k m = m <> k
-```
-
-```console
-$ morloc make -o crypt crypt.loc
-$ ./crypt encrypt --help
-Encrypt a message with a key
-
-Usage: ./crypt <nexus_options> @ <command_options>
-
-General Options:
-  -h, --help
-          Print help (see a summary with '-h')
-
-Positional arguments:
-  1:  A secret key
-      type: Str    (literal string)
-  2:  The message to encrypt
-      type: Str    (literal string)
-
-Return: CipherText
-  An encrypted message
-...
-```
-
-The `metavar: KEY` directive is recorded and reaches `--json-help` and `--mcp-tools`, but the positional-argument block of `--help` does not print metavars today. See the [Building CLIs](https://morloc-project.github.io/docs/clis/index.md) chapter for the full set of docstring directives.
+A docstring on an alias, with its directives, is inherited by every argument of that type, and an alias may override individual fields of its parent’s. Two `Str` aliases can therefore document two arguments differently; [Docstrings](https://morloc-project.github.io/docs/clis/docstrings.md) shows this in the help output.
 
 `newtype` does not inherit docstrings. A `newtype` is its own identity and its own documentation.
 
-## 5.4.4. What an alias cannot do
+## 4.4.4. What an alias cannot do
 
 An alias has no identity of its own, so it cannot own anything.
 
@@ -144,7 +98,7 @@ Change 'type' to 'newtype' so 'Filename' becomes a nominally distinct type that 
 
 Both errors tell you the fix: use `newtype`.
 
-## 5.4.5. `newtype`: nominal types
+## 4.4.5. `newtype`: nominal types
 
 A `newtype` is a new type that shares a wire format with the type on its right-hand side. Its instances, its native forms, and its identity are its own.
 
@@ -183,196 +137,9 @@ Cannot compare types Str and Path
    |           ^
 ```
 
-The wire format is still `Str` — a `Path` crosses a language boundary as a string — but inside each pool the value is a real `pathlib.Path` or `std::filesystem::path`.
+The wire format is still `Str`: a `Path` crosses a language boundary as a string. Turning that string into a real `pathlib.Path` inside the pool, and converting between `Path` and `Str` explicitly, takes `pack` and `unpack`, the methods of the `Packable` typeclass; [Serializing custom types with `Packable`](https://morloc-project.github.io/docs/types/packable.md) covers them, including when a `newtype` needs an instance of its own.
 
-## 5.4.6. When a `newtype` needs a `Packable` instance
-
-A `newtype` crosses a language boundary as its wire parent. Whether anything has to convert that wire value into the newtype’s native form — and so whether you need a `Packable` instance — depends on one question: is the native form something the pool already has?
-
-**Declare no per-language form and the answer is yes.** The newtype inherits its parent’s native form, so the value that arrives already is the right thing. No instance is needed, whatever the parent’s shape — a primitive, a list, a tuple, or another newtype. This is how the standard library’s `Vector` works in C++: `vector-cpp` declares no `Packable` instance for it at all, because `newtype Vector (n :: Nat) a = List a` and a `List` is already a `std::vector`.
-
-**Declare a form and it travels with the value as a schema hint.** If the language binding knows how to build that form, you still need no instance. Python’s binding recognises `bytes`, `bytearray`, `list`, and `numpy.ndarray` (`data/lang/py/pymorloc.c`); `numpy.ndarray` is what puts tensor data on the zero-copy path.
-
-**Anything else needs a `Packable`.** The instance is the general answer: it says how to build the native form from the wire form and back.
-
-Three newtypes over `Str`, one of each kind:
-
-**forms.loc**
-
-```morloc
-module main (nameKind, blobKind, pathKind)
-
-import root-py
-
-newtype Name = Str
-
-newtype Blob = Str
-type Py => Blob = "bytes"
-
-newtype Path = Str
-type Py => Path = "pathlib.Path"
-
-source Py from "native.py"
-  ("kind" as nameKind, "kind" as blobKind, "kind" as pathKind)
-
-nameKind :: Name -> Str
-blobKind :: Blob -> Str
-pathKind :: Path -> Str
-```
-
-**native.py**
-
-```python
-import pathlib
-
-def kind(x):
-    return type(x).__name__
-
-def str_to_path(s):
-    return pathlib.Path(s)
-
-def path_to_str(p):
-    return str(p)
-```
-
-`kind` reports what the pool actually received:
-
-```console
-$ morloc make -o forms forms.loc
-$ ./forms nameKind notes/report.txt
-"str"
-$ ./forms blobKind notes/report.txt
-"bytes"
-$ ./forms pathKind notes/report.txt
-"str"
-```
-
-`Name` inherits ``Str’s form and gets a `str``, as declared. `Blob` asked for `bytes` and got one, with no instance, because the Python binding builds that hint. `Path` asked for `pathlib.Path` and got a `str` — the binding does not know that hint, and nothing said so.
-
-> **Warning: An unsupported form is dropped silently**
-> That third line is a trap. The module declares `pathlib.Path`, the pool receives a `str`, and there is no error and nothing on stderr. Your foreign function fails later, against a contract the compiler accepted.
-> 
-> Add the `Packable` instance and it is right:
-> 
-> ```morloc
-> instance Packable Str Path where
->   source Py from "native.py" ("str_to_path" as pack, "path_to_str" as unpack)
-> ```
-> 
-> ```console
-> $ ./forms2 pathKind notes/report.txt
-> "PosixPath"
-> ```
-> 
-> Until this is caught at compile time, write the instance whenever you declare a per-language form outside the four the binding recognises.
-
-A worked example with the instance in place, and a typeclass scoped to the new type:
-
-**path.loc**
-
-```morloc
-module main (ext, joined, absolute)
-
-import root-py
-
-newtype Path = Str
-type Py => Path = "pathlib.Path"
-
-instance Packable Str Path where
-  source Py from "pathlib_ops.py" ("str_to_path" as pack,
-                                   "path_to_str" as unpack)
-
-class Filelike a where
-  extension  :: a -> Str
-  joinPath   :: a -> a -> a
-  isAbsolute :: a -> Bool
-
-instance Filelike Path where
-  source Py from "pathlib_ops.py"
-    ( "path_extension"   as extension
-    , "path_join"        as joinPath
-    , "path_is_absolute" as isAbsolute
-    )
-
-ext :: Path -> Str
-ext = extension
-
-joined :: Path -> Path -> Path
-joined = joinPath
-
-absolute :: Path -> Bool
-absolute = isAbsolute
-```
-
-**pathlib\_ops.py**
-
-```python
-import pathlib
-
-def str_to_path(s):
-    return pathlib.Path(s)
-
-def path_to_str(p):
-    return str(p)
-
-def path_extension(p):
-    return p.suffix
-
-def path_join(a, b):
-    return a / b
-
-def path_is_absolute(p):
-    return p.is_absolute()
-```
-
-```console
-$ morloc make -o prog path.loc
-$ ./prog ext 'notes/report.txt'
-".txt"
-$ ./prog joined '/home/z' 'notes.txt'
-"\/home\/z\/notes.txt"
-$ ./prog absolute 'notes.txt'
-false
-```
-
-`Filelike` methods are available on `Path` and not on bare `Str`, which is exactly the constraint that makes the `newtype` worth declaring: a function over filesystem paths cannot be handed an arbitrary string.
-
-## 5.4.7. Sharing a wire format across newtypes
-
-`newtype` is how a family of related types share one serialized representation while keeping distinct behaviour. `root` declares `Deque` this way:
-
-```morloc
-newtype Deque a = List a
-instance Packable (List a) (Deque a)
-```
-
-`Deque` is a separate type from `List` — it has its own `Stack` and `Queue` instances, tuned to a deque’s performance profile — but it travels as a flat list, so on the command line it looks like one:
-
-**deque.loc**
-
-```morloc
-module main (pushFront, asList)
-
-import root-py
-
-pushFront :: Int -> Deque Int -> Deque Int
-pushFront = cons
-
-asList :: Deque Int -> [Int]
-asList = unpack
-```
-
-```console
-$ morloc make -o prog deque.loc
-$ ./prog pushFront 0 '[1,2,3]'
-[0,1,2,3]
-$ ./prog asList '[1,2,3]'
-[1,2,3]
-```
-
-`unpack` is the `Packable` method that converts the native form back to the wire form; it is the explicit conversion the nominal distinction demands.
-
-## 5.4.8. Declarations with no body
+## 4.4.6. Declarations with no body
 
 A declaration with no right-hand side introduces a primitive: nominal, opaque, owning its own per-language forms and instances, with no underlying Morloc representation.
 
@@ -392,12 +159,12 @@ type Py  => Map key val = "dict" key val
 type Cpp => Map key val = "std::map<$1,$2>" key val
 ```
 
-Such a type needs a `Packable` instance to say what it looks like on the wire. That is the next section.
+Such a type has no wire form, so a value of it cannot cross between languages. To let it cross, give it a body, as `Map` does in [Serializing custom types with `Packable`](https://morloc-project.github.io/docs/types/packable.md).
 
-## 5.4.9. The rules
+## 4.4.7. The rules
 
 1.  **An instance belongs to the root of an alias chain.** `instance Foo MyAlias` where `type MyAlias = Bar` is rejected. Declare it on `Bar`, or make `MyAlias` a `newtype`.
 2.  **Every member of a `type` chain shares the root’s instances.** With `type A = Str` and `type B = Str`, the single `instance Eq Str` is found at every site that mentions `A`, `B`, or `Str`.
 3.  **A `type` alias may not carry a per-language form.** `type Py ⇒ MyAlias = "…​"` is rejected. Use `newtype`.
-4.  **A `newtype` is nominal.** It owns its instances and its per-language forms. It needs a `Packable` instance only when it declares a native form that the language binding cannot build from the wire form on its own.
-5.  **`newtype` wire-parent chains may not cycle.** `newtype A = B` with `newtype B = A` gives `Mutual recursion between type definitions is not supported. Cycle: A, B`.
+4.  **A `newtype` is nominal.** It owns its instances and its per-language forms. It needs a `Packable` instance only when it declares a native form that the language binding cannot build from the wire form on its own ([Serializing custom types with `Packable`](https://morloc-project.github.io/docs/types/packable.md)).
+5.  **`newtype` wire-parent chains may not cycle.** `newtype A = B` with `newtype B = A` gives ``Mutual recursion between type definitions is not supported unless a `data` type cuts the cycle. Cycle: A, B``.

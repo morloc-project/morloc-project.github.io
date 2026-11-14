@@ -1,4 +1,4 @@
-# 4.6. Strings
+# 3.7. Strings
 
 Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/strings.html | prev: https://morloc-project.github.io/docs/features/floats.md | next: https://morloc-project.github.io/docs/features/tuples-and-lists.md
 
@@ -14,7 +14,7 @@ $ ./strs cn
 "你知道得太多了🤫"
 ```
 
-## 4.6.1. Interpolation
+## 3.7.1. Interpolation
 
 `#{…​}` splices an expression into a string. The expression must already have type `Str` — nothing is converted for you. To embed an `Int`, `Real`, `Bool`, or anything else, call `show` (or another explicit stringifier) inside the braces:
 
@@ -33,7 +33,7 @@ $ ./strs sayCount 42
 "count: 42"
 ```
 
-## 4.6.2. Escapes
+## 3.7.2. Escapes
 
 Inside a string, a backslash introduces an escape sequence:
 
@@ -67,7 +67,7 @@ $ morloc typecheck escwin.loc
 escwin.loc:6:8: invalid escape sequence \U
 ```
 
-## 4.6.3. Triple-quoted strings
+## 3.7.3. Triple-quoted strings
 
 Triple quotes come in double and single flavours. On one line they save you from escaping the other kind of quote:
 
@@ -112,7 +112,7 @@ $ ./strs longString
 
 The leading and trailing newlines and the two-space indent are all gone, which is what lets you write natural paragraphs without breaking your code’s indentation.
 
-## 4.6.4. NUL bytes in strings
+## 3.7.4. NUL bytes in strings
 
 This is the thorniest corner of multi-language string support, and it is worth understanding before it bites you.
 

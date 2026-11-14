@@ -1,4 +1,4 @@
-# 13.2. Compilation artifacts
+# 12.2. Compilation artifacts
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-artifacts.html | prev: https://morloc-project.github.io/docs/build-architecture/build-overview.md | next: https://morloc-project.github.io/docs/build-architecture/build-lifecycle.md
 

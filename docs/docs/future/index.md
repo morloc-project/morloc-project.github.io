@@ -1,13 +1,26 @@
-# 15. Future Directions
+# 14. Future Directions
 
 Morloc Manual | https://morloc-project.github.io/docs/future/ | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.md | next: https://morloc-project.github.io/docs/qa/index.md
 
-## 15.1. Planes of libraries
+## 14.1. What this makes possible
+
+Everything in [Why Morloc](https://morloc-project.github.io/docs/why/index.md) is already in the compiler. What it is **for** is not built yet, and I want to be plain about which is which.
+
+If interfaces are derived rather than written, the only artifact worth publishing is the function itself. That makes a few things possible that are not possible today:
+
+-   **A library indexed by type.** The compiler already knows every exported signature. Searching a library by the shape of the function you need, across languages, becomes a question of building the index rather than inventing the data.
+-   **Implementations that compete.** One signature, many implementations, with shared tests and shared benchmarks deciding between them — across languages, on your data.
+-   **Composition that is checked rather than trusted.** If two modules typecheck against a common environment, they compose, and the compiler proves it where they meet. No pairwise integration testing is required, so the guarantee does not get more expensive as the library grows.
+-   **Communities organized by values instead of by language.** Morloc calls these **planes**: namespaces that differ not by subject area or language but by what their members demand of code — review, verification, performance, or nothing at all. See [Planes of libraries](#planes-of-libraries).
+
+None of that infrastructure exists yet. There is no registry, no type-directed search, and no plane but the default one.
+
+## 14.2. Planes of libraries
 
 > **Important**
 > The infrastructure for "planes" is not yet constructed, so the following is speculative
 
-The concept of "planes" is central to the future organization of Morloc and is one of the primary reasons that I created it. A **plane** is like a namespace for a community’s modules—​but instead of organizing by category or programming language, modules in a plane share a common philosophy about quality, trustworthiness, software design and the review process.
+The concept of "planes" is central to the future organization of Morloc and is one of the primary reasons that I created it. A **plane** is like a namespace for a community’s modules — but instead of organizing by category or programming language, modules in a plane share a common philosophy about quality, trustworthiness, software design and the review process.
 
 Currently, the universe of functions is separated first by language and then by subject area. Morloc, being polyglot, allows the first mode of separation to be lifted, so language does not need to separate communities. Instead, communities can organize around **values**.
 
@@ -15,7 +28,7 @@ Currently, the universe of functions is separated first by language and then by 
 -   **Design philosophy:** Groups may prioritize safety, raw performance, or elegance by some metric.
 -   **Use case:** Planes may focus on production, pedagogy, competition or experimentation.
 
-Making these differences explicit (and easy to navigate) lets the community set and find their own standards.
+Making these differences explicit (and navigable) lets the community set and find their own standards.
 
 **Real-World Analogs**
 
@@ -35,7 +48,7 @@ You could probably find more "planes" in R, but these three capture the idea of 
 -   **true**: Formally verified modules, strict on what languages are allowed (e.g., dependently typed languages).
 -   **prod**: Production ready modules, combining safety and performance.
 -   **comp**: Modules suited for competitive programming; all performance, no safety checks or focus on software design principles.
--   **red**: Adversarial modules—​written to give the Morloc bot problems. Probably don’t want to import these.
+-   **red**: Adversarial modules — written to give the Morloc bot problems. Probably don’t want to import these.
 -   **weird**: Esoteric code. For silly implementations that abuse languages in fun ways.
 -   **demo**: Prototypes, examples, and proof-of-concept modules. More pedagogical than practical.
 
@@ -49,8 +62,8 @@ Again, the architecture is in development. But here is the basic process:
 2.  **AI Vetting:** Our AI (Weena) checks code for basic standards.
 3.  **Acceptance:** After being accepted, the module defaults to the `unstable` plane.
 4.  **Level Up:** Module authors can then apply to join other planes. Getting accepted depends on the plane’s review process (could be peer review, automated testing, thumbs up from community members, or nothing at all).
-5.  **Multiple Planes:** Modules can exist in multiple planes at once—​different communities may trust the same code for different reasons.
+5.  **Multiple Planes:** Modules can exist in multiple planes at once — different communities may trust the same code for different reasons.
 
 This process will eventually be mediated on the website morloc.io (under construction).
 
-Overall, planes help you find code that matches your needs and values—​whether you want ultimate safety, bleeding-edge performance, or just something weird that might surprise you. They also provide community and allow relations between different codebases to be specified.
+Overall, planes help you find code that matches your needs and values — whether you want ultimate safety, bleeding-edge performance, or just something weird that might surprise you. They also provide community and allow relations between different codebases to be specified.

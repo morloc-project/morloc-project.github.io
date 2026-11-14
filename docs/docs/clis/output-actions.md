@@ -1,4 +1,4 @@
-# 6.10. Output actions
+# 5.10. Output actions
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/output-actions.html | prev: https://morloc-project.github.io/docs/clis/output-formats.md | next: https://morloc-project.github.io/docs/clis/streaming-output.md
 
@@ -26,10 +26,10 @@ The directive names the flag and the term: `@with -c/--count=countHits` means "t
 $ ./sift scan -h
 ...
 General Options:
-  -h, --help   Print help; -hh adds details and examples, -hhh adds schemas
-               (nexus options: -h @)
-  -c, --count  Report the number of matches instead of the matches
-  -p, --plain  Print one `path:line:text` record per line
+  -h, --help            Print help; -hh adds details and examples, -hhh adds schemas
+                        (nexus options: -h @)
+  -c, --count[=<PATH>]  Report the number of matches instead of the matches
+  -p, --plain[=<PATH>]  Print one `path:line:text` record per line
 ...
 ```
 
@@ -44,9 +44,10 @@ Because each flag produces a different type, `-h` reports the return as a table 
 
 ```console
 Return:
-  default:    [Hit]
-  -c/--count: U64
-  -p/--plain: Str
+  type: [Hit]
+  actions:
+    -c/--count: U64
+    -p/--plain: Str  (raw bytes)
 ...
 ```
 
@@ -54,7 +55,7 @@ The command’s declared return type is unchanged. Morloc code that composes `sc
 
 `@parse` is the same idea on the way in: it reads an argument from a file in another format before the command runs (see [Reading files in other formats](https://morloc-project.github.io/docs/clis/arguments.md#parse-arguments)). A command can use both; its arguments are read first, whatever output action is chosen.
 
-## 6.10.1. `@with` keeps a value; `@render` produces bytes
+## 5.10.1. `@with` keeps a value; `@render` produces bytes
 
 The two directives differ in what they do with the formatter’s result.
 
@@ -81,13 +82,13 @@ $ ./sift scan the notes -p
 "notes\/todo.txt:2:fix the parser\nnotes\/todo.txt:3:write the manual\nnotes\/2026\/plan.txt:1:fix the build\nnotes\/2026\/plan.txt:2:ship the manual\n"
 ```
 
-A `@render` handler must return `Str` or `[U8]`. Use `@with` when the result is data for something else to read, and `@render` when it is text or bytes for a human or a file.
+A `@render` handler must return `Str`, `[Str]`, bytes (`Vector U8`), or a list of byte vectors. Use `@with` when the result is data for something else to read, and `@render` when it is text or bytes for a human or a file.
 
 A third case falls out of the same rule: a formatter that returns `()` is a **sink**. It has already done the writing itself — printed, saved a file, sent a request — and nothing goes on the wire. `Unit` in the `Return:` table marks one.
 
 The table marks the framing too: `(raw bytes)` after a type means the row is a `@render` action, so those bytes go out as they are and `-f` does not apply to them.
 
-## 6.10.2. Giving a formatter arguments
+## 5.10.2. Giving a formatter arguments
 
 A formatter may take arguments besides the value it formats. `$1`, `$2`, …​ refer to the command’s own arguments by position, and `@value` refers to the value being formatted. Write them as a call:
 
@@ -153,7 +154,7 @@ fruit-2             2
 
 The value being formatted is appended last unless you place it yourself, so `tabulate($2)` applies `tabulate width rows`, while `tabulate(@value, $2)` would apply `tabulate rows width`.
 
-## 6.10.3. Choosing a default
+## 5.10.3. Choosing a default
 
 Mark one action `@default` and it writes to stdout when no action flag claims stdout and no `-f` is given (see [Several outputs in one run](#action-files) for actions given a path). That is how a command gets human-readable output by default while keeping its typed output one flag away:
 
@@ -179,7 +180,7 @@ $ ./rep -f json @ fruit 12
 
 An explicit `-f` suppresses the default, which is what makes the typed output reachable again. At most one action per command may be `@default`.
 
-## 6.10.4. Media types
+## 5.10.4. Media types
 
 Bytes carry no label. A PNG and a CSV are both `[U8]` as far as the type system is concerned, and a caller that receives one has no way to tell which. `@mime` attaches a media type (RFC 6838 `type/subtype`) to a **type**, once:
 
@@ -238,9 +239,10 @@ $ ./ramp -h
 Draw an n-by-n grayscale ramp
 ...
 Return:
-  default:    image/png
-  -w/--write: image/png    (raw bytes)
-  A PNG image
+  type: image/png
+  desc: A PNG image
+  actions:
+    -w/--write: image/png  (raw bytes)
 ```
 
 It does more than label. The HTTP daemon returns the raw bytes with a matching `Content-Type` instead of a JSON envelope, and the MCP server delivers them as an inline image block rather than an array of numbers — see [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md). A media-typed return must reduce to `Str` or a byte array (`[U8]`), or a list of either; anything else is rejected at compile time.
@@ -252,11 +254,11 @@ $ ./ramp 4 > out.png
 $ file out.png
 out.png: PNG image data, 4 x 4, 8-bit grayscale, non-interlaced
 
-$ ./ramp -f json 4 | head -c 40
+$ ./ramp -f json @ 4 | head -c 40
 [137,80,78,71,13,10,26,10,0,0,0,13,73,72
 ```
 
-## 6.10.5. Several outputs in one run
+## 5.10.5. Several outputs in one run
 
 An action flag takes an optional path, attached with `=`. `--json` writes to stdout as before; `--json=rows.json` writes to the file instead. Several actions may be named at once, each with its own path, and the command runs once to feed them all — the way to get a genome and its annotation table from one expensive run:
 
@@ -291,7 +293,7 @@ What makes this possible is that the run saves the command’s output, and the a
 
 A `-f` that one of the outputs cannot take — `csv` for a value that is not a table, or `mpk` for a stream — is refused before the command runs.
 
-## 6.10.6. Rules and rejections
+## 5.10.6. Rules and rejections
 
 -   At most one action writes to stdout. Two bare action flags, or a bare one with `--no-stdout`, are rejected, as are one path given to two actions, a path that is also ``-o’s, and an empty `--act=``.
 -   A streaming command with actions must return `()`: its actions apply to what it streams.

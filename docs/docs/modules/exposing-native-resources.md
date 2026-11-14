@@ -1,8 +1,8 @@
-# 8.4. Exposing native resources
+# 7.3. Exposing native resources
 
 Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/exposing-native-resources.html | prev: https://morloc-project.github.io/docs/modules/universal-library.md | next: https://morloc-project.github.io/docs/modules/data-transfer.md
 
-The `dependencies` field links against shared libraries. The `expose` field handles a different need: a module that defines a C++ struct, a Python class, or an R helper whose definition downstream foreign code needs to `#include` (or `import`, or `source`) by name. On install, listed files are copied to per-language well-known paths under `$MORLOC_HOME`, namespaced by module name. Downstream code then refers to them through a stable path that is the same for every consumer.
+A module’s `package.yaml` can link against shared libraries through its `dependencies` field ([Configuring the C++ build](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build)). The `expose` field handles a different need: a module that defines a C++ struct, a Python class, or an R helper whose definition downstream foreign code needs to `#include` (or `import`, or `source`) by name. On install, listed files are copied to per-language well-known paths under `$MORLOC_HOME`, namespaced by module name. Downstream code then refers to them through a stable path that is the same for every consumer.
 
 ```yaml
 expose:
@@ -19,7 +19,7 @@ Each key is optional. Paths are relative to the module root; glob patterns ( **w
 | Python | `$MORLOC_HOME/lib/python/<py_module>/...` | `import <py_module>.foo` |
 | R | `$MORLOC_HOME/lib/R/<module>/...` | `.morloc.source("<module>/foo.R")` |
 
-For Python, hyphens in the module name are converted to underscores so the destination is a legal Python identifier (a module `tensor-cpp` becomes `tensor_cpp`). The C subtree \`$MORLOC\_HOME/include\` is already on every C pool’s `-I` path, so no compile flags need tweaking; consumers just write the namespaced `#include`. `morloc uninstall` symmetrically removes the exposed copies alongside the install dir.
+For Python, hyphens in the module name are converted to underscores so the destination is a legal Python identifier (a module `tensor-cpp` becomes `tensor_cpp`). The C++ subtree `$MORLOC_HOME/include` is already on every C++ pool’s `-I` path, so no compile flags need tweaking; consumers write the namespaced `#include`. `morloc uninstall` symmetrically removes the exposed copies alongside the install dir.
 
 A worked example. The `people` module declares a Morloc type backed by a C++ struct and exposes the header that defines it:
 
@@ -95,4 +95,4 @@ inline std::string greet(const person_t& p) {
 }
 ```
 
-The same exposed header is discoverable from non-Morloc C programs too: compile with \`g -I$MORLOC\_HOME/include\` and `#include "people/person.hpp"` works identically.
+The same exposed header is discoverable from non-Morloc C++ programs too: compile with `g++ -I$MORLOC_HOME/include` and `#include "people/person.hpp"` works identically.

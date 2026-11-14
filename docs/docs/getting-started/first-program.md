@@ -1,4 +1,4 @@
-# 3.2. Your first program
+# 2.2. Your first program
 
 Morloc Manual > Getting Started | https://morloc-project.github.io/docs/getting-started/first-program.html | prev: https://morloc-project.github.io/docs/getting-started/installing.md | next: https://morloc-project.github.io/docs/getting-started/sourcing.md
 

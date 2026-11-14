@@ -1,4 +1,4 @@
-# 11.1. morloc-nexus file
+# 10.1. morloc-nexus file
 
 Morloc Manual > Utilities | https://morloc-project.github.io/docs/utilities/nexus-file.html | prev: https://morloc-project.github.io/docs/utilities/index.md | next: https://morloc-project.github.io/docs/utilities/nexus-view.md
 
@@ -21,7 +21,7 @@ empty.bin: empty
 
 For morloc packets, classification is magic-byte based and seek-only, so even a multi-gigabyte CALL or STREAM packet costs a few hundred bytes of I/O. The on-disk file size is checked against the size declared in the packet header by default; truncated or oversize packets are reported and exit non-zero.
 
-## 11.1.1. Stream packets
+## 10.1.1. Stream packets
 
 Stream-packet output carries the footer’s summary when one is present. `state=final` marks a cleanly closed stream (final footer + end-of-file tail present); `state=temp` marks an intermediate mid-stream footer written by an in-progress `@close`; `state=missing` marks a stream whose writer exited before writing a footer.
 
@@ -29,18 +29,18 @@ For `state=missing` files, `morloc-nexus file` runs a bounded forward scan of th
 
 For the remaining formats, classification reads up to one kilobyte of the file and feeds it through the same parsers the runtime uses on real ingest.
 
-## 11.1.2. Options
+## 10.1.2. Options
 
 | `-F`, `--no-file` | Suppress the `<path>:` prefix. |
 | --- | --- |
 | `-D`, `--no-description` | Suppress every `key=value` field; keep only the type token. `-FD` combined yields a clean type stream for programmatic use. |
 | `-v`, `--verbose` | Break the one-line rule. CALL packets emit one indented `arg[i]: data-packet ...` line per argument. CSV files emit one indented `<name>:<type>` line per column, with type inferred as one of `int`, `float`, `str`, `bool`, `date`, `time`, or `other`. STREAM packets emit the extended footer diag (writer pid, flush timestamps, oversize count, largest sub-packet, EOF tail window). |
-| `-n`, `--bytes SIZE` | Bytes read for content-based detection. Accepts a K / M / G suffix. Default `1k`. Morloc-packet detection always uses just the 32-byte header regardless. |
+| `-n`, `--bytes SIZE` | Bytes read for content-based detection. Accepts a K / M / G suffix. Default `1k`. Morloc-packet detection always uses only the 32-byte header. |
 | `--json` | Emit one JSON object per file. JSON output is unaffected by `-F` / `-D` / `-v` and always includes the full structure, including CSV column names and types. |
 | `--validate` | After classifying, fully load each file through the exact same loader the `run` subcommand uses, then discard the result. Appends `validated=yes`, `validated=no error="<msg>"`, or `validated=structure-only`. If `file --validate` passes, `run` (or `view`) reading the same file will not fail at the load stage. |
 | `--schema STRING` | Morloc schema used by `--validate` for inputs that don’t embed one. Ignored without `--validate`. |
 
-## 11.1.3. Verbose example
+## 10.1.3. Verbose example
 
 ```console
 $ morloc-nexus file -v people.csv

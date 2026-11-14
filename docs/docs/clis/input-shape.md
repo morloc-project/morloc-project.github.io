@@ -1,4 +1,4 @@
-# 6.7. Input shape
+# 5.7. Input shape
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/input-shape.html | prev: https://morloc-project.github.io/docs/clis/sum-type-arguments.md | next: https://morloc-project.github.io/docs/clis/reading-stdin.md
 
@@ -55,7 +55,7 @@ Which combinations are legal depends on the argument’s wire type. The tables b
 | *(default)* | argv is JSON, or a path to a file holding JSON / MessagePack / a packet. A `Table` also reads CSV, TSV, Arrow IPC and Parquet files. |
 | `@form table` | Only on a `Table`. As the default, but never JSON or an inline value. See [Tables with a header](#form-table). |
 
-## 6.7.1. A worked example
+## 5.7.1. A worked example
 
 The `scanAll` in `sift` uses two of these. The pattern list is a file with one pattern per line, and the search root must be a directory that exists:
 
@@ -108,7 +108,7 @@ $ ./sift scan the nosuchdir
 Error: argument #1: check.path: r requires path 'nosuchdir' to exist and be readable
 ```
 
-## 6.7.2. Shape follows the wire form
+## 5.7.2. Shape follows the wire form
 
 Shape is classified against an argument’s **wire form**, not its source-level type name. A type declared with `Packable [(a, b)] T` crosses the language boundary as a list of pairs, so the CLI treats it as `[(a, b)]` and every list modifier is available.
 
@@ -155,12 +155,12 @@ $ ./tally counts.jsonl
 > $ printf 'name\tcount\napple\t3\n' > hdr.tsv
 > $ ./tally hdr.tsv
 > Error: failed to parse argument #0: serialization error: JSON parse error: expected value at line 1 column 10
->   hint: the first row (`name	count`) looks like a column-name header. `form: list` is headerless -- remove the header row, or read the file with `@form table`, which binds columns by name.
+>   hint: the first row (`name	count`) looks like a column-name header. `@form list` is headerless -- remove the header row, or read the file with `@form table`, which binds columns by name.
 > ```
 > 
 > A file with a header belongs to `@form table`, below.
 
-## 6.7.3. Tables with a header
+## 5.7.3. Tables with a header
 
 `@form table` reads a file whose first row names its columns. On a list of records, each column binds to the field it names, so the columns may come in any order; on a `Table` it fixes how the file is read, as described at the end of this section. Every cell is checked against its field’s type before your function runs.
 

@@ -1,4 +1,4 @@
-# 7.5. Remote job submission
+# 6.5. Remote job submission
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/remote-jobs.html | prev: https://morloc-project.github.io/docs/runs/caching.md | next: https://morloc-project.github.io/docs/runs/compression.md
 
@@ -7,7 +7,7 @@ A labeled call can run as a separate job on a SLURM cluster. This is for the ste
 > **Warning: Experimental Feature**
 > Remote jobs are tested against a stand-in for `sbatch` and `sacct` that runs each job on the same machine, not on a real cluster. Setting up a cluster for them is covered in [Running on a cluster](https://morloc-project.github.io/docs/apis/execution-contexts.md).
 
-## 7.5.1. Sending a call to a job
+## 6.5.1. Sending a call to a job
 
 A label (see [Logging](https://morloc-project.github.io/docs/runs/logging.md)) with a `remote:` block makes every call through it a job:
 
@@ -62,7 +62,7 @@ $ ./heavy foo '["a","bcd","ef"]'
 
 The second build submits jobs. `morloc make --slurm` turns submission on for one build; `morloc init --slurm` turns it on for every build in the environment.
 
-## 7.5.2. Describing the job
+## 6.5.2. Describing the job
 
 The `remote:` block lists the resources each job asks for. Every field is optional; a field you leave out is not requested, and the cluster’s default applies. A `memory` or `time` of 0 is passed on, and SLURM reads it as all of a node’s memory or no time limit; `threads` or `gpus` of 0 is not requested.
 
@@ -81,7 +81,7 @@ Failed to parse module config file 'heavy.loc': Aeson exception:
 Error in $['labeled-groups'].big.remote.time: Expected a string for SLURM time
 ```
 
-## 7.5.3. What runs in the job
+## 6.5.3. What runs in the job
 
 A label wraps exactly one call of the function it is written on. The job runs that function and everything the function’s own body calls, including its recursive calls. Everything else stays in the program that made the call, which the rest of this section calls the job’s **parent**.
 
@@ -107,7 +107,7 @@ heavy.loc:10:10: A label goes on the name of a function or a suspension, never o
 
 A job can submit jobs of its own. If `runPrepared` called `big@run`, each `runPrepared` job would be the parent of a `run` job. Removing the inner label runs `run` inside the outer job instead.
 
-## 7.5.4. Effects
+## 6.5.4. Effects
 
 A job is where expensive work happens, and expensive work usually reads files or queries a database: it has an effect (see [Effects and delayed evaluation](https://morloc-project.github.io/docs/features/effects.md)). A labeled call to an effectful function runs the effect in the job. A label on a suspension makes each run of the suspension a job:
 
@@ -151,7 +151,7 @@ $ ./jobs summarize 1
 12
 ```
 
-## 7.5.5. Results
+## 6.5.5. Results
 
 Each call submits a new job. A job’s inputs and result pass through files in a directory the parent and the job share ([Remote jobs](https://morloc-project.github.io/docs/ecosystem-architecture/eco-remote.md)), and the parent deletes them once it has read the result. To keep a job’s result and skip the job the next time the same call is made, ask for the cache as well:
 
@@ -181,6 +181,6 @@ Error: run failed: [Errno 2] No such file or directory: 'counts.txt'
 
 A failed job’s files are kept, so you can read the whole of its standard error at the path the message gives.
 
-## 7.5.6. What a job can receive
+## 6.5.6. What a job can receive
 
 An argument or result crosses to another machine, so it must be a value that means the same thing there. A file handle (`IFile`) is sent as its path, which the job opens on the shared filesystem. An input or output stream (`IStream`, `OStream`) belongs to the running program and cannot be sent to a job; a call that tries is an error. A job also cannot return an `IStream`.

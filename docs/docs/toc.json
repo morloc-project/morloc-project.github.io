@@ -8,95 +8,58 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "8954db11d6336510ae988b5f0825c86f6023b86c"
+  "source": "aecf61cc2d1596331c544758f354839c2d956484"
  },
  "pages": [
   {
    "number": "1.",
-   "title": "Intro",
-   "id": "intro",
-   "url": "https://morloc-project.github.io/docs/intro/",
-   "md": "https://morloc-project.github.io/docs/intro/index.md",
-   "chapter": "intro",
-   "level": 1,
-   "summary": "Morloc replaces the application with the function as the unit you build, publish, and compose.",
-   "headings": [
-    {
-     "id": "one-program",
-     "title": "Morloc in one program",
-     "number": "1.1."
-    },
-    {
-     "id": "what-morloc-is-not",
-     "title": "What Morloc is not",
-     "number": "1.2."
-    }
-   ]
-  },
-  {
-   "number": "2.",
-   "title": "Why Morloc?",
+   "title": "Why Morloc",
    "id": "why",
    "url": "https://morloc-project.github.io/docs/why/",
    "md": "https://morloc-project.github.io/docs/why/index.md",
    "chapter": "why",
    "level": 1,
-   "summary": "Every command line tool must reimplement solutions to the same set of problems.",
+   "summary": "Every command line tool reimplements the same machinery: argument parsing, input and output formats, help text, streaming, exit codes.",
    "headings": [
     {
-     "id": "derived-interface",
-     "title": "The interface is derived, not written",
-     "number": "2.1."
+     "id": "one-program",
+     "title": "One program",
+     "number": "1.1."
     },
     {
      "id": "values-cross-boundaries",
      "title": "Values cross boundaries, not file formats",
-     "number": "2.2."
+     "number": "1.2."
     },
     {
      "id": "signature-vs-implementation",
-     "title": "A signature and its implementations are separate things",
-     "number": "2.3."
-    },
-    {
-     "id": "tests-follow-the-type",
-     "title": "Tests and benchmarks follow the type, not the language",
-     "number": "2.4."
+     "title": "One signature, many implementations",
+     "number": "1.3."
     },
     {
      "id": "toolboxes",
-     "title": "Toolboxes add and subtract",
-     "number": "2.5."
+     "title": "Tools compose by import",
+     "number": "1.4."
     },
     {
      "id": "annotations",
-     "title": "Caching, logging, and placement are annotations",
-     "number": "2.6."
+     "title": "Caching, logging and placement are annotations",
+     "number": "1.5."
     },
     {
      "id": "one-environment",
      "title": "One environment, solved once",
-     "number": "2.7."
+     "number": "1.6."
     },
     {
-     "id": "what-this-makes-possible",
-     "title": "What this makes possible",
-     "number": "2.8."
-    },
-    {
-     "id": "project-status",
-     "title": "Where the project stands",
-     "number": "2.9."
-    },
-    {
-     "id": "what-i-need",
-     "title": "What I need",
-     "number": "2.10."
+     "id": "what-morloc-is-not",
+     "title": "What Morloc is not",
+     "number": "1.7."
     }
    ]
   },
   {
-   "number": "3.",
+   "number": "2.",
    "title": "Getting Started",
    "id": "getting-started",
    "url": "https://morloc-project.github.io/docs/getting-started/",
@@ -107,7 +70,7 @@
    "headings": []
   },
   {
-   "number": "3.1.",
+   "number": "2.1.",
    "title": "Installing Morloc",
    "id": "installing",
    "url": "https://morloc-project.github.io/docs/getting-started/installing.html",
@@ -119,7 +82,7 @@
     {
      "id": "installing-mim",
      "title": "Installing mim",
-     "number": "3.1.1."
+     "number": "2.1.1."
     },
     {
      "id": "_what_mim_needs_from_your_host",
@@ -129,22 +92,22 @@
     {
      "id": "_choosing_a_backend",
      "title": "Choosing a backend",
-     "number": "3.1.2."
+     "number": "2.1.2."
     },
     {
      "id": "_creating_an_environment",
      "title": "Creating an environment",
-     "number": "3.1.3."
+     "number": "2.1.3."
     },
     {
      "id": "_working_inside_an_environment",
      "title": "Working inside an environment",
-     "number": "3.1.4."
+     "number": "2.1.4."
     }
    ]
   },
   {
-   "number": "3.2.",
+   "number": "2.2.",
    "title": "Your first program",
    "id": "first-program",
    "url": "https://morloc-project.github.io/docs/getting-started/first-program.html",
@@ -155,7 +118,7 @@
    "headings": []
   },
   {
-   "number": "3.3.",
+   "number": "2.3.",
    "title": "Sourcing a foreign function",
    "id": "sourcing",
    "url": "https://morloc-project.github.io/docs/getting-started/sourcing.html",
@@ -166,7 +129,7 @@
    "headings": []
   },
   {
-   "number": "3.4.",
+   "number": "2.4.",
    "title": "Writing code that is not tied to a language",
    "id": "abstract-modules",
    "url": "https://morloc-project.github.io/docs/getting-started/abstract-modules.html",
@@ -177,7 +140,7 @@
    "headings": []
   },
   {
-   "number": "3.5.",
+   "number": "2.5.",
    "title": "Mixing languages in one program",
    "id": "mixing-languages",
    "url": "https://morloc-project.github.io/docs/getting-started/mixing-languages.html",
@@ -188,7 +151,7 @@
    "headings": []
   },
   {
-   "number": "3.6.",
+   "number": "2.6.",
    "title": "Parallelism across languages",
    "id": "parallelism",
    "url": "https://morloc-project.github.io/docs/getting-started/parallelism.html",
@@ -199,7 +162,7 @@
    "headings": []
   },
   {
-   "number": "3.7.",
+   "number": "2.7.",
    "title": "Where to go next",
    "id": "where-to-go-next",
    "url": "https://morloc-project.github.io/docs/getting-started/where-to-go-next.html",
@@ -210,7 +173,7 @@
    "headings": []
   },
   {
-   "number": "3.8.",
+   "number": "2.8.",
    "title": "Editor support",
    "id": "editor-support",
    "url": "https://morloc-project.github.io/docs/getting-started/editor-support.html",
@@ -221,7 +184,7 @@
    "headings": []
   },
   {
-   "number": "3.9.",
+   "number": "2.9.",
    "title": "Troubleshooting",
    "id": "troubleshooting",
    "url": "https://morloc-project.github.io/docs/getting-started/troubleshooting.html",
@@ -232,7 +195,7 @@
    "headings": []
   },
   {
-   "number": "4.",
+   "number": "3.",
    "title": "Syntax and Features",
    "id": "features",
    "url": "https://morloc-project.github.io/docs/features/",
@@ -243,7 +206,7 @@
    "headings": []
   },
   {
-   "number": "4.1.",
+   "number": "3.1.",
    "title": "Functions",
    "id": "functions",
    "url": "https://morloc-project.github.io/docs/features/functions.html",
@@ -255,32 +218,32 @@
     {
      "id": "_definition_and_application",
      "title": "Definition and application",
-     "number": "4.1.1."
+     "number": "3.1.1."
     },
     {
      "id": "_composition_and_application_operators",
      "title": "Composition and application operators",
-     "number": "4.1.2."
+     "number": "3.1.2."
     },
     {
      "id": "_partial_application",
      "title": "Partial application",
-     "number": "4.1.3."
+     "number": "3.1.3."
     },
     {
      "id": "_operator_sections",
      "title": "Operator sections",
-     "number": "4.1.4."
+     "number": "3.1.4."
     },
     {
      "id": "_lambdas",
      "title": "Lambdas",
-     "number": "4.1.5."
+     "number": "3.1.5."
     }
    ]
   },
   {
-   "number": "4.2.",
+   "number": "3.2.",
    "title": "Foreign functions",
    "id": "foreign-functions",
    "url": "https://morloc-project.github.io/docs/features/foreign-functions.html",
@@ -292,7 +255,7 @@
     {
      "id": "_the_source_statement",
      "title": "The source statement",
-     "number": "4.2.1."
+     "number": "3.2.1."
     },
     {
      "id": "_block_form",
@@ -302,32 +265,69 @@
     {
      "id": "_general_types",
      "title": "General types",
-     "number": "4.2.2."
+     "number": "3.2.2."
     },
     {
      "id": "mapping-native-types",
      "title": "Native type mappings",
-     "number": "4.2.3."
+     "number": "3.2.3."
     },
     {
      "id": "_sourcing_builtins_and_other_non_exports",
      "title": "Sourcing builtins and other non-exports",
-     "number": "4.2.4."
+     "number": "3.2.4."
     },
     {
      "id": "_keyword_shaped_foreign_operators",
      "title": "Keyword-shaped foreign operators",
-     "number": "4.2.5."
+     "number": "3.2.5."
     },
     {
      "id": "sourced-values",
      "title": "What sourced code may do with values",
-     "number": "4.2.6."
+     "number": "3.2.6."
     }
    ]
   },
   {
-   "number": "4.3.",
+   "number": "3.3.",
+   "title": "Importing modules",
+   "id": "importing-modules",
+   "url": "https://morloc-project.github.io/docs/features/importing-modules.html",
+   "md": "https://morloc-project.github.io/docs/features/importing-modules.md",
+   "chapter": "features",
+   "level": 2,
+   "summary": "You have been importing modules since Getting Started: import root-py to get implementations, and import .units-abstract to use a file of your own.",
+   "headings": [
+    {
+     "id": "_exports",
+     "title": "Exports",
+     "number": "3.3.1."
+    },
+    {
+     "id": "_installed_modules_and_root",
+     "title": "Installed modules and root",
+     "number": "3.3.2."
+    },
+    {
+     "id": "_selective_imports",
+     "title": "Selective imports",
+     "number": "3.3.3."
+    },
+    {
+     "id": "_local_module_paths",
+     "title": "Local module paths",
+     "number": "3.3.4."
+    },
+    {
+     "id": "_namespaced_imports",
+     "title": "Namespaced imports",
+     "number": "3.3.5."
+    }
+   ]
+  },
+  {
+   "number": "3.4.",
    "title": "Booleans",
    "id": "booleans",
    "url": "https://morloc-project.github.io/docs/features/booleans.html",
@@ -339,12 +339,12 @@
     {
      "id": "_comparison_operators",
      "title": "Comparison operators",
-     "number": "4.3.1."
+     "number": "3.4.1."
     },
     {
      "id": "_logical_operators",
      "title": "Logical operators",
-     "number": "4.3.2."
+     "number": "3.4.2."
     },
     {
      "id": "_short_circuiting",
@@ -354,17 +354,17 @@
     {
      "id": "_boolean_valued_list_functions",
      "title": "Boolean-valued list functions",
-     "number": "4.3.3."
+     "number": "3.4.3."
     },
     {
      "id": "_guards",
      "title": "Guards",
-     "number": "4.3.4."
+     "number": "3.4.4."
     }
    ]
   },
   {
-   "number": "4.4.",
+   "number": "3.5.",
    "title": "Integer types",
    "id": "integers",
    "url": "https://morloc-project.github.io/docs/features/integers.html",
@@ -376,47 +376,47 @@
     {
      "id": "_writing_integer_literals",
      "title": "Writing integer literals",
-     "number": "4.4.1."
+     "number": "3.5.1."
     },
     {
      "id": "_integer_types_at_a_glance",
      "title": "Integer types at a glance",
-     "number": "4.4.2."
+     "number": "3.5.2."
     },
     {
      "id": "_the_default_int_type",
      "title": "The default Int type",
-     "number": "4.4.3."
+     "number": "3.5.3."
     },
     {
      "id": "_big_integers_from_python",
      "title": "Big integers from Python",
-     "number": "4.4.4."
+     "number": "3.5.4."
     },
     {
      "id": "_overflow_at_a_language_boundary",
      "title": "Overflow at a language boundary",
-     "number": "4.4.5."
+     "number": "3.5.5."
     },
     {
      "id": "_compile_time_literal_bounds",
      "title": "Compile-time literal bounds",
-     "number": "4.4.6."
+     "number": "3.5.6."
     },
     {
      "id": "_fixed_width_integer_types",
      "title": "Fixed-width integer types",
-     "number": "4.4.7."
+     "number": "3.5.7."
     },
     {
      "id": "_converting_between_integer_types",
      "title": "Converting between integer types",
-     "number": "4.4.8."
+     "number": "3.5.8."
     },
     {
      "id": "_negation_and_unary_minus",
      "title": "Negation and unary minus",
-     "number": "4.4.9."
+     "number": "3.5.9."
     },
     {
      "id": "_negative_literals",
@@ -441,7 +441,7 @@
    ]
   },
   {
-   "number": "4.5.",
+   "number": "3.6.",
    "title": "Floating-point types",
    "id": "floats",
    "url": "https://morloc-project.github.io/docs/features/floats.html",
@@ -453,12 +453,12 @@
     {
      "id": "_literal_forms",
      "title": "Literal forms",
-     "number": "4.5.1."
+     "number": "3.6.1."
     },
     {
      "id": "_ieee_754_and_non_finite_values",
      "title": "IEEE 754 and non-finite values",
-     "number": "4.5.2."
+     "number": "3.6.2."
     },
     {
      "id": "_source_level_literals",
@@ -473,32 +473,32 @@
     {
      "id": "_compile_time_literal_overflow",
      "title": "Compile-time literal overflow",
-     "number": "4.5.3."
+     "number": "3.6.3."
     },
     {
      "id": "_wire_format_and_json_interop",
      "title": "Wire format and JSON interop",
-     "number": "4.5.4."
+     "number": "3.6.4."
     },
     {
      "id": "_f32_precision_considerations",
      "title": "F32 precision considerations",
-     "number": "4.5.5."
+     "number": "3.6.5."
     },
     {
      "id": "_converting_to_and_from_floating_point",
      "title": "Converting to and from floating point",
-     "number": "4.5.6."
+     "number": "3.6.6."
     },
     {
      "id": "_negation_of_real_values",
      "title": "Negation of Real values",
-     "number": "4.5.7."
+     "number": "3.6.7."
     }
    ]
   },
   {
-   "number": "4.6.",
+   "number": "3.7.",
    "title": "Strings",
    "id": "strings",
    "url": "https://morloc-project.github.io/docs/features/strings.html",
@@ -510,27 +510,27 @@
     {
      "id": "_interpolation",
      "title": "Interpolation",
-     "number": "4.6.1."
+     "number": "3.7.1."
     },
     {
      "id": "_escapes",
      "title": "Escapes",
-     "number": "4.6.2."
+     "number": "3.7.2."
     },
     {
      "id": "_triple_quoted_strings",
      "title": "Triple-quoted strings",
-     "number": "4.6.3."
+     "number": "3.7.3."
     },
     {
      "id": "nul-bytes",
      "title": "NUL bytes in strings",
-     "number": "4.6.4."
+     "number": "3.7.4."
     }
    ]
   },
   {
-   "number": "4.7.",
+   "number": "3.8.",
    "title": "Tuples and Lists",
    "id": "tuples-and-lists",
    "url": "https://morloc-project.github.io/docs/features/tuples-and-lists.html",
@@ -542,17 +542,17 @@
     {
      "id": "_tuples",
      "title": "Tuples",
-     "number": "4.7.1."
+     "number": "3.8.1."
     },
     {
      "id": "_lists",
      "title": "Lists",
-     "number": "4.7.2."
+     "number": "3.8.2."
     }
    ]
   },
   {
-   "number": "4.8.",
+   "number": "3.9.",
    "title": "Records",
    "id": "records",
    "url": "https://morloc-project.github.io/docs/features/records.html",
@@ -564,64 +564,123 @@
     {
      "id": "_native_representations",
      "title": "Native representations",
-     "number": "4.8.1."
+     "number": "3.9.1."
     },
     {
      "id": "_record_literals_match_by_field_name",
      "title": "Record literals match by field name",
-     "number": "4.8.2."
+     "number": "3.9.2."
     },
     {
      "id": "_one_record_across_three_languages",
      "title": "One record across three languages",
-     "number": "4.8.3."
+     "number": "3.9.3."
     }
    ]
   },
   {
-   "number": "4.9.",
-   "title": "Patterns",
-   "id": "patterns",
-   "url": "https://morloc-project.github.io/docs/features/patterns.html",
-   "md": "https://morloc-project.github.io/docs/features/patterns.md",
+   "number": "3.10.",
+   "title": "Optional types",
+   "id": "optionals",
+   "url": "https://morloc-project.github.io/docs/features/optionals.html",
+   "md": "https://morloc-project.github.io/docs/features/optionals.md",
    "chapter": "features",
    "level": 2,
-   "summary": "Morloc’s pattern functions are first-class getters, setters, and bracket operators for reaching into and rearranging data structures.",
+   "summary": "Every language needs a way to say \"no value here\".",
    "headings": [
     {
-     "id": "_getter_patterns",
-     "title": "Getter patterns",
-     "number": "4.9.1."
+     "id": "_syntax",
+     "title": "Syntax",
+     "number": "3.10.1."
     },
     {
-     "id": "_setter_patterns",
-     "title": "Setter patterns",
-     "number": "4.9.2."
+     "id": "_working_with_optional_values",
+     "title": "Working with optional values",
+     "number": "3.10.2."
     },
     {
-     "id": "_bracket_patterns",
-     "title": "Bracket patterns",
-     "number": "4.9.3."
+     "id": "_optional_record_fields",
+     "title": "Optional record fields",
+     "number": "3.10.3."
     },
     {
-     "id": "_composing_brackets_with_other_patterns",
-     "title": "Composing brackets with other patterns",
-     "number": ""
+     "id": "_optionals_across_languages",
+     "title": "Optionals across languages",
+     "number": "3.10.4."
     },
     {
-     "id": "_patterns_next_to_python",
-     "title": "Patterns next to Python",
-     "number": "4.9.4."
+     "id": "_implicit_coercion",
+     "title": "Implicit coercion",
+     "number": "3.10.5."
     },
     {
-     "id": "_adding_bracket_support_to_your_own_types",
-     "title": "Adding bracket support to your own types",
-     "number": "4.9.5."
+     "id": "_nested_optionals_are_idempotent",
+     "title": "Nested optionals are idempotent",
+     "number": "3.10.6."
     }
    ]
   },
   {
-   "number": "4.10.",
+   "number": "3.11.",
+   "title": "where and let clauses",
+   "id": "where-and-let",
+   "url": "https://morloc-project.github.io/docs/features/where-and-let.html",
+   "md": "https://morloc-project.github.io/docs/features/where-and-let.md",
+   "chapter": "features",
+   "level": 2,
+   "summary": "Both introduce local bindings, and they differ in exactly one way that matters: where is order-invariant, let is sequential.",
+   "headings": [
+    {
+     "id": "_where",
+     "title": "where",
+     "number": "3.11.1."
+    },
+    {
+     "id": "_let",
+     "title": "let",
+     "number": "3.11.2."
+    },
+    {
+     "id": "_the_scope_rule_that_separates_them",
+     "title": "The scope rule that separates them",
+     "number": "3.11.3."
+    },
+    {
+     "id": "_when_bindings_are_evaluated",
+     "title": "When bindings are evaluated",
+     "number": "3.11.4."
+    }
+   ]
+  },
+  {
+   "number": "3.12.",
+   "title": "Conditionals",
+   "id": "conditionals",
+   "url": "https://morloc-project.github.io/docs/features/conditionals.html",
+   "md": "https://morloc-project.github.io/docs/features/conditionals.md",
+   "chapter": "features",
+   "level": 2,
+   "summary": "Guards are Morloc’s conditional branching.",
+   "headings": [
+    {
+     "id": "_guards_with_where",
+     "title": "Guards with where",
+     "number": "3.12.1."
+    },
+    {
+     "id": "_guards_in_other_positions",
+     "title": "Guards in other positions",
+     "number": "3.12.2."
+    },
+    {
+     "id": "_guards_inside_a_pattern_clause",
+     "title": "Guards inside a pattern clause",
+     "number": "3.12.3."
+    }
+   ]
+  },
+  {
+   "number": "3.13.",
    "title": "Pattern Matching",
    "id": "pattern-matching",
    "url": "https://morloc-project.github.io/docs/features/pattern-matching.html",
@@ -633,7 +692,7 @@
     {
      "id": "_irrefutable_patterns",
      "title": "Irrefutable patterns",
-     "number": "4.10.1."
+     "number": "3.13.1."
     },
     {
      "id": "_wildcards",
@@ -653,12 +712,12 @@
     {
      "id": "refutable-patterns",
      "title": "Refutable patterns",
-     "number": "4.10.2."
+     "number": "3.13.2."
     },
     {
      "id": "match-expressions",
      "title": "match expressions",
-     "number": "4.10.3."
+     "number": "3.13.3."
     },
     {
      "id": "_where_a_clause_list_ends",
@@ -668,128 +727,59 @@
     {
      "id": "_exhaustiveness",
      "title": "Exhaustiveness",
-     "number": "4.10.4."
+     "number": "3.13.4."
     },
     {
-     "id": "_guards_inside_a_clause",
-     "title": "Guards inside a clause",
-     "number": "4.10.5."
-    },
-    {
-     "id": "_not_yet_supported",
-     "title": "Not yet supported",
-     "number": "4.10.6."
+     "id": "_list_patterns",
+     "title": "List patterns",
+     "number": "3.13.5."
     }
    ]
   },
   {
-   "number": "4.11.",
-   "title": "where and let clauses",
-   "id": "where-and-let",
-   "url": "https://morloc-project.github.io/docs/features/where-and-let.html",
-   "md": "https://morloc-project.github.io/docs/features/where-and-let.md",
+   "number": "3.14.",
+   "title": "Patterns",
+   "id": "patterns",
+   "url": "https://morloc-project.github.io/docs/features/patterns.html",
+   "md": "https://morloc-project.github.io/docs/features/patterns.md",
    "chapter": "features",
    "level": 2,
-   "summary": "Both introduce local bindings, and they differ in exactly one way that matters: where is order-invariant, let is sequential.",
+   "summary": "Morloc’s pattern functions are first-class getters, setters, and bracket operators for reaching into and rearranging data structures.",
    "headings": [
     {
-     "id": "_where",
-     "title": "where",
-     "number": "4.11.1."
+     "id": "_getter_patterns",
+     "title": "Getter patterns",
+     "number": "3.14.1."
     },
     {
-     "id": "_let",
-     "title": "let",
-     "number": "4.11.2."
+     "id": "_setter_patterns",
+     "title": "Setter patterns",
+     "number": "3.14.2."
     },
     {
-     "id": "_the_scope_rule_that_separates_them",
-     "title": "The scope rule that separates them",
-     "number": "4.11.3."
+     "id": "_bracket_patterns",
+     "title": "Bracket patterns",
+     "number": "3.14.3."
     },
     {
-     "id": "_when_bindings_are_evaluated",
-     "title": "When bindings are evaluated",
-     "number": "4.11.4."
+     "id": "_composing_brackets_with_other_patterns",
+     "title": "Composing brackets with other patterns",
+     "number": ""
+    },
+    {
+     "id": "_patterns_next_to_python",
+     "title": "Patterns next to Python",
+     "number": "3.14.4."
+    },
+    {
+     "id": "_adding_bracket_support_to_your_own_types",
+     "title": "Adding bracket support to your own types",
+     "number": "3.14.5."
     }
    ]
   },
   {
-   "number": "4.12.",
-   "title": "Conditionals",
-   "id": "conditionals",
-   "url": "https://morloc-project.github.io/docs/features/conditionals.html",
-   "md": "https://morloc-project.github.io/docs/features/conditionals.md",
-   "chapter": "features",
-   "level": 2,
-   "summary": "Guards are Morloc’s conditional branching.",
-   "headings": [
-    {
-     "id": "_guards_with_where",
-     "title": "Guards with where",
-     "number": "4.12.1."
-    },
-    {
-     "id": "_guards_in_other_positions",
-     "title": "Guards in other positions",
-     "number": "4.12.2."
-    },
-    {
-     "id": "_guards_inside_a_pattern_clause",
-     "title": "Guards inside a pattern clause",
-     "number": "4.12.3."
-    }
-   ]
-  },
-  {
-   "number": "4.13.",
-   "title": "Recursion",
-   "id": "recursion",
-   "url": "https://morloc-project.github.io/docs/features/recursion.html",
-   "md": "https://morloc-project.github.io/docs/features/recursion.md",
-   "chapter": "features",
-   "level": 2,
-   "summary": "",
-   "headings": [
-    {
-     "id": "_recursive_functions",
-     "title": "Recursive functions",
-     "number": "4.13.1."
-    },
-    {
-     "id": "_recursive_types",
-     "title": "Recursive types",
-     "number": "4.13.2."
-    },
-    {
-     "id": "_linked_lists",
-     "title": "Linked lists",
-     "number": ""
-    },
-    {
-     "id": "_branching_binary_trees",
-     "title": "Branching: binary trees",
-     "number": ""
-    },
-    {
-     "id": "_list_guarded_recursion_rose_trees",
-     "title": "List-guarded recursion: rose trees",
-     "number": ""
-    },
-    {
-     "id": "_record_form",
-     "title": "Record form",
-     "number": ""
-    },
-    {
-     "id": "_parameterised_recursion",
-     "title": "Parameterised recursion",
-     "number": ""
-    }
-   ]
-  },
-  {
-   "number": "4.14.",
+   "number": "3.15.",
    "title": "Sum types",
    "id": "sum-types",
    "url": "https://morloc-project.github.io/docs/features/sum-types.html",
@@ -801,74 +791,86 @@
     {
      "id": "_a_constructor_set_is_closed_and_the_compiler_counts",
      "title": "A constructor set is closed, and the compiler counts",
-     "number": "4.14.1."
+     "number": "3.15.1."
     },
     {
      "id": "_the_constructor_names_reach_the_interface",
      "title": "The constructor names reach the interface",
-     "number": "4.14.2."
+     "number": "3.15.2."
     },
     {
      "id": "_constructors_that_take_arguments",
      "title": "Constructors that take arguments",
-     "number": "4.14.3."
+     "number": "3.15.3."
     },
     {
      "id": "_matching_a_value_that_is_not_an_argument",
      "title": "Matching a value that is not an argument",
-     "number": "4.14.4."
+     "number": "3.15.4."
     },
     {
-     "id": "_recursive_types_2",
+     "id": "_recursive_types",
      "title": "Recursive types",
-     "number": "4.14.5."
+     "number": "3.15.5."
     },
     {
      "id": "_constructor_names_are_global",
      "title": "Constructor names are global",
-     "number": "4.14.6."
+     "number": "3.15.6."
     },
     {
      "id": "_native_representations_2",
      "title": "Native representations",
-     "number": "4.14.7."
+     "number": "3.15.7."
     },
     {
      "id": "_comparing_values",
      "title": "Comparing values",
-     "number": "4.14.8."
+     "number": "3.15.8."
     }
    ]
   },
   {
-   "number": "4.15.",
+   "number": "3.16.",
+   "title": "Recursion",
+   "id": "recursion",
+   "url": "https://morloc-project.github.io/docs/features/recursion.html",
+   "md": "https://morloc-project.github.io/docs/features/recursion.md",
+   "chapter": "features",
+   "level": 2,
+   "summary": "A function may refer to itself, and the compiler generates the corresponding recursion in the target language.",
+   "headings": [
+    {
+     "id": "_recursive_types_2",
+     "title": "Recursive types",
+     "number": "3.16.1."
+    }
+   ]
+  },
+  {
+   "number": "3.17.",
    "title": "Effects and delayed evaluation",
    "id": "effects",
    "url": "https://morloc-project.github.io/docs/features/effects.html",
    "md": "https://morloc-project.github.io/docs/features/effects.md",
    "chapter": "features",
    "level": 2,
-   "summary": "",
+   "summary": "An effect is something a computation does to or reads from the world: a file read, a network call, a random draw.",
    "headings": [
-    {
-     "id": "_why_effects_need_a_name",
-     "title": "Why effects need a name",
-     "number": "4.15.1."
-    },
     {
      "id": "_the_mental_model",
      "title": "The mental model",
-     "number": "4.15.2."
+     "number": "3.17.1."
     },
     {
      "id": "failure-is-not-an-effect",
      "title": "Failure is not an effect",
-     "number": "4.15.3."
+     "number": "3.17.2."
     },
     {
-     "id": "_syntax",
+     "id": "_syntax_2",
      "title": "Syntax",
-     "number": "4.15.4."
+     "number": "3.17.3."
     },
     {
      "id": "_declaring_an_effect",
@@ -911,71 +913,61 @@
      "number": ""
     },
     {
-     "id": "_the_reading_a_suspension_is_a_value",
-     "title": "The reading: a suspension is a value",
-     "number": "4.15.5."
-    },
-    {
      "id": "rules",
      "title": "The rules",
-     "number": "4.15.6."
+     "number": "3.17.4."
     },
     {
      "id": "_effect_row_variables",
      "title": "Effect row variables",
-     "number": "4.15.7."
+     "number": "3.17.5."
     },
     {
      "id": "escapable",
      "title": "Escapable and inescapable effects",
-     "number": "4.15.8."
+     "number": "3.17.6."
     }
    ]
   },
   {
-   "number": "4.16.",
-   "title": "Optional types",
-   "id": "optionals",
-   "url": "https://morloc-project.github.io/docs/features/optionals.html",
-   "md": "https://morloc-project.github.io/docs/features/optionals.md",
+   "number": "3.18.",
+   "title": "Random access and streaming",
+   "id": "random-access-and-streaming",
+   "url": "https://morloc-project.github.io/docs/features/random-access-and-streaming.html",
+   "md": "https://morloc-project.github.io/docs/features/random-access-and-streaming.md",
    "chapter": "features",
    "level": 2,
-   "summary": "Every language needs a way to say \"no value here\".",
+   "summary": "A stream is a list kept in a file instead of in memory.",
    "headings": [
     {
-     "id": "_syntax_2",
-     "title": "Syntax",
-     "number": "4.16.1."
+     "id": "_writing_with_ostream",
+     "title": "Writing with OStream",
+     "number": "3.18.1."
     },
     {
-     "id": "_working_with_optional_values",
-     "title": "Working with optional values",
-     "number": "4.16.2."
+     "id": "_random_access_with_ifile",
+     "title": "Random access with IFile",
+     "number": "3.18.2."
     },
     {
-     "id": "_optional_record_fields",
-     "title": "Optional record fields",
-     "number": "4.16.3."
+     "id": "_sequential_reading_with_istream",
+     "title": "Sequential reading with IStream",
+     "number": "3.18.3."
     },
     {
-     "id": "_optionals_across_languages",
-     "title": "Optionals across languages",
-     "number": "4.16.4."
+     "id": "_standard_input_and_output",
+     "title": "Standard input and output",
+     "number": "3.18.4."
     },
     {
-     "id": "_implicit_coercion",
-     "title": "Implicit coercion",
-     "number": "4.16.5."
-    },
-    {
-     "id": "_nested_optionals_are_idempotent",
-     "title": "Nested optionals are idempotent",
-     "number": "4.16.6."
+     "id": "stream-env-vars",
+     "title": "Environment variables",
+     "number": "3.18.5."
     }
    ]
   },
   {
-   "number": "4.17.",
+   "number": "3.19.",
    "title": "Intrinsics",
    "id": "intrinsics",
    "url": "https://morloc-project.github.io/docs/features/intrinsics.html",
@@ -987,42 +979,42 @@
     {
      "id": "_reference_table",
      "title": "Reference table",
-     "number": "4.17.1."
+     "number": "3.19.1."
     },
     {
      "id": "_hashing",
      "title": "Hashing",
-     "number": "4.17.2."
+     "number": "3.19.2."
     },
     {
      "id": "_compile_time_constants",
      "title": "Compile-time constants",
-     "number": "4.17.3."
+     "number": "3.19.3."
     },
     {
      "id": "_saving_and_loading_data",
      "title": "Saving and loading data",
-     "number": "4.17.4."
+     "number": "3.19.4."
     },
     {
-     "id": "_caching_with_savem_and_load",
-     "title": "Caching with @savem and @load",
-     "number": "4.17.5."
+     "id": "_caching_with_save_and_load",
+     "title": "Caching with @save and @load",
+     "number": "3.19.5."
     },
     {
      "id": "_accessing_installed_data_files",
      "title": "Accessing installed data files",
-     "number": "4.17.6."
+     "number": "3.19.6."
     },
     {
      "id": "_type_introspection",
      "title": "Type introspection",
-     "number": "4.17.7."
+     "number": "3.19.7."
     },
     {
      "id": "failure-and-recovery",
      "title": "Failure and recovery",
-     "number": "4.17.8."
+     "number": "3.19.8."
     },
     {
      "id": "_throw_abandon_the_computation",
@@ -1047,7 +1039,29 @@
    ]
   },
   {
-   "number": "5.",
+   "number": "3.20.",
+   "title": "Choosing where calls run",
+   "id": "placement-costs",
+   "url": "https://morloc-project.github.io/docs/features/placement-costs.html",
+   "md": "https://morloc-project.github.io/docs/features/placement-costs.md",
+   "chapter": "features",
+   "level": 2,
+   "summary": "When a function has implementations in more than one language, for example the same name sourced from both a Python file and a C++ header (One term may have...",
+   "headings": [
+    {
+     "id": "_the_rule",
+     "title": "The rule",
+     "number": "3.20.1."
+    },
+    {
+     "id": "placement-listing",
+     "title": "Seeing the placement",
+     "number": "3.20.2."
+    }
+   ]
+  },
+  {
+   "number": "4.",
    "title": "Advanced Types",
    "id": "types",
    "url": "https://morloc-project.github.io/docs/types/",
@@ -1058,7 +1072,7 @@
    "headings": []
   },
   {
-   "number": "5.1.",
+   "number": "4.1.",
    "title": "One term may have many definitions",
    "id": "term-polymorphism",
    "url": "https://morloc-project.github.io/docs/types/term-polymorphism.html",
@@ -1070,22 +1084,22 @@
     {
      "id": "_how_the_choice_collapses_a_program",
      "title": "How the choice collapses a program",
-     "number": "5.1.1."
+     "number": "4.1.1."
     },
     {
      "id": "_contradictory_definitions",
      "title": "Contradictory definitions",
-     "number": "5.1.2."
+     "number": "4.1.2."
     },
     {
      "id": "_a_test_suite_that_runs_against_every_implementation",
      "title": "A test suite that runs against every implementation",
-     "number": "5.1.3."
+     "number": "4.1.3."
     }
    ]
   },
   {
-   "number": "5.2.",
+   "number": "4.2.",
    "title": "Overload terms with typeclasses",
    "id": "typeclasses",
    "url": "https://morloc-project.github.io/docs/types/typeclasses.html",
@@ -1095,29 +1109,34 @@
    "summary": "A typeclass lets one name have a different implementation for each type it is applied to.",
    "headings": [
     {
-     "id": "_one_class_many_languages",
+     "id": "class-many-languages",
      "title": "One class, many languages",
-     "number": "5.2.1."
+     "number": "4.2.1."
     },
     {
      "id": "_superclasses",
      "title": "Superclasses",
-     "number": "5.2.2."
+     "number": "4.2.2."
     },
     {
      "id": "_instances_with_contexts",
      "title": "Instances with contexts",
-     "number": "5.2.3."
+     "number": "4.2.3."
     },
     {
      "id": "_importing_a_class_from_another_module",
      "title": "Importing a class from another module",
-     "number": "5.2.4."
+     "number": "4.2.4."
+    },
+    {
+     "id": "deriving",
+     "title": "Deriving instances",
+     "number": "4.2.5."
     }
    ]
   },
   {
-   "number": "5.3.",
+   "number": "4.3.",
    "title": "Infix operators",
    "id": "infix-operators",
    "url": "https://morloc-project.github.io/docs/types/infix-operators.html",
@@ -1129,27 +1148,27 @@
     {
      "id": "_declaring_associativity_and_precedence",
      "title": "Declaring associativity and precedence",
-     "number": "5.3.1."
+     "number": "4.3.1."
     },
     {
      "id": "_operators_from_foreign_languages_and_typeclasses",
      "title": "Operators from foreign languages and typeclasses",
-     "number": "5.3.2."
+     "number": "4.3.2."
     },
     {
      "id": "_importing_operators",
      "title": "Importing operators",
-     "number": "5.3.3."
+     "number": "4.3.3."
     },
     {
      "id": "_names_that_cannot_start_with",
      "title": "Names that cannot start with --",
-     "number": "5.3.4."
+     "number": "4.3.4."
     }
    ]
   },
   {
-   "number": "5.4.",
+   "number": "4.4.",
    "title": "Naming a type: type and newtype",
    "id": "newtype",
    "url": "https://morloc-project.github.io/docs/types/newtype.html",
@@ -1161,52 +1180,42 @@
     {
      "id": "_type_transparent_aliases",
      "title": "type: transparent aliases",
-     "number": "5.4.1."
+     "number": "4.4.1."
     },
     {
      "id": "_alias_chains_resolve_on_their_own",
      "title": "Alias chains resolve on their own",
-     "number": "5.4.2."
+     "number": "4.4.2."
     },
     {
      "id": "_docstring_inheritance",
      "title": "Docstring inheritance",
-     "number": "5.4.3."
+     "number": "4.4.3."
     },
     {
      "id": "_what_an_alias_cannot_do",
      "title": "What an alias cannot do",
-     "number": "5.4.4."
+     "number": "4.4.4."
     },
     {
      "id": "_newtype_nominal_types",
      "title": "newtype: nominal types",
-     "number": "5.4.5."
-    },
-    {
-     "id": "_when_a_newtype_needs_a_packable_instance",
-     "title": "When a newtype needs a Packable instance",
-     "number": "5.4.6."
-    },
-    {
-     "id": "_sharing_a_wire_format_across_newtypes",
-     "title": "Sharing a wire format across newtypes",
-     "number": "5.4.7."
+     "number": "4.4.5."
     },
     {
      "id": "_declarations_with_no_body",
      "title": "Declarations with no body",
-     "number": "5.4.8."
+     "number": "4.4.6."
     },
     {
      "id": "_the_rules",
      "title": "The rules",
-     "number": "5.4.9."
+     "number": "4.4.7."
     }
    ]
   },
   {
-   "number": "5.5.",
+   "number": "4.5.",
    "title": "Serializing custom types with Packable",
    "id": "packable",
    "url": "https://morloc-project.github.io/docs/types/packable.html",
@@ -1216,24 +1225,39 @@
    "summary": "Morloc can move a value between languages when it knows how to write that value down.",
    "headings": [
     {
+     "id": "_when_a_newtype_needs_a_packable_instance",
+     "title": "When a newtype needs a Packable instance",
+     "number": "4.5.1."
+    },
+    {
      "id": "_a_worked_example_map",
      "title": "A worked example: Map",
-     "number": "5.5.1."
+     "number": "4.5.2."
     },
     {
      "id": "_specialized_instances",
      "title": "Specialized instances",
-     "number": "5.5.2."
+     "number": "4.5.3."
+    },
+    {
+     "id": "_sharing_a_wire_format_across_newtypes",
+     "title": "Sharing a wire format across newtypes",
+     "number": "4.5.4."
+    },
+    {
+     "id": "_deriving_packable_for_a_newtype",
+     "title": "Deriving Packable for a newtype",
+     "number": "4.5.5."
     },
     {
      "id": "_pack_in_your_own_code",
      "title": "pack in your own code",
-     "number": "5.5.3."
+     "number": "4.5.6."
     }
    ]
   },
   {
-   "number": "5.6.",
+   "number": "4.6.",
    "title": "The kind system",
    "id": "kinds",
    "url": "https://morloc-project.github.io/docs/types/kinds.html",
@@ -1245,47 +1269,47 @@
     {
      "id": "_nat_numbers_in_the_type",
      "title": "Nat: numbers in the type",
-     "number": "5.6.1."
+     "number": "4.6.1."
     },
     {
      "id": "_str_labels_in_the_type",
      "title": "Str: labels in the type",
-     "number": "5.6.2."
+     "number": "4.6.2."
     },
     {
      "id": "_rec_schemas_in_the_type",
      "title": "Rec: schemas in the type",
-     "number": "5.6.3."
+     "number": "4.6.3."
     },
     {
      "id": "_list_and_set_collections_of_labels",
      "title": "List and Set: collections of labels",
-     "number": "5.6.4."
+     "number": "4.6.4."
     },
     {
      "id": "_gradual_arguments",
      "title": "Gradual arguments",
-     "number": "5.6.5."
+     "number": "4.6.5."
     },
     {
      "id": "_reference_type_level_functions",
      "title": "Reference: type-level functions",
-     "number": "5.6.6."
+     "number": "4.6.6."
     },
     {
      "id": "_reference_constraints",
      "title": "Reference: constraints",
-     "number": "5.6.7."
+     "number": "4.6.7."
     },
     {
      "id": "_what_does_not_work_yet",
      "title": "What does not work yet",
-     "number": "5.6.8."
+     "number": "4.6.8."
     }
    ]
   },
   {
-   "number": "5.7.",
+   "number": "4.7.",
    "title": "Tensors",
    "id": "tensors",
    "url": "https://morloc-project.github.io/docs/types/tensors.html",
@@ -1297,37 +1321,37 @@
     {
      "id": "_shapes_that_have_to_agree",
      "title": "Shapes that have to agree",
-     "number": "5.7.1."
+     "number": "4.7.1."
     },
     {
      "id": "_dimensions_computed_from_other_dimensions",
      "title": "Dimensions computed from other dimensions",
-     "number": "5.7.2."
+     "number": "4.7.2."
     },
     {
      "id": "_dimensions_that_come_from_arguments",
      "title": "Dimensions that come from arguments",
-     "number": "5.7.3."
+     "number": "4.7.3."
     },
     {
      "id": "_building_a_tensor_by_hand",
      "title": "Building a tensor by hand",
-     "number": "5.7.4."
+     "number": "4.7.4."
     },
     {
      "id": "_omitting_dimensions",
      "title": "Omitting dimensions",
-     "number": "5.7.5."
+     "number": "4.7.5."
     },
     {
      "id": "_what_is_checked_and_what_is_not",
      "title": "What is checked, and what is not",
-     "number": "5.7.6."
+     "number": "4.7.6."
     }
    ]
   },
   {
-   "number": "5.8.",
+   "number": "4.8.",
    "title": "Tables",
    "id": "tables",
    "url": "https://morloc-project.github.io/docs/types/tables.html",
@@ -1339,47 +1363,47 @@
     {
      "id": "_building_a_table",
      "title": "Building a table",
-     "number": "5.8.1."
+     "number": "4.8.1."
     },
     {
      "id": "_introspection",
      "title": "Introspection",
-     "number": "5.8.2."
+     "number": "4.8.2."
     },
     {
      "id": "_column_operations",
      "title": "Column operations",
-     "number": "5.8.3."
+     "number": "4.8.3."
     },
     {
      "id": "_row_operations",
      "title": "Row operations",
-     "number": "5.8.4."
+     "number": "4.8.4."
     },
     {
      "id": "_stacking_tables",
      "title": "Stacking tables",
-     "number": "5.8.5."
+     "number": "4.8.5."
     },
     {
      "id": "_crossing_a_language_boundary",
      "title": "Crossing a language boundary",
-     "number": "5.8.6."
+     "number": "4.8.6."
     },
     {
      "id": "_reading_and_writing_table_files",
      "title": "Reading and writing table files",
-     "number": "5.8.7."
+     "number": "4.8.7."
     },
     {
      "id": "_limits",
      "title": "Limits",
-     "number": "5.8.8."
+     "number": "4.8.8."
     }
    ]
   },
   {
-   "number": "6.",
+   "number": "5.",
    "title": "Building CLIs",
    "id": "clis",
    "url": "https://morloc-project.github.io/docs/clis/",
@@ -1390,7 +1414,7 @@
    "headings": []
   },
   {
-   "number": "6.1.",
+   "number": "5.1.",
    "title": "The example program",
    "id": "example-program",
    "url": "https://morloc-project.github.io/docs/clis/example-program.html",
@@ -1401,7 +1425,7 @@
    "headings": []
   },
   {
-   "number": "6.2.",
+   "number": "5.2.",
    "title": "The two argument zones",
    "id": "argument-zones",
    "url": "https://morloc-project.github.io/docs/clis/argument-zones.html",
@@ -1413,12 +1437,12 @@
     {
      "id": "_programs_with_a_single_export",
      "title": "Programs with a single export",
-     "number": "6.2.1."
+     "number": "5.2.1."
     }
    ]
   },
   {
-   "number": "6.3.",
+   "number": "5.3.",
    "title": "Docstrings",
    "id": "docstrings",
    "url": "https://morloc-project.github.io/docs/clis/docstrings.html",
@@ -1430,12 +1454,12 @@
     {
      "id": "_directives",
      "title": "Directives",
-     "number": "6.3.1."
+     "number": "5.3.1."
     }
    ]
   },
   {
-   "number": "6.4.",
+   "number": "5.4.",
    "title": "Arguments",
    "id": "arguments",
    "url": "https://morloc-project.github.io/docs/clis/arguments.html",
@@ -1447,32 +1471,32 @@
     {
      "id": "_when_an_argument_is_wrong",
      "title": "When an argument is wrong",
-     "number": "6.4.1."
+     "number": "5.4.1."
     },
     {
      "id": "_options_flags_and_repeats",
      "title": "Options, flags, and repeats",
-     "number": "6.4.2."
+     "number": "5.4.2."
     },
     {
      "id": "_naming",
      "title": "Naming",
-     "number": "6.4.3."
+     "number": "5.4.3."
     },
     {
      "id": "_ending_option_parsing",
      "title": "Ending option parsing",
-     "number": "6.4.4."
+     "number": "5.4.4."
     },
     {
      "id": "parse-arguments",
      "title": "Reading files in other formats",
-     "number": "6.4.5."
+     "number": "5.4.5."
     }
    ]
   },
   {
-   "number": "6.5.",
+   "number": "5.5.",
    "title": "Record arguments",
    "id": "record-arguments",
    "url": "https://morloc-project.github.io/docs/clis/record-arguments.html",
@@ -1484,17 +1508,17 @@
     {
      "id": "_three_ways_to_fill_it",
      "title": "Three ways to fill it",
-     "number": "6.5.1."
+     "number": "5.5.1."
     },
     {
      "id": "_what_is_rejected",
      "title": "What is rejected",
-     "number": "6.5.2."
+     "number": "5.5.2."
     }
    ]
   },
   {
-   "number": "6.6.",
+   "number": "5.6.",
    "title": "Sum type arguments",
    "id": "sum-type-arguments",
    "url": "https://morloc-project.github.io/docs/clis/sum-type-arguments.html",
@@ -1505,7 +1529,7 @@
    "headings": []
   },
   {
-   "number": "6.7.",
+   "number": "5.7.",
    "title": "Input shape",
    "id": "input-shape",
    "url": "https://morloc-project.github.io/docs/clis/input-shape.html",
@@ -1517,22 +1541,22 @@
     {
      "id": "_a_worked_example",
      "title": "A worked example",
-     "number": "6.7.1."
+     "number": "5.7.1."
     },
     {
      "id": "_shape_follows_the_wire_form",
      "title": "Shape follows the wire form",
-     "number": "6.7.2."
+     "number": "5.7.2."
     },
     {
      "id": "form-table",
      "title": "Tables with a header",
-     "number": "6.7.3."
+     "number": "5.7.3."
     }
    ]
   },
   {
-   "number": "6.8.",
+   "number": "5.8.",
    "title": "Reading a stream from standard input",
    "id": "reading-stdin",
    "url": "https://morloc-project.github.io/docs/clis/reading-stdin.html",
@@ -1544,17 +1568,17 @@
     {
      "id": "_what_standard_input_may_carry",
      "title": "What standard input may carry",
-     "number": "6.8.1."
+     "number": "5.8.1."
     },
     {
      "id": "_rules_for_stdin",
      "title": "Rules for @stdin",
-     "number": "6.8.2."
+     "number": "5.8.2."
     }
    ]
   },
   {
-   "number": "6.9.",
+   "number": "5.9.",
    "title": "Output formats",
    "id": "output-formats",
    "url": "https://morloc-project.github.io/docs/clis/output-formats.html",
@@ -1566,17 +1590,17 @@
     {
      "id": "_nothing_to_report",
      "title": "Nothing to report",
-     "number": "6.9.1."
+     "number": "5.9.1."
     },
     {
      "id": "_failure",
      "title": "Failure",
-     "number": "6.9.2."
+     "number": "5.9.2."
     }
    ]
   },
   {
-   "number": "6.10.",
+   "number": "5.10.",
    "title": "Output actions",
    "id": "output-actions",
    "url": "https://morloc-project.github.io/docs/clis/output-actions.html",
@@ -1588,37 +1612,37 @@
     {
      "id": "_with_keeps_a_value_render_produces_bytes",
      "title": "@with keeps a value; @render produces bytes",
-     "number": "6.10.1."
+     "number": "5.10.1."
     },
     {
      "id": "_giving_a_formatter_arguments",
      "title": "Giving a formatter arguments",
-     "number": "6.10.2."
+     "number": "5.10.2."
     },
     {
      "id": "_choosing_a_default",
      "title": "Choosing a default",
-     "number": "6.10.3."
+     "number": "5.10.3."
     },
     {
      "id": "_media_types",
      "title": "Media types",
-     "number": "6.10.4."
+     "number": "5.10.4."
     },
     {
      "id": "action-files",
      "title": "Several outputs in one run",
-     "number": "6.10.5."
+     "number": "5.10.5."
     },
     {
      "id": "action-rules",
      "title": "Rules and rejections",
-     "number": "6.10.6."
+     "number": "5.10.6."
     }
    ]
   },
   {
-   "number": "6.11.",
+   "number": "5.11.",
    "title": "Streaming output with @collect",
    "id": "streaming-output",
    "url": "https://morloc-project.github.io/docs/clis/streaming-output.html",
@@ -1630,37 +1654,37 @@
     {
      "id": "_actions_on_a_stream",
      "title": "Actions on a stream",
-     "number": "6.11.1."
+     "number": "5.11.1."
     },
     {
      "id": "_offset_where_a_batch_sits_in_the_stream",
      "title": "@offset: where a batch sits in the stream",
-     "number": "6.11.2."
+     "number": "5.11.2."
     },
     {
      "id": "_ifile_the_gathered_stream_as_a_file",
      "title": "IFile: the gathered stream as a file",
-     "number": "6.11.3."
+     "number": "5.11.3."
     },
     {
      "id": "stream-fold",
      "title": "@fold: one accumulator instead of a list",
-     "number": "6.11.4."
+     "number": "5.11.4."
     },
     {
      "id": "_streaming_rules",
      "title": "Streaming rules",
-     "number": "6.11.5."
+     "number": "5.11.5."
     },
     {
      "id": "_what_the_help_says_a_stream_produces",
      "title": "What the help says a stream produces",
-     "number": "6.11.6."
+     "number": "5.11.6."
     }
    ]
   },
   {
-   "number": "6.12.",
+   "number": "5.12.",
    "title": "Composing tools",
    "id": "composing-tools",
    "url": "https://morloc-project.github.io/docs/clis/composing-tools.html",
@@ -1672,17 +1696,17 @@
     {
      "id": "_grouping_commands",
      "title": "Grouping commands",
-     "number": "6.12.1."
+     "number": "5.12.1."
     },
     {
      "id": "_installing",
      "title": "Installing",
-     "number": "6.12.2."
+     "number": "5.12.2."
     }
    ]
   },
   {
-   "number": "6.13.",
+   "number": "5.13.",
    "title": "The interface as data",
    "id": "interface-as-data",
    "url": "https://morloc-project.github.io/docs/clis/interface-as-data.html",
@@ -1694,12 +1718,12 @@
     {
      "id": "_other_views_of_the_same_commands",
      "title": "Other views of the same commands",
-     "number": "6.13.1."
+     "number": "5.13.1."
     }
    ]
   },
   {
-   "number": "6.14.",
+   "number": "5.14.",
    "title": "Directive reference",
    "id": "directive-reference",
    "url": "https://morloc-project.github.io/docs/clis/directive-reference.html",
@@ -1710,18 +1734,18 @@
    "headings": []
   },
   {
-   "number": "7.",
+   "number": "6.",
    "title": "Managing Runs",
    "id": "runs",
    "url": "https://morloc-project.github.io/docs/runs/",
    "md": "https://morloc-project.github.io/docs/runs/index.md",
    "chapter": "runs",
    "level": 1,
-   "summary": "A morloc program is an executable that can dispatch work across multiple language pools and, optionally, remote compute nodes.",
+   "summary": "A Morloc program is an executable that can dispatch work across multiple language pools and, optionally, remote compute nodes.",
    "headings": []
   },
   {
-   "number": "7.1.",
+   "number": "6.1.",
    "title": "Logging",
    "id": "logging",
    "url": "https://morloc-project.github.io/docs/runs/logging.html",
@@ -1733,32 +1757,32 @@
     {
      "id": "_enabling_logging",
      "title": "Enabling logging",
-     "number": "7.1.1."
+     "number": "6.1.1."
     },
     {
      "id": "_template_placeholders",
      "title": "Template placeholders",
-     "number": "7.1.2."
+     "number": "6.1.2."
     },
     {
      "id": "_color_codes",
      "title": "Color codes",
-     "number": "7.1.3."
+     "number": "6.1.3."
     },
     {
      "id": "_terminal_detection_and_no_color",
      "title": "Terminal detection and NO_COLOR",
-     "number": "7.1.4."
+     "number": "6.1.4."
     },
     {
      "id": "_worked_example",
      "title": "Worked example",
-     "number": "7.1.5."
+     "number": "6.1.5."
     }
    ]
   },
   {
-   "number": "7.2.",
+   "number": "6.2.",
    "title": "Benchmarking",
    "id": "benchmarking",
    "url": "https://morloc-project.github.io/docs/runs/benchmarking.html",
@@ -1770,17 +1794,17 @@
     {
      "id": "_the_summary_row",
      "title": "The summary row",
-     "number": "7.2.1."
+     "number": "6.2.1."
     },
     {
      "id": "_comparing_implementations",
      "title": "Comparing implementations",
-     "number": "7.2.2."
+     "number": "6.2.2."
     }
    ]
   },
   {
-   "number": "7.3.",
+   "number": "6.3.",
    "title": "Run directory",
    "id": "run-directory",
    "url": "https://morloc-project.github.io/docs/runs/run-directory.html",
@@ -1792,37 +1816,37 @@
     {
      "id": "rundir-activation",
      "title": "Activation knobs",
-     "number": "7.3.1."
+     "number": "6.3.1."
     },
     {
      "id": "_summary_json",
      "title": "summary.json",
-     "number": "7.3.2."
+     "number": "6.3.2."
     },
     {
      "id": "rundir-location",
      "title": "Where the directory lives",
-     "number": "7.3.3."
+     "number": "6.3.3."
     },
     {
      "id": "_cleanup",
      "title": "Cleanup",
-     "number": "7.3.4."
+     "number": "6.3.4."
     },
     {
      "id": "_prologue_and_epilogue",
      "title": "Prologue and epilogue",
-     "number": "7.3.5."
+     "number": "6.3.5."
     },
     {
      "id": "_nested_invocations",
      "title": "Nested invocations",
-     "number": "7.3.6."
+     "number": "6.3.6."
     }
    ]
   },
   {
-   "number": "7.4.",
+   "number": "6.4.",
    "title": "Caching",
    "id": "caching",
    "url": "https://morloc-project.github.io/docs/runs/caching.html",
@@ -1834,22 +1858,22 @@
     {
      "id": "_declaring_a_cached_call",
      "title": "Declaring a cached call",
-     "number": "7.4.1."
+     "number": "6.4.1."
     },
     {
      "id": "_what_a_cached_label_covers",
      "title": "What a cached label covers",
-     "number": "7.4.2."
+     "number": "6.4.2."
     },
     {
      "id": "cache-layout",
      "title": "Where the cache lives",
-     "number": "7.4.3."
+     "number": "6.4.3."
     }
    ]
   },
   {
-   "number": "7.5.",
+   "number": "6.5.",
    "title": "Remote job submission",
    "id": "remote-jobs",
    "url": "https://morloc-project.github.io/docs/runs/remote-jobs.html",
@@ -1861,37 +1885,37 @@
     {
      "id": "_sending_a_call_to_a_job",
      "title": "Sending a call to a job",
-     "number": "7.5.1."
+     "number": "6.5.1."
     },
     {
      "id": "_describing_the_job",
      "title": "Describing the job",
-     "number": "7.5.2."
+     "number": "6.5.2."
     },
     {
      "id": "_what_runs_in_the_job",
      "title": "What runs in the job",
-     "number": "7.5.3."
+     "number": "6.5.3."
     },
     {
      "id": "_effects",
      "title": "Effects",
-     "number": "7.5.4."
+     "number": "6.5.4."
     },
     {
      "id": "_results",
      "title": "Results",
-     "number": "7.5.5."
+     "number": "6.5.5."
     },
     {
      "id": "_what_a_job_can_receive",
      "title": "What a job can receive",
-     "number": "7.5.6."
+     "number": "6.5.6."
     }
    ]
   },
   {
-   "number": "7.6.",
+   "number": "6.6.",
    "title": "Compression",
    "id": "compression",
    "url": "https://morloc-project.github.io/docs/runs/compression.html",
@@ -1903,121 +1927,84 @@
     {
      "id": "_compression_in_write",
      "title": "Compression in @write",
-     "number": "7.6.1."
+     "number": "6.6.1."
     },
     {
-     "id": "_compression_in_morloc_nexus_run",
-     "title": "Compression in morloc-nexus run",
-     "number": "7.6.2."
+     "id": "_compressing_a_programs_output",
+     "title": "Compressing a program’s output",
+     "number": "6.6.2."
     },
     {
      "id": "_compression_level_table",
      "title": "Compression-level table",
-     "number": "7.6.3."
+     "number": "6.6.3."
     },
     {
      "id": "_algorithm_agnostic_surface",
      "title": "Algorithm-agnostic surface",
-     "number": "7.6.4."
+     "number": "6.6.4."
     },
     {
      "id": "_caching_is_unaffected",
      "title": "Caching is unaffected",
-     "number": "7.6.5."
+     "number": "6.6.5."
     }
    ]
   },
   {
-   "number": "7.7.",
+   "number": "6.7.",
    "title": "Debugging",
    "id": "debugging",
    "url": "https://morloc-project.github.io/docs/runs/debugging.html",
    "md": "https://morloc-project.github.io/docs/runs/debugging.md",
    "chapter": "runs",
    "level": 2,
-   "summary": "When a foreign function throws — a Python ZeroDivisionError, a C++ std::invalid_argument, an R stop(...) — the default behavior of a morloc-built program is...",
+   "summary": "When a foreign function throws — a Python ZeroDivisionError, a C++ std::invalid_argument, an R stop(...) — the default behavior of a Morloc-built program is...",
    "headings": [
     {
      "id": "_enabling_at_compile_time",
      "title": "Enabling at compile time",
-     "number": "7.7.1."
+     "number": "6.7.1."
     },
     {
      "id": "_a_failing_run",
      "title": "A failing run",
-     "number": "7.7.2."
+     "number": "6.7.2."
     },
     {
      "id": "debug-knobs",
      "title": "Runtime knobs",
-     "number": "7.7.3."
+     "number": "6.7.3."
     },
     {
      "id": "dump-location",
      "title": "Where dumps land",
-     "number": "7.7.4."
+     "number": "6.7.4."
     },
     {
      "id": "_content_addressed_dedup",
      "title": "Content-addressed dedup",
-     "number": "7.7.5."
+     "number": "6.7.5."
     },
     {
      "id": "_frame_status_markers",
      "title": "Frame status markers",
-     "number": "7.7.6."
+     "number": "6.7.6."
     },
     {
      "id": "_recovering_an_input_via_load",
      "title": "Recovering an input via @load",
-     "number": "7.7.7."
+     "number": "6.7.7."
     },
     {
      "id": "_interaction_with_the_cache",
      "title": "Interaction with the cache",
-     "number": "7.7.8."
+     "number": "6.7.8."
     }
    ]
   },
   {
-   "number": "7.8.",
-   "title": "Random access and streaming",
-   "id": "random-access-and-streaming",
-   "url": "https://morloc-project.github.io/docs/runs/random-access-and-streaming.html",
-   "md": "https://morloc-project.github.io/docs/runs/random-access-and-streaming.md",
-   "chapter": "runs",
-   "level": 2,
-   "summary": "Three abstract types describe a value that lives in a file rather than in memory:",
-   "headings": [
-    {
-     "id": "_random_access_with_ifile",
-     "title": "Random access with IFile",
-     "number": "7.8.1."
-    },
-    {
-     "id": "_sequential_writing_with_ostream",
-     "title": "Sequential writing with OStream",
-     "number": "7.8.2."
-    },
-    {
-     "id": "_sequential_reading_with_istream",
-     "title": "Sequential reading with IStream",
-     "number": "7.8.3."
-    },
-    {
-     "id": "_typed_standard_streams",
-     "title": "Typed standard streams",
-     "number": "7.8.4."
-    },
-    {
-     "id": "stream-env-vars",
-     "title": "Environment variables",
-     "number": "7.8.5."
-    }
-   ]
-  },
-  {
-   "number": "8.",
+   "number": "7.",
    "title": "Modules and Libraries",
    "id": "modules",
    "url": "https://morloc-project.github.io/docs/modules/",
@@ -2028,18 +2015,7 @@
    "headings": []
   },
   {
-   "number": "8.1.",
-   "title": "Importing modules",
-   "id": "importing-modules",
-   "url": "https://morloc-project.github.io/docs/modules/importing-modules.html",
-   "md": "https://morloc-project.github.io/docs/modules/importing-modules.md",
-   "chapter": "modules",
-   "level": 2,
-   "summary": "Every Morloc file is a module.",
-   "headings": []
-  },
-  {
-   "number": "8.2.",
+   "number": "7.1.",
    "title": "Installing modules",
    "id": "installing-modules",
    "url": "https://morloc-project.github.io/docs/modules/installing-modules.html",
@@ -2051,12 +2027,12 @@
     {
      "id": "configuring-cpp-build",
      "title": "Configuring the C++ build",
-     "number": "8.2.1."
+     "number": "7.1.1."
     }
    ]
   },
   {
-   "number": "8.3.",
+   "number": "7.2.",
    "title": "The universal library",
    "id": "universal-library",
    "url": "https://morloc-project.github.io/docs/modules/universal-library.html",
@@ -2067,18 +2043,18 @@
    "headings": []
   },
   {
-   "number": "8.4.",
+   "number": "7.3.",
    "title": "Exposing native resources",
    "id": "exposing-native-resources",
    "url": "https://morloc-project.github.io/docs/modules/exposing-native-resources.html",
    "md": "https://morloc-project.github.io/docs/modules/exposing-native-resources.md",
    "chapter": "modules",
    "level": 2,
-   "summary": "The dependencies field links against shared libraries.",
+   "summary": "A module’s package.yaml can link against shared libraries through its dependencies field (Configuring the C++ build).",
    "headings": []
   },
   {
-   "number": "8.5.",
+   "number": "7.4.",
    "title": "Controlling data transfer",
    "id": "data-transfer",
    "url": "https://morloc-project.github.io/docs/modules/data-transfer.html",
@@ -2090,28 +2066,28 @@
     {
      "id": "_combinations",
      "title": "Combinations",
-     "number": "8.5.1."
+     "number": "7.4.1."
     },
     {
      "id": "_examples",
      "title": "Examples",
-     "number": "8.5.2."
+     "number": "7.4.2."
     }
    ]
   },
   {
-   "number": "9.",
+   "number": "8.",
    "title": "Deployment",
    "id": "apis",
    "url": "https://morloc-project.github.io/docs/apis/",
    "md": "https://morloc-project.github.io/docs/apis/index.md",
    "chapter": "apis",
    "level": 1,
-   "summary": "The entry point to the Morloc ecosystem is mim (Morloc Installation manager).",
+   "summary": "This chapter uses mim, the Morloc installation manager from Installing Morloc, to take one program from a new environment to a deployed image.",
    "headings": []
   },
   {
-   "number": "9.1.",
+   "number": "8.1.",
    "title": "Creating Morloc environments",
    "id": "deploy-environments",
    "url": "https://morloc-project.github.io/docs/apis/deploy-environments.html",
@@ -2123,17 +2099,17 @@
     {
      "id": "_native_and_container_environments",
      "title": "Native and container environments",
-     "number": "9.1.1."
+     "number": "8.1.1."
     },
     {
      "id": "_the_default_environment",
      "title": "The default environment",
-     "number": "9.1.2."
+     "number": "8.1.2."
     },
     {
      "id": "_local_and_system_environments",
      "title": "Local and system environments",
-     "number": "9.1.3."
+     "number": "8.1.3."
     },
     {
      "id": "system-wide-podman",
@@ -2143,27 +2119,27 @@
     {
      "id": "_working_inside_an_environment_2",
      "title": "Working inside an environment",
-     "number": "9.1.4."
+     "number": "8.1.4."
     },
     {
      "id": "_changing_an_environment",
      "title": "Changing an environment",
-     "number": "9.1.5."
+     "number": "8.1.5."
     },
     {
      "id": "extra-container-flags",
      "title": "Extra container flags",
-     "number": "9.1.6."
+     "number": "8.1.6."
     },
     {
      "id": "_removing_environments",
      "title": "Removing environments",
-     "number": "9.1.7."
+     "number": "8.1.7."
     }
    ]
   },
   {
-   "number": "9.2.",
+   "number": "8.2.",
    "title": "Dependency management",
    "id": "deploy-dependencies",
    "url": "https://morloc-project.github.io/docs/apis/deploy-dependencies.html",
@@ -2175,37 +2151,37 @@
     {
      "id": "_the_smiles_example",
      "title": "The smiles example",
-     "number": "9.2.1."
+     "number": "8.2.1."
     },
     {
      "id": "_declaring_dependencies",
      "title": "Declaring dependencies",
-     "number": "9.2.2."
+     "number": "8.2.2."
     },
     {
      "id": "tool-deps",
      "title": "Command-line tools (tool-deps)",
-     "number": "9.2.3."
+     "number": "8.2.3."
     },
     {
      "id": "_installing_the_program",
      "title": "Installing the program",
-     "number": "9.2.4."
+     "number": "8.2.4."
     },
     {
      "id": "_one_solved_world_per_environment",
      "title": "One solved world per environment",
-     "number": "9.2.5."
+     "number": "8.2.5."
     },
     {
      "id": "_when_an_environment_is_rebuilt",
      "title": "When an environment is rebuilt",
-     "number": "9.2.6."
+     "number": "8.2.6."
     }
    ]
   },
   {
-   "number": "9.3.",
+   "number": "8.3.",
    "title": "Serving",
    "id": "deploy-serving",
    "url": "https://morloc-project.github.io/docs/apis/deploy-serving.html",
@@ -2217,37 +2193,37 @@
     {
      "id": "_choosing_what_to_serve",
      "title": "Choosing what to serve",
-     "number": "9.3.1."
+     "number": "8.3.1."
     },
     {
      "id": "_starting_a_server",
      "title": "Starting a server",
-     "number": "9.3.2."
+     "number": "8.3.2."
     },
     {
      "id": "_serving_to_other_machines",
      "title": "Serving to other machines",
-     "number": "9.3.3."
+     "number": "8.3.3."
     },
     {
      "id": "_calling_the_json_api",
      "title": "Calling the JSON API",
-     "number": "9.3.4."
+     "number": "8.3.4."
     },
     {
      "id": "_connecting_an_ai_assistant",
      "title": "Connecting an AI assistant",
-     "number": "9.3.5."
+     "number": "8.3.5."
     },
     {
      "id": "_watching_and_stopping_servers",
      "title": "Watching and stopping servers",
-     "number": "9.3.6."
+     "number": "8.3.6."
     }
    ]
   },
   {
-   "number": "9.4.",
+   "number": "8.4.",
    "title": "Eval",
    "id": "deploy-eval",
    "url": "https://morloc-project.github.io/docs/apis/deploy-eval.html",
@@ -2259,27 +2235,27 @@
     {
      "id": "_turning_eval_on",
      "title": "Turning eval on",
-     "number": "9.4.1."
+     "number": "8.4.1."
     },
     {
      "id": "_evaluating_an_expression",
      "title": "Evaluating an expression",
-     "number": "9.4.2."
+     "number": "8.4.2."
     },
     {
      "id": "_guard_rails",
      "title": "Guard-rails",
-     "number": "9.4.3."
+     "number": "8.4.3."
     },
     {
      "id": "_trying_expressions_locally",
      "title": "Trying expressions locally",
-     "number": "9.4.4."
+     "number": "8.4.4."
     }
    ]
   },
   {
-   "number": "9.5.",
+   "number": "8.5.",
    "title": "Freezing",
    "id": "deploy-freeze",
    "url": "https://morloc-project.github.io/docs/apis/deploy-freeze.html",
@@ -2291,32 +2267,32 @@
     {
      "id": "_building_the_image",
      "title": "Building the image",
-     "number": "9.5.1."
+     "number": "8.5.1."
     },
     {
      "id": "_what_goes_in",
      "title": "What goes in",
-     "number": "9.5.2."
+     "number": "8.5.2."
     },
     {
      "id": "_running_the_image",
      "title": "Running the image",
-     "number": "9.5.3."
+     "number": "8.5.3."
     },
     {
      "id": "_moving_the_image",
      "title": "Moving the image",
-     "number": "9.5.4."
+     "number": "8.5.4."
     },
     {
      "id": "_slim_images",
      "title": "Slim images",
-     "number": "9.5.5."
+     "number": "8.5.5."
     }
    ]
   },
   {
-   "number": "9.6.",
+   "number": "8.6.",
    "title": "Running on a cluster",
    "id": "execution-contexts",
    "url": "https://morloc-project.github.io/docs/apis/execution-contexts.html",
@@ -2328,27 +2304,27 @@
     {
      "id": "_enabling_dispatch",
      "title": "Enabling dispatch",
-     "number": "9.6.1."
+     "number": "8.6.1."
     },
     {
      "id": "dispatch-bridge",
      "title": "Running with the dispatch bridge",
-     "number": "9.6.2."
+     "number": "8.6.2."
     },
     {
      "id": "_data_on_the_shared_filesystem",
      "title": "Data on the shared filesystem",
-     "number": "9.6.3."
+     "number": "8.6.3."
     },
     {
      "id": "_checking_the_cluster_setup",
      "title": "Checking the cluster setup",
-     "number": "9.6.4."
+     "number": "8.6.4."
     }
    ]
   },
   {
-   "number": "10.",
+   "number": "9.",
    "title": "Language Support",
    "id": "languages",
    "url": "https://morloc-project.github.io/docs/languages/",
@@ -2359,7 +2335,7 @@
    "headings": []
   },
   {
-   "number": "10.1.",
+   "number": "9.1.",
    "title": "Build parameters",
    "id": "build-parameters",
    "url": "https://morloc-project.github.io/docs/languages/build-parameters.html",
@@ -2371,32 +2347,32 @@
     {
      "id": "_per_machine_defaults_with_morloc_config",
      "title": "Per-machine defaults with morloc config",
-     "number": "10.1.1."
+     "number": "9.1.1."
     },
     {
      "id": "_per_session_defaults_with_morloc_lang_params",
      "title": "Per-session defaults with MORLOC_LANG_PARAMS",
-     "number": "10.1.2."
+     "number": "9.1.2."
     },
     {
      "id": "_precedence",
      "title": "Precedence",
-     "number": "10.1.3."
+     "number": "9.1.3."
     },
     {
      "id": "_recognized_keys",
      "title": "Recognized keys",
-     "number": "10.1.4."
+     "number": "9.1.4."
     },
     {
      "id": "_build_parameters_vs_package_yaml",
      "title": "Build parameters vs. package.yaml",
-     "number": "10.1.5."
+     "number": "9.1.5."
     }
    ]
   },
   {
-   "number": "10.2.",
+   "number": "9.2.",
    "title": "C++",
    "id": "cpp",
    "url": "https://morloc-project.github.io/docs/languages/cpp.html",
@@ -2408,17 +2384,17 @@
     {
      "id": "_library_dependencies_cpp_deps",
      "title": "Library dependencies (cpp-deps)",
-     "number": "10.2.1."
+     "number": "9.2.1."
     },
     {
      "id": "_link_flags_dependencies",
      "title": "Link flags (dependencies)",
-     "number": "10.2.2."
+     "number": "9.2.2."
     }
    ]
   },
   {
-   "number": "10.3.",
+   "number": "9.3.",
    "title": "Python",
    "id": "python",
    "url": "https://morloc-project.github.io/docs/languages/python.html",
@@ -2430,7 +2406,7 @@
     {
      "id": "py-deps",
      "title": "Dependencies (py-deps)",
-     "number": "10.3.1."
+     "number": "9.3.1."
     },
     {
      "id": "_conda_channels",
@@ -2440,12 +2416,12 @@
     {
      "id": "local-deps",
      "title": "Local packages (local-deps)",
-     "number": "10.3.2."
+     "number": "9.3.2."
     }
    ]
   },
   {
-   "number": "10.4.",
+   "number": "9.4.",
    "title": "R",
    "id": "r",
    "url": "https://morloc-project.github.io/docs/languages/r.html",
@@ -2457,12 +2433,12 @@
     {
      "id": "r-deps",
      "title": "Dependencies (r-deps)",
-     "number": "10.4.1."
+     "number": "9.4.1."
     }
    ]
   },
   {
-   "number": "10.5.",
+   "number": "9.5.",
    "title": "Rust",
    "id": "rust",
    "url": "https://morloc-project.github.io/docs/languages/rust.html",
@@ -2474,27 +2450,27 @@
     {
      "id": "_cargo_pools",
      "title": "Cargo pools",
-     "number": "10.5.1."
+     "number": "9.5.1."
     },
     {
      "id": "rust-deps",
      "title": "Dependencies (rust-deps)",
-     "number": "10.5.2."
+     "number": "9.5.2."
     },
     {
      "id": "_local_crates_local_deps",
      "title": "Local crates (local-deps)",
-     "number": "10.5.3."
+     "number": "9.5.3."
     },
     {
      "id": "_one_resolution_per_environment",
      "title": "One resolution per environment",
-     "number": "10.5.4."
+     "number": "9.5.4."
     }
    ]
   },
   {
-   "number": "10.6.",
+   "number": "9.6.",
    "title": "Futhark",
    "id": "futhark",
    "url": "https://morloc-project.github.io/docs/languages/futhark.html",
@@ -2506,23 +2482,23 @@
     {
      "id": "_futhark_backends_and_gpu_devices",
      "title": "Futhark backends and GPU devices",
-     "number": "10.6.1."
+     "number": "9.6.1."
     }
    ]
   },
   {
-   "number": "11.",
+   "number": "10.",
    "title": "Utilities",
    "id": "utilities",
    "url": "https://morloc-project.github.io/docs/utilities/",
    "md": "https://morloc-project.github.io/docs/utilities/index.md",
    "chapter": "utilities",
    "level": 1,
-   "summary": "The nexus ships two utility subcommands that operate on data files without needing a compiled morloc program: file (identifies a file) and view (loads and...",
+   "summary": "The nexus has two subcommands that work on data files without a compiled Morloc program: file identifies a file, and view loads it and re-emits it in a...",
    "headings": []
   },
   {
-   "number": "11.1.",
+   "number": "10.1.",
    "title": "morloc-nexus file",
    "id": "nexus-file",
    "url": "https://morloc-project.github.io/docs/utilities/nexus-file.html",
@@ -2534,22 +2510,22 @@
     {
      "id": "stream-packets",
      "title": "Stream packets",
-     "number": "11.1.1."
+     "number": "10.1.1."
     },
     {
      "id": "_options",
      "title": "Options",
-     "number": "11.1.2."
+     "number": "10.1.2."
     },
     {
      "id": "_verbose_example",
      "title": "Verbose example",
-     "number": "11.1.3."
+     "number": "10.1.3."
     }
    ]
   },
   {
-   "number": "11.2.",
+   "number": "10.2.",
    "title": "morloc-nexus view",
    "id": "nexus-view",
    "url": "https://morloc-project.github.io/docs/utilities/nexus-view.html",
@@ -2561,47 +2537,47 @@
     {
      "id": "_reading_from_stdin",
      "title": "Reading from stdin",
-     "number": "11.2.1."
+     "number": "10.2.1."
     },
     {
      "id": "_schema_resolution",
      "title": "Schema resolution",
-     "number": "11.2.2."
+     "number": "10.2.2."
     },
     {
      "id": "_pattern_extract_a_subset",
      "title": "--pattern: extract a subset",
-     "number": "11.2.3."
+     "number": "10.2.3."
     },
     {
      "id": "_packet_shape_output_s_d_p",
      "title": "Packet-shape output: -s / -d / -p",
-     "number": "11.2.4."
+     "number": "10.2.4."
     },
     {
      "id": "_f_jsonl_line_delimited_json",
      "title": "-f jsonl: line-delimited JSON",
-     "number": "11.2.5."
+     "number": "10.2.5."
     },
     {
      "id": "view-size-guardrails",
      "title": "Size guardrails and --force",
-     "number": "11.2.6."
+     "number": "10.2.6."
     },
     {
      "id": "footer-less-streams",
      "title": "Footer-less streams",
-     "number": "11.2.7."
+     "number": "10.2.7."
     },
     {
      "id": "_options_2",
      "title": "Options",
-     "number": "11.2.8."
+     "number": "10.2.8."
     }
    ]
   },
   {
-   "number": "12.",
+   "number": "11.",
    "title": "Ecosystem Architecture",
    "id": "ecosystem-architecture",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/",
@@ -2612,7 +2588,7 @@
    "headings": []
   },
   {
-   "number": "12.1.",
+   "number": "11.1.",
    "title": "Overview",
    "id": "eco-overview",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html",
@@ -2623,7 +2599,7 @@
    "headings": []
   },
   {
-   "number": "12.2.",
+   "number": "11.2.",
    "title": "Environments",
    "id": "eco-environments",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.html",
@@ -2634,7 +2610,7 @@
    "headings": []
   },
   {
-   "number": "12.3.",
+   "number": "11.3.",
    "title": "Runtime bootstrap",
    "id": "eco-bootstrap",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-bootstrap.html",
@@ -2646,22 +2622,22 @@
     {
      "id": "_releases",
      "title": "Releases",
-     "number": "12.3.1."
+     "number": "11.3.1."
     },
     {
      "id": "_building_an_environment",
      "title": "Building an environment",
-     "number": "12.3.2."
+     "number": "11.3.2."
     },
     {
      "id": "_what_morloc_init_produces",
      "title": "What morloc init produces",
-     "number": "12.3.3."
+     "number": "11.3.3."
     }
    ]
   },
   {
-   "number": "12.4.",
+   "number": "11.4.",
    "title": "Caching",
    "id": "eco-caching",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-caching.html",
@@ -2672,7 +2648,7 @@
    "headings": []
   },
   {
-   "number": "12.5.",
+   "number": "11.5.",
    "title": "Remote jobs",
    "id": "eco-remote",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-remote.html",
@@ -2683,7 +2659,7 @@
    "headings": []
   },
   {
-   "number": "12.6.",
+   "number": "11.6.",
    "title": "Module resolution",
    "id": "eco-modules",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.html",
@@ -2695,27 +2671,27 @@
     {
      "id": "_finding_a_module",
      "title": "Finding a module",
-     "number": "12.6.1."
+     "number": "11.6.1."
     },
     {
      "id": "_identity",
      "title": "Identity",
-     "number": "12.6.2."
+     "number": "11.6.2."
     },
     {
      "id": "_installing_2",
      "title": "Installing",
-     "number": "12.6.3."
+     "number": "11.6.3."
     },
     {
      "id": "_foreign_dependencies",
      "title": "Foreign dependencies",
-     "number": "12.6.4."
+     "number": "11.6.4."
     }
    ]
   },
   {
-   "number": "12.7.",
+   "number": "11.7.",
    "title": "Environment solving",
    "id": "eco-solving",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html",
@@ -2727,27 +2703,27 @@
     {
      "id": "_the_build_hook",
      "title": "The build hook",
-     "number": "12.7.1."
+     "number": "11.7.1."
     },
     {
      "id": "_one_world_per_environment",
      "title": "One world per environment",
-     "number": "12.7.2."
+     "number": "11.7.2."
     },
     {
      "id": "_solving",
      "title": "Solving",
-     "number": "12.7.3."
+     "number": "11.7.3."
     },
     {
      "id": "_when_solving_happens",
      "title": "When solving happens",
-     "number": "12.7.4."
+     "number": "11.7.4."
     }
    ]
   },
   {
-   "number": "12.8.",
+   "number": "11.8.",
    "title": "Serving",
    "id": "eco-serving",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.html",
@@ -2759,42 +2735,42 @@
     {
      "id": "_server_modes",
      "title": "Server modes",
-     "number": "12.8.1."
+     "number": "11.8.1."
     },
     {
      "id": "_endpoints",
      "title": "Endpoints",
-     "number": "12.8.2."
+     "number": "11.8.2."
     },
     {
      "id": "_commands_as_mcp_tools",
      "title": "Commands as MCP tools",
-     "number": "12.8.3."
+     "number": "11.8.3."
     },
     {
      "id": "_pool_crash_recovery",
      "title": "Pool crash recovery",
-     "number": "12.8.4."
+     "number": "11.8.4."
     },
     {
      "id": "_eval",
      "title": "Eval",
-     "number": "12.8.5."
+     "number": "11.8.5."
     },
     {
      "id": "_security_model",
      "title": "Security model",
-     "number": "12.8.6."
+     "number": "11.8.6."
     },
     {
      "id": "_serving_an_environment",
      "title": "Serving an environment",
-     "number": "12.8.7."
+     "number": "11.8.7."
     }
    ]
   },
   {
-   "number": "12.9.",
+   "number": "11.9.",
    "title": "Freezing",
    "id": "eco-freezing",
    "url": "https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html",
@@ -2805,7 +2781,7 @@
    "headings": []
   },
   {
-   "number": "13.",
+   "number": "12.",
    "title": "Build Architecture",
    "id": "build-architecture",
    "url": "https://morloc-project.github.io/docs/build-architecture/",
@@ -2816,7 +2792,7 @@
    "headings": []
   },
   {
-   "number": "13.1.",
+   "number": "12.1.",
    "title": "Runtime overview",
    "id": "build-overview",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-overview.html",
@@ -2827,7 +2803,7 @@
    "headings": []
   },
   {
-   "number": "13.2.",
+   "number": "12.2.",
    "title": "Compilation artifacts",
    "id": "build-artifacts",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-artifacts.html",
@@ -2838,7 +2814,7 @@
    "headings": []
   },
   {
-   "number": "13.3.",
+   "number": "12.3.",
    "title": "Process lifecycle",
    "id": "build-lifecycle",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-lifecycle.html",
@@ -2849,7 +2825,7 @@
    "headings": []
   },
   {
-   "number": "13.4.",
+   "number": "12.4.",
    "title": "Worker model",
    "id": "build-workers",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-workers.html",
@@ -2860,7 +2836,7 @@
    "headings": []
   },
   {
-   "number": "13.5.",
+   "number": "12.5.",
    "title": "Packet protocol",
    "id": "build-packets",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-packets.html",
@@ -2871,7 +2847,7 @@
    "headings": []
   },
   {
-   "number": "13.6.",
+   "number": "12.6.",
    "title": "Shared memory layout",
    "id": "build-shm",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-shm.html",
@@ -2882,7 +2858,7 @@
    "headings": []
   },
   {
-   "number": "13.7.",
+   "number": "12.7.",
    "title": "Voidstar format and schema strings",
    "id": "build-voidstar",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-voidstar.html",
@@ -2894,17 +2870,17 @@
     {
      "id": "_schema_strings",
      "title": "Schema strings",
-     "number": "13.7.1."
+     "number": "12.7.1."
     },
     {
      "id": "_layout",
      "title": "Layout",
-     "number": "13.7.2."
+     "number": "12.7.2."
     }
    ]
   },
   {
-   "number": "13.8.",
+   "number": "12.8.",
    "title": "Tables and tensors on the wire",
    "id": "build-tables",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-tables.html",
@@ -2915,7 +2891,7 @@
    "headings": []
   },
   {
-   "number": "13.9.",
+   "number": "12.9.",
    "title": "Streaming and memory mapping",
    "id": "build-streaming",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-streaming.html",
@@ -2926,7 +2902,7 @@
    "headings": []
   },
   {
-   "number": "13.10.",
+   "number": "12.10.",
    "title": "Error propagation",
    "id": "build-errors",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-errors.html",
@@ -2937,7 +2913,7 @@
    "headings": []
   },
   {
-   "number": "13.11.",
+   "number": "12.11.",
    "title": "Collect, fold, parse and render",
    "id": "build-collect",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-collect.html",
@@ -2948,7 +2924,7 @@
    "headings": []
   },
   {
-   "number": "13.12.",
+   "number": "12.12.",
    "title": "Logs and result caching",
    "id": "build-runs",
    "url": "https://morloc-project.github.io/docs/build-architecture/build-runs.html",
@@ -2960,17 +2936,17 @@
     {
      "id": "_log_directory",
      "title": "Log directory",
-     "number": "13.12.1."
+     "number": "12.12.1."
     },
     {
      "id": "_result_cache",
      "title": "Result cache",
-     "number": "13.12.2."
+     "number": "12.12.2."
     }
    ]
   },
   {
-   "number": "14.",
+   "number": "13.",
    "title": "Compiler Architecture",
    "id": "compiler-architecture",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/",
@@ -2981,139 +2957,150 @@
    "headings": []
   },
   {
-   "number": "14.1.",
+   "number": "13.1.",
    "title": "Pipeline overview",
    "id": "compiler-pipeline",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-pipeline.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-pipeline.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Lists every compiler stage in order: lexing, parsing, module loading, desugaring, typechecking, realization, serialization planning, code generation,...",
+   "summary": "Three phases.",
    "headings": []
   },
   {
-   "number": "14.2.",
+   "number": "13.2.",
    "title": "Parsing and module loading",
    "id": "compiler-parsing",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies the concrete syntax: lexical rules, the layout (indentation) rule, the grammar, and how docstrings are attached to the declarations they...",
+   "summary": "Tokens.",
    "headings": []
   },
   {
-   "number": "14.3.",
+   "number": "13.3.",
    "title": "Type system",
    "id": "compiler-types",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-types.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-types.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies the type system: the typing rules, polymorphism and how quantifiers are inferred, typeclasses and instance resolution (including how overlap...",
+   "summary": "Bidirectional checking.",
    "headings": []
   },
   {
-   "number": "14.4.",
+   "number": "13.4.",
    "title": "Effects",
    "id": "compiler-effects",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies effects.",
+   "summary": "A suspension is a value.",
    "headings": []
   },
   {
-   "number": "14.5.",
-   "title": "Realization",
-   "id": "compiler-realization",
-   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.html",
-   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.md",
-   "chapter": "compiler-architecture",
-   "level": 2,
-   "summary": "STUB: Specifies realization: choosing, for every call in a program, which language implementation to use when several are available.",
-   "headings": []
-  },
-  {
-   "number": "14.6.",
+   "number": "13.5.",
    "title": "Term sharing and inlining",
    "id": "compiler-sharing",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-sharing.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-sharing.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies how the compiler keeps generated code proportional to the source.",
+   "summary": "Inline by name.",
    "headings": []
   },
   {
-   "number": "14.7.",
+   "number": "13.6.",
+   "title": "Realization",
+   "id": "compiler-realization",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "What is chosen.",
+   "headings": []
+  },
+  {
+   "number": "13.7.",
+   "title": "Segmentation and cross-language calls",
+   "id": "compiler-calls",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.md",
+   "chapter": "compiler-architecture",
+   "level": 2,
+   "summary": "Manifolds.",
+   "headings": []
+  },
+  {
+   "number": "13.8.",
    "title": "Serialization",
    "id": "compiler-serialization",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-serialization.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies how generated code serializes values at language boundaries.",
+   "summary": "Two states.",
    "headings": []
   },
   {
-   "number": "14.8.",
-   "title": "Cross-language calls and tail calls",
-   "id": "compiler-calls",
-   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.html",
-   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-calls.md",
+   "number": "13.9.",
+   "title": "Ownership",
+   "id": "compiler-ownership",
+   "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-ownership.html",
+   "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-ownership.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies how a call in one language reaches a function in another: the stub generated on the calling side, the dispatch on the receiving side, and...",
+   "summary": "An affine elaboration.",
    "headings": []
   },
   {
-   "number": "14.9.",
+   "number": "13.10.",
    "title": "Code generation",
    "id": "compiler-codegen",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-codegen.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies code generation.",
+   "summary": "Input.",
    "headings": []
   },
   {
-   "number": "14.10.",
+   "number": "13.11.",
    "title": "Interface generation",
    "id": "compiler-interface",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies how exported functions become a program’s external interface.",
+   "summary": "Which exports become commands.",
    "headings": []
   },
   {
-   "number": "14.11.",
+   "number": "13.12.",
    "title": "Language onboarding",
    "id": "compiler-onboarding",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-onboarding.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies what it takes to add a language to Morloc: the language description the compiler reads, the type mappings and build parameters it declares,...",
+   "summary": "The language description.",
    "headings": []
   },
   {
-   "number": "14.12.",
+   "number": "13.13.",
    "title": "Runtime library API",
    "id": "compiler-libmorloc",
    "url": "https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.html",
    "md": "https://morloc-project.github.io/docs/compiler-architecture/compiler-libmorloc.md",
    "chapter": "compiler-architecture",
    "level": 2,
-   "summary": "STUB: Specifies the C ABI that language bindings are written against: the ABI version and the rule for when it changes, the error-reporting convention every...",
+   "summary": "Division of labour.",
    "headings": []
   },
   {
-   "number": "15.",
+   "number": "14.",
    "title": "Future Directions",
    "id": "future",
    "url": "https://morloc-project.github.io/docs/future/",
@@ -3123,14 +3110,19 @@
    "summary": "",
    "headings": [
     {
+     "id": "what-this-makes-possible",
+     "title": "What this makes possible",
+     "number": "14.1."
+    },
+    {
      "id": "planes-of-libraries",
      "title": "Planes of libraries",
-     "number": "15.1."
+     "number": "14.2."
     }
    ]
   },
   {
-   "number": "16.",
+   "number": "15.",
    "title": "Q&A",
    "id": "qa",
    "url": "https://morloc-project.github.io/docs/qa/",
@@ -3141,7 +3133,7 @@
    "headings": []
   },
   {
-   "number": "16.1.",
+   "number": "15.1.",
    "title": "I only use one language, is Morloc still useful?",
    "id": "one-language",
    "url": "https://morloc-project.github.io/docs/qa/one-language.html",
@@ -3152,7 +3144,7 @@
    "headings": []
   },
   {
-   "number": "16.2.",
+   "number": "15.2.",
    "title": "Is this just a bioinformatics workflow language?",
    "id": "bioinformatics-only",
    "url": "https://morloc-project.github.io/docs/qa/bioinformatics-only.html",
@@ -3163,7 +3155,7 @@
    "headings": []
   },
   {
-   "number": "16.3.",
+   "number": "15.3.",
    "title": "Does Morloc allow function-specific containerized environments?",
    "id": "per-function-environments",
    "url": "https://morloc-project.github.io/docs/qa/per-function-environments.html",
@@ -3174,7 +3166,7 @@
    "headings": []
   },
   {
-   "number": "16.4.",
+   "number": "15.4.",
    "title": "What about object-oriented programming?",
    "id": "object-oriented",
    "url": "https://morloc-project.github.io/docs/qa/object-oriented.html",
@@ -3185,7 +3177,7 @@
    "headings": []
   },
   {
-   "number": "16.5.",
+   "number": "15.5.",
    "title": "Is Morloc still relevant when AI can program and translate?",
    "id": "ai-relevance",
    "url": "https://morloc-project.github.io/docs/qa/ai-relevance.html",
@@ -3196,7 +3188,7 @@
    "headings": []
   },
   {
-   "number": "16.6.",
+   "number": "15.6.",
    "title": "I’m not a human, do I still need Morloc?",
    "id": "not-a-human",
    "url": "https://morloc-project.github.io/docs/qa/not-a-human.html",
@@ -3207,7 +3199,7 @@
    "headings": []
   },
   {
-   "number": "16.7.",
+   "number": "15.7.",
    "title": "Why is it named after Morlocks, weren’t they, like, bad?",
    "id": "morlocks",
    "url": "https://morloc-project.github.io/docs/qa/morlocks.html",
@@ -3218,7 +3210,7 @@
    "headings": []
   },
   {
-   "number": "16.8.",
+   "number": "15.8.",
    "title": "Wait! I have more questions!",
    "id": "more-questions",
    "url": "https://morloc-project.github.io/docs/qa/more-questions.html",
@@ -3229,69 +3221,74 @@
    "headings": []
   },
   {
-   "number": "17.",
+   "number": "16.",
    "title": "Environmental Variable List",
    "id": "env",
    "url": "https://morloc-project.github.io/docs/env/",
    "md": "https://morloc-project.github.io/docs/env/index.md",
    "chapter": "env",
    "level": 1,
-   "summary": "Every environment variable that morloc reads or sets lives in the MORLOC_ namespace.",
+   "summary": "Every environment variable that morloc reads or sets lives in the MORLOC_ namespace, apart from the standard XDG_* base directories.",
    "headings": [
     {
      "id": "env-installation",
      "title": "Installation and runtime setup",
-     "number": "17.1."
+     "number": "16.1."
     },
     {
      "id": "env-module-installation",
      "title": "Module installation (setup-script environment)",
-     "number": "17.2."
+     "number": "16.2."
     },
     {
      "id": "env-run-directory",
      "title": "Run directory, logging, and reporting",
-     "number": "17.3."
+     "number": "16.3."
     },
     {
      "id": "env-debugging",
      "title": "Debugging",
-     "number": "17.4."
+     "number": "16.4."
     },
     {
      "id": "env-caching",
      "title": "Caching",
-     "number": "17.5."
+     "number": "16.5."
     },
     {
      "id": "env-data-transfer",
      "title": "Data transfer (packets and shared memory)",
-     "number": "17.6."
+     "number": "16.6."
     },
     {
      "id": "env-streaming",
      "title": "Streaming and compression",
-     "number": "17.7."
+     "number": "16.7."
     },
     {
      "id": "env-nexus-wiring",
      "title": "Nexus and inter-process wiring",
-     "number": "17.8."
+     "number": "16.8."
+    },
+    {
+     "id": "env-serving",
+     "title": "Serving",
+     "number": "16.9."
     },
     {
      "id": "env-inspection-tools",
      "title": "Nexus inspection tools (view / file)",
-     "number": "17.9."
+     "number": "16.10."
     },
     {
      "id": "env-string-safety",
      "title": "String safety",
-     "number": "17.10."
+     "number": "16.11."
     }
    ]
   },
   {
-   "number": "18.",
+   "number": "17.",
    "title": "AI Policy",
    "id": "ai-policy",
    "url": "https://morloc-project.github.io/docs/ai-policy/",
@@ -3302,15 +3299,26 @@
    "headings": []
   },
   {
-   "number": "19.",
-   "title": "Contact",
+   "number": "18.",
+   "title": "Status and Contact",
    "id": "contact",
    "url": "https://morloc-project.github.io/docs/contact/",
    "md": "https://morloc-project.github.io/docs/contact/index.md",
    "chapter": "contact",
    "level": 1,
    "summary": "This is a young project and any brave early users are highly valued.",
-   "headings": []
+   "headings": [
+    {
+     "id": "project-status",
+     "title": "Where the project stands",
+     "number": "18.1."
+    },
+    {
+     "id": "what-i-need",
+     "title": "What I need",
+     "number": "18.2."
+    }
+   ]
   }
  ]
 }

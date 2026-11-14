@@ -1,10 +1,10 @@
-# 4.4. Integer types
+# 3.5. Integer types
 
 Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/integers.html | prev: https://morloc-project.github.io/docs/features/booleans.md | next: https://morloc-project.github.io/docs/features/floats.md
 
 Morloc has one integer type for ordinary use and a family of fixed-width types for when the width matters. This section covers how integers are written, how the default type behaves across languages, and what happens at the boundaries.
 
-## 4.4.1. Writing integer literals
+## 3.5.1. Writing integer literals
 
 Integers may be written in decimal, hexadecimal, octal, or binary:
 
@@ -47,15 +47,15 @@ $ morloc eval -e 'import root-py; 5 - 1'
 4
 ```
 
-## 4.4.2. Integer types at a glance
+## 3.5.2. Integer types at a glance
 
 | Type | Width | Use case |
 | --- | --- | --- |
-| `Int` | Variable (arbitrary precision) | Default integer for most code. Works across all languages. |
+| `Int` | The language’s default integer (32-bit in C++ and R) | Default integer for most code. Works across all languages. |
 | `I8`, `I16`, `I32`, `I64` | 8, 16, 32, 64 bits (signed) | Performance-critical code with known bounds. |
 | `U8`, `U16`, `U32`, `U64` | 8, 16, 32, 64 bits (unsigned) | Bit manipulation, byte data, indices. |
 
-## 4.4.3. The default `Int` type
+## 3.5.3. The default `Int` type
 
 `Int` is Morloc’s universal integer, and integer literals are `Int` unless something says otherwise:
 
@@ -74,11 +74,11 @@ On the wire `Int` is variable-width: values up to 64 bits fit in 16 bytes inline
 | R | `integer` | 32-bit signed |
 | Rust | `i64` | 64-bit signed |
 
-This asymmetry is the thing to remember about `Int`. A value that a Python pool holds happily may not fit in the C++ or R pool it is handed to. If a field needs more than 32 bits on those backends, declare it `I64` or `U64`. `I64` maps to `int64_t` in C++, `i64` in Rust and a bit64 `integer64` in R, all exact. `U64` maps to `uint64_t` in C++ and `u64` in Rust, and to R’s `numeric`, which is exact only up to 2^53.
+This asymmetry is the thing to remember about `Int`. A value that a Python pool holds happily may not fit in the C++ or R pool it is handed to. If a field needs more than 32 bits on those backends, declare it `I64` or `U64`. `I64` maps to `int64_t` in C++, `i64` in Rust and a bit64 `integer64` in R, all exact. `U64` maps to `uint64_t` in C++, `u64` in Rust and the signed `integer64` in R, which is exact only below 2^63.
 
-## 4.4.4. Big integers from Python
+## 3.5.4. Big integers from Python
 
-Python’s integers are arbitrary precision and Morloc’s `Int` takes full advantage of that. Factorials make the point quickly:
+Python’s integers are arbitrary precision and Morloc’s `Int` takes full advantage of that. Factorials make the point quickly. The `?`/`:` lines are a guard, Morloc’s if-else: `1` when `n == 0`, else the recursive case ([Conditionals](https://morloc-project.github.io/docs/features/conditionals.md)):
 
 **main.loc**
 
@@ -101,11 +101,11 @@ $ ./calc fact 100
 
 That is a 525-bit integer, far past any fixed-width type. It is stored as a multi-limb big integer and printed exactly.
 
-## 4.4.5. Overflow at a language boundary
+## 3.5.5. Overflow at a language boundary
 
 When a value too large for the target language’s type crosses into it, Morloc raises an error at the boundary rather than truncating silently.
 
-To show this we need to force the computation to happen in Python and then move the result. `root-py` exports `idpy` and `root-cpp` exports `idcpp`: identity functions pinned to one language. Wrapping a term in `idpy` forces it into the Python pool, and `idcpp` then drags the result across into C++. Without them the compiler would collapse `fact` to pure C++ — faster, but it would not demonstrate anything.
+To show this you need to force the computation to happen in Python and then move the result. `root-py` exports `idpy`, `root-cpp` exports `idcpp`, and `root-r` exports `idr`: identity functions pinned to one language. Wrapping a term in `idpy` forces it into the Python pool, and `idcpp` or `idr` then drags the result across. Without them the compiler would collapse `fact` to pure C++ — faster, but it would not demonstrate anything.
 
 **main.loc**
 
@@ -144,8 +144,8 @@ Large ones report where and why they failed:
 $ ./calc factCpp 100
 Error: run failed
 Integer overflow: 9-limb integer (576 bits) does not fit in 32-bit type (range -2147483648 to 2147483647)
-  at _ [cpp] (mid=2787, main.loc:16:20)
-  at factCpp [cpp] (mid=1, main.loc:1:14)
+  at factPy [cpp] (mid=3134, main.loc:13:1)
+  at factCpp [cpp] (mid=1, main.loc:16:1)
 ```
 
 R is limited to 32-bit integers, and to 53-bit integer precision through doubles, so it refuses the same value:
@@ -154,13 +154,13 @@ R is limited to 32-bit integers, and to 53-bit integer precision through doubles
 $ ./calc factR 100
 Error: run failed
 Integer overflow: 9-limb integer (576 bits) does not fit in R's numeric type (max 2^53 for integer precision).
-  at _ [r] (mid=2815, main.loc:19:16)
-  at factR [r] (mid=2, main.loc:1:23)
+  at factPy [r] (mid=3191, main.loc:13:1)
+  at factR [r] (mid=2, main.loc:19:1)
 ```
 
 Both report the same shape: what overflowed, what it would not fit in, and the call chain that got there.
 
-## 4.4.6. Compile-time literal bounds
+## 3.5.6. Compile-time literal bounds
 
 A literal written into a fixed-width type is bounds-checked against that type:
 
@@ -184,7 +184,7 @@ Integer literal 1000 overflows U8 (range 0 to 255)
 
 The caret points at the literal, not at the binding name, so when the same literal is referenced from several sites the diagnostic stays on the offending source.
 
-## 4.4.7. Fixed-width integer types
+## 3.5.7. Fixed-width integer types
 
 When values are known to be bounded, fixed-width types map directly onto the target language’s native types:
 
@@ -194,17 +194,17 @@ When values are known to be bounded, fixed-width types map directly onto the tar
 | `I16` | `int16_t` | `int` | `integer` | `i16` |
 | `I32` | `int32_t` | `int` | `numeric` (double) | `i32` |
 | `I64` | `int64_t` | `int` | `integer64` (bit64) | `i64` |
-| `U8` | `uint8_t` | `int` | `integer` | `u8` |
+| `U8` | `uint8_t` | `int` | `integer` (`raw` in a list) | `u8` |
 | `U16` | `uint16_t` | `int` | `integer` | `u16` |
 | `U32` | `uint32_t` | `int` | `numeric` (double) | `u32` |
-| `U64` | `uint64_t` | `int` | `numeric` (double) | `u64` |
+| `U64` | `uint64_t` | `int` | `integer64` (bit64) | `u64` |
 
 These serialize directly: the wire format is identical to the in-memory representation, with no conversion step. That makes them the right choice for numerical code and for interop with C libraries that require specific widths.
 
 > **Note**
 > The Python column is `int` throughout rather than a genuinely fixed-size type such as a numpy scalar. Types can be specialized that way; see [Native type mappings](https://morloc-project.github.io/docs/features/foreign-functions.md#mapping-native-types), and [Tensors](https://morloc-project.github.io/docs/types/tensors.md) and [Tables](https://morloc-project.github.io/docs/types/tables.md) for the higher-performance shared-memory types.
 
-## 4.4.8. Converting between integer types
+## 3.5.8. Converting between integer types
 
 Two typeclasses in `root` cover numeric conversion. `into` is for conversions that can never fail and never lose information. `tryInto` is for everything else:
 
@@ -239,7 +239,7 @@ value 9999 out of range [0, 255]
   at byte [py] (mid=2, bytes.loc:1:20)
 ```
 
-To decide for yourself what an out-of-range value means, wrap the conversion in `@try`, which turns a raise into a value you can match on — either the converted number or the reason there isn’t one. `@try` and the `Try` type it produces are covered in [Failure and recovery](https://morloc-project.github.io/docs/features/intrinsics.md#failure-and-recovery); the shape is:
+To decide for yourself what an out-of-range value means, wrap the conversion in `@try`, which turns a raise into a value you can match on — either the converted number or the reason there isn’t one. `@try` and the `Try` type it produces are covered in [Failure and recovery](https://morloc-project.github.io/docs/features/intrinsics.md#failure-and-recovery), and `match`, which picks the clause whose pattern fits, in [`match` expressions](https://morloc-project.github.io/docs/features/pattern-matching.md#match-expressions); the shape is:
 
 ```morloc
 byteOrZero :: I32 -> U8
@@ -264,11 +264,11 @@ $ ./bytes byteOrReport 9999
 
 **The \`**
 
-U8\` ascription is doing the work the old signature used to: `tryInto` is polymorphic in its target, so something has to say which conversion you meant.
+U8\` ascription is needed because `tryInto` is polymorphic in its target, so something has to say which conversion you meant.
 
 `Int` gets the most restrictive treatment, because its width varies by backend: 32-bit in R and C++, unbounded in Python. Every `Int` to fixed-width conversion goes through `tryInto` — even `Int -> I64` — and converting `U32` or wider **into** `Int` does too. That keeps behaviour the same everywhere.
 
-## 4.4.9. Negation and unary minus
+## 3.5.9. Negation and unary minus
 
 The `-` glyph plays two roles: binary subtraction and unary negation. Which one you get depends on whitespace.
 
@@ -335,7 +335,7 @@ Anywhere else — where the dash directly follows a token that finishes an o
 | `-(x + 1)` | desugars to `negate (x + 1)` |
 | `-x` | desugars to `negate x` |
 
-The first row of that table is easy to verify. Applying a number to something is a type error, and that is exactly the error `5 -1` produces — proving the `-1` was read as an argument rather than as subtraction:
+The second row can be checked directly. Applying a number to something is a type error, and that is exactly the error `5 -1` produces — proving the `-1` was read as an argument rather than as subtraction:
 
 ```console
 $ morloc eval -e "5 -1"

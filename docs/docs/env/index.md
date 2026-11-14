@@ -1,15 +1,15 @@
-# 17. Environmental Variable List
+# 16. Environmental Variable List
 
 Morloc Manual | https://morloc-project.github.io/docs/env/ | prev: https://morloc-project.github.io/docs/qa/more-questions.md | next: https://morloc-project.github.io/docs/ai-policy/index.md
 
-Every environment variable that morloc reads or sets lives in the `MORLOC_` namespace. They fall into two roles:
+Every environment variable that morloc reads or sets lives in the `MORLOC_` namespace, apart from the standard `XDG_*` base directories. They fall into two roles:
 
 -   **Tunables** — read at runtime to override a default. A user (or an orchestrator) sets these; morloc only reads them.
 -   **Wiring** — set by the nexus, the compiler, or `mim` and read by the child processes they launch (pools, setup scripts, SLURM re-entry). Users normally do not set these by hand.
 
 The tables below group the variables by topic. The **Introduced in** column links to the manual section that introduces the variable; a `(pending)` entry marks a variable that is described here but does not yet have a dedicated home elsewhere in the manual.
 
-## 17.1. Installation and runtime setup
+## 16.1. Installation and runtime setup
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -18,8 +18,9 @@ The tables below group the variables by topic. The **Introduced in** column link
 | `MORLOC_LANG_PARAMS` | `;`\-separated `LANG:KEY=VALUE` build parameters, layered between the per-machine build config and `-X` on the command line. | *(none)* | [Build parameters](https://morloc-project.github.io/docs/languages/build-parameters.md) |
 | `MORLOC_BIN_LINK_DIR` | Directory where `morloc init` symlinks `morloc-nexus` and `mim`. An empty value suppresses symlinking; `mim` sets it inside containers so links land in a morloc-owned `bin/` instead of clobbering `~/.local/bin`. | `~/.local/bin` if present, else none | (pending) |
 | `MORLOC_NEXUS` | Explicit path to the `morloc-nexus` binary. First entry in the resolution chain (then `$MORLOC_HOME/bin`, `$PATH`, `~/.local/bin`) used when a pool must re-invoke the nexus, e.g. for SLURM dispatch. | *(resolution chain)* | (pending) |
+| `MORLOC_STATE` | Root for mutable state: installed modules, built programs (`exe/`), the module database (`fdb/`) and daemon logs (`logs/`), kept apart from the runtime under `MORLOC_HOME`. | `$MORLOC_HOME` | [Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md) |
 
-## 17.2. Module installation (setup-script environment)
+## 16.2. Module installation (setup-script environment)
 
 Set by the compiler for a module’s `setup` script child process and read by that script.
 
@@ -34,7 +35,7 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_EXPOSE_PY_DIR` | Destination directory a `setup` script should copy exposed Python resources into. | *(derived from plane/module)* | (pending) |
 | `MORLOC_EXPOSE_R_DIR` | Destination directory a `setup` script should copy exposed R resources into. | *(derived from plane/module)* | (pending) |
 
-## 17.3. Run directory, logging, and reporting
+## 16.3. Run directory, logging, and reporting
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -46,7 +47,7 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_RUN_BASE` | Parent directory of the active run directory. Published by the runtime for child pools; informational only (a child reconstructs its run from `MORLOC_RUN_DIR`). | *(only when active)* | (pending) |
 | `MORLOC_TRACE` | Any non-empty value enables per-stage timing trace lines on stderr (ingest, size-estimate, and emit hot paths) for diagnosing where wall time is spent. | off | (pending) |
 
-## 17.4. Debugging
+## 16.4. Debugging
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -54,8 +55,9 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_DEBUG_CACHE_DEPTH` | Maximum disk writes per dispatch (`0` = unlimited). Equivalent to `--debug-cache-depth`. | `1` | [Runtime knobs](https://morloc-project.github.io/docs/runs/debugging.md#debug-knobs) |
 | `MORLOC_DEBUG_CACHE_MAX` | Per-arg size cap on the dumped payload; larger args recorded by hash only. Equivalent to `--debug-cache-max`. | `0` (unlimited) | [Runtime knobs](https://morloc-project.github.io/docs/runs/debugging.md#debug-knobs) |
 | `MORLOC_DEBUG_RECURSION_CAP` | Per-manifold frame limit in a recorded trace (`0` = unlimited). Equivalent to `--debug-recursion-cap`. | `3` | [Runtime knobs](https://morloc-project.github.io/docs/runs/debugging.md#debug-knobs) |
+| `MORLOC_SHM_POISON` | Set to `1` to fill released shared-memory blocks with the byte `0xDB` instead of zeros, so a read of freed memory is recognizable. | off | [Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md) |
 
-## 17.5. Caching
+## 16.5. Caching
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -63,7 +65,7 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_CACHE_COMPRESSION_LEVEL` | zstd level for persisted cache entries. `0` stores them uncompressed so `morloc dump` reads them without decompressing; raise it for large-payload workloads where disk footprint matters. | `0` (uncompressed) | (pending) |
 | `MORLOC_POOL_HASH` | Hex source fingerprint mixed into every cache key so editing the morloc source (or a `@hash-include` file) invalidates the cache. `0` keeps caching working but drops source-edit invalidation. | `0` (no invalidation) | (pending) |
 
-## 17.6. Data transfer (packets and shared memory)
+## 16.6. Data transfer (packets and shared memory)
 
 Set by the nexus from the compiled manifest and read once by `libmorloc` on the first packet operation.
 
@@ -73,16 +75,18 @@ Set by the nexus from the compiled manifest and read once by `libmorloc` on the 
 | `MORLOC_NO_SHM` | Set to `1`/`true`/`yes`/`on` to disable shared memory and route large payloads through temp files instead. | off | (pending) |
 | `MORLOC_TMPDIR` | Temp directory for file-routed packets (used when a payload exceeds the inline threshold and SHM is disabled or unavailable). | system temp | (pending) |
 
-## 17.7. Streaming and compression
+## 16.7. Streaming and compression
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
-| `MORLOC_REGISTRY_SLOT_COUNT` | Concurrent stream handles per nexus invocation (each slot uses 512 bytes of SHM). | `4096` | [Streaming environment variables](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md#stream-env-vars) |
-| `MORLOC_WRITE_BUFFER_BYTES` | Per-`OStream` write-buffer cap; trades sub-packet granularity against per-flush overhead. | 16 MiB | [Streaming environment variables](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md#stream-env-vars) |
-| `MORLOC_IFILE_CACHE_BYTES` | Per-handle SHM cache for decompressed IFile sub-packets (`0` disables). | 256 MiB | [Streaming environment variables](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md#stream-env-vars) |
-| `MORLOC_FRAME_WORKERS` | Worker threads for parallel zstd frame compression/decompression (capped at 16). | `min(cores, 16)` | [Streaming environment variables](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md#stream-env-vars) |
+| `MORLOC_REGISTRY_SLOT_COUNT` | Concurrent stream handles per nexus invocation (each slot uses 512 bytes of SHM); capped at 65536, and `0` means the default. | `4096` | [Streaming environment variables](https://morloc-project.github.io/docs/features/random-access-and-streaming.md#stream-env-vars) |
+| `MORLOC_WRITE_BUFFER_BYTES` | Per-`OStream` write-buffer cap; trades sub-packet granularity against per-flush overhead. Values below 4096 are raised to 4096. | 16 MiB | [Streaming environment variables](https://morloc-project.github.io/docs/features/random-access-and-streaming.md#stream-env-vars) |
+| `MORLOC_IFILE_CACHE_BYTES` | Per-handle SHM cache for decompressed IFile sub-packets (`0` disables). | 256 MiB | [Streaming environment variables](https://morloc-project.github.io/docs/features/random-access-and-streaming.md#stream-env-vars) |
+| `MORLOC_FRAME_WORKERS` | Worker threads for parallel zstd frame compression/decompression (capped at 16). | `min(cores, 16)` | [Streaming environment variables](https://morloc-project.github.io/docs/features/random-access-and-streaming.md#stream-env-vars) |
+| `MORLOC_WRITE_BEHIND_DEPTH` | Batches a compressed output stream may queue before its writer waits; values above 7 are lowered to 7. | `MORLOC_FRAME_WORKERS` clamped to 2-4 | [Streaming and memory mapping](https://morloc-project.github.io/docs/build-architecture/build-streaming.md) |
+| `MORLOC_VERIFY_INDEX` | `1` makes `@open` of an `IFile` read every sub-packet and refuse a file whose footer index does not match them, as a debug build does. Without it the index is checked only for order, range and totals. | unset | [Streaming environment variables](https://morloc-project.github.io/docs/features/random-access-and-streaming.md#stream-env-vars) |
 
-## 17.8. Nexus and inter-process wiring
+## 16.8. Nexus and inter-process wiring
 
 Set by the nexus and read by the pools it launches.
 
@@ -92,10 +96,17 @@ Set by the nexus and read by the pools it launches.
 | `MORLOC_NEXUS_PATH` | Absolute path of the running nexus, exported to every pool so remote/SLURM dispatch can wrap an `sbatch` call to the same binary. | *(from `current_exe`)* | (pending) |
 | `MORLOC_MANIFEST_PATH` | Absolute (canonicalized) path of the program manifest, exported to pools for tooling that must re-enter the same program. | *(canonical manifest path)* | (pending) |
 | `MORLOC_NEXUS_STDIO_SOCK` | Unix socket the nexus binds for its stdio server; a pool connects to it to route `@stdin` / `@stdout` / `@stderr` back to the nexus. Unset means the pool was not started by a nexus. | *(unset)* | (pending) |
-| `MORLOC_STDOUT_COMPRESSION_LEVEL` | The nexus’s explicit `-z N`, when one was given. A pool writing a stream to `@stdout` compresses every sub-packet at this level instead of the `@write` level. Unset means the `@write` level stands. | *(unset)* | [Compression](https://morloc-project.github.io/docs/runs/compression.md) |
 | `MORLOC_POOL_IDLE_TIMEOUT_MS` | How long, in milliseconds, a pool worker beyond the first may stay idle before it exits. Read by the C++, Rust and Python pools; R workers never exit early. | 60000 | [Worker model](https://morloc-project.github.io/docs/build-architecture/build-workers.md) |
 
-## 17.9. Nexus inspection tools (`view` / `file`)
+## 16.9. Serving
+
+| Variable | Description | Default | Introduced in |
+| --- | --- | --- | --- |
+| `MORLOC_MCP_TOKEN` | Bearer token required on every HTTP request to a served program, when `--auth-token` is not given. Empty means unset. | *(none)* | [Serving](https://morloc-project.github.io/docs/apis/deploy-serving.md) |
+| `MORLOC_EVAL_ALLOW_NO_AUTH` | Any non-empty value serves eval over HTTP without a bearer token, as `--eval-allow-no-auth` does. | off | [Eval](https://morloc-project.github.io/docs/apis/deploy-eval.md) |
+| `XDG_RUNTIME_DIR` | Base of the per-user private directory, `$XDG_RUNTIME_DIR/morloc`, that holds daemon sockets and eval bindings, and daemon logs and the cache when no other location is set. | `/tmp/morloc-<uid>` when unset | (pending) |
+
+## 16.10. Nexus inspection tools (`view` / `file`)
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
@@ -103,7 +114,7 @@ Set by the nexus and read by the pools it launches.
 | `MORLOC_FILE_MAX_SCAN_SUBPACKETS` | Cap on sub-packets scanned when classifying a footer-less stream file. | `10000` | [Stream packets](https://morloc-project.github.io/docs/utilities/nexus-file.md#stream-packets) |
 | `MORLOC_CSV_SNIFF_ROWS` | Data rows `morloc-nexus file` scans to report the column types of a CSV file. `0` reports every column as text; a non-numeric value falls back to the default. The whole file is never scanned. Reading a table argument infers nothing: undeclared columns are text. | `100` | (pending) |
 
-## 17.10. String safety
+## 16.11. String safety
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |

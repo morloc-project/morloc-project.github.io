@@ -1,6 +1,6 @@
-# 4.14. Sum types
+# 3.15. Sum types
 
-Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/sum-types.html | prev: https://morloc-project.github.io/docs/features/recursion.md | next: https://morloc-project.github.io/docs/features/effects.md
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/sum-types.html | prev: https://morloc-project.github.io/docs/features/patterns.md | next: https://morloc-project.github.io/docs/features/recursion.md
 
 A record holds all of its fields at once. A **sum type** holds one shape out of several. You write one with `data`, listing every constructor the type has:
 
@@ -49,7 +49,7 @@ $ ./colors palette
 ["Red","Green","Blue"]
 ```
 
-## 4.14.1. A constructor set is closed, and the compiler counts
+## 3.15.1. A constructor set is closed, and the compiler counts
 
 A `|`\-match over a `data` type does not need a catch-all, because the compiler knows how many constructors there are. It also does not let you forget one. Drop the `Blue` clause from `describe` and the build stops:
 
@@ -77,7 +77,7 @@ warm | Red = True
      | _ = False
 ```
 
-## 4.14.2. The constructor names reach the interface
+## 3.15.2. The constructor names reach the interface
 
 Constructor names are part of the type, so every interface Morloc derives knows them. On the command line the constructor is written as itself, and help says which words are legal:
 
@@ -150,9 +150,9 @@ Data Types:
     High    today
 ```
 
-An option whose type is a `data` may give its default as the bare constructor (`--' @default medium`), and a `@many` option takes bare constructors one per occurrence (`-p low -p high`).
+An option whose type is a `data` may give its default as the bare constructor (`--' @default medium`), and a `@many` option takes bare constructors one per occurrence (`-p low -p high`). Options and these directives are covered in [Arguments](https://morloc-project.github.io/docs/clis/arguments.md).
 
-## 4.14.3. Constructors that take arguments
+## 3.15.3. Constructors that take arguments
 
 A constructor may carry fields. Write their types after the constructor name:
 
@@ -226,7 +226,7 @@ arity.loc:8:9: constructor 'Circle' takes 1 argument but the pattern gives 2
 
 Fields are positional and have no names, so there is no getter into a `data` type — which field exists depends on which constructor you have, and a getter cannot ask. Matching is the only way in. When you want names, put a record in the arm.
 
-## 4.14.4. Matching a value that is not an argument
+## 3.15.4. Matching a value that is not an argument
 
 `|`\-clauses take a definition’s arguments apart. To take apart anything else, use a `match` expression (see [`match` expressions](https://morloc-project.github.io/docs/features/pattern-matching.md#match-expressions)), which accepts the same constructor patterns and the same exhaustiveness rule. Here the value being matched is the parameter of a local helper:
 
@@ -248,7 +248,7 @@ $ ./shapes totalArea '[{"Circle":[1.0]},{"Rect":[2.0,3.0]},"Dot"]'
 
 The signature on `one` is doing work. A constructor pattern is checked against the type it is matching, and the compiler will not run that in reverse: it cannot infer `Shape` from seeing `Circle` in a pattern, the way it infers `Color` for `warmest = Red` from seeing a constructor in an expression. Leave the signature off and the build stops with `'Circle' is not a constructor of` followed by an unsolved type variable. The same holds for a definition’s `|`\-clauses, so give any term you match on a signature.
 
-## 4.14.5. Recursive types
+## 3.15.5. Recursive types
 
 A constructor may take its own type. That is how you get a tree:
 
@@ -276,6 +276,8 @@ $ ./tree total '{"Node":[1.5,{"Node":[2.25,"Leaf","Leaf"]},"Leaf"]}'
 $ ./tree depth '{"Node":[1.5,{"Node":[2.25,"Leaf","Leaf"]},"Leaf"]}'
 2
 ```
+
+`total` and `depth` call themselves on each subtree. Functions that refer to themselves are covered in [Recursion](https://morloc-project.github.io/docs/features/recursion.md), which also shows recursive types built from aliases and records rather than `data`.
 
 Two `data` types may also refer to each other, which is the shape an abstract syntax tree takes: an expression holds a term and a term holds an expression.
 
@@ -324,9 +326,11 @@ Mutual recursion between type definitions is not supported unless a `data` type 
   | ^
 ```
 
+The rule holds across general and language-specific scopes, and whether the cycle lives in one module or spans several.
+
 The reason is what a `data` does that an alias or a record does not. A constructor’s fields sit behind a pointer in every language, so a value’s size does not depend on how deep the recursion goes; and the compiler never expands a `data` into its constructors when it reduces a type, so a cycle through one cannot send it round forever. A record’s fields are laid out inline and an alias is expanded on sight, and neither gives a cycle a place to stop.
 
-## 4.14.6. Constructor names are global
+## 3.15.6. Constructor names are global
 
 A constructor name determines its type, which only works if the name is claimed once. Declaring it twice is an error at the second declaration:
 
@@ -372,7 +376,7 @@ warm | p.Red = True
 
 The alias is the only qualifier there is. A module’s own name is not one — a name like `root-py` is not something an expression can spell — and neither is the type’s. Two modules that each declare a `Red` can therefore both be used from a third by giving at least one of them an alias; two `data` types in the **same** module cannot share a constructor name.
 
-## 4.14.7. Native representations
+## 3.15.7. Native representations
 
 Every language gets a representation of a `data` type, and by default the compiler writes it: an `enum class` in C++, a `#[repr(u8)]` enum in Rust, an ordinal in Python, an ordered factor in R. You declare nothing, and functions written in Morloc work across all four.
 
@@ -396,9 +400,9 @@ struct Shape_Rect;
 struct Shape_Dot;
 
 struct Shape {
-    std::variant<std::shared_ptr<Shape_Circle>,
-                 std::shared_ptr<Shape_Rect>,
-                 std::shared_ptr<Shape_Dot>> v;
+    std::variant<std::shared_ptr<const Shape_Circle>,
+                 std::shared_ptr<const Shape_Rect>,
+                 std::shared_ptr<const Shape_Dot>> v;
 };
 
 struct Shape_Circle { double f0; };
@@ -406,9 +410,9 @@ struct Shape_Rect   { double f0; double f1; };
 struct Shape_Dot    { };
 
 inline double area(Shape s) {
-    if (auto p = std::get_if<std::shared_ptr<Shape_Circle>>(&s.v))
+    if (auto p = std::get_if<std::shared_ptr<const Shape_Circle>>(&s.v))
         return 3.14159 * (*p)->f0 * (*p)->f0;
-    if (auto p = std::get_if<std::shared_ptr<Shape_Rect>>(&s.v))
+    if (auto p = std::get_if<std::shared_ptr<const Shape_Rect>>(&s.v))
         return (*p)->f0 * (*p)->f1;
     return 0.0;
 }
@@ -462,7 +466,7 @@ $ ./crossing bigArea '{"Rect":[1.5,2.25]}'
 
 Forget the mapping and the C++ compiler reports `error: redefinition of 'struct Shape'` against the generated pool source. It means the mapping is missing, not that your header is wrong.
 
-## 4.14.8. Comparing values
+## 3.15.8. Comparing values
 
 `==` compares two `data` values by constructor first and then by field, so `Circle 2.0 == Circle 2.0` is `True` while `Rect 1.0 2.0 == Rect 2.0 1.0` is `False`.
 
@@ -513,9 +517,9 @@ For the reader writing native code against a Morloc `data` type. Each row is wha
 
 | Language | Constructors without fields | Constructors with fields |
 | --- | --- | --- |
-| Python | The ordinal, as an `int`. A list of them is a byte buffer, the same object a `[U8]` produces. | `("Circle", (2.0,))` — the constructor’s name and a tuple of its fields. |
+| Python | The ordinal, as an `int`. A list of them is a `list` of ints, as every list is in Python; `Vector n T` gives a compact numpy `uint8` array. | `("Circle", (2.0,))` — the constructor’s name and a tuple of its fields. |
 | R | An ordered `factor`, so `<` compares in declaration order. Codes are 1-based, so a code is the wire tag plus one; the levels are the constructor names in declaration order. | `list("Circle", list(2.0))` — the name and a list of fields. |
-| C++ | `enum class Color : uint8_t` with explicit discriminants, so the native value and the wire tag are the same byte. | A wrapper struct holding a `std::variant` of `std::shared_ptr` to one struct per arm. |
+| C++ | `enum class Color : uint8_t` with explicit discriminants, so the native value and the wire tag are the same byte. | A wrapper struct holding a `std::variant` of `std::shared_ptr<const …​>` to one struct per arm. A copy shares the arms, and nothing changes an arm once it is built: to change a value, copy the arm, change the copy and wrap it in a new `std::make_shared<…​>`, which converts to the const pointer. Never build an arm as a const object (`std::make_shared<const …​>`): Morloc may move a field out of an arm only it holds. A type you map yourself is written the same way; an arm that is not `std::shared_ptr<const …​>` does not build. |
 | Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | Generated: an enum whose arms each hold one `::rustmorloc::RecBox` of a tuple of their fields. A `RecBox` is reference-counted: cloning it shares the fields instead of copying them, and dropping a long chain does not recurse. Build an arm with `RecBox::new..,` and read its fields through `Deref`; `into_inner` moves the tuple out when the box has a single owner. A type you map yourself with `data Rust =>` declares its arms with `Box` instead (`Link(Box<(i64, Chain)>)`); a mapped type with `RecBox` arms does not compile. Not `Copy`. |
 
 The generated C++ and Rust declarations, for the `Shape` of this section:
@@ -525,7 +529,7 @@ struct Shape_Circle;
 struct Shape_Rect;
 struct Shape_Dot;
 struct Shape {
-    std::variant<std::shared_ptr<Shape_Circle>, std::shared_ptr<Shape_Rect>, std::shared_ptr<Shape_Dot>> v;
+    std::variant<std::shared_ptr<const Shape_Circle>, std::shared_ptr<const Shape_Rect>, std::shared_ptr<const Shape_Dot>> v;
 };
 struct Shape_Circle {
     double f0;
@@ -567,8 +571,8 @@ template <typename T> struct MyBox_Empty;
 template <typename T> struct MyBox_Full;
 
 template <typename T> struct MyBox {
-    std::variant<std::shared_ptr<MyBox_Empty<T>>,
-                 std::shared_ptr<MyBox_Full<T>>> v;
+    std::variant<std::shared_ptr<const MyBox_Empty<T>>,
+                 std::shared_ptr<const MyBox_Full<T>>> v;
 };
 
 template <typename T> struct MyBox_Empty {};
@@ -585,4 +589,4 @@ pub enum MyBox<T> {
 
 The same holds for a `record` with parameters: `record Rust ⇒ (Wrap a) = "MyWrap<$1>" a` names a `struct MyWrap<T>`. Python and R still declare nothing; a mapping there is a hint carried on the wire and the value keeps its structural shape.
 
-Python and R declare nothing. The pair above is a structural interim representation, chosen because it needs nothing the generic marshaller cannot already build; a generated class per arm is the intended end state. The cost of the interim form is that neither language’s compiler — and neither has one — checks that you built an arm correctly, so a field order swapped between two same-typed fields is silently wrong in Python and R where C++ and Rust would reject it.
+In Python and R, the pair shape is a structural interim representation, chosen because it needs nothing the generic marshaller cannot already build; a generated class per arm is the intended end state. The cost of the interim form is that neither language’s compiler — and neither has one — checks that you built an arm correctly, so a field order swapped between two same-typed fields is silently wrong in Python and R where C++ and Rust would reject it.

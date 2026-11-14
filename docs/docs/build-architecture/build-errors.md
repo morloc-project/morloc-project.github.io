@@ -1,4 +1,4 @@
-# 13.10. Error propagation
+# 12.10. Error propagation
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-errors.html | prev: https://morloc-project.github.io/docs/build-architecture/build-streaming.md | next: https://morloc-project.github.io/docs/build-architecture/build-collect.md
 

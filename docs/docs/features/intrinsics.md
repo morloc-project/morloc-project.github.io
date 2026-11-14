@@ -1,20 +1,19 @@
-# 4.17. Intrinsics
+# 3.19. Intrinsics
 
-Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/intrinsics.html | prev: https://morloc-project.github.io/docs/features/optionals.md | next: https://morloc-project.github.io/docs/types/index.md
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/intrinsics.html | prev: https://morloc-project.github.io/docs/features/random-access-and-streaming.md | next: https://morloc-project.github.io/docs/features/placement-costs.md
 
 Intrinsics are compiler-generated special functions. They are prefixed with `@` and provide access to the Morloc runtime.
 
-## 4.17.1. Reference table
+## 3.19.1. Reference table
 
 | Intrinsic | Signature | Description |
 | --- | --- | --- |
 | `@save` | `Int -> Str -> a -> <IO> (Try Str ())` | Save a value as a morloc voidstar packet with a zstd compression level in `0..=9` (`0` = uncompressed). Arguments are `level`, `path`, `value`. Round-trips through `@load`. I/O failure is an `Err` arm. |
-| `@savem` | `Str -> a -> <IO> (Try Str ())` | Save a value to file in MessagePack format (portable, compact). Path-first for partial application (`@savem path` is a reusable sink). I/O failure is an `Err` arm. |
 | `@savej` | `Str -> a -> <IO> (Try Str ())` | Save a value to file as plain JSON text (human-readable). Path-first for partial application. I/O failure is an `Err` arm. |
-| `@load` | `Str -> <IO> (Try Str a)` | Load a value from file, auto-detecting the format (MessagePack, JSON, or morloc packet). Missing file, decode failure, and schema mismatch all come back as an `Err` arm. |
+| `@load` | `Str -> <IO> (Try Str a)` | Load a value from file: a morloc packet, or JSON or raw text read by the expected type. Missing file, decode failure, and schema mismatch all come back as an `Err` arm. |
 | `@show` | `a -> Str` | Serialize any value to a JSON string. Pure — no effect row. |
 | `@read` | `Str -> Try Str a` | Parse a JSON string into a value of the expected type. Pure — parsing touches nothing, so this composes under `map`. Parse failure is an `Err` arm. |
-| `@open` | `Str -> <IO> (Try Str a)` | Open a stream file; `a` is resolved by inline ascription to `IFile a`, `IStream a`, or `OStream a`. See [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md). Missing, unreadable, or non-packet files give an `Err` arm. Opening `/dev/stdin` reads process stdin: as `IStream a` it routes to the stdin channel (like `@stdin`); as `IFile a` it gives an `Err` arm, since a pipe is not seekable. |
+| `@open` | `Str -> <IO> (Try Str a)` | Open a stream file; `a` is resolved by inline ascription to `IFile a`, `IStream a`, or `OStream a`. See [Random access and streaming](https://morloc-project.github.io/docs/features/random-access-and-streaming.md). Missing, unreadable, or non-packet files give an `Err` arm. Opening `/dev/stdin` reads process stdin: as `IStream a` it routes to the stdin channel (like `@stdin`); as `IFile a` it gives an `Err` arm, since a pipe is not seekable. |
 | `@close` | `a -> <IO> ()` | Given a stream file handle, close it — for an `OStream` this writes the final footer — and release the handle’s slot. Given a `Str` path (as produced by the whole-list `@with`/`@render` gather via `@tmpfile`), unlink that temporary file instead. Only files registered by the gather are removed; passing any other path is rejected rather than deleting it. |
 | `@tmpfile` | `<IO> (Try Str Str)` | Create a fresh empty temporary file and return its path. Used by the whole-list `@with`/`@render` gather to stage a stream on disk before applying a handler to the complete data; the file is removed afterward with `@close`. I/O failure is an `Err` arm. |
 | `@fschema` | `Str -> <IO> (Try Str Str)` | Read a stream file’s element schema without binding a typed handle. Useful for runtime schema discovery. Missing or malformed files give an `Err` arm. |
@@ -24,13 +23,15 @@ Intrinsics are compiler-generated special functions. They are prefixed with `@` 
 | `@append` | `Str -> <IO> (Try Str (OStream a))` | Open a stream file for further writes, creating it if it is not there yet. Schema mismatch is an `Err` arm at open time, before any bytes are written. |
 | `@concat` | `[Str] -> Str -> <IO> (Try Str ())` | Byte-level concatenate compatible stream files into a destination via `sendfile`. The destination is replaced atomically and may itself be one of the sources. |
 | `@next` | `IStream a -> <IO> (Try Str [a])` | Pull the next sub-packet’s elements from an `IStream`. Yields `Ok []` at EOF. Mid-stream decode failures are an `Err` arm. |
-| `@stream` | `IFile [a] -> <IO> (IStream a)` | Derive a forward-walking `IStream` from an open `IFile`. The two share the underlying file but have independent cursors. |
-| `@stdin` | `<IO> (Try Str (IStream a))` | Open process stdin as a typed `IStream` of morloc binary packets. Element type set by inline ascription. See [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md). A second `@stdin` in the same nexus gives an `Err` arm via the uniqueness guard; read-time failures surface at `@next`. |
+| `@stream` | `IFile [a] -> <IO> (IStream a)` | Derive a forward-walking `IStream` from an open `IFile`. The two share the underlying file but have independent cursors. Unrelated to the `@stream` modifier on CLI output actions. |
+| `@stdin` | `<IO> (Try Str (IStream a))` | Open process stdin as a typed `IStream` of morloc binary packets. Element type set by inline ascription. See [Random access and streaming](https://morloc-project.github.io/docs/features/random-access-and-streaming.md). A second `@stdin` in the same nexus gives an `Err` arm via the uniqueness guard; read-time failures surface at `@next`. |
 | `@stdout` | `<IO> (OStream a)` | Open process stdout as a typed `OStream` of morloc binary packets. Element type set by inline ascription. |
 | `@stderr` | `<IO> (OStream a)` | Open process stderr as a typed `OStream` of morloc binary packets. Element type set by inline ascription. Useful for structured diagnostics that downstream tools can parse. |
 | `@collect` | `(([a] -> <IO, e> ()) -> <IO, e> ()) -> <IO, e> ()` | Drive a streaming-output command. Takes a producer that is handed a *sink* (`[a] -> <IO, e> ()`); `@collect` supplies the default sink — write each batch to the nexus-formatted `@stdout` — and manages the stream lifecycle. Formatter directives (`@with` / `@render`, with the `@stream` modifier for per-batch application) rewrite the sink to transform or gather the stream per CLI flag. |
 | `@tell` | `<IO> U64` | The number of elements written so far to the current output stream. Lets an offset-form formatter handler (`U64 -> [a] -> ...`) annotate each batch with its running position in the stream. |
-| `@hash` | a -> Str | Hash a value via MessagePack serialization (xxhash), returns a 16-character hex string |
+| `@eq` | `a -> a -> Bool` | Whether two values of one type are equal as wire values, in any language. Pure. |
+| `@le` | `a -> a -> Bool` | Whether the first value is at most the second in the order of wire values (fields left to right, lists lexicographically). Pure. |
+| `@hash` | `a -> Str` | Hash a value via MessagePack serialization (xxhash), returns a 16-character hex string |
 | `@version` | `Str` | The compiler version string (resolved at compile time) |
 | `@compiled` | `Str` | The compilation timestamp (resolved at compile time) |
 | `@lang` | `Str` | The canonical language identifier of the pool where the expression is evaluated — the `name` field from `lang.yaml` (`"py"`, `"cpp"`, `"r"`, …​; `"morloc"` at the nexus level) |
@@ -40,24 +41,24 @@ Intrinsics are compiler-generated special functions. They are prefixed with `@` 
 | `@throw` | `Str -> a` | Raise a `MorlocException` with the given message. Emits a native `raise`/`throw`/`stop` in the target language and never returns; the return type is polymorphic so `@throw` can inhabit any branch of a conditional. It has no effect row, because a computation that does not return has nothing for one to describe. |
 | `@try` | `<e> a -> <e> (Try Str a)` | Evaluate the expression under a language-native try/catch. A completed evaluation is `Ok`, an escaping exception is `Err` carrying its message. The argument’s effect row passes through unchanged; the argument may be pure, in which case so is the result. |
 
-Several intrinsics are polymorphic in their data argument: `@save`, `@savem`, `@savej`, `@write`, `@hash`, `@show`, `@schema`, and `@typeof` accept a value of any type. `@load`, `@read`, and `@next` return a value of any type, inferred from context. `@stdin`, `@stdout`, `@stderr`, `@open`, and `@append` are polymorphic in their handle’s element type, which is resolved by inline ascription at the open site. `@collect` is polymorphic in the stream element type `a`, read off the sink its producer is handed. `@throw` is polymorphic in its return type because it never returns — the return slot unifies with whatever the surrounding context expects. `@try` passes its argument’s effect row through unchanged.
+Several intrinsics are polymorphic in their data argument: `@save`, `@savej`, `@write`, `@hash`, `@show`, `@schema`, and `@typeof` accept a value of any type. `@load`, `@read`, and `@next` return a value of any type, inferred from context. `@stdin`, `@stdout`, `@stderr`, `@open`, and `@append` are polymorphic in their handle’s element type, which is resolved by inline ascription at the open site. `@collect` is polymorphic in the stream element type `a`, read off the sink its producer is handed. `@throw` is polymorphic in its return type because it never returns (see [Failure and recovery](#failure-and-recovery)).
 
 Two patterns run through the table. Anything that touches the world carries `<IO>`, and anything that can fail returns a `Try` (see [Failure is not an effect](https://morloc-project.github.io/docs/features/effects.md#failure-is-not-an-effect)): a missing file, a full disk, a broken pipe or a decode mismatch arrives as an `Err` arm rather than as an effect label. Most entries have both. The exceptions on the failure side are `@close`, `@tell`, `@stream`, `@stdout` and `@stderr`, which do setup, teardown or bookkeeping with no failure mode addressable from morloc code; `@read` is the exception on the other side, fallible but pure, because parsing a string touches nothing. The remaining intrinsics (`@version`, `@compiled`, `@lang`, `@datafile`) are compile-time constants, and `@hash`, `@show`, `@schema` and `@typeof` are pure functions of their argument’s type or serialized bytes.
 
-## 4.17.2. Hashing
+## 3.19.2. Hashing
 
 `@hash` computes a fast, non-cryptographic hash (xxhash) of any value. The value is first serialized to MessagePack internally, then hashed. The result is a 16-character hexadecimal string.
 
 ```morloc
 module main (hashInt, hashStr)
 
-import root-py (id)
+import root-py
 
 hashInt :: Int -> Str
-hashInt x = @hash (id x)
+hashInt x = @hash x
 
 hashStr :: Str -> Str
-hashStr x = @hash (id x)
+hashStr x = @hash x
 ```
 
 ```console
@@ -67,39 +68,37 @@ $ ./intrinsics hashStr 1
 "06e0f1375b38be15"
 ```
 
-The two differ because the integer `1` and the string `"1"` have different MessagePack encodings, which is the point of the paragraph below.
+Hashing is deterministic: the same value always produces the same hash. The two above differ because the integer `1` and the string `"1"` have different MessagePack encodings.
 
-Hashing is deterministic: the same value always produces the same hash. Two values of different types may hash differently even if they look similar (e.g., the integer `1` and the string `"1"`), because their MessagePack serializations differ.
-
-## 4.17.3. Compile-time constants
+## 3.19.3. Compile-time constants
 
 The `@version`, `@compiled`, and `@lang` intrinsics are resolved at compile time. They can be used anywhere a `Str` value is expected.
 
 ```morloc
 module main (info)
 
-import root-py (id)
+import root-py
 
 info :: [Str]
-info = id [@version, @compiled, @lang]
+info = [@version, @compiled, @lang]
 ```
 
 ```console
 $ ./intrinsics info
-["0.100.2","2026-09-02T12:58:04Z","morloc"]
+["0.109.0","2026-10-22T01:28:03Z","morloc"]  # your version and time will differ
 ```
 
 The `@lang` value depends on where the expression is evaluated. When the list literal above is assembled at the nexus level (not inside a sourced function), `@lang` resolves to `"morloc"`. To observe the language-pool identifier, pass `@lang` into a sourced function and let it be evaluated inside that pool: the value will be that pool’s canonical language identifier — the `name` field from its `lang.yaml` (`"py"`, `"cpp"`, `"r"`, …​).
 
-`@lang` deliberately returns this short canonical identifier, not a human-facing display name like "Python3" or "C++". Intrinsics are low-level primitives where stability outweighs presentation: the `lang.yaml` `name` is the guaranteed-unique, stable identifier for a language backend, so it is the correct value for conditional logic and tooling. Map it to a prettier label yourself if you need one.
+`@lang` returns this short identifier, not a display name like "Python3", because it is unique and stable and so safe to branch on. Map it to a prettier label yourself if you need one.
 
-## 4.17.4. Saving and loading data
+## 3.19.4. Saving and loading data
 
-The `@savem` and `@savej` intrinsics write a single value to a file path, and `@load` reads it back. Together they provide a type-safe file persistence mechanism for one-shot writes. For multi-element accumulation use an `OStream` and `@write` instead (see [Random access and streaming](https://morloc-project.github.io/docs/runs/random-access-and-streaming.md)).
+The `@save` and `@savej` intrinsics write a single value to a file path, and `@load` reads it back. For multi-element accumulation use an `OStream` and `@write` instead (see [Random access and streaming](https://morloc-project.github.io/docs/features/random-access-and-streaming.md)).
 
-`@savem` uses MessagePack, which is compact and portable across different machines and architectures. `@savej` writes plain JSON, which is human-readable and can be edited by hand or consumed by other tools.
+`@save` writes a morloc data packet: compact, optionally compressed (its first argument is a zstd level from 0 to 9), and stamped with the value’s type. `@savej` writes plain JSON, which you can read, edit, or hand to other tools.
 
-`@load` auto-detects the file format. Files written by `@savem` carry a small header that identifies them as MessagePack. If no header is present, `@load` tries to parse the file as JSON. `@load` also recognises morloc stream and voidstar packets, so any file produced by the morloc runtime round-trips through it.
+`@load` reads a packet, including a stream file, and checks its stored type against the one expected. Any other file is read the way a command-line argument file is, guided by the expected type: as JSON, or for a text type as the raw text itself. At an optional text type such as `?Str`, the bare word `null` is `Null`; write `"null"` to mean the text.
 
 `@load` returns `<IO> (Try Str a)`. A missing file, decode failure, or schema mismatch against the caller’s expected type all come back as an `Err` arm rather than an exception — see [Failure and recovery](#failure-and-recovery).
 
@@ -113,12 +112,12 @@ import root-py (id)
 
 roundTrip :: Int -> Str -> <IO> Int
 roundTrip x path = do
-  @savem path (id x)
+  @save 0 path (id x)
   Ok v <- @load path
   v
 ```
 
-The bare `@savem` writes the integer to the given path; nothing reads its result, so a write failure stops the block there (see [A bare statement checks its result](https://morloc-project.github.io/docs/features/effects.md#bare-statement-checks)). `Ok v <- @load path` reads the value back and unwraps it, throwing if the load failed. The signature is plain `<IO> Int`, because neither failure survives as a value.
+The bare `@save` writes the integer to the given path; nothing reads its result, so a write failure stops the block there (see [A bare statement checks its result](https://morloc-project.github.io/docs/features/effects.md#bare-statement-checks)). `Ok v <- @load path` reads the value back and unwraps it, throwing if the load failed. The signature is plain `<IO> Int`, because neither failure survives as a value.
 
 ```console
 $ ./sv roundTrip 42 tmp.bin
@@ -143,7 +142,7 @@ saveReadable path xs = do
 
 The resulting file is plain JSON that can be inspected in any text editor. The trailing `()` is not decoration: a `do`\-block’s last statement is its return value, so leaving `@savej` there would make the block return the `Try` rather than discharge it. [A `do`\-block does not return a `Try`](https://morloc-project.github.io/docs/features/effects.md#do-block-no-try) gives the three ways to write this and when each is right.
 
-## 4.17.5. Caching with `@savem` and `@load`
+## 3.19.5. Caching with `@save` and `@load`
 
 A common pattern is to check whether a cached result exists before recomputing it. `@load` gives an `Err` arm when the file is missing (or on any decode failure), so match on the result and compute in the `Err` arm:
 
@@ -163,7 +162,7 @@ cachedResult x cachePath = do
     | (Ok v) = do v
     | (Err _) = do
         let fresh = expensiveComputation x
-        @savem cachePath (id fresh)
+        @save 0 cachePath (id fresh)
         fresh
 ```
 
@@ -176,7 +175,7 @@ $ ./sv cachedResult 12 c1.bin
 
 On the first call the cache file does not exist, so the `Err` arm runs `expensiveComputation`, saves the result and returns it. On the second the `Ok` arm returns the stored value and the computation never runs. An arm may be a whole `do`\-block, which is what makes the recomputation lazy: only the arm that is taken evaluates. Both arms of a `match` have one type, so once the `Err` arm is a `do`\-block the `Ok` arm wraps its value in `do` too (see [The rules](https://morloc-project.github.io/docs/features/effects.md#rules)); a bare `v` there is a type error.
 
-The bare `@savem` inside the `Err` arm still checks itself, so a cache that cannot be written stops the program rather than silently returning an uncached value. If you would rather carry on, bind it: `_ ← @savem cachePath (id fresh)`.
+The bare `@save` inside the `Err` arm still checks itself, so a cache that cannot be written stops the program rather than silently returning an uncached value. If you would rather carry on, bind it: `_ ← @save 0 cachePath (id fresh)`.
 
 You can also use `@hash` to build content-addressed caches where the cache path depends on the input:
 
@@ -198,13 +197,13 @@ hashedCache x = do
     | (Ok v) = do v
     | (Err _) = do
         let fresh = expensiveComputation x
-        @savem cachePath (id fresh)
+        @save 0 cachePath (id fresh)
         fresh
 ```
 
 Each distinct input gets its own cache file, keyed by the xxhash of its serialized form.
 
-## 4.17.6. Accessing installed data files
+## 3.19.6. Accessing installed data files
 
 The `@datafile` intrinsic resolves a relative file path to its location in the installed program directory. When you compile with `morloc make --install`, source files and data files listed in `package.yaml` are copied into the install directory. At runtime, these files are no longer at their original paths. `@datafile` bridges this gap by resolving the path at compile time.
 
@@ -227,30 +226,36 @@ When running without `--install` (plain `morloc make`), `@datafile` returns the 
 > **Note**
 > Source functions that need data files should accept the path as a parameter rather than hardcoding relative paths. This keeps data dependencies explicit in the type signature and ensures files are found correctly whether the program is run from the project directory or installed.
 
-## 4.17.7. Type introspection
+## 3.19.7. Type introspection
 
 The `@schema` and `@typeof` intrinsics return information about how the compiler represents a type. The value argument is not evaluated at runtime — only its type matters.
 
 ```morloc
-module main (showSchema, showType)
+module main (typeofInt, typeofList, typeofOpt, typeofTup)
 
-import root-py (id)
+import root-py
 
-showSchema :: Int -> Str
-showSchema x = @schema (id x)
+typeofInt :: Int -> Str
+typeofInt x = @typeof x
 
-showType :: Int -> Str
-showType x = @typeof (id x)
+typeofList :: [Str] -> Str
+typeofList x = @typeof x
+
+typeofOpt :: ?Real -> Str
+typeofOpt x = @typeof x
+
+typeofTup :: (Int, Str) -> Str
+typeofTup x = @typeof x
 ```
 
 ```console
-$ ./intrinsics typeofInt
+$ ./intrinsics typeofInt 1
 "Int"
-$ ./intrinsics typeofList
+$ ./intrinsics typeofList '["a"]'
 "[Str]"
-$ ./intrinsics typeofOpt
+$ ./intrinsics typeofOpt 1.5
 "?Real"
-$ ./intrinsics typeofTup
+$ ./intrinsics typeofTup '[1,"a"]'
 "(Int, Str)"
 ```
 
@@ -288,7 +293,7 @@ Str, age :: Int}\` mapped to a Python `dict`; `[[Int]]`; `I32`; `U8`; and `F32`.
 
 `@schema` is primarily useful for debugging and for cross-language tools that inspect morloc wire formats.
 
-## 4.17.8. Failure and recovery
+## 3.19.8. Failure and recovery
 
 Failure in Morloc is a value, not an effect: a fallible operation returns `Try e a` and the caller matches on it. [Failure is not an effect](https://morloc-project.github.io/docs/features/effects.md#failure-is-not-an-effect) makes that case; this section covers the two intrinsics that sit at its edges. `@throw` produces a failure that is **not** a value — a native exception that unwinds — and `@try` turns one back into a value.
 
@@ -373,7 +378,7 @@ $ ./intr describeRead a.bad
 "could not open: failed to open reader for a.bad"
 ```
 
-Anything may be wrapped. Unlike the intrinsic it replaces, `@try` demands no marker on its argument saying that failure is possible, because no such marker exists any more: a sourced function raises in its own language whether or not its signature hints at it, and `@try` is how you find out. Wrapping an argument that cannot fail is harmless — the result is always `Ok` — and wasted words.
+Anything may be wrapped. `@try` demands no marker on its argument saying that failure is possible: a sourced function raises in its own language whether or not its signature hints at it, and `@try` is how you find out. Wrapping an argument that cannot fail is harmless — the result is always `Ok`.
 
 At runtime, `@try` uses the language’s native try/catch machinery. In Python it becomes a `try/except Exception`, in C++ `try { } catch (const std::exception&)`, in R `tryCatch(..., error = ...)`. Any exception is caught: `MorlocException` raised by `@throw`, foreign-library errors (a Python `KeyError`, a C++ `std::out_of_range`), and cross-pool fail packets, which the calling pool re-throws as a native exception.
 

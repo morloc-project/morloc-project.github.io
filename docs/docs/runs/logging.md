@@ -1,12 +1,12 @@
-# 7.1. Logging
+# 6.1. Logging
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/logging.html | prev: https://morloc-project.github.io/docs/runs/index.md | next: https://morloc-project.github.io/docs/runs/benchmarking.md
 
-Morloc programs can emit per-call log lines around any labeled term in source. Logging is opt-in — a term emits start, pass, and fail messages only after the user wires it up in the program’s YAML config.
+Morloc programs can emit per-call log lines around any labeled term in source. Logging is opt-in — a term emits start, pass, and fail messages only after you wire it up in the program’s YAML config.
 
 The log lines go to stderr, so the program’s stdout (the computed result and any user-printed data) is unaffected. Templates are user-controlled and may include ANSI color codes; colors are automatically stripped when stderr is not a terminal so log files and pipes never contain control bytes.
 
-## 7.1.1. Enabling logging
+## 6.1.1. Enabling logging
 
 Two things turn logging on for a term:
 
@@ -24,7 +24,7 @@ A label group can be applied to many terms (`big@read`, `big@parse`, `big@save`)
 
 A label goes on the name of a function or of a suspension (see [Effects and delayed evaluation](https://morloc-project.github.io/docs/features/effects.md)), never on a larger expression. On a function it logs each call made through the labeled name, but not the calls the function makes itself, recursive ones included. A call’s arguments are computed before its start line, so its time does not include them. On a suspension, or on a call that returns one, a label logs each run of the suspension, since building a suspension does no work.
 
-## 7.1.2. Template placeholders
+## 6.1.2. Template placeholders
 
 The compiler emits up to three lines per labeled call — **start** (entry), **pass** (success), and **fail** (exception). Each line’s text is a user template with `{placeholder}` substitutions. The default template is:
 
@@ -63,7 +63,7 @@ Available placeholders:
 
 Unknown placeholder names are a compile-time error citing the file and line of the offending YAML entry.
 
-## 7.1.3. Color codes
+## 6.1.3. Color codes
 
 A `{c:NAME}` placeholder expands to the corresponding ANSI SGR escape sequence at compile time. Apply a color, render the text, then reset with `{c:reset}`:
 
@@ -122,7 +122,7 @@ Background colors:
 | `{c:bg-white}` | `{c:bg-bright-white}` |
 | `{c:bg-default}` | — |
 
-## 7.1.4. Terminal detection and NO\_COLOR
+## 6.1.4. Terminal detection and NO\_COLOR
 
 Color codes from `{c:...}` placeholders (or raw ANSI escapes a user writes directly into a template) are emitted unchanged when stderr is a terminal **and** the environment variable `NO_COLOR` is unset. In every other case — stderr redirected to a pipe or file, or `NO_COLOR` set to any value — the runtime strips all CSI sequences before writing, so the output is plain text.
 
@@ -147,7 +147,7 @@ NO_COLOR=1 ./main '[[1,2],[3,4,5]]'
 
 `NO_COLOR` follows the convention at [no-color.org](https://no-color.org/): any non-empty value disables color; the variable being unset means color is allowed.
 
-## 7.1.5. Worked example
+## 6.1.5. Worked example
 
 The source labels two terms — `a@map` and `b@sum` — in a small two-stage pipeline that sums each inner list:
 

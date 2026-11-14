@@ -1,4 +1,4 @@
-# 13.5. Packet protocol
+# 12.5. Packet protocol
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-packets.html | prev: https://morloc-project.github.io/docs/build-architecture/build-workers.md | next: https://morloc-project.github.io/docs/build-architecture/build-shm.md
 
@@ -12,7 +12,7 @@ Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build
 | 4 | 2 | plain | Reserved, 0. |
 | 6 | 2 | version | Reserved, 0. |
 | 8 | 2 | flavor | Reserved, 0. |
-| 10 | 2 | mode | Reserved, 0. |
+| 10 | 2 | mode | Bit 0 on a call: the caller can reuse the connection; on the reply: the callee keeps it. Other bits 0. |
 | 12 | 8 | command | Packet type (first byte) and type-specific fields. |
 | 20 | 4 | offset | Bytes of metadata between the header and the payload. |
 | 24 | 8 | length | Bytes of payload. |
@@ -38,6 +38,7 @@ A **data** packet describes its payload in the command field:
 | 15 | compression | 0 none, 1 Zstandard. |
 | 16 | encryption | Reserved, 0. |
 | 17 | status | 0 pass, 1 fail, 2 output pipe closed. |
+| 18-19 | generation | For a pointer, the generation of the shared-memory block it names ([Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md)), little-endian; never 0, and a pointer packet recording 0 is refused. |
 
 Not every combination is meaningful. Values crossing between pools use inline or pointer voidstar; tables use pointer Arrow; values in temporary files (shared memory disabled) use file MessagePack.
 
@@ -55,6 +56,6 @@ Not every combination is meaningful. Values crossing between pools use inline or
 
 A packet between pools needs no schema block, because both sides know the type from the compiled program. Packets written to disk carry one, so that any tool can read them without the program that wrote them.
 
-**Transport.** Packets travel over Unix-domain stream sockets. Each call opens one connection, sends one call packet, reads one reply packet, and closes. There is no separate framing: the receiver reads the 32-byte header and then exactly `offset + length` more bytes. Before a pointer payload is sent, the sender takes a shared-memory reference on the receiver’s behalf, so the block cannot be freed in the gap before the receiver reads it; if the send fails, the sender drops that reference again.
+**Transport.** Packets travel over Unix-domain stream sockets. A connection carries one call packet and then its reply at a time; a caller thread keeps one connection to each C++ or Rust pool for its later calls, while Python and R pools close the connection after each reply. There is no separate framing: the receiver reads the 32-byte header and then exactly `offset + length` more bytes. Before a pointer payload is sent, the sender takes a shared-memory reference on the receiver’s behalf, so the block cannot be freed in the gap before the receiver reads it; if the send fails, the sender drops that reference again.
 
 A caller waits for a reply as long as the callee lives, with no deadline: a call may legitimately run for days. A pool reading a request waits as long as the sending process exists, checking once a second.

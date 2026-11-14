@@ -1,4 +1,4 @@
-# 5.7. Tensors
+# 4.7. Tensors
 
 Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/tensors.html | prev: https://morloc-project.github.io/docs/types/kinds.md | next: https://morloc-project.github.io/docs/types/tables.md
 
@@ -28,7 +28,7 @@ Each backend maps these onto the natural array type for its language:
 | C++ | `std::vector<T>` for `Vector`; `mlc::Tensor2<T>` and up for the higher ranks, an owning buffer with an `std::mdspan` view |
 | R | an atomic vector (`numeric`, `integer`, `logical`, `character`) for `Vector`; `matrix` for `Matrix`; `array` above that |
 
-## 5.7.1. Shapes that have to agree
+## 4.7.1. Shapes that have to agree
 
 `matmul` in `tensor` has the signature you would write on a whiteboard:
 
@@ -75,7 +75,7 @@ Subtype error: Nat constraint mismatch
 > **Note: Tensors on the command line**
 > A tensor argument is written in its **wire form**: the dimension tuple first, then the flat row-major data. So a 2x3 matrix of reals is `[[2,3],[1,2,3,4,5,6]]`, and that is also how a tensor result prints. A `Vector` is the exception — its wire form is a plain list, so it is written `[1,2,3]`.
 
-## 5.7.2. Dimensions computed from other dimensions
+## 4.7.2. Dimensions computed from other dimensions
 
 A signature can state an arithmetic relationship between shapes, and the compiler will evaluate it. Convolution is the standard case: a valid-mode convolution of an `n`\-element signal with a `k`\-element kernel gives `n - k + 1` elements.
 
@@ -134,9 +134,7 @@ vstack  :: Matrix m n Real -> Matrix p n Real -> Matrix (m + p) n Real
 kron    :: Matrix m n Real -> Matrix p q Real -> Matrix (m * p) (n * q) Real
 ```
 
-When a dimension is still a free variable the check is deferred until it is solved. If it never is, it is never checked.
-
-## 5.7.3. Dimensions that come from arguments
+## 4.7.3. Dimensions that come from arguments
 
 The constructors in `vector` and `tensor` take their sizes as ordinary integer arguments, and the label syntax (see [The kind system](https://morloc-project.github.io/docs/types/kinds.md)) lifts those arguments into the result type:
 
@@ -190,7 +188,7 @@ Subtype error: Nat constraint mismatch
 
 Let-bound variables and tuple accessors work too, so `let dims = (3, 4) in zeros2 (.0 dims) (.1 dims)` is a `Matrix 3 4 Real`.
 
-## 5.7.4. Building a tensor by hand
+## 4.7.4. Building a tensor by hand
 
 Higher-rank tensors reach a language boundary through `Packable` ([Serializing custom types with `Packable`](https://morloc-project.github.io/docs/types/packable.md)). The standard library declares one instance per rank:
 
@@ -202,7 +200,7 @@ instance Packable ((Int, Int, Int), Vector (d1 * d2 * d3) a)
                   (Tensor3 d1 d2 d3 a)
 ```
 
-The split is deliberate. The **runtime** dimension tuple is what crosses the wire and tells the receiver how much buffer to allocate. The **type-level** dimensions on the `Vector` let the compiler check that the flat data has as many elements as the shape claims. Device residency — whether a tensor lives on CPU or GPU — is left out on purpose: it is local to a node and meaningless across a wire, which is the same choice NumPy’s `.npy`, Arrow IPC, ONNX, HDF5 and TensorProto make. The `pack` and `unpack` functions handle host-device transfers where a backend needs them.
+The split is deliberate. The **runtime** dimension tuple is what crosses the wire and tells the receiver how much buffer to allocate. The **type-level** dimensions on the `Vector` let the compiler check that the flat data has as many elements as the shape claims. Device residency — whether a tensor lives on CPU or GPU — is left out on purpose: it is local to a node and meaningless across a wire, which is the same choice NumPy’s `.npy`, Arrow IPC, ONNX, HDF5 and TensorProto make.
 
 `Vector` needs no instance to reach a pool. Its wire parent is `List`, so a list literal becomes a `Vector` on shape alone, and each backend’s declared form does the rest: `vector-py` maps it to `numpy.ndarray`, which the Python binding builds directly, and `vector-cpp` declares no form at all because a `List` is already a `std::vector`. That is what keeps numpy buffers on the zero-copy path and lets a `std::vector` round-trip without an intermediate Python list.
 
@@ -219,23 +217,12 @@ m = pack ((2, 3), ([1.0, 2.0, 3.0, 4.0, 5.0, 6.0] :: Vector 6 Real))
 
 Vector 6 Real\`, the compiler reports a missing `Packable` instance for `pack`.
 
-## 5.7.5. Omitting dimensions
+## 4.7.5. Omitting dimensions
 
-Dimension arguments are opt-in, as [The kind system](https://morloc-project.github.io/docs/types/kinds.md) describes. `Vector 3 U8`, `Vector n U8` and `Vector U8` all coexist, and a concrete vector flows into a gradual slot:
+Dimension arguments are opt-in: `Vector U8` and `Tensor3 h Real` are legal, with the missing dimensions left open, and a concrete vector flows into such a slot. [The kind system](https://morloc-project.github.io/docs/types/kinds.md) gives the rules. The element type is never optional.
 
-```morloc
-prettyPrint :: Tensor3 Real -> Str          -- three unknown dims
-normalize   :: Tensor3 h Real -> Tensor3 h w d Real
-```
+## 4.7.6. What is checked, and what is not
 
-Positions fill left to right, so `Tensor3 h Real` fixes the first dimension and leaves the other two open.
-
-**The element type is never optional. Use \`size v**
-
-U64\` from `Sizeable` to read a length at runtime whatever the signature says.
-
-## 5.7.6. What is checked, and what is not
-
-Morloc checks that the dimensions in your compositions agree. It does not check that a foreign function honours the signature you gave it. A C++ function declared `Matrix m n Real -> Matrix n m Real` that actually returns its input unchanged will not be caught. This is the same bargain as a C header file: the types are a contract and the implementation is trusted to keep it.
+Morloc checks that the dimensions in your compositions agree, and a command’s input is checked against the dimensions its signature states before the command runs. It does not check that a foreign function honours the signature you gave it. A C++ function declared `Matrix m n Real -> Matrix n m Real` that actually returns its input unchanged will not be caught. This is the same bargain as a C header file: the types are a contract and the implementation is trusted to keep it.
 
 Arithmetic constraints are checked when every variable involved is known. When some stay free the check is deferred, and if they are never resolved it does not happen at all.

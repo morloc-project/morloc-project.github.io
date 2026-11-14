@@ -1,4 +1,4 @@
-# 6.5. Record arguments
+# 5.5. Record arguments
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/record-arguments.html | prev: https://morloc-project.github.io/docs/clis/arguments.md | next: https://morloc-project.github.io/docs/clis/sum-type-arguments.md
 
@@ -30,10 +30,12 @@ Search a directory tree for lines containing a pattern
 Usage: ./sift <nexus_options> scan <command_options>
 
 General Options:
-  -h, --help   Print help; -hh adds details and examples, -hhh adds schemas
-               (nexus options: -h @)
-  -c, --count  Report the number of matches instead of the matches
-  -p, --plain  Print one `path:line:text` record per line
+  -h, --help            Print help; -hh adds details and examples, -hhh adds schemas
+                        (nexus options: -h @)
+  -c, --count[=<PATH>]  Report the number of matches instead of the matches
+  -p, --plain[=<PATH>]  Print one `path:line:text` record per line
+      --no-stdout       Write nothing to standard output. Actions given a path (--action=PATH) still
+                        write their files, and several may be combined in one run.
 
 Optional arguments:
       --options <Options_JSON>  How to search
@@ -53,9 +55,10 @@ Positional arguments:
               format: path to a readable file
 
 Return:
-  default:    [Hit]
-  -c/--count: U64
-  -p/--plain: Str    (raw bytes)
+  type: [Hit]
+  actions:
+    -c/--count: U64
+    -p/--plain: Str  (raw bytes)
 
 Record Schemas:
   Options
@@ -104,7 +107,7 @@ Positional arguments:
 ...
 ```
 
-## 6.5.1. Three ways to fill it
+## 5.5.1. Three ways to fill it
 
 The `@arg --options` on the record declares a **group flag**, which accepts the whole record at once. It coexists with the per-field flags, so a caller can use either or both.
 
@@ -149,7 +152,7 @@ The full precedence for each field, highest first:
 
 An explicit `null` in the bundle counts as present, so it overrides a default rather than falling through to it.
 
-## 6.5.2. What is rejected
+## 5.5.2. What is rejected
 
 Object form rejects unknown keys, which turns a typo into an error instead of a silently ignored setting:
 

@@ -1,4 +1,4 @@
-# 9.6. Running on a cluster
+# 8.6. Running on a cluster
 
 Morloc Manual > Deployment | https://morloc-project.github.io/docs/apis/execution-contexts.html | prev: https://morloc-project.github.io/docs/apis/deploy-freeze.md | next: https://morloc-project.github.io/docs/languages/index.md
 
@@ -7,7 +7,7 @@ A server answers requests on one machine. Some work is too big for one machine, 
 > **Warning: Experimental Feature**
 > Job submission is tested against a stand-in for `sbatch` and `sacct` that runs each job on the same machine, not on a real cluster.
 
-## 9.6.1. Enabling dispatch
+## 8.6.1. Enabling dispatch
 
 The compiler emits job submission only when asked. `morloc make --slurm` asks for one build; the environment’s build configuration asks for every build, which `morloc init --slurm` sets. `mim` runs `morloc init` without that flag whenever it builds the environment, so run it again inside the environment once the environment exists:
 
@@ -18,7 +18,7 @@ $ mim run --env hpc -- morloc init -f --slurm
 
 Anything that runs `morloc init` again turns dispatch back off: `mim update`, a `mim modify` that rebuilds, and a build that provisions a language the environment did not have yet. Repeat the second command after any of them, and rebuild the program.
 
-## 9.6.2. Running with the dispatch bridge
+## 8.6.2. Running with the dispatch bridge
 
 A program inside a container cannot call `sbatch` on the host. `mim run --slurm-bridge` connects the two:
 
@@ -37,11 +37,11 @@ The job runs on a compute node, starts the same environment, computes the call, 
 
 Every compute node must be able to start the environment’s image: push it to a registry the nodes pull from, or load it into each node’s store. Apptainer, the usual engine on clusters, would avoid this, since its image is a file on the shared filesystem, but Apptainer environments cannot be built yet (see [Installing Morloc](https://morloc-project.github.io/docs/getting-started/installing.md)).
 
-## 9.6.3. Data on the shared filesystem
+## 8.6.3. Data on the shared filesystem
 
-Arguments and results travel between a program and its jobs as files in a directory under the cache base, `~/.cache/morloc/cache/_remote/` by default (set `MORLOC_CACHE_BASE` or `XDG_CACHE_HOME` to move it). Compute nodes must see that directory at the same path, as they do when your home directory is on a shared filesystem. Each call has a directory of its own there, deleted once its result is read; a failed job’s directory stays, with the job’s standard error in it. [Remote jobs](https://morloc-project.github.io/docs/ecosystem-architecture/eco-remote.md) specifies the files and the commands.
+Arguments and results travel between a program and its jobs as files in a directory under the cache base, `~/.cache/morloc/cache/_remote/` by default (the cache base is chosen as in [Where the cache lives](https://morloc-project.github.io/docs/runs/caching.md#cache-layout)). Compute nodes must see that directory at the same path, as they do when your home directory is on a shared filesystem. Each call has a directory of its own there, deleted once its result is read; a failed job’s directory stays, with the job’s standard error in it. [Remote jobs](https://morloc-project.github.io/docs/ecosystem-architecture/eco-remote.md) specifies the files and the commands.
 
-## 9.6.4. Checking the cluster setup
+## 8.6.4. Checking the cluster setup
 
 ```console
 $ mim doctor --env hpc --slurm

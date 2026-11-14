@@ -1,10 +1,10 @@
-# 13.7. Voidstar format and schema strings
+# 12.7. Voidstar format and schema strings
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-voidstar.html | prev: https://morloc-project.github.io/docs/build-architecture/build-shm.md | next: https://morloc-project.github.io/docs/build-architecture/build-tables.md
 
 > **Voidstar** is the binary layout every value takes when it leaves a language: C-like fixed-width slots, with variable-length parts reached through relative pointers. A **schema string** is a compact description of a type’s layout. A buffer plus its schema is enough for any language to read the value, with no other type information. Every binding reads and writes this one layout, so a value crosses between any two languages with no intermediate format.
 
-## 13.7.1. Schema strings
+## 12.7.1. Schema strings
 
 A schema is a string of type codes in prefix order. Codes that take children are followed by them; codes that take a count are followed by it.
 
@@ -42,7 +42,7 @@ Examples, from real programs:
 | `&4Treev24Leaf04Node24Tree4Tree` | `data Tree = Leaf \| Node Tree Tree` |
 | `t3sjaau1` | A function value: home language, function index, captured values as packets |
 
-## 13.7.2. Layout
+## 12.7.2. Layout
 
 Every value has a fixed-width **slot**. Integers are little-endian.
 

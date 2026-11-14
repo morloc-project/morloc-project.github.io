@@ -1,14 +1,14 @@
-# 8.5. Controlling data transfer
+# 7.4. Controlling data transfer
 
 Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/data-transfer.html | prev: https://morloc-project.github.io/docs/modules/exposing-native-resources.md | next: https://morloc-project.github.io/docs/apis/index.md
 
 When a Morloc value crosses a pool boundary, the runtime picks one of three routes for data transfer:
 
--   **Inline** — for serialized payloads that are less than 64 KiB (by default), the bytes ride inside the packet over the Unix socket.
+-   **Inline** — for serialized payloads of at most 64 KiB (by default), the bytes ride inside the packet over the Unix socket.
 -   **Shared memory** — for larger payloads, the data sits in `/dev/shm` and the packet carries only an 8-byte pointer. This allows zero-copy data transfer between pools on the same host.
 -   **Temp file** — only used when shared memory has been disabled (see `--no-shm` below). The data is written to a `.mpk` file and the packet carries the path.
 
-Three `morloc make` flags let you override the default policy when it is wrong for your workload — restricted containers, tight `/dev/shm` quotas, debugging the wire-level traffic, or simply tuning the threshold to a value that matches your data shape:
+Three `morloc make` flags let you override the default policy when it is wrong for your workload — restricted containers, tight `/dev/shm` quotas, debugging the wire-level traffic, or tuning the threshold to a value that matches your data shape:
 
 | Flag | Effect |
 | --- | --- |
@@ -16,7 +16,7 @@ Three `morloc make` flags let you override the default policy when it is wrong f
 | `--no-shm` | Disable shared memory. Payloads above the inline threshold are written to a temp file and passed by path. |
 | `--tmpdir PATH` | Directory for the temp files produced under `--no-shm`. **When set, the files are NOT auto-deleted at end of eval** — useful for testing and debugging. Default (unset): `$TMPDIR` or `/tmp`, with auto-cleanup at end of every eval. |
 
-## 8.5.1. Combinations
+## 7.4.1. Combinations
 
 | Build flags | Behavior |
 | --- | --- |
@@ -25,7 +25,7 @@ Three `morloc make` flags let you override the default policy when it is wrong f
 | `--no-shm` | Inline `<= 64k`, temp files above. No `/dev/shm` traffic. |
 | `--inline-size 0 --no-shm` | Every cross-pool transfer is a temp file. Slowest mode, but works on systems with no shared memory at all. |
 
-## 8.5.2. Examples
+## 7.4.2. Examples
 
 Build for a container with no usable `/dev/shm`:
 

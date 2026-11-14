@@ -1,4 +1,4 @@
-# 5.1. One term may have many definitions
+# 4.1. One term may have many definitions
 
 Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/term-polymorphism.html | prev: https://morloc-project.github.io/docs/types/index.md | next: https://morloc-project.github.io/docs/types/typeclasses.md
 
@@ -43,9 +43,9 @@ $ ./mean mean '[1,2,3,4]'
 2
 ```
 
-## 5.1.1. How the choice collapses a program
+## 4.1.1. How the choice collapses a program
 
-The compiler does not pick a definition per call site in isolation. It scores whole realizations: every call carries a cost, and a call that crosses a language boundary carries a far larger one than a call that stays put — the built-in defaults are 10 for a same-language call and 10000 for a crossing. It takes the cheapest realization, breaking ties by the number of boundaries crossed.
+The compiler does not pick a definition per call site in isolation. It compares whole realizations by how often they cross from one language into another, a round trip of about 20 us, counting first the crossings in code that may run many times per call, and breaks ties by a fixed language preference. [Choosing where calls run](https://morloc-project.github.io/docs/features/placement-costs.md) gives the rule.
 
 The consequence is that a composition tends to collapse onto one language — whichever one the surrounding code is already in. Drop the C++ source from the module above, keep both Morloc definitions, and import `root-py` instead:
 
@@ -71,7 +71,7 @@ py
 
 With the C++ version, the same listing shows `cpp`. Without term polymorphism, changing the language of one component would mean rewriting and rewiring everything downstream of it by hand.
 
-## 5.1.2. Contradictory definitions
+## 4.1.2. Contradictory definitions
 
 Because `=` means "substitutable", nothing stops you from claiming two things are the same when they are not:
 
@@ -125,7 +125,7 @@ $ ./deep x
 
 The compiler cannot see inside `(+)` to know that the first definition is 1. It compiled, it ran, and it silently picked the second definition. Multiple definitions are a promise you are making to the compiler, and it can only check part of it.
 
-## 5.1.3. A test suite that runs against every implementation
+## 4.1.3. A test suite that runs against every implementation
 
 The Morloc standard library uses term polymorphism to test every language backend with one test suite. The pattern is worth copying.
 

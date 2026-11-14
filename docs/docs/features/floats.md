@@ -1,4 +1,4 @@
-# 4.5. Floating-point types
+# 3.6. Floating-point types
 
 Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/floats.html | prev: https://morloc-project.github.io/docs/features/integers.md | next: https://morloc-project.github.io/docs/features/strings.md
 
@@ -18,7 +18,7 @@ Each maps to its host-language equivalent:
 | `F32` | `float` | `float` (with f32 conversion at the boundary) | `numeric` |
 | `F64` | `double` | `float` | `numeric` |
 
-## 4.5.1. Literal forms
+## 3.6.1. Literal forms
 
 Real literals need a decimal point or an exponent:
 
@@ -48,7 +48,7 @@ Note the explicit `+` on the printed exponent.
 
 A literal with neither a decimal point nor an exponent is an integer literal. It is an `Int` unless its context expects a `Real`, and then it is that `Real`: `w :: Real` with `w = 1`, or `[1, 0xff, 2.5] :: [Real]`, needs no decimal points.
 
-## 4.5.2. IEEE 754 and non-finite values
+## 3.6.2. IEEE 754 and non-finite values
 
 `Real` follows IEEE 754 in full, which means its value space is the finite reals representable at the target precision **plus** three classes of non-finite value:
 
@@ -95,7 +95,7 @@ All three target languages follow IEEE 754 here, so these results do not depend 
 | `negate Inf` | `-Inf` | Sign-bit flip |
 | `negate NaN` | `NaN` | Sign flip stays NaN |
 
-## 4.5.3. Compile-time literal overflow
+## 3.6.3. Compile-time literal overflow
 
 A real literal is bounds-checked against the precision it is written into. As with integer literals, the check runs during code generation, so `typecheck` passes and `make` rejects it.
 
@@ -144,7 +144,7 @@ Float literal -1.0e500 overflows F64 (|x| > 1.8e308)
 
 `Inf`, `-Inf`, and `NaN` bypass the bounds check by construction. They are explicit non-finite values, not finite literals that happened to overflow.
 
-## 4.5.4. Wire format and JSON interop
+## 3.6.4. Wire format and JSON interop
 
 The JSON wire format is RFC 8259 compliant, and standard JSON has no syntax for non-finite numbers. The specification’s recommended workaround is strings, so Morloc emits them as quoted lowercase strings:
 
@@ -194,7 +194,7 @@ Internal cross-language boundaries do not use JSON. Morloc-to-pool calls use a b
 > 
 > If a program depends on `1.0 / 0.0` giving `+Inf`, that expression must not run in a Python pool. Constructing infinity directly with the `Inf` literal avoids the question entirely.
 
-## 4.5.5. F32 precision considerations
+## 3.6.5. F32 precision considerations
 
 `F32` halves memory against `F64`, which matters for large numerical arrays — tensors, image buffers, GPU input — where the extra precision is not needed. The tradeoffs:
 
@@ -209,7 +209,7 @@ Internal cross-language boundaries do not use JSON. Morloc-to-pool calls use a b
 
 For most application code `Real` is the right default. Reach for `F32` deliberately, when memory or single-precision hardware demands it.
 
-## 4.5.6. Converting to and from floating point
+## 3.6.6. Converting to and from floating point
 
 The `TotalInto` and `PartialInto` classes from [Integer types](https://morloc-project.github.io/docs/features/integers.md) extend to floats. `into` covers the conversions that cannot fail: widening an integer whose full range fits the target mantissa (24 bits for `F32`, 53 for `F64`), `F32` to `F64`, and `Real` to and from `F64` in both directions — they are representationally identical in every current backend.
 
@@ -258,7 +258,7 @@ To round to a nearby integer instead of failing, apply `round`, `floor`, `ceil`,
 
 Narrowing `F64` to `F32`, and `Real` to `F32`, are deliberately **not** provided as `TotalInto` instances — they lose precision on every input. If you need one, source an explicit foreign function, so the lossy step is visible at the call site.
 
-## 4.5.7. Negation of Real values
+## 3.6.7. Negation of Real values
 
 Negation works on `Real`, `F32`, and `F64` exactly as it does on integers, via the `Negatable` typeclass; see [Integer types](https://morloc-project.github.io/docs/features/integers.md) for the full unary-minus rules. Three IEEE 754 specifics:
 

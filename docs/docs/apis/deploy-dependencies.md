@@ -1,10 +1,10 @@
-# 9.2. Dependency management
+# 8.2. Dependency management
 
 Morloc Manual > Deployment | https://morloc-project.github.io/docs/apis/deploy-dependencies.html | prev: https://morloc-project.github.io/docs/apis/deploy-environments.md | next: https://morloc-project.github.io/docs/apis/deploy-serving.md
 
 A Morloc program usually depends on packages from its languages' ecosystems: NumPy, a CRAN library, a Rust crate. You declare them once, in the program’s `package.yaml`, and `mim` installs them into the environment when you install the program. This section introduces the running example, shows how its dependencies are declared and solved, and explains when an environment is rebuilt.
 
-## 9.2.1. The smiles example
+## 8.2.1. The smiles example
 
 [SMILES](https://en.wikipedia.org/wiki/Simplified_Molecular_Input_Line_Entry_System) is a text notation for molecules: `CCO` is ethanol, `NC1=NC=NC2=C1N=CN2` is adenine. The `smiles` program exports three functions over it, all implemented in Python with RDKit. It is a directory of three files.
 
@@ -66,7 +66,7 @@ py-deps:
 
 The entry file of a program directory is `main.loc`. The `module smiles` line, not the directory or file name, is the program’s name once installed.
 
-## 9.2.2. Declaring dependencies
+## 8.2.2. Declaring dependencies
 
 `py-deps` maps each Python package the program imports to a version constraint and a source. `"*"` accepts any version; a constraint such as `">=2023.9"` narrows it. The source says which package index the name refers to:
 
@@ -77,7 +77,7 @@ Python requires the source because a package’s name can mean different things 
 
 A program’s dependencies are the union of its own and those of every module it imports. `smiles` imports `root-py`, whose needs come along with it.
 
-## 9.2.3. Command-line tools (`tool-deps`)
+## 8.2.3. Command-line tools (`tool-deps`)
 
 Some modules run a program rather than import a library: an aligner, a report generator. Declare such a program under `tool-deps`, naming the conda package that provides it. This entry, from a module that runs the STAR aligner, pins the version with `==`:
 
@@ -92,7 +92,7 @@ Tools belong to the module, not to one of its languages. A Rust module that runs
 
 Run the program inside its environment, as `mim run` does. Started from a shell whose `PATH` lacks the environment’s `bin` directory, it finds whatever executable of that name comes first on your `PATH`, or none.
 
-## 9.2.4. Installing the program
+## 8.2.4. Installing the program
 
 ```console
 $ mim install ./smiles
@@ -134,7 +134,7 @@ After you change a program’s code or its `package.yaml`, install it again with
 $ mim install --force ./smiles
 ```
 
-## 9.2.5. One solved world per environment
+## 8.2.5. One solved world per environment
 
 An environment has a single set of packages, shared by every program installed in it. `mim` keeps it as a pixi project in the environment’s data directory: `pixi.toml` holds the combined requirements of every installed program plus any languages and package files you set with `mim modify`, and `pixi.lock` records the exact version of every package the solve chose. That locked set is the environment’s **solved world**.
 
@@ -142,7 +142,7 @@ One world means one version of each package. When two programs constrain the sam
 
 Because the world is shared, installing a new program can move the version of a package another program uses, within that program’s own constraints. When two programs need versions that cannot coexist, put them in separate environments.
 
-## 9.2.6. When an environment is rebuilt
+## 8.2.6. When an environment is rebuilt
 
 The world is solved again whenever the requirements may have changed:
 

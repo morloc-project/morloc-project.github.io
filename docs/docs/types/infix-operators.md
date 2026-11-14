@@ -1,4 +1,4 @@
-# 5.3. Infix operators
+# 4.3. Infix operators
 
 Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/infix-operators.html | prev: https://morloc-project.github.io/docs/types/typeclasses.md | next: https://morloc-project.github.io/docs/types/newtype.md
 
@@ -34,7 +34,7 @@ $ ./minus test
 
 `(10 - 3) - 2`, not `10 - (3 - 2)`.
 
-## 5.3.1. Declaring associativity and precedence
+## 4.3.1. Declaring associativity and precedence
 
 `infixl` is left-associative, `infixr` right-associative, and `infix` non-associative. Each takes a precedence level from **0 through 9** inclusive, with higher binding tighter — the Haskell convention:
 
@@ -74,7 +74,7 @@ $ morloc typecheck conflict.loc
 Conflicting fixity definitions for |>
 ```
 
-## 5.3.2. Operators from foreign languages and typeclasses
+## 4.3.2. Operators from foreign languages and typeclasses
 
 Operators are sourced like any other function:
 
@@ -126,23 +126,23 @@ $ ./arith test_expr
 
 `4 * 7` binds first because `*` was given the higher precedence, then `+ 3`.
 
-This module imports `internal` rather than `root`, because `root` already declares `+`, `*` and `zero` in its `Integral` class and two classes cannot own the same term. `invert` is spelled that way for the same reason: `negate` belongs to ``internal’s `Negatable`` class.
+Like `Addable` in [One class, many languages](https://morloc-project.github.io/docs/types/typeclasses.md#class-many-languages), this class collides with ``root’s `Integral``, so the module imports `internal` and maps `Int` to Python itself. `invert` avoids `negate`, which ``internal’s `Negatable`` class owns.
 
-## 5.3.3. Importing operators
+## 4.3.3. Importing operators
 
 Operators are imported by their parenthesized names. Their fixity travels with them, so the importing module does not redeclare it:
 
 **ops/main.loc**
 
 ```morloc
-module ops ((|>))
+module ops ((|>>))
 
 import root
 
-infixl 1 |>
+infixl 1 |>>
 
-(|>) :: a -> (a -> b) -> b
-(|>) x f = f x
+(|>>) :: a -> (a -> b) -> b
+(|>>) x f = f x
 ```
 
 **main.loc**
@@ -151,10 +151,10 @@ infixl 1 |>
 module main (test)
 
 import root-py
-import .ops ((|>))
+import .ops ((|>>))
 
 test :: Int
-test = 3 |> (\x -> x + 1)
+test = 3 |>> (\x -> x + 1)
 ```
 
 ```console
@@ -166,7 +166,7 @@ $ ./prog test
 > **Warning: | alone is not available**
 > The bare pipe is a reserved token, so `(|)` cannot be an operator name even though `|` is a legal operator character. `(||)`, `(|>)`, `(||.)` and the rest are fine.
 
-## 5.3.4. Names that cannot start with `--`
+## 4.3.4. Names that cannot start with `--`
 
 An operator name may not begin with `--`. The sequence always opens a comment, whatever follows it:
 
@@ -184,7 +184,7 @@ dashop.loc:4:1: unexpected new declaration
     |
   4 | (--+) :: Int -> Int -> Int
     | ^
-  expected one of: '(', '<', '>', '.', '*', '-', identifier, '+', '/', operator
+  expected one of: '(', '<', '>', '.', '*', '-', identifier, '+', '/', '<>', operator
 ```
 
 The prefix is reserved so that further comment variants can be added later without colliding with user operators. `--^` is already rejected outright.

@@ -1,8 +1,8 @@
-# 10.1. Build parameters
+# 9.1. Build parameters
 
 Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/build-parameters.html | prev: https://morloc-project.github.io/docs/languages/index.md | next: https://morloc-project.github.io/docs/languages/cpp.md
 
-Morloc compiles each part of a program with its own language toolchain. The `-X` flag passes key/value parameter pairs directly through to those builders:
+Morloc compiles each part of a program with its own language toolchain. The `-X` flag passes key/value parameter pairs through to those builders:
 
 ```bash
 morloc make -X futhark:backend=cuda -o nexus main.loc
@@ -11,7 +11,7 @@ morloc make -X cpp:flags=-march=native main.loc
 
 The syntax is `-X LANG:KEY=VALUE`. It is repeatable. Morloc splits on the first `:` and the first `=`. Everything after the `=` is the value and is taken **verbatim** (it may itself contain `:` or `=`, as in `-X cpp:flags=-DFOO=bar`).
 
-For every compiled language, the key `flags` is a raw passthrough: its value is appended verbatim to that language’s compile command, in order, without deduplication. This is the escape hatch for anything morloc does not model directly.
+For every compiled language, the key `flags` is a raw passthrough: its value is appended verbatim to that language’s compile command, in order, without deduplication. This is the escape hatch for anything Morloc does not model directly.
 
 ```bash
 # each -X contributes one flag, appended in order
@@ -20,7 +20,7 @@ morloc make -X cpp:flags=-march=native -X cpp:flags=-O3 main.loc
 
 Because order and adjacency matter to a compiler (`-L` before `-l`, paired tokens like `-Xpreprocessor -foo`), `flags` values are never reordered or merged away.
 
-## 10.1.1. Per-machine defaults with `morloc config`
+## 9.1.1. Per-machine defaults with `morloc config`
 
 Repeating `-X futhark:backend=cuda` on every build is tedious on a machine that always has the same GPU. `morloc config` stores per-machine defaults so you set them once:
 
@@ -40,7 +40,7 @@ lang-params:
 
 Unlike `morloc init`, `morloc config` only edits this file — it does not rebuild the toolchain.
 
-## 10.1.2. Per-session defaults with `MORLOC_LANG_PARAMS`
+## 9.1.2. Per-session defaults with `MORLOC_LANG_PARAMS`
 
 A shell session, a build script, or a test harness that cannot edit every command line can set parameters in the environment. `MORLOC_LANG_PARAMS` holds a `;`\-separated list of the same `LANG:KEY=VALUE` entries:
 
@@ -51,7 +51,7 @@ morloc make main.loc           # both parameters apply
 
 Stray or trailing separators are ignored; a value cannot contain `;`.
 
-## 10.1.3. Precedence
+## 9.1.3. Precedence
 
 Parameters resolve in four layers, lowest to highest:
 
@@ -61,7 +61,7 @@ compiled-in default  <  build config (per-machine)  <  MORLOC_LANG_PARAMS  <  -X
 
 For most keys the highest layer wins. The `flags` key is the exception: values from each layer are concatenated (build-config flags, then environment flags, then command-line flags), so a per-machine default and a one-off flag both take effect.
 
-## 10.1.4. Recognized keys
+## 9.1.4. Recognized keys
 
 Morloc passes every `LANG:KEY` through; each language’s builder reads the keys it understands and rejects a value it does not. The keys the builders read:
 
@@ -75,7 +75,7 @@ Morloc passes every `LANG:KEY` through; each language’s builder reads the keys
 
 A non-default `rust:lto` or `rust:opt-level` compiles its own copy of the pool’s dependencies into the shared build cache the first time it is used; after that both profiles are cached side by side.
 
-## 10.1.5. Build parameters vs. `package.yaml`
+## 9.1.5. Build parameters vs. `package.yaml`
 
 A project’s `package.yaml` is for **hard build requirements** — libraries the code cannot compile without (`dependencies`), a required C++ standard (`cpp-version`), or fixed compiler flags (`cxx-flags`). These are committed with the project and apply on every machine.
 

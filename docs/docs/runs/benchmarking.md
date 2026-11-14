@@ -1,4 +1,4 @@
-# 7.2. Benchmarking
+# 6.2. Benchmarking
 
 Morloc Manual > Managing Runs | https://morloc-project.github.io/docs/runs/benchmarking.html | prev: https://morloc-project.github.io/docs/runs/logging.md | next: https://morloc-project.github.io/docs/runs/run-directory.md
 
@@ -16,11 +16,11 @@ parse:readSeqs [cpp] n=2000 mean=0.000431 min=0.000298 max=0.004117
 
 The two settings are independent and compose: a group may log, benchmark, both, or neither.
 
-Timing is per-manifold, so process startup and pool spawn are outside the measurement. Because the label follows the manifold into whatever pool realises it, `{lang}` tells you which language actually ran the work — and a labeled call that crosses a pool boundary is measured on the **caller** side, so its row includes the round trip.
+Timing is per call, so process startup and pool spawn are outside the measurement. A labeled call is measured where it is made: one that crosses a pool boundary is timed on the **caller** side, so its row includes the round trip and `{lang}` names the caller’s language.
 
 Only successful calls are recorded. A call that raised did not do the work being measured, and folding its duration into the mean would report a number that describes nothing.
 
-## 7.2.1. The summary row
+## 6.2.1. The summary row
 
 The row shape is the program-wide `benchmark-template`, whose one subfield is `summary`. Unlike `log-template` it is not per-label: the nexus aggregates every label’s timings and renders them through a single template.
 
@@ -48,7 +48,7 @@ Available placeholders:
 | --- | --- |
 | `{group}` | The label group name. |
 | `{name}` | The labeled term’s identifier in source. |
-| `{lang}` | The pool language that ran the calls. |
+| `{lang}` | The language of the pool that made, and timed, the calls. |
 | `{count}` | Number of successful calls recorded. |
 | `{mean}` | Arithmetic mean of the durations, in seconds. |
 | `{min}` | Fastest recorded call, in seconds. |
@@ -60,7 +60,7 @@ Rows are ordered by `{group}`, then `{name}`, then `{lang}` — not by arriv
 
 Setting `benchmark: true` while nulling `summary` is rejected at compile time: the timings would be collected and never reported.
 
-## 7.2.2. Comparing implementations
+## 6.2.2. Comparing implementations
 
 Because labels are per-call-site, the same work measured under two labels yields two rows. That is the shape of an A/B comparison — one run, one input, the same warm pools:
 
@@ -89,4 +89,4 @@ slow:incr [cpp] n=1 mean=0.000662 min=0.000662 max=0.000662
 
 Both rows say `cpp`, including the one for the Python `incr`. That is the caller-side rule at work: this program is rooted in the C++ pool, so the call into Python is measured where it is made, and the 0.000662 seconds is the round trip rather than the addition. Measuring the Python side in isolation means rooting the program there instead.
 
-Note also that `fast` precedes `slow` in the output despite running second. Rows are sorted, not logged.
+`fast` precedes `slow` in the output despite running second. Rows are sorted, not logged.

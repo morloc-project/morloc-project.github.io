@@ -1,5 +1,61 @@
-# 14.2. Parsing and module loading
+# 13.2. Parsing and module loading
 
 Morloc Manual > Compiler Architecture | https://morloc-project.github.io/docs/compiler-architecture/compiler-parsing.html | prev: https://morloc-project.github.io/docs/compiler-architecture/compiler-pipeline.md | next: https://morloc-project.github.io/docs/compiler-architecture/compiler-types.md
 
-**STUB**: Specifies the concrete syntax: lexical rules, the layout (indentation) rule, the grammar, and how docstrings are attached to the declarations they describe. Defines how a module’s imports are loaded into a module graph, how names are resolved and shadowed across modules, and which errors are reported at this stage.
+> The first frontend passes turn source text into a graph of modules in which every name refers to exactly one declaration. This section specifies how text becomes tokens, how indentation becomes explicit block structure, how sugar is removed, where docstrings attach, how imports are found and loaded, and how names, namespaces, exports and the many definitions of one term are resolved. Its output is the input of the type checker ([Type system](https://morloc-project.github.io/docs/compiler-architecture/compiler-types.md)).
+
+**Tokens.** A token starting `--` opens a line comment and `{-` …​ `-}` a block comment; block comments nest. Two comment forms are kept: `--'` lines are docstrings and `--*` lines name export groups. The case of a name’s first character fixes its class: lowercase or `_` for terms and type variables, uppercase for types, constructors, classes and kinds. Keywords cannot be names. A few tokens depend on the whitespace around them, so the lexer decides them rather than the grammar:
+
+| Written | Token |
+| --- | --- |
+| `.f r`, `.[i] xs` | A `.` after whitespace or a delimiter opens a getter pattern; a `.` written directly against the previous token continues a getter chain (`.a.b`). |
+| `x@p` | No whitespace on either side: `x` is bound to the whole of `p`. |
+| `@name` | After whitespace or a delimiter: an intrinsic. |
+| `-3` | A `-` against a digit, in operand position, is part of the literal. |
+| `n.f` | One qualified name: `f` reached through the namespace `n`. If `n` is not a namespace of the module, this is an error, which catches a composition written without spaces. |
+
+**Layout.** Indentation is turned into explicit structure before parsing, as virtual `{`, `;` and `}` tokens, so the grammar itself is free of indentation. A block opens after `where`, `let` and `do`, and around a module body. The column of the block’s first token is its indentation: a later line starting at that column begins a new item, one starting left of it closes the block. A `let` block also closes at `in`. An explicit `{` directly after the keyword switches the block to braces and semicolons, and inside parentheses and brackets indentation is not tracked. One exception keeps record literals usable after `do`: `{` followed by a lowercase name and `=` is a record literal, since no statement begins with `name =`.
+
+**Grammar and desugaring.** The parser reads the token stream into a concrete syntax tree that keeps source spans for diagnostics. Desugaring then lowers it to a small core of expressions and declarations, each node with a unique index that later passes use to attach types, source locations and metadata:
+
+| Written | Core form |
+| --- | --- |
+| A file with no `module` header | A module named `main` holding every declaration. |
+| Lowercase variables in a signature | Universally quantified over the whole signature. |
+| `"x = #{e}"` | A text pattern applied to the interpolated expressions. |
+| `do` blocks | Sequenced binds ([Effects](https://morloc-project.github.io/docs/compiler-architecture/compiler-effects.md)). |
+| `a + b * c` | Kept as a flat chain until imports are resolved (below). |
+
+Operator chains wait because a fixity declaration travels with its operator: the precedence of `*` in one module may be declared in a module it imports. Once imports are resolved, each chain is re-associated using the fixities in scope in its module, plus the built-in defaults ([Infix operators](https://morloc-project.github.io/docs/types/infix-operators.md)).
+
+**Docstrings.** The lexer removes `--'` lines and keys each consecutive run by the position of the token that follows it; the parser attaches the run to the declaration starting there. A docstring may describe a module header, a signature (the term, never its return type), one argument type inside a signature, a `source` list item, a `type`, `newtype` or `record` declaration, or a record field. A line starting `@keyword` is a directive, any other line is prose; an unknown directive is kept as prose with a warning. A docstring on a `type` alias is inherited by every argument written with that alias, and the nearest docstring wins: one written on the argument, then the alias named there, then the next alias down its chain. A term’s docstrings are never inherited through `bar = foo`. How docstrings become a command-line interface is [Interface generation](https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.md); the user’s view is [Docstrings](https://morloc-project.github.io/docs/clis/docstrings.md).
+
+**Module graph.** Each `module` keyword starts a module, which runs to the next `module` keyword or the end of the file. Loading begins with the entry file and repeats: for every import edge whose target is not yet loaded, find the target’s file, parse it, and add its modules and edges. The result is a directed graph of modules, edges labeled by import lists. A module that imports itself, or any import cycle, is a load error. Every module belongs to a **package**: the program, rooted at the entry file’s directory, or an installed module reached by a dotless import, rooted at its own directory.
+
+| Import | Meaning |
+| --- | --- |
+| `import m` | The installed module `m`, and every term it exports. A missing module is installed first when the build allows it ([Module resolution](https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md)). |
+| `import .a.b` | The local module `a/b.loc` or `a/b/main.loc`, under the root of the importing module’s package, so a package’s own imports mean the same wherever it is installed. In a package `p` other than the program, the module is `p.a.b`. |
+| `import m (f, g as h, T)` | Only the listed items, optionally renamed. Listing an item `m` does not export is a load error, and a class method cannot be listed by name: import its class. |
+| `import m as n` | Every term arrives as `n.f`; bare `f` is not in scope. |
+
+An anonymous module (`module (*)` with no name) takes its name from the import that reaches it.
+
+**Exports.** `module m (a, b)` exports exactly `a` and `b`, and exporting a name the module does not define is a load error. `module m ()` exports no terms. `module m (**)**` **exports every term defined in the module, and a term imported into a module counts as defined there, so a module that imports several others and exports `(`**`)` is their union. Export groups (`--*`) only organize the command-line help ([Interface generation](https://morloc-project.github.io/docs/compiler-architecture/compiler-interface.md)).
+
+**Name resolution.** After import resolution, every name in scope in a module maps to the declaration it came from. Terms are linked across modules by these maps. Type names are resolved where they are written: a type name in a signature keeps the meaning it has in the module that wrote the signature, and importing the term does not rebind it in the importer. Several types of one name may therefore coexist in a program, each bound to its own declaration; nothing resolves a type by its spelling in a global scope. An undeclared type name is a load error, as is importing a type and declaring the same name. Base type names such as `Int` and `Str` are ordinary declarations, so a program may supply its own prelude. Finally, every local binder (a lambda parameter, a `let` or `where` binding) is renamed to a name unique in the whole program, because later passes copy a definition’s body to each of its uses and a copied body must not capture a binder at the use site.
+
+****One term, many definitions.** A signature \`f**
+
+T\` declares one term with general type `T`. Every definition of `f` and every sourced function named `f` in scope is an implementation of that term, and a second definition adds an alternative rather than shadowing the first; which alternative runs is chosen by realization ([Realization](https://morloc-project.github.io/docs/compiler-architecture/compiler-realization.md), [One term may have many definitions](https://morloc-project.github.io/docs/types/term-polymorphism.md)). The rules that decide which term a signature or definition belongs to:
+
+| Situation | Result |
+| --- | --- |
+| Two signatures for one name in one scope | Error, even when the types are equal. A `where` block is its own scope. |
+| `f = e` with no signature for `f` in the module | One more implementation of the `f` in scope. This is how a language module adds implementations to a language-neutral module. |
+| `f :: T` in a module that imports all of `m`, which exports `f` | A new term `f`. It replaces the imported one here and in every module that imports `f` from here; the imported implementations are dropped. |
+| `f :: T` in a module that imports `f` by name | Error; import it under another name instead. |
+
+When one term reaches a module along several import paths, its implementations are merged into one set; two declarations whose general types differ are an error. Instances of one class at one type are merged the same way, their implementations joined as alternatives ([Type system](https://morloc-project.github.io/docs/compiler-architecture/compiler-types.md)).
+
+**Trees per export.** Once every name is resolved and every declaration is merged, the graph is dissolved. Each exported term becomes one expression tree, in which every reference to a term carries the term’s full set of implementations. These trees are what the type checker sees.

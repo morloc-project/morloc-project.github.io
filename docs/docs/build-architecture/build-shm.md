@@ -1,10 +1,10 @@
-# 13.6. Shared memory layout
+# 12.6. Shared memory layout
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-shm.html | prev: https://morloc-project.github.io/docs/build-architecture/build-packets.md | next: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md
 
 > Large values pass between pools through shared memory, so a value written by one process can be read by another where it lies, with only an 8-byte pointer crossing the socket. This section specifies the shared-memory volumes and blocks of a run, the pointer forms that address them, and the rules for allocating, sharing and releasing a block among processes that may die at any moment.
 
-**Volumes.** A run’s shared memory is a set of **volumes**, each a POSIX shared-memory object mapped by every process of the run. Volume *i* is named `<base>-<i>` with *i* as four hex digits, where the nexus chooses the base name (`/mlc-<pid>-<random>-<generation>`) and passes it to every pool. The generation changes when a daemon discards its shared memory and starts over, so the new namespace never collides with the old. Volume 0 is never created: index 0 is reserved for pointers into a self-contained buffer ([Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)). The first volume is index 1, with 64 KiB of data; a process that needs more creates another volume at an unused index, at least twice the size of the last, up to 32767 volumes. If the shared-memory filesystem is full or unavailable, a volume is created as a file in the run directory instead, and a zero-length stub under the shared-memory name tells other processes where it is.
+**Volumes.** A run’s shared memory is a set of **volumes**, each a POSIX shared-memory object mapped by every process of the run. Volume *i* is named `<base>-<i>` with *i* as four hex digits, where the nexus chooses the base name (`/mlc-<pid>-<random>-<generation>`) and passes it to every pool. The generation changes when a daemon discards its shared memory and starts over, so the new namespace never collides with the old. Volume 0 is never created: index 0 is reserved for pointers into a self-contained buffer ([Voidstar format and schema strings](https://morloc-project.github.io/docs/build-architecture/build-voidstar.md)). The first volume is index 1, with 64 KiB of data; a process that needs more creates another volume at an unused index, at least twice the size of the largest volume it has mapped, up to 32767 volumes. If the shared-memory filesystem is full or unavailable, a volume is created as a file in the run directory instead, and a zero-length stub under the shared-memory name tells other processes where it is.
 
 Each volume starts with a header:
 
@@ -14,9 +14,11 @@ Each volume starts with a header:
 | 4 | 128 | name | The volume’s name, NUL-padded. |
 | 132 | 4 | index | The volume’s index, checked when a process opens it. |
 | 136 | 8 | size | Bytes of data after the header. |
-| 144 | 8 | reserved | 0. |
+| 144 | 8 | poison | Nonzero when the program fills released blocks with a poison byte (`MORLOC_SHM_POISON=1`); the primary volume’s value holds for every process. |
 | 152 | \- | lock | A process-shared lock guarding the block list (size set by the platform). |
 | \- | 8 | cursor | Offset of the block where the next search starts, or -1. |
+| \- | 4 | next index | In the primary volume, the program’s volumes are numbered below this. |
+| \- | \- | growth lock | A process-shared lock taken to create the next volume. |
 
 The header is padded to a multiple of 16 bytes, and the data region follows it. Volumes never leave the machine, so the platform’s own lock layout is acceptable.
 
@@ -24,11 +26,11 @@ The header is padded to a multiple of 16 bytes, and the data region follows it. 
 
 | Offset | Size | Field | Meaning |
 | --- | --- | --- | --- |
-| 0 | 4 | magic | `0x0CB10DF0` for a block; `0x0CB1DEAD` for a header merged into a neighbor. |
+| 0 | 4 | magic | `0x0CB10DF0` for a block; a header merged into a neighbor is zeroed. |
 | 4 | 4 | references | 0 when free; all ones while the last reference is being dropped. |
-| 8 | 8 | size | Bytes of data. |
+| 8 | 8 | size | Bytes of data in the low 48 bits; its generation, advanced each time the block is allocated, in the top 16. |
 
-Block data is 16-byte aligned and its size a multiple of 16, because some Arrow column types hold 128-bit words that another language’s Arrow library will read in place and expects aligned. To allocate, a process takes the volume’s lock, searches first-fit from the cursor (merging adjacent free blocks as it passes them), splits off any usable remainder as a new free block, and sets the block’s count from 0 to 1. It tries the volume it used last, then the others, then creates a new volume.
+Block data is 16-byte aligned and its size a multiple of 16, because some Arrow column types hold 128-bit words that another language’s Arrow library will read in place and expects aligned. To allocate, a process takes the volume’s lock, searches next-fit from the cursor (merging adjacent free blocks as it passes them), splits off any usable remainder as a new free block, and sets the block’s count from 0 to 1. It tries the volume it used last, then the others, then creates a new volume.
 
 **Pointers.** Three forms address shared memory:
 

@@ -1,4 +1,4 @@
-# 9.4. Eval
+# 8.4. Eval
 
 Morloc Manual > Deployment | https://morloc-project.github.io/docs/apis/deploy-eval.html | prev: https://morloc-project.github.io/docs/apis/deploy-serving.md | next: https://morloc-project.github.io/docs/apis/deploy-freeze.md
 
@@ -8,7 +8,7 @@ A conventional API serves a fixed list of endpoints. With eval, a server offers 
 
 Eval only ever composes functions that are already installed. A caller cannot define a new function in a foreign language, read a file directly, or import anything you did not allow. The rest of this section shows how to turn it on, how to use it, and the guard-rails around it.
 
-## 9.4.1. Turning eval on
+## 8.4.1. Turning eval on
 
 Eval is off until you enable it with a list of the modules an expression may import:
 
@@ -19,7 +19,7 @@ $ mim start -p 8005:8005 --force
 
 `smiles` provides the chemistry, and `root-py` provides the basics an expression needs: `map`, `filter`, `zip`, arithmetic, and comparison. Morloc has no implicit prelude, so even `+` must come from an imported module. The allow-list is separate from the MCP and API views; a module can be importable by eval without being served, and the reverse. `mim view eval --off` turns eval off again.
 
-## 9.4.2. Evaluating an expression
+## 8.4.2. Evaluating an expression
 
 `mim eval` sends an expression to the running server of the default environment (or `--env`) and prints the server’s JSON reply. Top-level items on one line are separated with `;`:
 
@@ -59,7 +59,7 @@ $ curl -s http://localhost:8005/eval \
 
 Over MCP, eval is one extra tool named `eval`, taking an `expression` string, whose description lists the modules it may import. An assistant that has read the other tools' schemas can write an expression that chains them.
 
-## 9.4.3. Guard-rails
+## 8.4.3. Guard-rails
 
 An eval expression is code written by whoever can reach the server, so it runs under restrictions a program you compile yourself does not have:
 
@@ -74,7 +74,7 @@ Each request is typechecked and compiled from scratch before it runs, so even a 
 
 The token rule is stricter for eval than for the rest of the server. On the default loopback bind, eval needs no token. On an exposed server, eval runs only for callers presenting the token, even if you started the server with `--allow-no-auth`; without a token it is **locked**: not listed among the MCP tools, reported as locked by `/discover`, and refused: with `403` over HTTP, with a JSON-RPC error over MCP. `--eval-allow-no-auth` lifts this, for a deployment where something in front of the server already checks callers. When a token is set, `mim eval` sends the one in `MORLOC_MCP_TOKEN`, or the one given with `--auth-token`.
 
-## 9.4.4. Trying expressions locally
+## 8.4.4. Trying expressions locally
 
 The `morloc eval` command applies the same checks without a server, which is how to see what a caller will get. Pass the allow-list with `--eval-allowed-modules`:
 

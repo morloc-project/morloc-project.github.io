@@ -1,4 +1,4 @@
-# 5.6. The kind system
+# 4.6. The kind system
 
 Morloc Manual > Advanced Types | https://morloc-project.github.io/docs/types/kinds.html | prev: https://morloc-project.github.io/docs/types/packable.md | next: https://morloc-project.github.io/docs/types/tensors.md
 
@@ -47,7 +47,7 @@ badkind.loc:3:16: unknown kind "Nut"; expected one of Type, Nat, Str, Rec, List,
     |                ^
 ```
 
-## 5.6.1. Nat: numbers in the type
+## 4.6.1. Nat: numbers in the type
 
 Here is the buffer, complete and runnable. `concat` is a Python function that joins two lists; its Morloc signature says the result length is the sum of the input lengths.
 
@@ -90,8 +90,8 @@ The kind annotation appears twice: once in the `newtype` declaration and once in
 $ morloc typecheck buffer6.loc
 buffer6.loc:15:8: error:
 Type mismatch:
-  expected: (Buffer 2 Int) -> (Buffer 3 Int) -> (Buffer 6 Int)
-  inferred: (Buffer b a) -> (Buffer c a) -> (Buffer (b + c) a)
+  expected: Buffer 2 Int -> Buffer 3 Int -> Buffer 6 Int
+  inferred: Buffer b a -> Buffer c a -> Buffer (b + c) a
 Subtype error: Nat constraint mismatch
   5 <: 6
    |
@@ -104,7 +104,7 @@ The four arithmetic operators `+`, `-`, `*` and `/` are available on Nats, and `
 > **Warning: Subtraction is not clamped**
 > Nat arithmetic is ordinary integer arithmetic, so `3 - 10` is `-7`, not `0`. A signature carrying a negative dimension is accepted, and the function it describes can then never be called. This bites when a shape formula such as `h - fh + 1` is instantiated with a window larger than the input.
 
-## 5.6.2. Str: labels in the type
+## 4.6.2. Str: labels in the type
 
 A `Str`\-kinded expression is a string that exists in the type system. Written as a literal it is a quoted string in type position:
 
@@ -124,7 +124,7 @@ Call `column "age" xs` and the runtime sees the string `"age"` while the compile
 
 The label form is always `name@Type`. If you meet `name:Type` in older code, it is the same idea under the spelling the parser used to accept; it is a syntax error now.
 
-## 5.6.3. Rec: schemas in the type
+## 4.6.3. Rec: schemas in the type
 
 A `Rec`\-kinded expression is a mapping from field names to types. The literal form is `{name = Str, age = Int}` — note `=`, not `::`, because the right-hand side of each entry is a type.
 
@@ -149,7 +149,7 @@ twoCols = combine (column "name" ["ann"]) (column "age" [31])
 
 ```console
 $ morloc typecheck frame.loc
-headers :: (Frame a) -> [Str]
+headers :: Frame a -> [Str]
 twoCols :: Frame {name=Str, age=Int}
 ```
 
@@ -198,9 +198,9 @@ Misspell the field and the lookup does not reduce, which shows up as a mismatch 
 $ morloc typecheck project-bad.loc
 project-bad.loc:10:10: error:
 Type mismatch:
-  expected: (Frame {name=Str, age=Int}) -> [Int]
-  inferred: (Frame a) -> [a."aeg"]
-Cannot compare types {age=Int, name=Str}."aeg" and Int
+  expected: Frame {name=Str, age=Int} -> [Int]
+  inferred: Frame a -> [a."aeg"]
+Cannot compare types {name=Str, age=Int}."aeg" and Int
    |
 10 | getAge = getCol "aeg"
    |          ^
@@ -208,7 +208,7 @@ Cannot compare types {age=Int, name=Str}."aeg" and Int
 
 `a."aeg"` in that message is how an unreduced `ProjectField` prints.
 
-## 5.6.4. List and Set: collections of labels
+## 4.6.4. List and Set: collections of labels
 
 `Restrict` projects a schema down to a list of field names, and `l@[Str]` supplies that list from a runtime argument:
 
@@ -252,7 +252,7 @@ Set-kinded expressions come up mostly through `Keys`, which turns a schema into 
 > 
 > The tick is needed because `[Str]` in type position already means "a list of strings". Note that this affects type position only: at the term level, `select ["name", "city"]` is an ordinary list of string values, written normally.
 
-## 5.6.5. Gradual arguments
+## 4.6.5. Gradual arguments
 
 Non-`Type` kind arguments are opt-in. A type constructor applied with fewer kind arguments than it declares gets the missing positions filled with compile-time placeholders. This is what lets a casual user ignore the machinery. The examples below use the standard library’s `Vector` (a length-indexed one-dimensional array) and `Tensor3` (its rank-3 counterpart); both are covered in [Tensors](https://morloc-project.github.io/docs/types/tensors.md).
 
@@ -273,8 +273,8 @@ g :: Vector 3 U8 -> Int
 
 ```console
 $ morloc typecheck grad.loc
-f :: (Vector _ U8) -> Int
-g :: (Vector 3 U8) -> Int
+f :: Vector _ U8 -> Int
+g :: Vector 3 U8 -> Int
 ```
 
 A concrete `Vector 3 U8` flows into a `Vector U8` slot. Containers of differently-sized vectors follow, because each element’s Nat is independent:
@@ -312,9 +312,9 @@ c :: Tensor3 h w Real -> Str
 
 ```console
 $ morloc typecheck grad2.loc
-a :: (Tensor3 _ _ _ Real) -> Str
-b :: (Tensor3 a _ _ Real) -> Str
-c :: (Tensor3 a b _ Real) -> Str
+a :: Tensor3 _ _ _ Real -> Str
+b :: Tensor3 a _ _ Real -> Str
+c :: Tensor3 a b _ Real -> Str
 ```
 
 `Type` positions are never filled this way — the element type is always required. Omitting it entirely gets past `morloc typecheck` but fails at code generation:
@@ -346,7 +346,7 @@ cannot serialize parameterised pure morloc type: Vector
 
 U64\` from the `Sizeable` class to read a length at runtime, whichever annotation form the signature uses.
 
-## 5.6.6. Reference: type-level functions
+## 4.6.6. Reference: type-level functions
 
 The compiler recognises a small set of named operators on kinded types. They look like ordinary type applications and reduce whenever their arguments are ground.
 
@@ -373,7 +373,7 @@ Some of the same operations have a symbolic form. The parser sees `+`, `-`, `*` 
 
 "Reduction" means the compiler walks the expression and simplifies it where it can. `Singleton "x" Int` becomes `{x = Int}` — still a `Rec` expression, now in canonical form. The result is never a `Type`. The reductions exist so that constraints can be discharged when their arguments happen to be ground, not so that you can build inhabitable types out of kind-level fragments.
 
-## 5.6.7. Reference: constraints
+## 4.6.7. Reference: constraints
 
 A constraint restricts what a polymorphic variable may be. It goes to the left of `=>`:
 
@@ -408,7 +408,7 @@ merge :: (Disjoint (Keys r1) (Keys r2))
 
 The constraint set is deliberately tiny. `Member`, `Subset` and `Disjoint` over finite sets of strings are decidable and cheap; richer constraint languages stop being either.
 
-## 5.6.8. What does not work yet
+## 4.6.8. What does not work yet
 
 **You cannot implement a function over the `Rec` operators.** A signature that mentions `r1 + r2`, `Restrict r l` or `ProjectField r f` can be declared, and it can be called, but it cannot be given a body — not even a body that delegates to a function with the identical signature. An unreduced `Rec` expression fails to unify with itself:
 
@@ -438,15 +438,15 @@ Subtype error: Cannot compare Rec expressions
 
 Nat expressions do not have this problem, so `Buffer (m + n) a` can be wrapped freely. In practice it means the schema-changing operations have to be primitives sourced from a foreign language; you cannot build new ones out of old ones in Morloc.
 
-**A kind-level expression cannot be given a name.** `type R = Singleton "x" Int` is a category error — the typedef machinery wants a `Type`\-kinded body. It is not caught at typechecking; it fails at code generation:
+**A named kind-level expression cannot classify a term.** `type R = Singleton "x" Int` is legal, and `Frame R` means `Frame {x = Int}`. Writing `f :: R → Int` is a category error, since `R` is a `Rec`, not a `Type`, and the compiler rejects it at the signature:
 
 ```console
 $ morloc make -o recdef recdef.loc
-recdef.loc:1:14: error:
-cannot serialize type Singleton "x" Int -- no per-language alias resolution for Singleton. If Singleton is a newtype handle, add `newtype Singleton <params> = <wire-type>` in stdlib/internal.
+recdef.loc:4:1: error:
+'R' has kind Rec, but a type that classifies a value has kind Type
   |
-1 | module main (f)
-  |              ^
+4 | f :: R -> Int
+  | ^
 ```
 
 Record types that values can actually have come from a `record` declaration, which is a different feature.

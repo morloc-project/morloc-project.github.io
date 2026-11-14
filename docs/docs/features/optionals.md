@@ -1,12 +1,12 @@
-# 4.16. Optional types
+# 3.10. Optional types
 
-Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/optionals.html | prev: https://morloc-project.github.io/docs/features/effects.md | next: https://morloc-project.github.io/docs/features/intrinsics.md
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/optionals.html | prev: https://morloc-project.github.io/docs/features/records.md | next: https://morloc-project.github.io/docs/features/where-and-let.md
 
 Every language needs a way to say "no value here". Query a database for a row that does not exist, or read a parameter that was never set, and something has to come back. Python has `None`, R has `NULL`, JSON has `null`, and C++ solves it in the library with `std::optional<T>`.
 
 Morloc’s principle is that sourced functions stay idiomatic, so it needs a mechanism that lowers to each language’s own answer while staying consistent across the boundary. That is what the optional type is for.
 
-## 4.16.1. Syntax
+## 3.10.1. Syntax
 
 The `?` prefix marks a type as optional, and `Null` is the absent value. `?Int` is an integer that might be absent, `?Str` a string that might be. The prefix applies to any type, including lists (`?[Int]`) and records (`?Person`).
 
@@ -21,9 +21,9 @@ testNull = Null
 > **Note**
 > Morloc writes `Null` capitalized in source, following the convention that constructors start with an uppercase letter — the same as `True` and `False`. In JSON output it serializes as lowercase `null`, per the JSON standard.
 
-## 4.16.2. Working with optional values
+## 3.10.2. Working with optional values
 
-Functions that produce or consume optionals are sourced like any others:
+Functions that produce or consume optionals are sourced like any others. The `safeHead` below uses two things taught shortly: a guard, `? condition = value` with a `:` fallback ([Conditionals](https://morloc-project.github.io/docs/features/conditionals.md)), and the getter `.[0]`, which takes a list’s first element ([Patterns](https://morloc-project.github.io/docs/features/patterns.md)):
 
 **main.loc**
 
@@ -105,9 +105,9 @@ orDefault <- function(default_val, x){
 }
 ```
 
-## 4.16.3. Optional record fields
+## 3.10.3. Optional record fields
 
-Record fields may be optional, which is what you want for data with missing or unknown values. The `where` form below is an alternative syntax for record declarations, equivalent to the brace syntax in [Records](https://morloc-project.github.io/docs/features/records.md):
+Record fields may be optional, which is what you want for data with missing or unknown values:
 
 ```morloc
 record Person where
@@ -133,7 +133,7 @@ $ ./person bob
 {"name":"Bob","age":null}
 ```
 
-## 4.16.4. Optionals across languages
+## 3.10.4. Optionals across languages
 
 An optional produced in one language can be consumed in another with no interop code from you:
 
@@ -162,7 +162,7 @@ $ ./optional testCppToPyNull
 
 The compiler generates the serialization at each boundary. A `std::nullopt` in C++ becomes JSON `null`, which Python reads as `None`.
 
-## 4.16.5. Implicit coercion
+## 3.10.5. Implicit coercion
 
 Morloc coerces a plain value to an optional wherever the context wants one, so you never write a wrapper at the call site:
 
@@ -201,7 +201,7 @@ $ ./optional testCppIntToPyOpt
 42
 ```
 
-## 4.16.6. Nested optionals are idempotent
+## 3.10.6. Nested optionals are idempotent
 
 `?(?T)` parses and typechecks, but at run time it collapses to a single `?T`. There is one `Null`, and no way to tell an "outer Null" from an "inner Null". This is deliberate.
 

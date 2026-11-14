@@ -1,10 +1,10 @@
-# 4.11. `where` and `let` clauses
+# 3.11. `where` and `let` clauses
 
-Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/where-and-let.html | prev: https://morloc-project.github.io/docs/features/pattern-matching.md | next: https://morloc-project.github.io/docs/features/conditionals.md
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/where-and-let.html | prev: https://morloc-project.github.io/docs/features/optionals.md | next: https://morloc-project.github.io/docs/features/conditionals.md
 
 Both introduce local bindings, and they differ in exactly one way that matters: `where` is order-invariant, `let` is sequential. Pick whichever fits how you want to read the definition.
 
-## 4.11.1. `where`
+## 3.11.1. `where`
 
 A `where` clause hangs local bindings off the end of a definition:
 
@@ -20,7 +20,7 @@ $ ./locals f1 1
 43
 ```
 
-Bindings in a `where` block are order-independent and may refer to each other freely, though not mutually recursively. They can see the function’s arguments, and the main expression can see them.
+Bindings in a `where` block are order-independent and may refer to each other freely, recursively and mutually recursively. They can see the function’s arguments, and the main expression can see them. A binding that is a plain value rather than a function cannot depend on its own value.
 
 Clauses inherit their parent’s scope and nest:
 
@@ -38,9 +38,9 @@ $ ./locals f2
 42
 ```
 
-Note that the inner clause sees `b` from the outer one.
+The inner clause sees `b` from the outer one.
 
-## 4.11.2. `let`
+## 3.11.2. `let`
 
 `let` is the more orderly cousin. Several bindings may precede the terminal `in`, they run in order, and each may only refer to names bound above it:
 
@@ -57,7 +57,7 @@ $ ./locals f3 1
 6
 ```
 
-## 4.11.3. The scope rule that separates them
+## 3.11.3. The scope rule that separates them
 
 `let` is **non-recursive sequential**: each binding is in scope for everything after it, and a later binding may shadow an earlier one of the same name. So a chain of single-binding \`let\`s is legal, and the last one wins:
 
@@ -95,15 +95,15 @@ whx.loc:7:3: where-clause binding shadows function parameter: x
 
 If you want shadowing, that is what `let` is for.
 
-## 4.11.4. When bindings are evaluated
+## 3.11.4. When bindings are evaluated
 
 Morloc is strict: an argument is evaluated once, where it is applied, no matter how many times the function uses it. Named values follow the same rule. A `where` or `let` binding is computed at most once each time its scope is evaluated, however many times it is mentioned:
 
 -   A binding used in only one branch of a conditional is computed in that branch, so the other branch does not pay for it (or fail on it).
--   A binding used only inside `@try` is computed inside it, so its failure is caught there.
+-   A binding used only inside `@try` (see [Failure and recovery](https://morloc-project.github.io/docs/features/intrinsics.md#failure-and-recovery)) is computed inside it, so its failure is caught there.
 -   A value used inside a lambda is computed once, when the lambda is built, not on every call.
 -   A `where` binding nothing uses is never computed. A `let` binding nothing uses still runs where it is written.
--   In a `do` block, a `let` never runs before the effects written above it.
+-   In a `do` block (see [Effects and delayed evaluation](https://morloc-project.github.io/docs/features/effects.md)), a `let` never runs before the effects written above it.
 -   A top-level value is computed at most once per command.
 
 A named value is also one value across languages: if Python and C++ code both read it, it is computed once and passed to both.

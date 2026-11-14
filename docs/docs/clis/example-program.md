@@ -1,4 +1,4 @@
-# 6.1. The example program
+# 5.1. The example program
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/example-program.html | prev: https://morloc-project.github.io/docs/clis/index.md | next: https://morloc-project.github.io/docs/clis/argument-zones.md
 
@@ -250,7 +250,7 @@ A module docstring can also carry an `@epilogue` block. Everything after that di
 --' @epilogue
 --' Examples:
 --'   sift scan needle ./notes
---'   sift total needle ./notes
+--'   sift -f packet summarize hits.json | sift total
 module sift (scan, scanAll, summarize, total, stream)
 ```
 
@@ -266,7 +266,7 @@ General Options:
 
 Examples:
   sift scan needle ./notes
-  sift total needle ./notes
+  sift -f packet summarize hits.json | sift total
 ```
 
 A command’s signature preamble takes the same block, and it renders at the foot of that subcommand’s help alone. Blank lines and `#` comments inside the block are kept, so each example can say what it is for:

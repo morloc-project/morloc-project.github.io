@@ -1,0 +1,188 @@
+# 3.3. Importing modules
+
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/importing-modules.html | prev: https://morloc-project.github.io/docs/features/foreign-functions.md | next: https://morloc-project.github.io/docs/features/booleans.md
+
+You have been importing modules since [Getting Started](https://morloc-project.github.io/docs/getting-started/index.md): `import root-py` to get implementations, and `import .units-abstract` to use a file of your own. This section covers the rest: what a module exports, how local paths resolve, namespaced imports, and what your choice of `root-<lang>` costs.
+
+## 3.3.1. Exports
+
+A module declaration names the module and lists the terms other modules may import from it. `module mylib (foo, bar)` exports `foo` and `bar` and nothing else. To export everything the module defines, use the wildcard:
+
+```morloc
+module mylib (*)
+```
+
+An empty list, `module myinstances ()`, exports no terms. Such a module is still worth importing when it carries typeclass instances — implementations of a shared interface for one type, covered in [Overload terms with typeclasses](https://morloc-project.github.io/docs/types/typeclasses.md). Instances travel with the module rather than the export list, so importing the module makes every instance in it available; they cannot be picked individually.
+
+A submodule that exists only to be imported by a parent may omit its name:
+
+```morloc
+module (*)
+```
+
+Its name is then taken from the import path: if `main.loc` imports `.utils`, the module in `utils.loc` (or `utils/main.loc`) is named `utils`.
+
+A single file may contain more than one module. Each `module` keyword starts a new one; everything indented under it, or appearing before the next `module` keyword, belongs to it. A module body may also be empty:
+
+```morloc
+module utils (helper)
+import root-py
+helper :: Int -> Int
+helper x = x + 1
+
+module main (run)
+import utils (helper)
+run :: Int -> Int
+run x = helper x
+```
+
+## 3.3.2. Installed modules and `root`
+
+An import without a leading dot names an installed module. `morloc make` fetches a missing one, as you saw in [Writing code that is not tied to a language](https://morloc-project.github.io/docs/getting-started/abstract-modules.md); `morloc install root-py` fetches it by hand. [Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md) covers installing in full.
+
+`root` and a `root-<lang>` are not alternatives. `root` declares the standard library — the classes, and everything derivable from them — and a `root-<lang>` supplies the instances by sourcing native implementations. A program needs both, so its import list names a `root-<lang>`.
+
+Which one it names sets what a single invocation costs, because the program starts that language’s runtime before it can call anything:
+
+| Import | Per invocation | Where the time goes |
+| --- | --- | --- |
+| `root` alone, using only operations the nexus runs itself ([Intrinsics](https://morloc-project.github.io/docs/features/intrinsics.md)) | about 8 ms | the nexus process; no pool is started |
+| `root-cpp` | about 21 ms | a compiled pool; roughly 13 ms of that is starting the pool |
+| `root-py` | about 132 ms | a Python pool; starting the interpreter dominates |
+
+Crossing into a pool is cheap and starting an interpreter is not. That rarely matters for a batch job and decides how a frequently typed command feels. Moving between backends is a one-line change to the import.
+
+## 3.3.3. Selective imports
+
+Without a selector, an import brings every exported term into scope. A parenthesized list takes only the terms named:
+
+```morloc
+import root-py             -- import everything from root-py
+import .mylib              -- import everything from local mylib
+import .mylib (foo, bar)   -- import only foo and bar from local mylib
+```
+
+## 3.3.4. Local module paths
+
+When you write `import .foo`, the compiler looks for the module under the root of the importing module’s package. For your program, that is the directory holding the entry file you passed to `morloc make`; for an installed package, it is that package’s own directory. It checks two locations, in order:
+
+1.  A file module: `foo.loc`
+2.  A directory module: `foo/main.loc`
+
+Dot-separated paths map to nested directories. For example, `import .lib.math` resolves to either `lib/math.loc` or `lib/math/main.loc`.
+
+The package root is fixed for every file of a package, so a dotted import means the same thing in every file of a project however deeply nested that file is, and an installed package’s local imports mean the same wherever it is imported. Paths in a `source` declaration work the other way round: they resolve against the file that names them, so a module and the native code it sources travel together when either moves.
+
+Here is an example project layout:
+
+```
+project/
+  main.loc            -- module main, imports .utils and .lib.math
+  utils.loc           -- module (*), a flat file module
+  utils.py
+  lib/
+    math/
+      main.loc        -- module (*), a directory module
+      main.py
+```
+
+The top-level `main.loc` imports both:
+
+```morloc
+module main (negate_square, square_negate)
+
+type Py => Real = "float"
+
+import .utils (negate)
+import .lib.math (square)
+
+negate_square :: Real -> Real
+negate_square x = negate (square x)
+
+square_negate :: Real -> Real
+square_negate x = square (negate x)
+```
+
+The flat file `utils.loc` exports `negate`:
+
+```morloc
+module (*)
+
+source Py from "utils.py" ("negate")
+
+type Py => Real = "float"
+
+negate :: Real -> Real
+```
+
+And the directory module `lib/math/main.loc` exports `square`:
+
+```morloc
+module (*)
+
+source Py from "main.py" ("square")
+
+type Py => Real = "float"
+
+square :: Real -> Real
+```
+
+Local modules can also import other local modules, and the path is still written from the project root. For example, if `bar/baz/main.loc` needs a module at `bif/biz/`, it writes:
+
+```morloc
+import .bif.biz (mul)
+```
+
+This resolves to `bif/biz.loc` or `bif/biz/main.loc` at the top of the project, not to anything beneath `bar/baz/`. The identical line in the top-level `main.loc` names the identical module.
+
+Since `root` is also the name of a system module, a local directory named `root/` must be imported with the dot prefix to avoid ambiguity:
+
+```morloc
+import root         -- imports the system "root" module
+import .root        -- imports the local "root/" directory
+```
+
+The dot prefix always forces local resolution, so there is never a collision between local and system module names.
+
+## 3.3.5. Namespaced imports
+
+`import .feet as feet` brings a module’s terms in under a prefix, so a call says where its function lives and two modules may export the same name. Here `feet.loc` and `inches.loc` each define `fromMeters`:
+
+**feet.loc**
+
+```morloc
+module (*)
+
+import root
+
+fromMeters :: Real -> Real
+fromMeters m = m * 3.28084
+```
+
+`inches.loc` is the same with `39.3701`. Both import cleanly side by side:
+
+**lengths.loc**
+
+```morloc
+module lengths (toFeet, toInches)
+
+import root-py
+import .feet as feet
+import .inches as inches
+
+toFeet :: Real -> Real
+toFeet = feet.fromMeters
+
+toInches :: Real -> Real
+toInches m = inches.fromMeters m
+```
+
+```console
+$ morloc make lengths.loc
+$ ./lengths toFeet 2
+6.56168
+$ ./lengths toInches 2
+78.7402
+```
+
+A namespaced term is reachable only through its prefix; a bare `fromMeters` in `lengths.loc` is `Undefined term: fromMeters`. A selector still works after the prefix, as in `import .feet as feet (fromMeters)`. Type names are never qualified: a type the module exports is written by its bare name.

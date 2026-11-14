@@ -1,10 +1,10 @@
-# 12.7. Environment solving
+# 11.7. Environment solving
 
 Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-solving.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-modules.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md
 
 > A program’s foreign packages must be installed, at compatible versions, before its pools can compile or run. The compiler knows what a program needs; the environment manager knows how to provide it. This section specifies the contract between them: when the compiler asks, what it sends, how the manager turns every program’s requests into one solved set of packages, and what holds when solves fail or run at once.
 
-## 12.7.1. The build hook
+## 11.7.1. The build hook
 
 `morloc make` asks for its packages only inside a managed environment, when `MORLOC_ENV` is set ([Environments](https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md)). After writing the pool sources and before compiling them, it runs:
 
@@ -18,7 +18,7 @@ The hook asks the compiler named by `MORLOC_BIN` for its **language-support tabl
 
 Both documents carry versions. The dependency specification has an integer version that the reader must match exactly; it is refused with "rebuild the program" if older and "upgrade the manager" if newer. The language-support table has a `MAJOR.MINOR` schema; a reader accepts any minor version of the major it knows and ignores fields it does not recognise.
 
-## 12.7.2. One world per environment
+## 11.7.2. One world per environment
 
 An environment has one set of installed packages, its **solved world**. It is the solution of the union of:
 
@@ -34,7 +34,7 @@ Each requested package is provided, delegated or refused. conda and PyPI package
 
 A local Python package of an installed program ([Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)) is copied into the environment under a name derived from a hash of its contents, and the requirement points at the copy. The installed program then no longer depends on the project directory, the same path is valid on the host, in a container and in a frozen image, and reinstalling unchanged source does no work. Copies that no installed program references are reclaimed.
 
-## 12.7.3. Solving
+## 11.7.3. Solving
 
 Each environment has one solve lock, shared by the host and its container. Recording a program’s specification, gathering the world, solving it, and recording the result all happen while holding it, so concurrent builds in one environment serialize, and the second usually finds its world already solved.
 
@@ -48,7 +48,7 @@ Otherwise the solver first tries to install the existing lock unchanged, and re-
 
 **Immutable environments.** An environment marked immutable — one being served, or a frozen image — refuses any request that would change its world or rebuild a binding, before writing anything.
 
-## 12.7.4. When solving happens
+## 11.7.4. When solving happens
 
 | Event | Solve |
 | --- | --- |

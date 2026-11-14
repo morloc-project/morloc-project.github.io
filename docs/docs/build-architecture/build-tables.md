@@ -1,4 +1,4 @@
-# 13.8. Tables and tensors on the wire
+# 12.8. Tables and tensors on the wire
 
 Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build-architecture/build-tables.html | prev: https://morloc-project.github.io/docs/build-architecture/build-voidstar.md | next: https://morloc-project.github.io/docs/build-architecture/build-streaming.md
 

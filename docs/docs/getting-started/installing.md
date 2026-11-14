@@ -1,4 +1,4 @@
-# 3.1. Installing Morloc
+# 2.1. Installing Morloc
 
 Morloc Manual > Getting Started | https://morloc-project.github.io/docs/getting-started/installing.html | prev: https://morloc-project.github.io/docs/getting-started/index.md | next: https://morloc-project.github.io/docs/getting-started/first-program.md
 
@@ -6,7 +6,7 @@ Morloc is installed and managed by `mim`, the Morloc installation manager. It fe
 
 Morloc runs on Linux and on Apple Silicon macOS. On Windows, install through the [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/about) and follow the Linux instructions inside it.
 
-## 3.1.1. Installing `mim`
+## 2.1.1. Installing `mim`
 
 One command, on Linux (x86-64 or ARM) or Apple Silicon macOS:
 
@@ -39,14 +39,14 @@ Open a new shell afterwards, or run the same `export` in the current one. `mim` 
 
 `mim` is a single static binary with no libraries to install, but it does shell out to a few standard tools:
 
--   `curl` — required for fetching data
+-   `curl` — required for fetching data.
 -   `tar` — required for unpacking archives.
 -   a container engine — if you can’t run native or if you like boxes.
 -   `nix` — if you run NixOS
 
 Those last two are explained next.
 
-## 3.1.2. Choosing a backend
+## 2.1.2. Choosing a backend
 
 You do not normally have to choose. `mim new` probes the host, picks a viable backend, and remembers the choice for later environments.
 
@@ -89,7 +89,7 @@ Apptainer (formerly Singularity) is the usual container engine on HPC clusters. 
 > **Warning: Experimental Feature**
 > Apptainer support is in development and is the least tested of the backends. Creating an environment with `--engine apptainer` is not currently expected to work: the image build emits a Dockerfile, which Apptainer cannot consume. Use the native backend, or Docker/Podman, until this is finished. The SLURM dispatch described in [Running on a cluster](https://morloc-project.github.io/docs/apis/execution-contexts.md) works with Docker or Podman meanwhile.
 
-## 3.1.3. Creating an environment
+## 2.1.3. Creating an environment
 
 An **environment** is a named, self-contained Morloc installation: a solved toolchain of compilers and language runtimes, the Morloc compiler and runtime built against it, and a data directory holding installed modules and binaries. On the container backend that toolchain lives in an image; on the native backend it lives in a private directory on your host. Either way, everything Morloc does happens inside an environment, and environments do not interfere with each other or with anything else on your machine.
 
@@ -123,13 +123,13 @@ You can keep as many environments as you like and act on any of them with `--env
 ```console
 $ mim ls                                  # list them; the default is marked
 $ mim info base                           # detail on one
-$ mim modify --env edge --set-default     # change the default
+$ mim modify --env polyglot --set-default # change the default
 $ mim rm base                             # remove one
 ```
 
 `mim info <name>` reports the environment’s backend, its Morloc version, the languages in its solved world, and the directories it owns. Add `--packages` to list every package in the solved world at its locked version.
 
-## 3.1.4. Working inside an environment
+## 2.1.4. Working inside an environment
 
 Two ways in. `mim run` executes a single command:
 

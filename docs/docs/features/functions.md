@@ -1,4 +1,4 @@
-# 4.1. Functions
+# 3.1. Functions
 
 Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/functions.html | prev: https://morloc-project.github.io/docs/features/index.md | next: https://morloc-project.github.io/docs/features/foreign-functions.md
 
@@ -16,7 +16,7 @@ myTerm = ...
 
 Comments start with `--`. A `--'` comment is a docstring and attaches to the term below it.
 
-## 4.1.1. Definition and application
+## 3.1.1. Definition and application
 
 Functions are defined with their arguments separated by whitespace, and applied the same way:
 
@@ -26,7 +26,7 @@ foo x y z = g x (f y z)
 
 `foo` takes the arguments `x`, `y`, and `z`. Application binds tighter than anything else, so `g x (f y z)` calls `g` with two arguments: `x`, and the result of `f y z`. If you have a background in the Algol family — C, Python, Java — the missing parentheses and commas take a little getting used to. The payoff shows up in the next two sections.
 
-## 4.1.2. Composition and application operators
+## 3.1.2. Composition and application operators
 
 The `internal` module, re-exported from `root`, defines the composition operator `.` and the application operator `$`.
 
@@ -50,7 +50,7 @@ foo1 x = h (g (f x))
 foo2 x = h $ g $ f x
 ```
 
-## 4.1.3. Partial application
+## 3.1.3. Partial application
 
 Give a function of N arguments fewer than N, and you get back a function of the rest. This is not a special feature; it falls out of how application works.
 
@@ -60,7 +60,7 @@ Take `fold`, which reduces a container with a binary function, an initial value,
 fold :: Foldable f => (b -> a -> b) -> b -> f a -> b
 ```
 
-Supplying one or two of those three arguments leaves a function behind:
+Supplying one or two of those three arguments leaves a function behind (`<>` concatenates two strings or two lists):
 
 ```morloc
 -- concatenate a list of strings onto an initial value
@@ -76,21 +76,18 @@ append :: [[[Int]]] -> [Int] -> [[Int]]
 append xss ys = map (fold (<>) ys) xss
 ```
 
-Each of these carries a type signature, and that is not decoration. `fold` is a typeclass method: it works over any `Foldable` container, so a partial application like `fold (<>)` leaves the container type undetermined. Without a signature the compiler has nothing to pin it to and reports:
+Each of these carries a type signature, and that is not decoration. `fold` is a typeclass method: it works over any `Foldable` container, so without a signature `concatTo = fold (<>)` stays generic in its container and element types. A generic term is fine inside a program, but it cannot be exported as a command, because the compiler cannot decide how to read an argument whose type is still a variable:
 
 ```console
 $ morloc typecheck partial.loc
-partial.loc:6:12: error:
-General type error: No instance found for Foldable::fold
-  Are you missing a top-level type signature?
-  |
-6 | concatTo = fold (<>)
-  |            ^
+concatTo :: a -> b a -> a
+$ morloc make partial.loc
+Warning: skipping generic export 'concatTo'
 ```
 
-The rule is worth internalizing early, because it is the most common thing to trip over: **a point-free definition built from typeclass methods usually needs a signature.** Adding arguments back is the other fix — `concatTo x xs = fold (<>) x xs` typechecks without help, because the arguments constrain the types.
+The program still builds; only that command is absent. Give an exported term built from typeclass methods a signature that fixes its types.
 
-## 4.1.4. Operator sections
+## 3.1.4. Operator sections
 
 Binary operators partially apply too, on either side. Leaving the right operand off gives a function of the right operand:
 
@@ -127,7 +124,7 @@ $ ./sections halvedInts '[1,5,9]'
 [0,2,4]
 ```
 
-## 4.1.5. Lambdas
+## 3.1.5. Lambdas
 
 An anonymous function is a backslash, one or more parameters, `→`, and a body. Lambdas capture free variables from the enclosing scope:
 

@@ -1,4 +1,4 @@
-# 3.8. Editor support
+# 2.8. Editor support
 
 Morloc Manual > Getting Started | https://morloc-project.github.io/docs/getting-started/editor-support.html | prev: https://morloc-project.github.io/docs/getting-started/where-to-go-next.md | next: https://morloc-project.github.io/docs/getting-started/troubleshooting.md
 

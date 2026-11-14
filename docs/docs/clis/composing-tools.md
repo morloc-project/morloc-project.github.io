@@ -1,4 +1,4 @@
-# 6.12. Composing tools
+# 5.12. Composing tools
 
 Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/composing-tools.html | prev: https://morloc-project.github.io/docs/clis/streaming-output.md | next: https://morloc-project.github.io/docs/clis/interface-as-data.md
 
@@ -76,11 +76,11 @@ notes/todo.txt           ##
 notes/2026/plan.txt      ##
 ```
 
-That pipeline is worth a second look. Three processes, two language runtimes, and no agreement between the stages about a file format: `scan` writes a `[Hit]`, `summarize` reads a `[Hit]` and writes a `[(Str, Int)]`, `histogram` reads a `[(Str, Int)]`. Each side knows the type, so each side knows how to read what arrived. Adding a stage means writing a function with the right type, not a parser.
+Three processes, two language runtimes, and no agreement between the stages about a file format: `scan` writes a `[Hit]`, `summarize` reads a `[Hit]` and writes a `[(Str, Int)]`, `histogram` reads a `[(Str, Int)]`. Each side knows the type, so each side knows how to read what arrived. Adding a stage means writing a function with the right type, not a parser.
 
 Subtraction works the same way. A toolbox that lists three of \`sift’s five exports is a tool with three commands; nothing of the other two is compiled in. There is no plugin mechanism here because none is needed — the export list is the mechanism.
 
-## 6.12.1. Grouping commands
+## 5.12.1. Grouping commands
 
 A toolbox grows, and a flat list of twenty commands is a bad interface. Group them with `--*` annotations in the export list:
 
@@ -142,7 +142,7 @@ $ ./tools find scan the notes | ./tools report summarize -
 
 Grouping is optional per export. Write `--* group:` with no name to close the current group; exports after it are ungrouped and appear at the top level alongside the groups.
 
-## 6.12.2. Installing
+## 5.12.2. Installing
 
 `morloc make --install` puts the built program on your `PATH` instead of leaving it in the current directory:
 

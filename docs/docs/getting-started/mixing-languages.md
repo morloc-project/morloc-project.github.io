@@ -1,4 +1,4 @@
-# 3.5. Mixing languages in one program
+# 2.5. Mixing languages in one program
 
 Morloc Manual > Getting Started | https://morloc-project.github.io/docs/getting-started/mixing-languages.html | prev: https://morloc-project.github.io/docs/getting-started/abstract-modules.md | next: https://morloc-project.github.io/docs/getting-started/parallelism.md
 

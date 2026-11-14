@@ -1,4 +1,4 @@
-# 12.9. Freezing
+# 11.9. Freezing
 
 Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-freezing.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md | next: https://morloc-project.github.io/docs/build-architecture/index.md
 

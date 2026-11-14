@@ -1,10 +1,10 @@
-# 4.9. Patterns
+# 3.14. Patterns
 
-Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/patterns.html | prev: https://morloc-project.github.io/docs/features/records.md | next: https://morloc-project.github.io/docs/features/pattern-matching.md
+Morloc Manual > Syntax and Features | https://morloc-project.github.io/docs/features/patterns.html | prev: https://morloc-project.github.io/docs/features/pattern-matching.md | next: https://morloc-project.github.io/docs/features/sum-types.md
 
 Morloc’s **pattern functions** are first-class getters, setters, and bracket operators for reaching into and rearranging data structures. They are ordinary values, so you can pass them around, `map` them over a list, and compose them like any other function.
 
-This section is about **extracting and rebuilding** data. To bind a value’s parts to names, or to dispatch a function on the shape of its arguments, see [Pattern Matching](https://morloc-project.github.io/docs/features/pattern-matching.md) instead.
+[Pattern Matching](https://morloc-project.github.io/docs/features/pattern-matching.md), the previous section, binds a value’s parts to names and dispatches on its shape. This section is about **extracting and rebuilding** data without naming the parts.
 
 The examples below use anonymous record types, which are written with `=` rather than `::`:
 
@@ -21,7 +21,7 @@ pat.loc:8:9: type-level record literals use `=` to bind fields, not `::`
   `::` is for declarations (e.g. `x :: Int`, `record R where { x :: Int }`)
 ```
 
-## 4.9.1. Getter patterns
+## 3.14.1. Getter patterns
 
 A getter describes an optionally branching path into a structure. Each segment is a tuple index, a record key, or a group of them. Terminal positions come back as a tuple.
 
@@ -47,7 +47,7 @@ A pattern is a function, so it goes wherever a function goes:
 map .1 [(1,2),(2,3)]  -- [2,3]
 ```
 
-## 4.9.2. Setter patterns
+## 3.14.2. Setter patterns
 
 A setter is the same path with an assignment at each terminus:
 
@@ -66,7 +66,7 @@ $ ./patterns s2
 
 Setters do not mutate. The **spine** of the structure is copied, and unmodified fields still point at the original data. So `.(.0 = 42) x` builds a new tuple whose first field is 42 and whose remaining fields are the original elements. Records behave the same way.
 
-## 4.9.3. Bracket patterns
+## 3.14.3. Bracket patterns
 
 Lists get a dedicated bracket form with Python’s index and slice syntax, written after a dot: `.[i]` picks an element, `.[i:j]` takes a sub-range, and `.[i:j:k]` adds a stride. The semantics track Python — negative indices count from the end, out-of-range bounds are clamped, and `.[::-1]` reverses.
 
@@ -146,11 +146,11 @@ $ ./patterns c8     -- .[0:2].(.a.[0].0, .b.[0].y) rows    deep mixed chain
 [[10,200],[30,400]]
 ```
 
-Remember that these are JSON outputs, so a tuple prints as an array: `c6` returns three two-tuples, which JSON shows as `[[0,100],...]`.
+These are JSON outputs, so a tuple prints as an array: `c6` returns three two-tuples, which JSON shows as `[[0,100],...]`.
 
 Brackets are getters only. There is no setter form (`.[i] = v $ xs`) in this release, and multi-axis brackets (`.[i,j]` for matrices and tensors) are not available yet either. Both are planned.
 
-## 4.9.4. Patterns next to Python
+## 3.14.4. Patterns next to Python
 
 | Pattern | Python | Note |
 | --- | --- | --- |
@@ -165,9 +165,9 @@ Brackets are getters only. There is no setter form (`.[i] = v $ xs`) in this rel
 | `.[::-1] xs` | `xs[::-1]` | full reverse |
 | `.[i:j].x xs` | `[e["x"] for e in xs[i:j]]` | tail map-lifted over slice |
 
-## 4.9.5. Adding bracket support to your own types
+## 3.14.5. Adding bracket support to your own types
 
-Bracket syntax is not hardcoded. It dispatches through ordinary typeclasses declared in the standard library’s `internal` module, so a new container type can opt in:
+Bracket syntax is not hardcoded. It dispatches through ordinary typeclasses declared in the standard library’s `internal` module, so a new container type can opt in by giving instances of them. [Overload terms with typeclasses](https://morloc-project.github.io/docs/types/typeclasses.md) covers declaring classes and instances; the four involved are:
 
 ```morloc
 -- Indexing: .[i] xs
@@ -188,8 +188,8 @@ class IndexLike i where
   __to_index__ :: i -> ?I64
 ```
 
-For a plain container, source an `Indexable` and a `Sliceable` instance per target language. For a container parameterized by a dimensional `Nat` such as `Vector n a`, source `Indexable` and `SliceableDim` instead; the compiler picks `SliceableDim` automatically when `Sliceable` is absent.
+For a plain container, source an `Indexable` and a `Sliceable` instance per target language. For a container parameterized by a length, such as `Vector n a` ([Tensors](https://morloc-project.github.io/docs/types/tensors.md)), source `Indexable` and `SliceableDim` instead; the compiler picks `SliceableDim` automatically when `Sliceable` is absent.
 
 If someone passes an expression of a custom integer-like type at a bound position, the compiler casts it through that type’s `IndexLike` instance. So you can extend bracket syntax to accept new bound types — a `Char` index, a fixed-point coordinate — by adding an `IndexLike` instance whose `*to_index*` returns `?I64`.
 
-Because the dispatch lives in libraries rather than in the compiler, a module that does not import the standard library is free to substitute a different typeclass hierarchy. Bracket syntax simply errors at codegen if no matching instance is in scope.
+Because the dispatch lives in libraries rather than in the compiler, a module that does not import the standard library is free to substitute a different typeclass hierarchy. A bracket on a receiver that is not a list and has no matching instance in scope is a type error.

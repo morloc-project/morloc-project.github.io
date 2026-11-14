@@ -1,4 +1,4 @@
-# 12.1. Overview
+# 11.1. Overview
 
 Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/ecosystem-architecture/eco-overview.html | prev: https://morloc-project.github.io/docs/ecosystem-architecture/index.md | next: https://morloc-project.github.io/docs/ecosystem-architecture/eco-environments.md
 
