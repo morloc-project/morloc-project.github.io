@@ -87,9 +87,9 @@
 ## 7. Modules and Libraries
 
 - [7. Modules and Libraries](https://morloc-project.github.io/docs/modules/index.md)
-- [7.1. Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md): The default Morloc modules are hosted on GitHub under the morloclib organization.
+- [7.1. Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md): Every installed module belongs to a library.
 - [7.2. The universal library](https://morloc-project.github.io/docs/modules/universal-library.md): A module may export types, typeclasses, and function signatures but no implementations.
-- [7.3. Exposing native resources](https://morloc-project.github.io/docs/modules/exposing-native-resources.md): A module’s package.yaml can link against shared libraries through its dependencies field (Configuring the C++ build).
+- [7.3. Exposing native resources](https://morloc-project.github.io/docs/modules/exposing-native-resources.md): A module’s package.yaml can link against shared libraries through its cpp-deps and cxx-flags fields (Configuring the C++ build).
 - [7.4. Controlling data transfer](https://morloc-project.github.io/docs/modules/data-transfer.md): When a Morloc value crosses a pool boundary, the runtime picks one of three routes for data transfer:
 
 ## 8. Deployment

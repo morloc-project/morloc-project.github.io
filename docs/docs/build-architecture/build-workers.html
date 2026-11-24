@@ -125,6 +125,7 @@
 <li><a href="../features/foreign-functions.html#_sourcing_builtins_and_other_non_exports">3.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="../features/foreign-functions.html#_keyword_shaped_foreign_operators">3.2.5. Keyword-shaped foreign operators</a></li>
 <li><a href="../features/foreign-functions.html#sourced-values">3.2.6. What sourced code may do with values</a></li>
+<li><a href="../features/foreign-functions.html#runtime-helpers">3.2.7. Calling the runtime from sourced code</a></li>
 </ul>
 </li>
 <li><a href="../features/importing-modules.html">3.3. Importing modules</a>
@@ -174,6 +175,7 @@
 <li><a href="../features/strings.html#_escapes">3.7.2. Escapes</a></li>
 <li><a href="../features/strings.html#_triple_quoted_strings">3.7.3. Triple-quoted strings</a></li>
 <li><a href="../features/strings.html#nul-bytes">3.7.4. NUL bytes in strings</a></li>
+<li><a href="../features/strings.html#str-utf8">3.7.5. Strings are UTF-8 text</a></li>
 </ul>
 </li>
 <li><a href="../features/tuples-and-lists.html">3.8. Tuples and Lists</a>
@@ -187,6 +189,7 @@
 <li><a href="../features/records.html#_native_representations">3.9.1. Native representations</a></li>
 <li><a href="../features/records.html#_record_literals_match_by_field_name">3.9.2. Record literals match by field name</a></li>
 <li><a href="../features/records.html#_one_record_across_three_languages">3.9.3. One record across three languages</a></li>
+<li><a href="../features/records.html#_using_the_generated_types_outside_morloc">3.9.4. Using the generated types outside Morloc</a></li>
 </ul>
 </li>
 <li><a href="../features/optionals.html">3.10. Optional types</a>
@@ -265,7 +268,8 @@
 <li><a href="../features/random-access-and-streaming.html#_random_access_with_ifile">3.18.2. Random access with IFile</a></li>
 <li><a href="../features/random-access-and-streaming.html#_sequential_reading_with_istream">3.18.3. Sequential reading with IStream</a></li>
 <li><a href="../features/random-access-and-streaming.html#_standard_input_and_output">3.18.4. Standard input and output</a></li>
-<li><a href="../features/random-access-and-streaming.html#stream-env-vars">3.18.5. Environment variables</a></li>
+<li><a href="../features/random-access-and-streaming.html#_a_stream_its_writer_did_not_finish">3.18.5. A stream its writer did not finish</a></li>
+<li><a href="../features/random-access-and-streaming.html#stream-env-vars">3.18.6. Environment variables</a></li>
 </ul>
 </li>
 <li><a href="../features/intrinsics.html">3.19. Intrinsics</a>
@@ -611,7 +615,8 @@
 <li><a href="../languages/cpp.html">9.2. C++</a>
 <ul class="sectlevel3">
 <li><a href="../languages/cpp.html#_library_dependencies_cpp_deps">9.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
-<li><a href="../languages/cpp.html#_link_flags_dependencies">9.2.2. Link flags (<code>dependencies</code>)</a></li>
+<li><a href="../languages/cpp.html#_headers_and_link_names_import_libs">9.2.2. Headers and link names (<code>import</code>, <code>libs</code>)</a></li>
+<li><a href="../languages/cpp.html#cpp-runtime-helpers">9.2.3. Runtime helpers (<code>cppmorloc_api.hpp</code>)</a></li>
 </ul>
 </li>
 <li><a href="../languages/python.html">9.3. Python</a>
@@ -635,7 +640,8 @@
 </li>
 <li><a href="../languages/futhark.html">9.6. Futhark</a>
 <ul class="sectlevel3">
-<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.1. Futhark backends and GPU devices</a></li>
+<li><a href="../languages/futhark.html#_sourcing_futhark_functions">9.6.1. Sourcing Futhark functions</a></li>
+<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.2. Futhark backends and GPU devices</a></li>
 </ul>
 </li>
 </ul>
@@ -779,7 +785,8 @@
 <li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
 <li><a href="../env/index.html#env-serving">16.9. Serving</a></li>
 <li><a href="../env/index.html#env-inspection-tools">16.10. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
-<li><a href="../env/index.html#env-string-safety">16.11. String safety</a></li>
+<li><a href="../env/index.html#env-parallel">16.11. Parallel lists</a></li>
+<li><a href="../env/index.html#env-string-safety">16.12. String safety</a></li>
 </ul>
 </li>
 <li><a href="../ai-policy/index.html">17. AI Policy</a></li>
@@ -851,6 +858,21 @@ output stream has a writer thread with its compression jobs
 a forked child inherits only the thread that forked it, and any lock another
 thread held at that moment would stay locked forever. Loading user code after
 the fork keeps libraries that start their own threads out of the coordinator.</p>
+</div>
+<div class="paragraph">
+<p><strong>Parallel spans in C++.</strong> A parallel list call in a C++ pool (a
+<code>pmap</code>, say) splits its list into spans and runs them on the calling thread
+and on a set of <strong>helper</strong> threads that the runtime keeps for the life of the
+process, so a call pays no thread start. The caller works through its spans
+from one end while helpers take them from the other, so it is never idle
+while work is left. Helpers are woken about 10 microseconds after a call
+begins, so a call that finishes sooner never involves another thread, and
+a longer one gains helpers one after another, each waking the next. A call
+takes at most its worker count less one helpers. A helper idle for a
+millisecond retires if there are more helpers than the available CPUs less
+one, and otherwise after the pool workers' idle timeout (below); a forked
+child starts with no helpers. A failure in
+any span is reported on the calling thread.</p>
 </div>
 <div class="paragraph">
 <p><strong>The no-deadlock rule.</strong> A pool never leaves an incoming call waiting while

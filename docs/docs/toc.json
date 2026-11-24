@@ -8,7 +8,7 @@
   "cheerio": "1.2.0",
   "turndown": "7.2.4",
   "pagefind": "1.5.2",
-  "source": "aecf61cc2d1596331c544758f354839c2d956484"
+  "source": "0cdc9db230cec7dc191407317e69a5ace38ea136"
  },
  "pages": [
   {
@@ -286,6 +286,11 @@
      "id": "sourced-values",
      "title": "What sourced code may do with values",
      "number": "3.2.6."
+    },
+    {
+     "id": "runtime-helpers",
+     "title": "Calling the runtime from sourced code",
+     "number": "3.2.7."
     }
    ]
   },
@@ -526,6 +531,11 @@
      "id": "nul-bytes",
      "title": "NUL bytes in strings",
      "number": "3.7.4."
+    },
+    {
+     "id": "str-utf8",
+     "title": "Strings are UTF-8 text",
+     "number": "3.7.5."
     }
    ]
   },
@@ -567,6 +577,21 @@
      "number": "3.9.1."
     },
     {
+     "id": "_python_classes",
+     "title": "Python classes",
+     "number": ""
+    },
+    {
+     "id": "_writing_the_type_yourself",
+     "title": "Writing the type yourself",
+     "number": ""
+    },
+    {
+     "id": "_recursive_records",
+     "title": "Recursive records",
+     "number": ""
+    },
+    {
      "id": "_record_literals_match_by_field_name",
      "title": "Record literals match by field name",
      "number": "3.9.2."
@@ -575,6 +600,11 @@
      "id": "_one_record_across_three_languages",
      "title": "One record across three languages",
      "number": "3.9.3."
+    },
+    {
+     "id": "_using_the_generated_types_outside_morloc",
+     "title": "Using the generated types outside Morloc",
+     "number": "3.9.4."
     }
    ]
   },
@@ -960,9 +990,14 @@
      "number": "3.18.4."
     },
     {
+     "id": "_a_stream_its_writer_did_not_finish",
+     "title": "A stream its writer did not finish",
+     "number": "3.18.5."
+    },
+    {
      "id": "stream-env-vars",
      "title": "Environment variables",
-     "number": "3.18.5."
+     "number": "3.18.6."
     }
    ]
   },
@@ -2022,7 +2057,7 @@
    "md": "https://morloc-project.github.io/docs/modules/installing-modules.md",
    "chapter": "modules",
    "level": 2,
-   "summary": "The default Morloc modules are hosted on GitHub under the morloclib organization.",
+   "summary": "Every installed module belongs to a library.",
    "headings": [
     {
      "id": "configuring-cpp-build",
@@ -2050,7 +2085,7 @@
    "md": "https://morloc-project.github.io/docs/modules/exposing-native-resources.md",
    "chapter": "modules",
    "level": 2,
-   "summary": "A module’s package.yaml can link against shared libraries through its dependencies field (Configuring the C++ build).",
+   "summary": "A module’s package.yaml can link against shared libraries through its cpp-deps and cxx-flags fields (Configuring the C++ build).",
    "headings": []
   },
   {
@@ -2387,9 +2422,14 @@
      "number": "9.2.1."
     },
     {
-     "id": "_link_flags_dependencies",
-     "title": "Link flags (dependencies)",
+     "id": "_headers_and_link_names_import_libs",
+     "title": "Headers and link names (import, libs)",
      "number": "9.2.2."
+    },
+    {
+     "id": "cpp-runtime-helpers",
+     "title": "Runtime helpers (cppmorloc_api.hpp)",
+     "number": "9.2.3."
     }
    ]
   },
@@ -2480,9 +2520,14 @@
    "summary": "",
    "headings": [
     {
+     "id": "_sourcing_futhark_functions",
+     "title": "Sourcing Futhark functions",
+     "number": "9.6.1."
+    },
+    {
      "id": "_futhark_backends_and_gpu_devices",
      "title": "Futhark backends and GPU devices",
-     "number": "9.6.1."
+     "number": "9.6.2."
     }
    ]
   },
@@ -3281,9 +3326,14 @@
      "number": "16.10."
     },
     {
+     "id": "env-parallel",
+     "title": "Parallel lists",
+     "number": "16.11."
+    },
+    {
      "id": "env-string-safety",
      "title": "String safety",
-     "number": "16.11."
+     "number": "16.12."
     }
    ]
   },

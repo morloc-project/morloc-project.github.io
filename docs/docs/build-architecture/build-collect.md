@@ -33,7 +33,7 @@ A `@render` handler returns bytes (`Str`, `[Str]`, `Vector U8` or a list of `Vec
 ![Diagram](https://morloc-project.github.io/docs/static/img/mermaid-f89fe193bc4902f592b5ac41682092b7.svg)
 
 1.  A stage process runs the command once and saves its value, its collected stream and its arguments as packet files. If standard output wants the command’s own output, the stage also writes it there as it runs.
-2.  Each action is replayed in its own process on the saved output, writing to a temporary file beside its target.
+2.  Each action is replayed in its own process on the saved output, writing to a temporary file beside its target. A replay reads the saved output as a value the program built, so the checks Morloc applies only to data from outside (text that must be valid UTF-8, for instance) are not repeated, but only for the file its nexus made: one in the run’s private stage directory, owned by the user, writable by no one else and not a link. Any other packet file, and every argument of a call packet read from a file, is read as data from outside.
 3.  Only when every process has succeeded are the temporary files renamed into place. A failure removes them and ends the run with the failing process’s status, so a named output is either complete or untouched.
 
 The command body runs once however many outputs are requested, so a slow or effectful command is never repeated per output. Output formats are checked against every destination before anything runs, and conflicting destinations (two claims on standard output, two outputs to one file) are a usage error with status 2.

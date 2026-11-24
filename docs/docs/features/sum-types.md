@@ -307,9 +307,9 @@ $ ./ast eval '{"Add":[{"Lit":[1.5]},{"Neg":[{"Wrap":[{"Lit":[2.0]}]}]}]}'
 -0.5
 ```
 
-A record may sit on such a cycle too, as long as a `data` is on it as well — with one caveat. A record on a cycle is a recursive record, and in C and Rust a recursive record still has to be a type you write yourself; the compiler does not yet generate one (\`+record Cpp => Node = "struct"+\` on a cycle fails at build time). In C that leaves no way through at all, since a header you write is included before the `data` type it would have to name. Python and R take the shape as it is.
+A record may sit on such a cycle too, as long as a `data` is on it as well. A record on a cycle is a recursive record, which C++ and Rust hold through a handle ([Records](https://morloc-project.github.io/docs/features/records.md)).
 
-What may not close a cycle is a set of records or aliases alone:
+What may not close a cycle is a set of records or aliases alone. The one exception is an alias that refers only to itself, and only under `?` or a list, as in `type T = (Int, ?T)`. Two aliases that refer to each other are refused:
 
 **mutual.loc**
 
@@ -378,38 +378,19 @@ The alias is the only qualifier there is. A module’s own name is not one —
 
 ## 3.15.7. Native representations
 
-Every language gets a representation of a `data` type, and by default the compiler writes it: an `enum class` in C++, a `#[repr(u8)]` enum in Rust, an ordinal in Python, an ordered factor in R. You declare nothing, and functions written in Morloc work across all four.
+Every language gets a representation of a `data` type, and the compiler writes it: an `enum class` in C++, a `#[repr(u8)]` enum in Rust, an `enum.Enum` in Python and an ordered factor in R for a type whose constructors take nothing; for one with fields, a class per constructor in C++ and Python, an enum in Rust and a list in R. You declare nothing, and functions written in Morloc work across all four.
 
-Native code you **source** is a different matter, because it has to name the type to take it apart. Rust can name a generated type directly. C++ cannot: a sourced header is included before the compiler’s own declarations, so a header that mentions `Shape` must declare `Shape` itself, and you tell Morloc that with a per-language declaration — the same `=>` form records already use:
-
-```morloc
-data Cpp => Shape = "Shape"
-```
-
-The mapping says only which native name to use. The constructors and their field types are not repeated, and the native declaration has to match the layout Morloc expects: a wrapper `Shape`, one `Shape_<Constructor>` struct per arm, and fields named `f0`, `f1` and so on. The foldout at the end of this section gives that layout for each language.
+Native code you **source** names the generated type the way it names a generated record ([Records](https://morloc-project.github.io/docs/features/records.md)): a C++ source includes the header the compiler writes for the declaring module, a Rust source uses its module path, and a Python source imports its class from the generated package. In C++ a value with fields is a wrapper `Shape` around a `std::variant` of one `Shape_<Constructor>` struct per constructor, whose fields are `f0`, `f1` and so on:
 
 **shapes.hpp**
 
 ```cpp
 #pragma once
-#include <memory>
-#include <variant>
+#include "mlc/types/_local/main.hpp"
 
-struct Shape_Circle;
-struct Shape_Rect;
-struct Shape_Dot;
+using namespace mlc::types::_local::main;
 
-struct Shape {
-    std::variant<std::shared_ptr<const Shape_Circle>,
-                 std::shared_ptr<const Shape_Rect>,
-                 std::shared_ptr<const Shape_Dot>> v;
-};
-
-struct Shape_Circle { double f0; };
-struct Shape_Rect   { double f0; double f1; };
-struct Shape_Dot    { };
-
-inline double area(Shape s) {
+inline double area(const Shape& s) {
     if (auto p = std::get_if<std::shared_ptr<const Shape_Circle>>(&s.v))
         return 3.14159 * (*p)->f0 * (*p)->f0;
     if (auto p = std::get_if<std::shared_ptr<const Shape_Rect>>(&s.v))
@@ -418,41 +399,49 @@ inline double area(Shape s) {
 }
 ```
 
-Python needs no declaration. A value with fields arrives as a pair of the constructor’s name and a tuple of its fields:
+In Python a constructor is an attribute of its type’s class: `Shape.Circle(r)` builds a value, `case Shape.Circle(r):` matches one, and a constructor without fields is a single value, `Shape.Dot`. A type whose constructors all take nothing is an `enum.Enum`, so its values are members such as `Color.Red`:
 
 **shapes.py**
 
 ```python
+from mlc_types._local.main import Shape, Color
+
 def grow(k, s):
     match s:
-        case ("Circle", (r,)):
-            return ("Circle", (k * r,))
-        case ("Rect", (w, h)):
-            return ("Rect", (k * w, k * h))
+        case Shape.Circle(r):
+            return Shape.Circle(k * r)
+        case Shape.Rect(w, h):
+            return Shape.Rect(k * w, k * h)
         case _:
             return s
+
+def warm(c):
+    return c is Color.Red
 ```
 
 **crossing.loc**
 
 ```morloc
-module main (areaCpp, growPy, bigArea)
+module main (areaCpp, growPy, bigArea, colors)
 
 import root-py
 import root-cpp
 
 data Shape = Circle Real | Rect Real Real | Dot
+data Color = Red | Green | Blue
 
-data Cpp => Shape = "Shape"
-
-source Py  from "shapes.py"  ("grow" as growPy)
+source Py  from "shapes.py"  ("grow" as growPy, "warm" as warmPy)
 source Cpp from "shapes.hpp" ("area" as areaCpp)
 
 growPy  :: Real -> Shape -> Shape
+warmPy  :: Color -> Bool
 areaCpp :: Shape -> Real
 
 bigArea :: Shape -> Real
 bigArea s = areaCpp (growPy 2.0 s)
+
+colors :: [Color] -> [Bool]
+colors xs = map warmPy xs
 ```
 
 ```console
@@ -460,11 +449,15 @@ $ ./crossing growPy 1.5 '{"Circle":[2.5]}'
 {"Circle":[3.75]}
 $ ./crossing bigArea '{"Rect":[1.5,2.25]}'
 13.5
+$ ./crossing colors '["Red","Blue"]'
+[true,false]
 ```
 
 `bigArea` grew the shape in Python and measured it in C++. One declaration, two native representations, and a wire form both agree on.
 
-Forget the mapping and the C++ compiler reports `error: redefinition of 'struct Shape'` against the generated pool source. It means the mapping is missing, not that your header is wrong.
+A Python constructor named like a Python keyword takes a trailing underscore: in `data Opt = Some Int | None`, the second constructor is `Opt.None_`. A Python source must return a value of exactly these classes; any other form, such as a tuple, is refused when the value leaves Python.
+
+In C++ and Rust you can still write the type yourself and map it with `data Cpp => Shape = "Shape"`; your declaration then has to match the layout in the foldout at the end of this section. In Python a mapping is ignored, with a warning, since the value is always the generated class.
 
 ## 3.15.8. Comparing values
 
@@ -473,8 +466,6 @@ Forget the mapping and the C++ compiler reports `error: redefinition of 'struct 
 The ordering operators use the same order the declaration does. `Red < Green` is `True` because `Red` is declared first, and so is `Circle 1.0 < Dot`. Two values of the same constructor are ordered by their fields, so `Circle 1.0 < Circle 2.0`.
 
 The answer does not depend on where the comparison runs. Which pool the compiler picks for an expression is its choice rather than yours, so a comparison that meant one thing in Python and another in R would be a bug you could not see in the source.
-
-One gap to know about: the Python and R representations shown above are an interim form, to be replaced by a generated class per arm. Treat the pair shape as something to match on rather than something to build a library around.
 
 **How a data value is encoded**
 
@@ -517,10 +508,10 @@ For the reader writing native code against a Morloc `data` type. Each row is wha
 
 | Language | Constructors without fields | Constructors with fields |
 | --- | --- | --- |
-| Python | The ordinal, as an `int`. A list of them is a `list` of ints, as every list is in Python; `Vector n T` gives a compact numpy `uint8` array. | `("Circle", (2.0,))` — the constructor’s name and a tuple of its fields. |
+| Python | A member of a generated `enum.Enum`, such as `Color.Red`, whose value is the wire tag. `Vector n T` gives a compact numpy `uint8` array of tags. | `Shape.Circle(2.0)` — an instance of a frozen class nested in the type’s class, with fields `f0`, `f1` and so on. A constructor without fields is one shared instance, `Shape.Dot`. |
 | R | An ordered `factor`, so `<` compares in declaration order. Codes are 1-based, so a code is the wire tag plus one; the levels are the constructor names in declaration order. | `list("Circle", list(2.0))` — the name and a list of fields. |
 | C++ | `enum class Color : uint8_t` with explicit discriminants, so the native value and the wire tag are the same byte. | A wrapper struct holding a `std::variant` of `std::shared_ptr<const …​>` to one struct per arm. A copy shares the arms, and nothing changes an arm once it is built: to change a value, copy the arm, change the copy and wrap it in a new `std::make_shared<…​>`, which converts to the const pointer. Never build an arm as a const object (`std::make_shared<const …​>`): Morloc may move a field out of an arm only it holds. A type you map yourself is written the same way; an arm that is not `std::shared_ptr<const …​>` does not build. |
-| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | Generated: an enum whose arms each hold one `::rustmorloc::RecBox` of a tuple of their fields. A `RecBox` is reference-counted: cloning it shares the fields instead of copying them, and dropping a long chain does not recurse. Build an arm with `RecBox::new..,` and read its fields through `Deref`; `into_inner` moves the tuple out when the box has a single owner. A type you map yourself with `data Rust =>` declares its arms with `Box` instead (`Link(Box<(i64, Chain)>)`); a mapped type with `RecBox` arms does not compile. Not `Copy`. |
+| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | Generated: an enum whose arm for constructor `C` holds one value of the generated arm type `Shape_C`, a reference-counted node holding a tuple of the arm’s fields. Cloning it shares the fields instead of copying them, and in a pool dropping a long chain does not recurse. Build an arm with `Shape_C::new..,` or `(..,).into()` and read its fields through `Deref` (`c.0`); `into_inner` moves the tuple out when the arm has a single owner. Every name is in your program’s own generated types; nothing comes from morloc’s runtime. A type you map yourself with `data Rust =>` is written the way Rust code usually is: each arm a tuple variant with one field per morloc field, each field holding its morloc type as is, in a `Box` or in an `Arc` (an optional field in an `Option` of one of those), so a self reference is `Link(i64, Box<Chain>)`. Not `Copy`. |
 
 The generated C++ and Rust declarations, for the `Shape` of this section:
 
@@ -543,10 +534,12 @@ struct Shape_Dot {
 ```
 
 ```rust
+pub type Shape_Circle = crate::mlc::Node<(f64,)>;
+pub type Shape_Rect = crate::mlc::Node<(f64, f64)>;
 #[derive(Clone)]
 pub enum Shape {
-    Circle(::rustmorloc::RecBox<(f64,)>),
-    Rect(::rustmorloc::RecBox<(f64, f64)>),
+    Circle(Shape_Circle),
+    Rect(Shape_Rect),
     Dot,
 }
 ```
@@ -583,10 +576,8 @@ template <typename T> struct MyBox_Full { T f0; };
 #[derive(Clone)]
 pub enum MyBox<T> {
     Empty,
-    Full(::std::boxed::Box<(T,)>),
+    Full(T),
 }
 ```
 
-The same holds for a `record` with parameters: `record Rust ⇒ (Wrap a) = "MyWrap<$1>" a` names a `struct MyWrap<T>`. Python and R still declare nothing; a mapping there is a hint carried on the wire and the value keeps its structural shape.
-
-In Python and R, the pair shape is a structural interim representation, chosen because it needs nothing the generic marshaller cannot already build; a generated class per arm is the intended end state. The cost of the interim form is that neither language’s compiler — and neither has one — checks that you built an arm correctly, so a field order swapped between two same-typed fields is silently wrong in Python and R where C++ and Rust would reject it.
+The same holds for a `record` with parameters: `record Rust ⇒ (Wrap a) = "MyWrap<$1>" a` names a `struct MyWrap<T>`. Python and R declare nothing. In Python a `data` value is always an instance of the generated classes, and a value of any other form is refused when it leaves Python. R keeps the structural `list(name, fields)` shape.

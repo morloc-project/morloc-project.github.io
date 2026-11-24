@@ -114,8 +114,6 @@ record Person where
   name :: Str
   age :: ?Int
 
-record Py => Person = "dict"
-
 source Py from "foo.py" ("makePerson")
 makePerson :: Str -> ?Int -> Person
 

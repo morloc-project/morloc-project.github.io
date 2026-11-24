@@ -125,6 +125,7 @@
 <li><a href="foreign-functions.html#_sourcing_builtins_and_other_non_exports">3.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="foreign-functions.html#_keyword_shaped_foreign_operators">3.2.5. Keyword-shaped foreign operators</a></li>
 <li><a href="foreign-functions.html#sourced-values">3.2.6. What sourced code may do with values</a></li>
+<li><a href="foreign-functions.html#runtime-helpers">3.2.7. Calling the runtime from sourced code</a></li>
 </ul>
 </li>
 <li><a href="importing-modules.html">3.3. Importing modules</a>
@@ -174,6 +175,7 @@
 <li><a href="strings.html#_escapes">3.7.2. Escapes</a></li>
 <li><a href="strings.html#_triple_quoted_strings">3.7.3. Triple-quoted strings</a></li>
 <li><a href="strings.html#nul-bytes">3.7.4. NUL bytes in strings</a></li>
+<li><a href="strings.html#str-utf8">3.7.5. Strings are UTF-8 text</a></li>
 </ul>
 </li>
 <li><a href="tuples-and-lists.html">3.8. Tuples and Lists</a>
@@ -187,6 +189,7 @@
 <li><a href="records.html#_native_representations">3.9.1. Native representations</a></li>
 <li><a href="records.html#_record_literals_match_by_field_name">3.9.2. Record literals match by field name</a></li>
 <li><a href="records.html#_one_record_across_three_languages">3.9.3. One record across three languages</a></li>
+<li><a href="records.html#_using_the_generated_types_outside_morloc">3.9.4. Using the generated types outside Morloc</a></li>
 </ul>
 </li>
 <li><a href="optionals.html">3.10. Optional types</a>
@@ -265,7 +268,8 @@
 <li><a href="random-access-and-streaming.html#_random_access_with_ifile">3.18.2. Random access with IFile</a></li>
 <li><a href="random-access-and-streaming.html#_sequential_reading_with_istream">3.18.3. Sequential reading with IStream</a></li>
 <li><a href="random-access-and-streaming.html#_standard_input_and_output">3.18.4. Standard input and output</a></li>
-<li><a href="random-access-and-streaming.html#stream-env-vars">3.18.5. Environment variables</a></li>
+<li><a href="random-access-and-streaming.html#_a_stream_its_writer_did_not_finish">3.18.5. A stream its writer did not finish</a></li>
+<li><a href="random-access-and-streaming.html#stream-env-vars">3.18.6. Environment variables</a></li>
 </ul>
 </li>
 <li><a href="intrinsics.html">3.19. Intrinsics</a>
@@ -611,7 +615,8 @@
 <li><a href="../languages/cpp.html">9.2. C++</a>
 <ul class="sectlevel3">
 <li><a href="../languages/cpp.html#_library_dependencies_cpp_deps">9.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
-<li><a href="../languages/cpp.html#_link_flags_dependencies">9.2.2. Link flags (<code>dependencies</code>)</a></li>
+<li><a href="../languages/cpp.html#_headers_and_link_names_import_libs">9.2.2. Headers and link names (<code>import</code>, <code>libs</code>)</a></li>
+<li><a href="../languages/cpp.html#cpp-runtime-helpers">9.2.3. Runtime helpers (<code>cppmorloc_api.hpp</code>)</a></li>
 </ul>
 </li>
 <li><a href="../languages/python.html">9.3. Python</a>
@@ -635,7 +640,8 @@
 </li>
 <li><a href="../languages/futhark.html">9.6. Futhark</a>
 <ul class="sectlevel3">
-<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.1. Futhark backends and GPU devices</a></li>
+<li><a href="../languages/futhark.html#_sourcing_futhark_functions">9.6.1. Sourcing Futhark functions</a></li>
+<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.2. Futhark backends and GPU devices</a></li>
 </ul>
 </li>
 </ul>
@@ -779,7 +785,8 @@
 <li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
 <li><a href="../env/index.html#env-serving">16.9. Serving</a></li>
 <li><a href="../env/index.html#env-inspection-tools">16.10. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
-<li><a href="../env/index.html#env-string-safety">16.11. String safety</a></li>
+<li><a href="../env/index.html#env-parallel">16.11. Parallel lists</a></li>
+<li><a href="../env/index.html#env-string-safety">16.12. String safety</a></li>
 </ul>
 </li>
 <li><a href="../ai-policy/index.html">17. AI Policy</a></li>
@@ -820,41 +827,80 @@ reads better for long records:</p>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
-<p>Records map to whatever each language uses for the job: a <code>dict</code> in Python, a
-<code>list</code> in R, a <code>struct</code> in C++. Internally the layout is positional, but the
-surface language always binds by name.</p>
+<p>That declaration is all a record needs. Every language gets a native form of it
+without your saying anything: a <code>dict</code> in Python, a named <code>list</code> in R, and a
+<code>struct</code> the compiler writes for you in C++ and Rust. Internally the layout is
+positional, but the surface language always binds by name.</p>
 </div>
 <div class="sect3">
 <h4 id="_native_representations"><a class="anchor" href="#_native_representations"></a>3.9.1. Native representations</h4>
 <div class="paragraph">
-<p>The concrete forms must share the general record’s field names and types, so
-those are not repeated. You only name the container:</p>
+<p>The forms Morloc gives a record, and how code you source names it:</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"dict"</span>
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"list"</span>
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"person_t"</span></code></pre>
-<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Language</th>
+<th class="tableblock halign-left valign-top">The record is</th>
+<th class="tableblock halign-left valign-top">A sourced function names it as</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a <code>dict</code> keyed by field name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a <code>dict</code>; nothing to import</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">R</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a named <code>list</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a <code>list</code>; nothing to import</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">C++</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a generated <code>struct</code> with one member per field</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mlc::types::_local::recs::Person</code>, from <code>#include "mlc/types/_local/recs.hpp"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rust</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">a generated <code>struct</code> with one <code>pub</code> field per field</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>crate::mlc::types::_local::recs::Person</code></p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
-<p>Python and R need nothing further — <code>dict</code> and <code>list</code> hold arbitrary fields
-already. C++ needs the struct to exist:</p>
+<p>The generated name follows the module that declares the record. <code>recs</code> is that
+module here, and <code>_local</code> marks it as one of your program’s own modules; a
+module of an installed package sits under its package’s name instead. The
+compiler writes the C++ header and the Rust module before it compiles your
+sources, so a source can include or <code>use</code> them like any other file.</p>
 </div>
 <div class="listingblock">
 <div class="title">foo.hpp</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="cpp"><span></span><span class="tok-cp">#pragma once</span>
-<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;string&gt;</span>
+<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">"mlc/types/_local/recs.hpp"</span>
 
-<span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">person_t</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">string</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-p">;</span>
-<span class="tok-w">    </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-p">;</span>
-<span class="tok-p">};</span>
+<span class="tok-k">using</span><span class="tok-w"> </span><span class="tok-n">mlc</span><span class="tok-o">::</span><span class="tok-n">types</span><span class="tok-o">::</span><span class="tok-n">_local</span><span class="tok-o">::</span><span class="tok-n">recs</span><span class="tok-o">::</span><span class="tok-n">Person</span><span class="tok-p">;</span>
 
-<span class="tok-n">person_t</span><span class="tok-w"> </span><span class="tok-nf">incAge</span><span class="tok-p">(</span><span class="tok-n">person_t</span><span class="tok-w"> </span><span class="tok-n">person</span><span class="tok-p">){</span>
+<span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-nf">incAge</span><span class="tok-p">(</span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-n">person</span><span class="tok-p">){</span>
 <span class="tok-w">    </span><span class="tok-n">person</span><span class="tok-p">.</span><span class="tok-n">age</span><span class="tok-o">++</span><span class="tok-p">;</span>
 <span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">person</span><span class="tok-p">;</span>
+<span class="tok-p">}</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="title">foo.rs</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="rust"><span></span><span class="tok-k">use</span><span class="tok-w"> </span><span class="tok-k">crate</span><span class="tok-p">::</span><span class="tok-n">mlc</span><span class="tok-p">::</span><span class="tok-n">types</span><span class="tok-p">::</span><span class="tok-n">_local</span><span class="tok-p">::</span><span class="tok-n">recs</span><span class="tok-p">::</span><span class="tok-n">Person</span><span class="tok-p">;</span>
+
+<span class="tok-k">pub</span><span class="tok-w"> </span><span class="tok-k">fn</span><span class="tok-w"> </span><span class="tok-nf">inc_age</span><span class="tok-p">(</span><span class="tok-n">person</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-kp">&amp;</span><span class="tok-nc">Person</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-n">Person</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nc">person</span><span class="tok-p">.</span><span class="tok-n">name</span><span class="tok-p">.</span><span class="tok-n">clone</span><span class="tok-p">(),</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nc">person</span><span class="tok-p">.</span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
@@ -878,6 +924,138 @@ its copy by taking the struct by value (<a href="foreign-functions.html#sourced-
 <pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">incAge</span><span class="tok-p">(</span><span class="tok-n">person</span><span class="tok-p">):</span>
     <span class="tok-k">return</span> <span class="tok-p">{</span><span class="tok-o">**</span><span class="tok-n">person</span><span class="tok-p">,</span> <span class="tok-s2">"age"</span><span class="tok-p">:</span> <span class="tok-n">person</span><span class="tok-p">[</span><span class="tok-s2">"age"</span><span class="tok-p">]</span> <span class="tok-o">+</span> <span class="tok-mi">1</span><span class="tok-p">}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="sect4">
+<h5 id="_python_classes"><a class="anchor" href="#_python_classes"></a>Python classes</h5>
+<div class="paragraph">
+<p>In Python a record can instead be an instance of a class the compiler writes.
+You choose this with a <strong>kind</strong>, a bare word after the <code>=&gt;</code>:</p>
+</div>
+<div class="listingblock">
+<div class="title">people.loc</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">people</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">older</span><span class="tok-p">)</span>
+
+<span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
+
+<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-w">  </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
+
+<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">dataclass</span>
+
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"older.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"incAge"</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">older</span><span class="tok-p">)</span>
+<span class="tok-n">older</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p><code>dataclass</code> gives a frozen, slotted dataclass, and <code>pydantic</code> a frozen pydantic
+model; <code>dict</code> is the default. Code written for the <code>dict</code> form keeps working,
+because a field can be read by subscript as well as by attribute. Since the
+instance is frozen, return a changed copy:</p>
+</div>
+<div class="listingblock">
+<div class="title">older.py</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">import</span><span class="tok-w"> </span><span class="tok-nn">dataclasses</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">incAge</span><span class="tok-p">(</span><span class="tok-n">person</span><span class="tok-p">):</span>
+    <span class="tok-nb">print</span><span class="tok-p">(</span><span class="tok-nb">type</span><span class="tok-p">(</span><span class="tok-n">person</span><span class="tok-p">)</span><span class="tok-o">.</span><span class="tok-vm">__qualname__</span><span class="tok-p">,</span> <span class="tok-n">person</span><span class="tok-o">.</span><span class="tok-n">name</span><span class="tok-p">,</span> <span class="tok-n">person</span><span class="tok-p">[</span><span class="tok-s2">"age"</span><span class="tok-p">])</span>
+    <span class="tok-k">return</span> <span class="tok-n">dataclasses</span><span class="tok-o">.</span><span class="tok-n">replace</span><span class="tok-p">(</span><span class="tok-n">person</span><span class="tok-p">,</span> <span class="tok-n">age</span><span class="tok-o">=</span><span class="tok-n">person</span><span class="tok-o">.</span><span class="tok-n">age</span> <span class="tok-o">+</span> <span class="tok-mi">1</span><span class="tok-p">)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./people<span class="tok-w"> </span>older<span class="tok-w"> </span><span class="tok-s1">'{"name":"Bob","age":40}'</span>
+<span class="tok-go">Person Bob 40</span>
+<span class="tok-go">{"name":"Bob","age":41}</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>A source that needs the class itself imports it from the generated package,
+here <code>from mlc_types._local.people import Person</code>. Only the package that declares
+a record may give it a class kind. A word the language does not define is an
+error that lists the ones it does:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-go">bad.loc:9:1: py has no record kind `pydantik`; its kinds are dataclass, dict, pydantic (a string names a type you write instead)</span>
+<span class="tok-go">    |</span>
+<span class="tok-go">  9 | record Py =&gt; Person = pydantik</span>
+<span class="tok-go">    | ^</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_writing_the_type_yourself"><a class="anchor" href="#_writing_the_type_yourself"></a>Writing the type yourself</h5>
+<div class="paragraph">
+<p>A quoted string after the <code>=&gt;</code> names a type you write instead of the
+generated one. It is how you hand a record to an existing C++ or Rust type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"person_t"</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Field names and types still come from the general declaration, so they are not
+repeated. Your type must hold exactly the record’s fields, under the same
+names, because Morloc builds a value of it from those fields and nothing else.
+A type parameter that no field uses, a phantom like the <code>k</code> of
+<code>record Loc k where pos :: Int</code>, is best not passed to your type at all
+(<code>record Rust ⇒ Loc k = "LocT"</code>): Rust refuses a struct that does not use its
+parameter, and a marker field would be a field the record lacks.</p>
+</div>
+<div class="paragraph">
+<p>Python has no such form yet. A record mapped to a Python class name you wrote
+is still passed as a <code>dict</code>; classes you write yourself are a planned feature.</p>
+</div>
+<div class="paragraph">
+<p>The strings <code>"dict"</code>, <code>"list"</code>, <code>"struct"</code> and <code>"OrderedDict"</code> are older
+spellings of the default kinds. They still work, with a warning:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-go">warning: legacy.loc:9:1: "dict" is the old spelling of the py record kind `dict`; write `= dict` instead</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_recursive_records"><a class="anchor" href="#_recursive_records"></a>Recursive records</h5>
+<div class="paragraph">
+<p>A record whose fields refer to the record itself needs no special treatment in
+Python or R. In C++ and Rust the generated type is a <strong>handle</strong>: a small value
+that shares an immutable struct of the fields, so that copying a tree copies
+one pointer. Read a field through <code>→</code> in C++; Rust’s handle dereferences to
+the fields:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Tree</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-n">label</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-w">  </span><span class="tok-n">kids</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Tree</span><span class="tok-p">]</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="cpp"><span></span><span class="tok-kr">inline</span><span class="tok-w"> </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-nf">count</span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">Tree</span><span class="tok-o">&amp;</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-k">auto</span><span class="tok-o">&amp;</span><span class="tok-w"> </span><span class="tok-n">k</span><span class="tok-w"> </span><span class="tok-o">:</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-o">-&gt;</span><span class="tok-n">kids</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-w"> </span><span class="tok-o">+=</span><span class="tok-w"> </span><span class="tok-n">count</span><span class="tok-p">(</span><span class="tok-n">k</span><span class="tok-p">);</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">;</span>
+<span class="tok-p">}</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="rust"><span></span><span class="tok-k">pub</span><span class="tok-w"> </span><span class="tok-k">fn</span><span class="tok-w"> </span><span class="tok-nf">count_rs</span><span class="tok-p">(</span><span class="tok-n">t</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-kp">&amp;</span><span class="tok-nc">Tree</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">-&gt;</span><span class="tok-w"> </span><span class="tok-kt">i64</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-o">+</span><span class="tok-w"> </span><span class="tok-n">t</span><span class="tok-p">.</span><span class="tok-n">kids</span><span class="tok-p">.</span><span class="tok-n">iter</span><span class="tok-p">().</span><span class="tok-n">map</span><span class="tok-p">(</span><span class="tok-n">count_rs</span><span class="tok-p">).</span><span class="tok-n">sum</span><span class="tok-p">::</span><span class="tok-o">&lt;</span><span class="tok-kt">i64</span><span class="tok-o">&gt;</span><span class="tok-p">()</span>
+<span class="tok-p">}</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>To build one, give the handle a struct of its fields: <code>Tree(Tree_fields{…​})</code>
+in C++, <code>Tree::new(TreeFields { …​ })</code> in Rust.</p>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -960,20 +1138,15 @@ on it can be sourced from any of them, and they compose:</p>
 <div class="listingblock">
 <div class="title">recs.loc</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">recs</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">recs</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">foo</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">alice</span><span class="tok-p">)</span>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">r</span>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">cpp</span>
 
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
-<span class="tok-w">    </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
-<span class="tok-w">    </span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
-<span class="tok-w">    </span><span class="tok-p">}</span>
-
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"dict"</span>
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"list"</span>
-<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"person_t"</span>
+<span class="tok-kr">record</span><span class="tok-w"> </span><span class="tok-nc">Person</span><span class="tok-w"> </span><span class="tok-kr">where</span>
+<span class="tok-w">  </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span>
+<span class="tok-w">  </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Int</span>
 
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">R</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"foo.R"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"incAge"</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">rinc</span><span class="tok-p">)</span>
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"foo.py"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"incAge"</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">pinc</span><span class="tok-p">)</span>
@@ -986,12 +1159,16 @@ on it can be sourced from any of them, and they compose:</p>
 <span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
 <span class="tok-n">foo</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-n">age</span>
 <span class="tok-w">    </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">rinc</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-w"> </span><span class="tok-n">pinc</span><span class="tok-w"> </span><span class="tok-o">.</span><span class="tok-w"> </span><span class="tok-n">cinc</span><span class="tok-p">)</span>
-<span class="tok-w">      </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-p">}</span></code></pre>
+<span class="tok-w">      </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-p">}</span>
+
+<span class="tok-n">alice</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Person</span>
+<span class="tok-n">alice</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-n">name</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"Alice"</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">age</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">30</span><span class="tok-w"> </span><span class="tok-p">}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
 <p><code>foo</code> builds a <code>Person</code> and then increments its age three times, once in each
-language, passing the record across two process boundaries on the way:</p>
+language, passing the record across two process boundaries on the way. The
+sources are the <code>foo.R</code>, the first <code>foo.py</code> and the <code>foo.hpp</code> shown above:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1002,6 +1179,46 @@ language, passing the record across two process boundaries on the way:</p>
 <div class="paragraph">
 <p>Nothing in <code>foo.R</code>, <code>foo.py</code>, or <code>foo.hpp</code> knows the others exist. Each sees
 only its own language’s ordinary data structure.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_using_the_generated_types_outside_morloc"><a class="anchor" href="#_using_the_generated_types_outside_morloc"></a>3.9.4. Using the generated types outside Morloc</h4>
+<div class="paragraph">
+<p><code>morloc types</code> writes the generated files for a program to a directory of your
+choice, so that a program that is not built by Morloc can use the same types:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc<span class="tok-w"> </span>types<span class="tok-w"> </span>recs.loc<span class="tok-w"> </span>-o<span class="tok-w"> </span>gen
+<span class="tok-gp">$ </span>find<span class="tok-w"> </span>gen<span class="tok-w"> </span>-type<span class="tok-w"> </span>f<span class="tok-w"> </span><span class="tok-p">|</span><span class="tok-w"> </span>sort
+<span class="tok-go">gen/cpp/mlc/types/_local/recs.hpp</span>
+<span class="tok-go">gen/py/mlc_types/__init__.py</span>
+<span class="tok-go">gen/py/mlc_types/_builtin/__init__.py</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>There is one directory per language the program uses. For Rust it writes a
+crate, with a <code>Cargo.toml</code>, that a Rust project can depend on.</p>
+</div>
+<div class="paragraph">
+<p>A field may hold a type from a library your module depends on. The generated
+file then has to include or import that library, so the dependency’s entry in
+<code>package.yaml</code> says where its types live: the <code>namespace</code> its names start with
+and, in C++, the headers to include. A Rust crate’s namespace defaults to
+the crate’s name, and the crate becomes a dependency of the written crate:</p>
+</div>
+<div class="listingblock">
+<div class="title">package.yaml</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">cpp-deps</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">nlohmann_json</span><span class="tok-p">:</span>
+<span class="tok-w">    </span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">"*"</span>
+<span class="tok-w">    </span><span class="tok-nt">source</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">conda</span>
+<span class="tok-w">    </span><span class="tok-nt">namespace</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">nlohmann</span>
+<span class="tok-w">    </span><span class="tok-nt">import</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">nlohmann/json.hpp</span>
+<span class="tok-nt">rust-deps</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">ndarray</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">"0.16"</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 </div>
 </div></div>

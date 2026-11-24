@@ -304,6 +304,8 @@ Morloc decides where values are copied, moved and shared, and changes those deci
     
     C++ code that calls a function Morloc passed to it calls it the same way, never with a non-const reference.
     
+    A `const T&` parameter may be overloaded with a `T&&` one that computes the same result. Morloc calls the `T&&` overload only where it will not use the value again, so that overload may take the argument’s contents instead of copying them ([Runtime helpers (`cppmorloc_api.hpp`)](https://morloc-project.github.io/docs/languages/cpp.md#cpp-runtime-helpers)).
+    
 -   Rust: never take `&mut`. Morloc passes a `Copy` value by value and anything else as `&T`, so a `&mut T` parameter does not build. Do not change an argument through `Cell`, `RefCell`, `Mutex` or an atomic either; that is not detected.
 -   Python: no `list.sort()`, `append`, item or attribute assignment, `dict.update`, or in-place numpy operation (`a += 1`, `out=`) on an argument. Copy first. A numpy array that came from another language or from a literal in your program is read-only, so writing to it raises a `ValueError`; call `.copy()` to get one you can change.
 -   R: changing a local copy is fine, since R copies on modify. Do not change an argument by reference: an environment, an R6 or reference class object, ``data.table’s `:=`` and `set*` functions, or an external pointer.
@@ -318,3 +320,9 @@ Morloc decides where values are copied, moved and shared, and changes those deci
 -   is safe to read through a `const` reference (C++) or `&` (Rust) from several threads at once.
 
 Work that must happen at a definite time, such as writing a file or releasing a lock, belongs in an effectful function Morloc calls in order, not in a copy constructor or destructor.
+
+## 3.2.7. Calling the runtime from sourced code
+
+Sourced code normally calls nothing of Morloc’s: it is ordinary code over ordinary values. A few low-level tasks, mostly performance work, go better with the runtime’s help, and for those each language’s binding offers a small set of helper functions. The binding is the module every pool of that language already loads, so a helper needs no import of its own.
+
+Every helper is optional. Code that does not call one builds and computes the same result, only slower, and each helper has a feature test, so a file that uses one still builds on its own. Only the helpers documented here are a contract; anything else you find in a binding is used by generated code and may change. So far only C++ has helpers ([Runtime helpers (`cppmorloc_api.hpp`)](https://morloc-project.github.io/docs/languages/cpp.md#cpp-runtime-helpers)).

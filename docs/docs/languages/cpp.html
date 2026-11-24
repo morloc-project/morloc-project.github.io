@@ -125,6 +125,7 @@
 <li><a href="../features/foreign-functions.html#_sourcing_builtins_and_other_non_exports">3.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="../features/foreign-functions.html#_keyword_shaped_foreign_operators">3.2.5. Keyword-shaped foreign operators</a></li>
 <li><a href="../features/foreign-functions.html#sourced-values">3.2.6. What sourced code may do with values</a></li>
+<li><a href="../features/foreign-functions.html#runtime-helpers">3.2.7. Calling the runtime from sourced code</a></li>
 </ul>
 </li>
 <li><a href="../features/importing-modules.html">3.3. Importing modules</a>
@@ -174,6 +175,7 @@
 <li><a href="../features/strings.html#_escapes">3.7.2. Escapes</a></li>
 <li><a href="../features/strings.html#_triple_quoted_strings">3.7.3. Triple-quoted strings</a></li>
 <li><a href="../features/strings.html#nul-bytes">3.7.4. NUL bytes in strings</a></li>
+<li><a href="../features/strings.html#str-utf8">3.7.5. Strings are UTF-8 text</a></li>
 </ul>
 </li>
 <li><a href="../features/tuples-and-lists.html">3.8. Tuples and Lists</a>
@@ -187,6 +189,7 @@
 <li><a href="../features/records.html#_native_representations">3.9.1. Native representations</a></li>
 <li><a href="../features/records.html#_record_literals_match_by_field_name">3.9.2. Record literals match by field name</a></li>
 <li><a href="../features/records.html#_one_record_across_three_languages">3.9.3. One record across three languages</a></li>
+<li><a href="../features/records.html#_using_the_generated_types_outside_morloc">3.9.4. Using the generated types outside Morloc</a></li>
 </ul>
 </li>
 <li><a href="../features/optionals.html">3.10. Optional types</a>
@@ -265,7 +268,8 @@
 <li><a href="../features/random-access-and-streaming.html#_random_access_with_ifile">3.18.2. Random access with IFile</a></li>
 <li><a href="../features/random-access-and-streaming.html#_sequential_reading_with_istream">3.18.3. Sequential reading with IStream</a></li>
 <li><a href="../features/random-access-and-streaming.html#_standard_input_and_output">3.18.4. Standard input and output</a></li>
-<li><a href="../features/random-access-and-streaming.html#stream-env-vars">3.18.5. Environment variables</a></li>
+<li><a href="../features/random-access-and-streaming.html#_a_stream_its_writer_did_not_finish">3.18.5. A stream its writer did not finish</a></li>
+<li><a href="../features/random-access-and-streaming.html#stream-env-vars">3.18.6. Environment variables</a></li>
 </ul>
 </li>
 <li><a href="../features/intrinsics.html">3.19. Intrinsics</a>
@@ -611,7 +615,8 @@
 <li class="current active"><a href="cpp.html">9.2. C++</a>
 <ul class="sectlevel3">
 <li><a href="cpp.html#_library_dependencies_cpp_deps">9.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
-<li><a href="cpp.html#_link_flags_dependencies">9.2.2. Link flags (<code>dependencies</code>)</a></li>
+<li><a href="cpp.html#_headers_and_link_names_import_libs">9.2.2. Headers and link names (<code>import</code>, <code>libs</code>)</a></li>
+<li><a href="cpp.html#cpp-runtime-helpers">9.2.3. Runtime helpers (<code>cppmorloc_api.hpp</code>)</a></li>
 </ul>
 </li>
 <li><a href="python.html">9.3. Python</a>
@@ -635,7 +640,8 @@
 </li>
 <li><a href="futhark.html">9.6. Futhark</a>
 <ul class="sectlevel3">
-<li><a href="futhark.html#_futhark_backends_and_gpu_devices">9.6.1. Futhark backends and GPU devices</a></li>
+<li><a href="futhark.html#_sourcing_futhark_functions">9.6.1. Sourcing Futhark functions</a></li>
+<li><a href="futhark.html#_futhark_backends_and_gpu_devices">9.6.2. Futhark backends and GPU devices</a></li>
 </ul>
 </li>
 </ul>
@@ -779,7 +785,8 @@
 <li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
 <li><a href="../env/index.html#env-serving">16.9. Serving</a></li>
 <li><a href="../env/index.html#env-inspection-tools">16.10. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
-<li><a href="../env/index.html#env-string-safety">16.11. String safety</a></li>
+<li><a href="../env/index.html#env-parallel">16.11. Parallel lists</a></li>
+<li><a href="../env/index.html#env-string-safety">16.12. String safety</a></li>
 </ul>
 </li>
 <li><a href="../ai-policy/index.html">17. AI Policy</a></li>
@@ -829,34 +836,92 @@ links, is declared under <code>tool-deps</code> (<a href="../apis/deploy-depende
 </div>
 </div>
 <div class="sect3">
-<h4 id="_link_flags_dependencies"><a class="anchor" href="#_link_flags_dependencies"></a>9.2.2. Link flags (<code>dependencies</code>)</h4>
+<h4 id="_headers_and_link_names_import_libs"><a class="anchor" href="#_headers_and_link_names_import_libs"></a>9.2.2. Headers and link names (<code>import</code>, <code>libs</code>)</h4>
 <div class="paragraph">
-<p>Provisioning a library makes its headers available, but linking against a
-compiled component also needs a linker flag. List the link names under
-<code>dependencies</code> (a bare list); each entry <code>foo</code> becomes <code>-lfoo</code> on the pool’s
-compile line:</p>
+<p>An entry can also name the headers your code includes and the libraries the
+pool links against:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">cpp-deps</span><span class="tok-p">:</span>
-<span class="tok-w">  </span><span class="tok-nt">boost</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">"&gt;=1.80"</span>
-<span class="tok-nt">dependencies</span><span class="tok-p">:</span>
-<span class="tok-w">  </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">boost_filesystem</span>
-<span class="tok-w">  </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">boost_system</span></code></pre>
+<span class="tok-w">  </span><span class="tok-nt">htslib</span><span class="tok-p">:</span>
+<span class="tok-w">    </span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">"&gt;=1.20"</span>
+<span class="tok-w">    </span><span class="tok-nt">import</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">htslib/sam.h</span>
+<span class="tok-w">    </span><span class="tok-nt">libs</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">[</span><span class="tok-nv">hts</span><span class="tok-p tok-p-Indicator">]</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
-<p>A header-only library (or a header-only part of a larger one) needs only
-<code>cpp-deps</code> and no <code>-l</code> flag. For any other compiler flags — extra include
-paths, <code>-DFOO</code>, <code>-O3</code>, <code>-march=native</code> — use <code>cxx-flags</code>, a bare list appended
-verbatim to the compile line. All three fields propagate transitively through a
-module’s dependencies.</p>
+<p>Each name under <code>libs</code> becomes a linker flag: <code>hts</code> becomes <code>-lhts</code>. Write the
+bare name, without <code>-l</code>, a <code>lib</code> prefix or a file suffix. The link name sits on
+the package that provides it because the two names often differ: the <code>htslib</code>
+package provides <code>libhts</code>, and <code>boost</code> provides <code>boost_filesystem</code> and
+<code>boost_system</code>. A header-only library needs no <code>libs</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>import</code> takes one header or a list. Morloc checks that every header a
+program’s modules declare can be found, and a missing one stops the build with
+an error that names the package and the header, such as <code>C++ dependency htslib
+(header htslib/sam.h) not found</code>. This check covers headers only. A missing
+library still fails at link time, with the linker’s <code>cannot find -lhts</code>.</p>
+</div>
+<div class="paragraph">
+<p>In a managed environment, Morloc adds the environment’s <code>include</code> and <code>lib</code>
+directories to every C++ pool build and records the <code>lib</code> directory as the
+pool’s run path. The build does not depend on the compiler’s own search paths,
+and the program runs from any shell, as long as the environment stays where it
+was built.</p>
+</div>
+<div class="paragraph">
+<p>For any other compiler flags — <code>-DFOO</code>, <code>-O3</code>, <code>-march=native</code> — use
+<code>cxx-flags</code>. Each entry reaches the compiler as one argument, so
+<code>'-DMSG="a b"'</code> stays one define. A library the environment does not provide,
+such as the system’s zlib or one your setup script builds, is linked through
+<code>cxx-flags</code> too: <code>cxx-flags: ["-lz"]</code>. These fields propagate transitively
+through a module’s dependencies.</p>
+</div>
+<div class="paragraph">
+<p>Older modules listed link names under a <code>dependencies</code> field. That field is
+gone, and Morloc refuses a <code>package.yaml</code> that still has it.</p>
 </div>
 <div class="paragraph">
 <p>The <code>local-deps</code> section that Python and Rust use for in-project packages
 (<a href="python.html#local-deps">Local packages (<code>local-deps</code>)</a>) is not available for C++, which has no package manager to
 track such an install; a library you build yourself is linked through
-<code>dependencies</code> and <code>cxx-flags</code> like any other.</p>
+<code>cxx-flags</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cpp-runtime-helpers"><a class="anchor" href="#cpp-runtime-helpers"></a>9.2.3. Runtime helpers (<code>cppmorloc_api.hpp</code>)</h4>
+<div class="paragraph">
+<p>The C++ binding’s helpers (<a href="../features/foreign-functions.html#runtime-helpers">Calling the runtime from sourced code</a>) are declared in
+<code>cppmorloc_api.hpp</code>, which every C++ pool includes before your headers. Each
+helper defines a feature macro; test it, so the header also builds outside a
+pool.</p>
+</div>
+<div class="paragraph">
+<p><code>mlc::give(f, std::move(x)…​)</code> calls the function value <code>f</code> and hands it
+ownership of its arguments, which you must not read again. Calling <code>f(x)</code>
+directly lends <code>x</code>, so a function value that keeps or reshapes its argument
+copies it; <code>give</code> lets one that can take the value, such as a lambda passing it
+on at its last use, move it instead. A loop that pulls a batch from a stream
+and passes it to a function value is the usual place for it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="cpp"><span></span><span class="tok-k">template</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-k">class</span><span class="tok-w"> </span><span class="tok-nc">F</span><span class="tok-o">&gt;</span>
+<span class="tok-kr">inline</span><span class="tok-w"> </span><span class="tok-k">auto</span><span class="tok-w"> </span><span class="tok-n">giveTo</span><span class="tok-p">(</span><span class="tok-n">F</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">vector</span><span class="tok-o">&lt;</span><span class="tok-kt">int</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">;</span>
+<span class="tok-w">    </span><span class="tok-k">for</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-kt">int</span><span class="tok-w"> </span><span class="tok-n">i</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-n">i</span><span class="tok-w"> </span><span class="tok-o">&lt;=</span><span class="tok-w"> </span><span class="tok-n">n</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-o">++</span><span class="tok-n">i</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">.</span><span class="tok-n">push_back</span><span class="tok-p">(</span><span class="tok-n">i</span><span class="tok-p">);</span>
+<span class="tok-cp">#ifdef MLC_GIVE</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">mlc</span><span class="tok-o">::</span><span class="tok-n">give</span><span class="tok-p">(</span><span class="tok-n">f</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">move</span><span class="tok-p">(</span><span class="tok-n">b</span><span class="tok-p">));</span>
+<span class="tok-cp">#else</span>
+<span class="tok-w">    </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-n">f</span><span class="tok-p">(</span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">move</span><span class="tok-p">(</span><span class="tok-n">b</span><span class="tok-p">));</span>
+<span class="tok-cp">#endif</span>
+<span class="tok-p">}</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>Where <code>f</code> has no such form, <code>give</code> calls it as usual and the argument is lent.</p>
 </div>
 </div>
 </div></div>

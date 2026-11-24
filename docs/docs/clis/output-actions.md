@@ -289,14 +289,14 @@ Each file holds exactly what the action writes when run alone, `-f` and `-z` inc
 
 Only `=` attaches a path. `--json rows.json` is still the flag followed by a positional argument, and a short flag (`-j`) always means stdout, as does `--json=-`.
 
-What makes this possible is that the run saves the command’s output, and the actions read it back. Two things follow. An action that writes to stdout in such a run does so after the command finishes, not as it streams. And an action on a streaming command that can stream from more than one `@collect` in a run, or from one in a where-binding, or that has a branch streaming nothing, runs only on saved output, so the daemon and MCP servers, which run one action per call, do not offer it. A command whose branches (guard or `match` arms) each end in one `@collect` is not such a command: its actions run directly.
+What makes this possible is that the run saves the command’s output, and the actions read it back. Two things follow. An action that writes to stdout in such a run does so after the command finishes, not as it streams. And an action on a command that streams through `@stdout` runs only on saved output, so the daemon and MCP servers, which run one action per call, do not offer it. A `@collect` command’s actions run directly, composed into its sink.
 
 A `-f` that one of the outputs cannot take — `csv` for a value that is not a table, or `mpk` for a stream — is refused before the command runs.
 
 ## 5.10.6. Rules and rejections
 
 -   At most one action writes to stdout. Two bare action flags, or a bare one with `--no-stdout`, are rejected, as are one path given to two actions, a path that is also ``-o’s, and an empty `--act=``.
--   A streaming command with actions must return `()`: its actions apply to what it streams.
+-   A streaming command returns `Collect a` ([Streaming output with `@collect`](https://morloc-project.github.io/docs/clis/streaming-output.md)): its actions apply to what it streams.
 -   An action cannot refer with `$N` to a streamed `@parse` argument: the command consumes that stream as it reads it.
 -   Action directives belong in the signature preamble — the `--'` lines directly above `name ::` — not on argument docstrings, record fields, or type aliases.
 -   The command needs an explicit signature.

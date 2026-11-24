@@ -125,6 +125,7 @@
 <li><a href="../features/foreign-functions.html#_sourcing_builtins_and_other_non_exports">3.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="../features/foreign-functions.html#_keyword_shaped_foreign_operators">3.2.5. Keyword-shaped foreign operators</a></li>
 <li><a href="../features/foreign-functions.html#sourced-values">3.2.6. What sourced code may do with values</a></li>
+<li><a href="../features/foreign-functions.html#runtime-helpers">3.2.7. Calling the runtime from sourced code</a></li>
 </ul>
 </li>
 <li><a href="../features/importing-modules.html">3.3. Importing modules</a>
@@ -174,6 +175,7 @@
 <li><a href="../features/strings.html#_escapes">3.7.2. Escapes</a></li>
 <li><a href="../features/strings.html#_triple_quoted_strings">3.7.3. Triple-quoted strings</a></li>
 <li><a href="../features/strings.html#nul-bytes">3.7.4. NUL bytes in strings</a></li>
+<li><a href="../features/strings.html#str-utf8">3.7.5. Strings are UTF-8 text</a></li>
 </ul>
 </li>
 <li><a href="../features/tuples-and-lists.html">3.8. Tuples and Lists</a>
@@ -187,6 +189,7 @@
 <li><a href="../features/records.html#_native_representations">3.9.1. Native representations</a></li>
 <li><a href="../features/records.html#_record_literals_match_by_field_name">3.9.2. Record literals match by field name</a></li>
 <li><a href="../features/records.html#_one_record_across_three_languages">3.9.3. One record across three languages</a></li>
+<li><a href="../features/records.html#_using_the_generated_types_outside_morloc">3.9.4. Using the generated types outside Morloc</a></li>
 </ul>
 </li>
 <li><a href="../features/optionals.html">3.10. Optional types</a>
@@ -265,7 +268,8 @@
 <li><a href="../features/random-access-and-streaming.html#_random_access_with_ifile">3.18.2. Random access with IFile</a></li>
 <li><a href="../features/random-access-and-streaming.html#_sequential_reading_with_istream">3.18.3. Sequential reading with IStream</a></li>
 <li><a href="../features/random-access-and-streaming.html#_standard_input_and_output">3.18.4. Standard input and output</a></li>
-<li><a href="../features/random-access-and-streaming.html#stream-env-vars">3.18.5. Environment variables</a></li>
+<li><a href="../features/random-access-and-streaming.html#_a_stream_its_writer_did_not_finish">3.18.5. A stream its writer did not finish</a></li>
+<li><a href="../features/random-access-and-streaming.html#stream-env-vars">3.18.6. Environment variables</a></li>
 </ul>
 </li>
 <li><a href="../features/intrinsics.html">3.19. Intrinsics</a>
@@ -611,7 +615,8 @@
 <li><a href="../languages/cpp.html">9.2. C++</a>
 <ul class="sectlevel3">
 <li><a href="../languages/cpp.html#_library_dependencies_cpp_deps">9.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
-<li><a href="../languages/cpp.html#_link_flags_dependencies">9.2.2. Link flags (<code>dependencies</code>)</a></li>
+<li><a href="../languages/cpp.html#_headers_and_link_names_import_libs">9.2.2. Headers and link names (<code>import</code>, <code>libs</code>)</a></li>
+<li><a href="../languages/cpp.html#cpp-runtime-helpers">9.2.3. Runtime helpers (<code>cppmorloc_api.hpp</code>)</a></li>
 </ul>
 </li>
 <li><a href="../languages/python.html">9.3. Python</a>
@@ -635,7 +640,8 @@
 </li>
 <li><a href="../languages/futhark.html">9.6. Futhark</a>
 <ul class="sectlevel3">
-<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.1. Futhark backends and GPU devices</a></li>
+<li><a href="../languages/futhark.html#_sourcing_futhark_functions">9.6.1. Sourcing Futhark functions</a></li>
+<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.2. Futhark backends and GPU devices</a></li>
 </ul>
 </li>
 </ul>
@@ -779,7 +785,8 @@
 <li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
 <li><a href="../env/index.html#env-serving">16.9. Serving</a></li>
 <li><a href="../env/index.html#env-inspection-tools">16.10. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
-<li><a href="../env/index.html#env-string-safety">16.11. String safety</a></li>
+<li><a href="../env/index.html#env-parallel">16.11. Parallel lists</a></li>
+<li><a href="../env/index.html#env-string-safety">16.12. String safety</a></li>
 </ul>
 </li>
 <li><a href="../ai-policy/index.html">17. AI Policy</a></li>
@@ -802,19 +809,29 @@ serialize it, write it. That breaks down when the result is larger than memory,
 or when the caller wants to see the first rows before the last ones exist.</p>
 </div>
 <div class="paragraph">
-<p>A streaming command returns <code>()</code> and hands its data out in batches. The
-<code>@collect</code> intrinsic drives it:</p>
+<p>A streaming command hands its data out in batches and returns <code>Collect a</code>,
+where <code>a</code> is the type of each element it writes. The <code>@collect</code> intrinsic
+drives it:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-nb">@collect</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(([</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span></code></pre>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-nb">@collect</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(([</span><span class="tok-n">a</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">())</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Collect</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
 <p><code>@collect</code> takes a <strong>producer</strong>: a function that is given a sink and calls it once
 per batch. <code>@collect</code> supplies the sink, manages the stream, and writes each
-batch out in whatever form <code>-f</code> selects. The element type rides on the sink, so
-the compiler knows the stream’s type with no extra annotation.</p>
+batch out in whatever form <code>-f</code> selects.</p>
+</div>
+<div class="paragraph">
+<p><code>Collect a</code> is declared in the standard library as <code>newtype Collect a = Unit</code>:
+a unit value whose parameter <code>a</code> is a phantom, appearing only in the type.
+It holds no data. It stands for the list of every element written, <code>[a]</code>,
+before any output action, so the command’s signature says what it writes even
+though the elements never pass through its return value. Only <code>@collect</code> and
+<code>@stdout</code> produce one, and the typechecker gives it no special rule: the arms
+of a streaming command agree on <code>a</code> as any arms agree on a type. Outside morloc
+code the output is simply <code>[a]</code>, which is what help and the API show.</p>
 </div>
 <div class="paragraph">
 <p><code>sift’s `stream</code> searches the same tree as <code>scan</code> but emits one batch per file:</p>
@@ -829,7 +846,7 @@ the compiler knows the stream’s type with no extra annotation.</p>
 <span class="tok-w">  </span><span class="tok-cs">--' @check.path r</span>
 <span class="tok-w">  </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
 <span class="tok-w">  </span><span class="tok-nc">Options</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span>
-<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
+<span class="tok-w">  </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Collect</span><span class="tok-w"> </span><span class="tok-nc">Hit</span><span class="tok-p">)</span>
 <span class="tok-n">stream</span><span class="tok-w"> </span><span class="tok-n">pat</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-w"> </span><span class="tok-n">opts</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@collect</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">producePy</span><span class="tok-w"> </span><span class="tok-n">pat</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-w"> </span><span class="tok-n">opts</span><span class="tok-p">)</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
@@ -896,12 +913,12 @@ serialized by <code>-f</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@render</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] -&gt; Str</code> / <code>[a] -&gt; [U8]</code> (or <code>IFile [a] -&gt; ...</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] -&gt; Str</code> / <code>[a] -&gt; [Str]</code> / <code>[a] -&gt; [U8]</code> / <code>[a] -&gt; [[U8]]</code> (or <code>IFile [a] -&gt; ...</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Gather the whole stream, apply once, write the bytes verbatim.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>@render ... @stream</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] -&gt; Str</code> / <code>[a] -&gt; [U8]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[a] -&gt; Str</code> / <code>[a] -&gt; [Str]</code> / <code>[a] -&gt; [U8]</code> / <code>[a] -&gt; [[U8]]</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Apply to each batch, write each result’s bytes verbatim.</p></td>
 </tr>
 <tr>
@@ -1121,15 +1138,30 @@ which is not reproducible between runs.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>An action applies to everything the command streams, whatever the shape of
-its body: a command with several `@collect`s, or one in a branch or a
-where-binding, gives each action the whole output, in order. Such a
-command’s actions run on its saved output (see <a href="output-actions.html#action-files">Several outputs in one run</a>), and so
-does any action combined with others.</p>
+<p>Every path through a streaming command ends in exactly one <code>@collect</code> or
+<code>@stdout</code>, in tail position: the last statement of a <code>do</code> block, an arm of
+a guard or <code>match</code>, or the body of a <code>let</code>. A path may end in <code>@throw</code>
+instead. Anything else, such as two <code>@collect`s in a row or a `@collect</code> in
+a where-binding, is a build error. To stream from several producers, call
+them on one sink inside a single <code>@collect</code>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">both</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Collect</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">both</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@collect</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">sink</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-n">first</span><span class="tok-w"> </span><span class="tok-n">sink</span>
+<span class="tok-w">  </span><span class="tok-n">second</span><span class="tok-w"> </span><span class="tok-n">sink</span><span class="tok-p">)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
 </li>
 <li>
-<p>The producer needs a signature with a concrete batch type when its
-<code>@collect</code> is anywhere but the tail of the body.</p>
+<p><code>@collect</code> and <code>@stdout</code> appear only in a command whose signature returns
+<code>Collect</code>, and morloc code never calls such a command. Share its producer
+instead.</p>
+</li>
+<li>
+<p>A command’s actions run on a fresh run of the command, composed into its
+sink. Any action combined with others runs on its saved output (see
+<a href="output-actions.html#action-files">Several outputs in one run</a>), as do the actions of a <code>@stdout</code> command.</p>
 </li>
 <li>
 <p>A <code>@stream</code> handler must return a list; its elements are what reach the wire.</p>
@@ -1137,7 +1169,10 @@ does any action combined with others.</p>
 <li>
 <p><code>@render</code> under <code>@stream</code> writes each batch’s bytes as they are produced,
 with nothing added between batches — no separator, no trailing newline
-beyond what the handler itself emits.</p>
+beyond what the handler itself emits. A handler that returns a list
+(<code>[Str]</code> or <code><a id="U8"></a></code>) has each element written in order, also with nothing
+between them, so it can build a large batch’s output as many pieces
+rather than one string.</p>
 </li>
 <li>
 <p><code>@fold</code> and <code>@stream</code> are mutually exclusive: <code>@stream</code> emits one result per
@@ -1153,9 +1188,9 @@ and <code>@combine</code>.</p>
 <div class="sect3">
 <h4 id="_what_the_help_says_a_stream_produces"><a class="anchor" href="#_what_the_help_says_a_stream_produces"></a>5.11.6. What the help says a stream produces</h4>
 <div class="paragraph">
-<p>A streaming command’s <code>Return:</code> block describes <strong>standard output</strong>, not the
-<code>()</code> the function returns. The two coincide for every other command and come
-apart here, so the block is worth reading closely:</p>
+<p>A streaming command’s <code>Return:</code> block describes <strong>standard output</strong>. The command
+returns <code>Collect Hit</code>, and help shows it as what reaches standard output, the
+list <code>[Hit]</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1179,12 +1214,10 @@ each batch and streams the result; and <code>(raw bytes)</code> marks the one ro
 verbatim.</p>
 </div>
 <div class="paragraph">
-<p>The compiler works the element type out from the producer’s signature: a
-<code>@collect</code> argument takes exactly one parameter, the sink, so the sink is the
-last parameter of the producer’s declared type and the sink’s own parameter is
-what reaches standard output. A producer with no reachable signature — an
-inline lambda — leaves the row falling back to the return type; the help never
-claims <code>()</code> for a command that streams.</p>
+<p>The element type comes from the command’s signature, and the typechecker checks
+it against the producer’s sink: a producer that writes <code>[Str]</code> batches cannot
+stand in a <code>Collect Hit</code> command. <code>Collect</code> means nothing outside morloc code,
+so <code>--json-help</code> and the API also show the output as <code>[Hit]</code>.</p>
 </div>
 </div>
 </div></div>

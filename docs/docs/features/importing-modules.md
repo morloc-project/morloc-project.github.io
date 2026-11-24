@@ -22,7 +22,7 @@ module (*)
 
 Its name is then taken from the import path: if `main.loc` imports `.utils`, the module in `utils.loc` (or `utils/main.loc`) is named `utils`.
 
-A single file may contain more than one module. Each `module` keyword starts a new one; everything indented under it, or appearing before the next `module` keyword, belongs to it. A module body may also be empty:
+A single file may contain more than one module. Each `module` keyword starts a new one; everything indented under it, or appearing before the next `module` keyword, belongs to it. The other modules of a file are local modules, so they are imported with a leading dot. A module body may also be empty:
 
 ```morloc
 module utils (helper)
@@ -31,14 +31,14 @@ helper :: Int -> Int
 helper x = x + 1
 
 module main (run)
-import utils (helper)
+import .utils (helper)
 run :: Int -> Int
 run x = helper x
 ```
 
 ## 3.3.2. Installed modules and `root`
 
-An import without a leading dot names an installed module. `morloc make` fetches a missing one, as you saw in [Writing code that is not tied to a language](https://morloc-project.github.io/docs/getting-started/abstract-modules.md); `morloc install root-py` fetches it by hand. [Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md) covers installing in full.
+An import without a leading dot names an installed module. A bare name such as `root-py` is a module of the standard library; a module of another library is named with its library first, as in `import bio/convert`. `morloc make` fetches a missing one, as you saw in [Writing code that is not tied to a language](https://morloc-project.github.io/docs/getting-started/abstract-modules.md); `morloc install root-py` fetches it by hand. [Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md) covers installing in full.
 
 `root` and a `root-<lang>` are not alternatives. `root` declares the standard library — the classes, and everything derivable from them — and a `root-<lang>` supplies the instances by sourcing native implementations. A program needs both, so its import list names a `root-<lang>`.
 
@@ -46,9 +46,9 @@ Which one it names sets what a single invocation costs, because the program star
 
 | Import | Per invocation | Where the time goes |
 | --- | --- | --- |
-| `root` alone, using only operations the nexus runs itself ([Intrinsics](https://morloc-project.github.io/docs/features/intrinsics.md)) | about 8 ms | the nexus process; no pool is started |
-| `root-cpp` | about 21 ms | a compiled pool; roughly 13 ms of that is starting the pool |
-| `root-py` | about 132 ms | a Python pool; starting the interpreter dominates |
+| `root` alone, using only operations the nexus runs itself ([Intrinsics](https://morloc-project.github.io/docs/features/intrinsics.md)) | about 10 ms | the nexus process; no pool is started |
+| `root-cpp` | about 15 ms | a compiled pool |
+| `root-py` | about 50 ms | a Python pool; starting the interpreter dominates |
 
 Crossing into a pool is cheap and starting an interpreter is not. That rarely matters for a batch job and decides how a frequently typed command feels. Moving between backends is a one-line change to the import.
 

@@ -23,7 +23,7 @@ Compiled languages (C++, Rust) are built into a pool binary. Interpreted languag
 
 **Rebuilds** assemble the new tree in a sibling staging directory and move it into place only after every pool compiles. A failed build leaves the previous build in place. A rebuild deletes an existing `<key>-build` directory only if it carries the marker file, so a user directory that happens to have the same name is never removed.
 
-**Launchers.** Each launcher records the manifest path on a comment line (`# morloc-manifest: demo-build/manifest.json`), resolves its own location, and execs the nexus with a mode and the manifest:
+**Launchers.** Each launcher records the manifest path on a comment line (`# morloc-manifest: demo-build/manifest.json`), resolves its own location, following symbolic links, so a link to the launcher from any directory works, and execs the nexus with a mode and the manifest:
 
 | Launcher | Created by | Runs |
 | --- | --- | --- |

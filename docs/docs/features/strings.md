@@ -182,3 +182,16 @@ Scanning every string for NULs costs time. You can opt out two ways when you kno
 -   `MORLOC_SKIP_NULL_CHECK=1` skips the scan for one run.
 
 Both are unsafe in the same way: a NUL that reaches R still crashes inside the R runtime, just with R’s error instead of Morloc’s. There is nothing useful user-written R code can do with a NUL-bearing string.
+
+## 3.7.5. Strings are UTF-8 text
+
+A `Str` is always valid UTF-8. Where a language can hold other bytes in a string (a C++ `std::string`, a Python `bytes` given for a `Str`, an R string marked as bytes), the pool checks each string as it leaves, and a failure names the language and the byte position. An R string in latin1 or another native encoding is translated to UTF-8. Text read from outside the program (a file, standard input, a packet, a MessagePack argument) is checked as it is read. For binary data, use `[U8]`.
+
+An output form never turns a string it cannot carry into an empty one: raw output (a `@render` action) writes the bytes as they are, and JSON output fails, naming the byte position.
+
+The check of strings that leave a pool costs time. When you know your program builds only text, you can opt out:
+
+-   `morloc make --unsafe-skip-utf8-check` builds the program with the check off.
+-   `MORLOC_SKIP_UTF8_CHECK=1` turns it off for one run.
+
+Either way, only the strings your program builds go unchecked; data read from outside is always checked. The opt-out is unsafe: bytes that are not text pass through raw output unchanged and fail later, far from where they were made, in JSON output or in a language that decodes text.

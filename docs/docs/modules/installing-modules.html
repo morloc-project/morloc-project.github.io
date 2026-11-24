@@ -125,6 +125,7 @@
 <li><a href="../features/foreign-functions.html#_sourcing_builtins_and_other_non_exports">3.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="../features/foreign-functions.html#_keyword_shaped_foreign_operators">3.2.5. Keyword-shaped foreign operators</a></li>
 <li><a href="../features/foreign-functions.html#sourced-values">3.2.6. What sourced code may do with values</a></li>
+<li><a href="../features/foreign-functions.html#runtime-helpers">3.2.7. Calling the runtime from sourced code</a></li>
 </ul>
 </li>
 <li><a href="../features/importing-modules.html">3.3. Importing modules</a>
@@ -174,6 +175,7 @@
 <li><a href="../features/strings.html#_escapes">3.7.2. Escapes</a></li>
 <li><a href="../features/strings.html#_triple_quoted_strings">3.7.3. Triple-quoted strings</a></li>
 <li><a href="../features/strings.html#nul-bytes">3.7.4. NUL bytes in strings</a></li>
+<li><a href="../features/strings.html#str-utf8">3.7.5. Strings are UTF-8 text</a></li>
 </ul>
 </li>
 <li><a href="../features/tuples-and-lists.html">3.8. Tuples and Lists</a>
@@ -187,6 +189,7 @@
 <li><a href="../features/records.html#_native_representations">3.9.1. Native representations</a></li>
 <li><a href="../features/records.html#_record_literals_match_by_field_name">3.9.2. Record literals match by field name</a></li>
 <li><a href="../features/records.html#_one_record_across_three_languages">3.9.3. One record across three languages</a></li>
+<li><a href="../features/records.html#_using_the_generated_types_outside_morloc">3.9.4. Using the generated types outside Morloc</a></li>
 </ul>
 </li>
 <li><a href="../features/optionals.html">3.10. Optional types</a>
@@ -265,7 +268,8 @@
 <li><a href="../features/random-access-and-streaming.html#_random_access_with_ifile">3.18.2. Random access with IFile</a></li>
 <li><a href="../features/random-access-and-streaming.html#_sequential_reading_with_istream">3.18.3. Sequential reading with IStream</a></li>
 <li><a href="../features/random-access-and-streaming.html#_standard_input_and_output">3.18.4. Standard input and output</a></li>
-<li><a href="../features/random-access-and-streaming.html#stream-env-vars">3.18.5. Environment variables</a></li>
+<li><a href="../features/random-access-and-streaming.html#_a_stream_its_writer_did_not_finish">3.18.5. A stream its writer did not finish</a></li>
+<li><a href="../features/random-access-and-streaming.html#stream-env-vars">3.18.6. Environment variables</a></li>
 </ul>
 </li>
 <li><a href="../features/intrinsics.html">3.19. Intrinsics</a>
@@ -611,7 +615,8 @@
 <li><a href="../languages/cpp.html">9.2. C++</a>
 <ul class="sectlevel3">
 <li><a href="../languages/cpp.html#_library_dependencies_cpp_deps">9.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
-<li><a href="../languages/cpp.html#_link_flags_dependencies">9.2.2. Link flags (<code>dependencies</code>)</a></li>
+<li><a href="../languages/cpp.html#_headers_and_link_names_import_libs">9.2.2. Headers and link names (<code>import</code>, <code>libs</code>)</a></li>
+<li><a href="../languages/cpp.html#cpp-runtime-helpers">9.2.3. Runtime helpers (<code>cppmorloc_api.hpp</code>)</a></li>
 </ul>
 </li>
 <li><a href="../languages/python.html">9.3. Python</a>
@@ -635,7 +640,8 @@
 </li>
 <li><a href="../languages/futhark.html">9.6. Futhark</a>
 <ul class="sectlevel3">
-<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.1. Futhark backends and GPU devices</a></li>
+<li><a href="../languages/futhark.html#_sourcing_futhark_functions">9.6.1. Sourcing Futhark functions</a></li>
+<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.2. Futhark backends and GPU devices</a></li>
 </ul>
 </li>
 </ul>
@@ -779,7 +785,8 @@
 <li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
 <li><a href="../env/index.html#env-serving">16.9. Serving</a></li>
 <li><a href="../env/index.html#env-inspection-tools">16.10. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
-<li><a href="../env/index.html#env-string-safety">16.11. String safety</a></li>
+<li><a href="../env/index.html#env-parallel">16.11. Parallel lists</a></li>
+<li><a href="../env/index.html#env-string-safety">16.12. String safety</a></li>
 </ul>
 </li>
 <li><a href="../ai-policy/index.html">17. AI Policy</a></li>
@@ -797,9 +804,12 @@
 <div class="page-body" data-pagefind-body="" data-pagefind-meta="title:Installing modules"><div class="sect2">
 <h3 id="installing-modules"><a class="anchor" href="#installing-modules"></a>7.1. Installing modules</h3>
 <div class="paragraph">
-<p>The default Morloc modules are hosted on GitHub under the
-<a href="https://github.com/morloclib">morloclib</a> organization. Modules can be installed
-with the <code>morloc install</code> command:</p>
+<p>Every installed module belongs to a <strong>library</strong>. The standard library, <code>std</code>, is
+hosted on GitHub under the <a href="https://github.com/morloclib">morloclib</a>
+organization, and the bioinformatics library, <code>bio</code>, under
+<a href="https://github.com/morloc-bio">morloc-bio</a>. A module you publish yourself
+belongs to a library you name, usually your GitHub user name. Modules are
+installed with the <code>morloc install</code> command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -813,18 +823,18 @@ with the <code>morloc install</code> command:</p>
 <div class="paragraph">
 <p>The positional arguments to <code>morloc install</code> are <strong>install strings</strong>. Each
 describes one module to install and optionally pins it to a specific commit,
-branch, or release tag. The same shape is used in the <code>morloc-deps</code> entries of a
-<code>package.yaml</code>. More than one install string may be passed in a single
+branch, or release tag. More than one install string may be passed in a single
 invocation, in which case each is installed in turn (any transitive dependencies
 are also installed automatically).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="text"><span></span>INSTALL  := [REMOTE ":"] NAME [ "@" [FORM ":"] REF ]
+<pre class="pygments highlight"><code data-lang="text"><span></span>INSTALL  := TARGET [ "@" [FORM ":"] REF ]
+TARGET   := &lt;name&gt;                    # a standard library module
+          | &lt;library&gt;/&lt;name&gt;          # a module of a known library
+          | REMOTE ":" &lt;owner&gt;/&lt;repo&gt; # a repository on a host
+          | &lt;local-path&gt;              # must start with '.', '/', or '~'
 REMOTE   := "github" | "gitlab" | "bitbucket" | "codeberg" | "azure"
-NAME     := &lt;repo&gt;           # core module on the default org (morloclib)
-          | &lt;owner&gt;/&lt;repo&gt;   # repository under the chosen remote
-          | &lt;local-path&gt;     # must start with '.', '/', or '~'
 FORM     := "hash" | "branch" | "version" | "tag"   # 'tag' is an alias of 'version'
 REF      := &lt;hexhash&gt;        # seven or more hex digits
           | &lt;semver&gt;         # [v]M.m[.p][-prerelease][+build]
@@ -834,26 +844,45 @@ REF      := &lt;hexhash&gt;        # seven or more hex digits
 <div class="paragraph">
 <p>Without an explicit <code>FORM:</code> prefix the <code>REF</code> is auto-detected by
 trying hash first, then version, then branch. If no <code>@REF</code> is given
-the default branch is used. The default <code>REMOTE</code> is <code>github</code>, the
-default core organization is <code>morloclib</code>, and clones use HTTPS unless
-<code>--ssh</code> is passed.</p>
+the default branch is used. Clones use HTTPS unless <code>--ssh</code> is passed.</p>
 </div>
 <div class="paragraph">
-<p>A bare name like <code>root</code> resolves to <code>morloclib/root</code> on github.com.
-An <code>owner/repo</code> form resolves to <code>github.com/owner/repo</code>. Adding a
-remote prefix selects a different host: <code>gitlab:</code> is gitlab.com,
-<code>codeberg:</code> is codeberg.org, <code>bitbucket:</code> is bitbucket.org. Local
-paths must begin with <code>.</code>, <code>/</code>, or <code>~</code>; everything from the path
-start to the first <code>@</code> is the path, and any <code>@REF</code> that follows is
-honored only when the local directory is itself a git repository — otherwise the working tree is copied verbatim (filtering <code>.git</code> and
-gitignored files) and the ref is silently dropped.</p>
+<p>The module’s <code>package.yaml</code> must give its <code>name</code> and its <code>library</code>, and the
+repository must be named after the module. Where the module comes from
+depends on the form:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A bare name like <code>root</code> is the standard library’s <code>root</code>, from
+<code>github.com/morloclib/root</code>.</p>
+</li>
+<li>
+<p><code>library/name</code> fetches from the library’s <strong>origin</strong>, the host and owner its
+modules live under: <code>bio/convert</code> is <code>github.com/morloc-bio/convert</code>.</p>
+</li>
+<li>
+<p><code>github:weena/calendar</code> fetches that repository. If its <code>package.yaml</code>
+says <code>library: weena</code> and no library <code>weena</code> is known yet, Morloc records
+<code>weena</code> as coming from <code>github:weena</code>, so <code>weena/&lt;name&gt;</code> works from then
+on. <code>gitlab:</code> is gitlab.com, <code>codeberg:</code> is codeberg.org, <code>bitbucket:</code> is
+bitbucket.org.</p>
+</li>
+<li>
+<p>A local path must begin with <code>.</code>, <code>/</code>, or <code>~</code>. Everything from the path
+start to the first <code>@</code> is the path, and any <code>@REF</code> that follows is honored
+only when the local directory is itself a git repository — otherwise the
+working tree is copied verbatim (filtering <code>.git</code> and gitignored files)
+and the ref is silently dropped. A local install records no origin.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>If the optional <code>registry</code> field is set in <code>~/.morloc/config.yaml</code>,
-bare names and bare <code>owner/name</code> strings (containing none of
-<code>:</code>, <code>@</code>, <code>.</code>, <code>~</code>) are resolved against the registry before falling
-back to a git clone from GitHub. Refs are not supported in registry
-mode — the registry’s latest version is always installed.</p>
+<p>The origins of <code>std</code> and <code>bio</code> are built in and cannot be changed. A library
+named something other than its owner is recorded with
+<code>morloc library add &lt;library&gt; &lt;host&gt;:&lt;owner&gt;</code>, and <code>morloc library list</code>
+shows every known library. A package fetched from anywhere but its library’s
+origin is refused.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 11. Install string examples</caption>
@@ -870,19 +899,23 @@ mode — the registry’s latest version is always installed.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>root</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">stdlib <code>root</code> from <code>morloclib/root</code> on GitHub (default branch)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>root</code> from <code>morloclib/root</code> on GitHub (default branch)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>root root-py math</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">install three modules in one invocation</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>weena/calendar</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>weena/calendar</code> on GitHub (default branch)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bio/convert</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>convert</code> from the <code>bio</code> library’s origin, <code>morloc-bio/convert</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>github:weena/calendar</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">same as above, with the remote stated explicitly</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>weena/calendar</code> on GitHub (default branch)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>weena/calendar</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">the same, once the library <code>weena</code> is known</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>gitlab:weena/calendar</code></p></td>
@@ -960,8 +993,8 @@ for quick reference.</p>
 </div>
 <div class="paragraph">
 <p>Installed modules are stored in
-<code>~/.local/share/morloc/src/morloc/plane/default/</code> (under <code>$MORLOC_STATE</code>
-instead of <code>~/.local/share/morloc</code> when that is set) and can be imported in
+<code>~/.local/share/morloc/src/morloc/plane/&lt;library&gt;/&lt;module&gt;/</code> (under
+<code>$MORLOC_STATE</code> instead of <code>~/.local/share/morloc</code> when that is set) and can be imported in
 any Morloc program, as <a href="../features/importing-modules.html">Importing modules</a> describes.</p>
 </div>
 <div class="paragraph">
@@ -991,7 +1024,7 @@ name contains the pattern’s characters in order, so <code>il</code> would matc
 <p>When a Morloc program contains C++ sources, the compiler invokes <code>g++</code>
 (or whatever <code>$CXX</code> resolves to) to build the C++ side of the program.
 Three optional <code>package.yaml</code> fields tune that build: two structured
-fields (<code>cpp-version</code> and <code>dependencies</code>) that translate into specific
+fields (<code>cpp-version</code> and <code>cpp-deps</code>) that translate into specific
 flag patterns, and one verbatim field (<code>cxx-flags</code>) that passes
 arbitrary flags through unchanged. For build steps that go beyond
 flag-tweaking, a fourth field — <code>setup</code> — runs a shell script at
@@ -1009,20 +1042,18 @@ flag (default <code>20</code>).</p>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 </dd>
-<dt class="hdlist1"><code>dependencies: [foo, bar]</code></dt>
+<dt class="hdlist1"><code>cpp-deps</code></dt>
 <dd>
-<p>Names shared libraries the C++ code links against. For each entry
-<code>name</code>, Morloc looks for <code>lib&lt;name&gt;.so</code> under
-<code>~/.local/share/morloc/lib</code> and a <code>&lt;name&gt;.h</code> / <code>.hpp</code> / <code>.hxx</code> under
-<code>~/.local/share/morloc/include</code>, then emits the matching <code>-l</code>, <code>-I</code>,
-<code>-L</code>, and <code>-Wl,-rpath</code> flags. Use this when your C++ code does
-<code>#include &lt;foo.hpp&gt;</code> and links against a <code>libfoo.so</code> that another
-Morloc module installed.</p>
+<p>Names the libraries the C++ code uses. The environment provisions each
+one, and an entry may list the headers your code includes (<code>import</code>) and
+the names the pool links (<code>libs</code>, each <code>hts</code> becoming <code>-lhts</code>). Morloc
+refuses to build when a listed header cannot be found, and in a managed
+environment it puts the environment’s headers and libraries on the
+compile line itself. <a href="../languages/cpp.html">C++</a> covers the details.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">dependencies</span><span class="tok-p">:</span>
-<span class="tok-w">  </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">eigen-cppmorloc</span>
-<span class="tok-w">  </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">jsoncpp</span></code></pre>
+<pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">cpp-deps</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">htslib</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">"&gt;=1.20"</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> import</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nv">htslib/sam.h</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> libs</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">[</span><span class="tok-nv">hts</span><span class="tok-p tok-p-Indicator">]}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 </dd>
@@ -1030,8 +1061,12 @@ Morloc module installed.</p>
 <dd>
 <p>A free-form list of flags appended verbatim to the compile command.
 Use this for anything the structured fields above don’t cover — optimization levels, architecture targeting, preprocessor defines,
-warning controls, and so on. Each list element is one shell argument,
-so no quoting or word-splitting is needed.</p>
+warning controls, and so on. Each list element is one argument, so no
+quoting or word-splitting is needed. Repeated elements are merged, so
+write a flag that takes a value as one element (<code>-Wl,-rpath,DIR</code>, not
+<code>-Xlinker</code> twice). A library the environment does not provide, such as
+the system’s zlib or one a <code>setup</code> script builds, is linked here
+(<code>-lz</code>).</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">cxx-flags</span><span class="tok-p">:</span>
@@ -1051,7 +1086,8 @@ so no quoting or word-splitting is needed.</p>
 <pre class="pygments highlight"><code data-lang="yaml"><span></span><span class="tok-nt">name</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">vector-ops</span>
 <span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">0.1.0</span>
 <span class="tok-nt">cpp-version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">20</span>
-<span class="tok-nt">dependencies</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">[</span><span class="tok-nv">eigen-cppmorloc</span><span class="tok-p tok-p-Indicator">]</span>
+<span class="tok-nt">cpp-deps</span><span class="tok-p">:</span>
+<span class="tok-w">  </span><span class="tok-nt">eigen</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p tok-p-Indicator">{</span><span class="tok-nt">version</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s">"*"</span><span class="tok-p tok-p-Indicator">,</span><span class="tok-nt"> import</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-nv">Eigen/Dense</span><span class="tok-p tok-p-Indicator">}</span>
 <span class="tok-nt">cxx-flags</span><span class="tok-p">:</span>
 <span class="tok-w">  </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">-O3</span>
 <span class="tok-w">  </span><span class="tok-p tok-p-Indicator">-</span><span class="tok-w"> </span><span class="tok-l tok-l-Scalar tok-l-Scalar-Plain">-march=native</span>
@@ -1061,7 +1097,7 @@ so no quoting or word-splitting is needed.</p>
 <div class="paragraph">
 <p>When one module depends on another, the downstream module inherits
 all three fields from its dependencies: a consumer of <code>vector-ops</code>
-above will automatically get <code>-leigen-cppmorloc</code> and the listed
+above gets Eigen provisioned and its header checked, and the listed
 <code>cxx-flags</code> on its own C++ compile line.</p>
 </div>
 <div class="paragraph">
@@ -1088,20 +1124,19 @@ environment variables set:</p>
 <dd>
 <p>Morloc’s install root (default <code>~/.local/share/morloc</code>).</p>
 </dd>
-<dt class="hdlist1"><code>MORLOC_MODULE_NAME</code>, <code>MORLOC_MODULE_VERSION</code></dt>
+<dt class="hdlist1"><code>MORLOC_MODULE_NAME</code>, <code>MORLOC_MODULE_LIBRARY</code>, <code>MORLOC_MODULE_VERSION</code></dt>
 <dd>
-<p>name and version from
-this <code>package.yaml</code>.</p>
+<p>name, library and version from this <code>package.yaml</code>.</p>
 </dd>
 <dt class="hdlist1"><code>MORLOC_MODULE_DIR</code></dt>
 <dd>
 <p>absolute path to the installed module’s
 directory; also the script’s working directory.</p>
 </dd>
-<dt class="hdlist1"><code>MORLOC_PLANE</code>, <code>MORLOC_PLANE_DIR</code></dt>
+<dt class="hdlist1"><code>MORLOC_PLANE_DIR</code></dt>
 <dd>
-<p>the active plane name and its
-directory.</p>
+<p>the directory of installed modules, one subdirectory
+per library.</p>
 </dd>
 </dl>
 </div>

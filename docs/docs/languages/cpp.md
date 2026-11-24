@@ -17,18 +17,47 @@ cpp-deps:
 
 A `cpp-deps` entry may also name a conda `channel` other than conda-forge (see [Dependencies (`py-deps`)](https://morloc-project.github.io/docs/languages/python.md#py-deps) for the full rules), for a library that lives on a subordinate channel. A program your C++ code runs, rather than a library it links, is declared under `tool-deps` ([Command-line tools (`tool-deps`)](https://morloc-project.github.io/docs/apis/deploy-dependencies.md#tool-deps)).
 
-## 9.2.2. Link flags (`dependencies`)
+## 9.2.2. Headers and link names (`import`, `libs`)
 
-Provisioning a library makes its headers available, but linking against a compiled component also needs a linker flag. List the link names under `dependencies` (a bare list); each entry `foo` becomes `-lfoo` on the pool’s compile line:
+An entry can also name the headers your code includes and the libraries the pool links against:
 
 ```yaml
 cpp-deps:
-  boost: ">=1.80"
-dependencies:
-  - boost_filesystem
-  - boost_system
+  htslib:
+    version: ">=1.20"
+    import: htslib/sam.h
+    libs: [hts]
 ```
 
-A header-only library (or a header-only part of a larger one) needs only `cpp-deps` and no `-l` flag. For any other compiler flags — extra include paths, `-DFOO`, `-O3`, `-march=native` — use `cxx-flags`, a bare list appended verbatim to the compile line. All three fields propagate transitively through a module’s dependencies.
+Each name under `libs` becomes a linker flag: `hts` becomes `-lhts`. Write the bare name, without `-l`, a `lib` prefix or a file suffix. The link name sits on the package that provides it because the two names often differ: the `htslib` package provides `libhts`, and `boost` provides `boost_filesystem` and `boost_system`. A header-only library needs no `libs`.
 
-The `local-deps` section that Python and Rust use for in-project packages ([Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)) is not available for C++, which has no package manager to track such an install; a library you build yourself is linked through `dependencies` and `cxx-flags` like any other.
+`import` takes one header or a list. Morloc checks that every header a program’s modules declare can be found, and a missing one stops the build with an error that names the package and the header, such as `C++ dependency htslib (header htslib/sam.h) not found`. This check covers headers only. A missing library still fails at link time, with the linker’s `cannot find -lhts`.
+
+In a managed environment, Morloc adds the environment’s `include` and `lib` directories to every C++ pool build and records the `lib` directory as the pool’s run path. The build does not depend on the compiler’s own search paths, and the program runs from any shell, as long as the environment stays where it was built.
+
+For any other compiler flags — `-DFOO`, `-O3`, `-march=native` — use `cxx-flags`. Each entry reaches the compiler as one argument, so `'-DMSG="a b"'` stays one define. A library the environment does not provide, such as the system’s zlib or one your setup script builds, is linked through `cxx-flags` too: `cxx-flags: ["-lz"]`. These fields propagate transitively through a module’s dependencies.
+
+Older modules listed link names under a `dependencies` field. That field is gone, and Morloc refuses a `package.yaml` that still has it.
+
+The `local-deps` section that Python and Rust use for in-project packages ([Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)) is not available for C++, which has no package manager to track such an install; a library you build yourself is linked through `cxx-flags`.
+
+## 9.2.3. Runtime helpers (`cppmorloc_api.hpp`)
+
+The C++ binding’s helpers ([Calling the runtime from sourced code](https://morloc-project.github.io/docs/features/foreign-functions.md#runtime-helpers)) are declared in `cppmorloc_api.hpp`, which every C++ pool includes before your headers. Each helper defines a feature macro; test it, so the header also builds outside a pool.
+
+`mlc::give(f, std::move(x)…​)` calls the function value `f` and hands it ownership of its arguments, which you must not read again. Calling `f(x)` directly lends `x`, so a function value that keeps or reshapes its argument copies it; `give` lets one that can take the value, such as a lambda passing it on at its last use, move it instead. A loop that pulls a batch from a stream and passes it to a function value is the usual place for it:
+
+```cpp
+template <class F>
+inline auto giveTo(F f, int n) {
+    std::vector<int> b;
+    for (int i = 1; i <= n; ++i) b.push_back(i);
+#ifdef MLC_GIVE
+    return mlc::give(f, std::move(b));
+#else
+    return f(std::move(b));
+#endif
+}
+```
+
+Where `f` has no such form, `give` calls it as usual and the argument is lent.

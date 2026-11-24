@@ -1365,6 +1365,8 @@ Morloc decides where values are copied, moved and shared, and changes those deci
     
     C++ code that calls a function Morloc passed to it calls it the same way, never with a non-const reference.
     
+    A `const T&` parameter may be overloaded with a `T&&` one that computes the same result. Morloc calls the `T&&` overload only where it will not use the value again, so that overload may take the argument’s contents instead of copying them ([Runtime helpers (`cppmorloc_api.hpp`)](https://morloc-project.github.io/docs/languages/cpp.md#cpp-runtime-helpers)).
+    
 -   Rust: never take `&mut`. Morloc passes a `Copy` value by value and anything else as `&T`, so a `&mut T` parameter does not build. Do not change an argument through `Cell`, `RefCell`, `Mutex` or an atomic either; that is not detected.
 -   Python: no `list.sort()`, `append`, item or attribute assignment, `dict.update`, or in-place numpy operation (`a += 1`, `out=`) on an argument. Copy first. A numpy array that came from another language or from a literal in your program is read-only, so writing to it raises a `ValueError`; call `.copy()` to get one you can change.
 -   R: changing a local copy is fine, since R copies on modify. Do not change an argument by reference: an environment, an R6 or reference class object, ``data.table’s `:=`` and `set*` functions, or an external pointer.
@@ -1379,6 +1381,12 @@ Morloc decides where values are copied, moved and shared, and changes those deci
 -   is safe to read through a `const` reference (C++) or `&` (Rust) from several threads at once.
 
 Work that must happen at a definite time, such as writing a file or releasing a lock, belongs in an effectful function Morloc calls in order, not in a copy constructor or destructor.
+
+## 3.2.7. Calling the runtime from sourced code
+
+Sourced code normally calls nothing of Morloc’s: it is ordinary code over ordinary values. A few low-level tasks, mostly performance work, go better with the runtime’s help, and for those each language’s binding offers a small set of helper functions. The binding is the module every pool of that language already loads, so a helper needs no import of its own.
+
+Every helper is optional. Code that does not call one builds and computes the same result, only slower, and each helper has a feature test, so a file that uses one still builds on its own. Only the helpers documented here are a contract; anything else you find in a binding is used by generated code and may change. So far only C++ has helpers ([Runtime helpers (`cppmorloc_api.hpp`)](https://morloc-project.github.io/docs/languages/cpp.md#cpp-runtime-helpers)).
 
 
 ---
@@ -1409,7 +1417,7 @@ module (*)
 
 Its name is then taken from the import path: if `main.loc` imports `.utils`, the module in `utils.loc` (or `utils/main.loc`) is named `utils`.
 
-A single file may contain more than one module. Each `module` keyword starts a new one; everything indented under it, or appearing before the next `module` keyword, belongs to it. A module body may also be empty:
+A single file may contain more than one module. Each `module` keyword starts a new one; everything indented under it, or appearing before the next `module` keyword, belongs to it. The other modules of a file are local modules, so they are imported with a leading dot. A module body may also be empty:
 
 ```morloc
 module utils (helper)
@@ -1418,14 +1426,14 @@ helper :: Int -> Int
 helper x = x + 1
 
 module main (run)
-import utils (helper)
+import .utils (helper)
 run :: Int -> Int
 run x = helper x
 ```
 
 ## 3.3.2. Installed modules and `root`
 
-An import without a leading dot names an installed module. `morloc make` fetches a missing one, as you saw in [Writing code that is not tied to a language](https://morloc-project.github.io/docs/getting-started/abstract-modules.md); `morloc install root-py` fetches it by hand. [Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md) covers installing in full.
+An import without a leading dot names an installed module. A bare name such as `root-py` is a module of the standard library; a module of another library is named with its library first, as in `import bio/convert`. `morloc make` fetches a missing one, as you saw in [Writing code that is not tied to a language](https://morloc-project.github.io/docs/getting-started/abstract-modules.md); `morloc install root-py` fetches it by hand. [Installing modules](https://morloc-project.github.io/docs/modules/installing-modules.md) covers installing in full.
 
 `root` and a `root-<lang>` are not alternatives. `root` declares the standard library — the classes, and everything derivable from them — and a `root-<lang>` supplies the instances by sourcing native implementations. A program needs both, so its import list names a `root-<lang>`.
 
@@ -1433,9 +1441,9 @@ Which one it names sets what a single invocation costs, because the program star
 
 | Import | Per invocation | Where the time goes |
 | --- | --- | --- |
-| `root` alone, using only operations the nexus runs itself ([Intrinsics](https://morloc-project.github.io/docs/features/intrinsics.md)) | about 8 ms | the nexus process; no pool is started |
-| `root-cpp` | about 21 ms | a compiled pool; roughly 13 ms of that is starting the pool |
-| `root-py` | about 132 ms | a Python pool; starting the interpreter dominates |
+| `root` alone, using only operations the nexus runs itself ([Intrinsics](https://morloc-project.github.io/docs/features/intrinsics.md)) | about 10 ms | the nexus process; no pool is started |
+| `root-cpp` | about 15 ms | a compiled pool |
+| `root-py` | about 50 ms | a Python pool; starting the interpreter dominates |
 
 Crossing into a pool is cheap and starting an interpreter is not. That rarely matters for a batch job and decides how a frequently typed command feels. Moving between backends is a one-line change to the import.
 
@@ -2596,6 +2604,19 @@ Scanning every string for NULs costs time. You can opt out two ways when you kno
 
 Both are unsafe in the same way: a NUL that reaches R still crashes inside the R runtime, just with R’s error instead of Morloc’s. There is nothing useful user-written R code can do with a NUL-bearing string.
 
+## 3.7.5. Strings are UTF-8 text
+
+A `Str` is always valid UTF-8. Where a language can hold other bytes in a string (a C++ `std::string`, a Python `bytes` given for a `Str`, an R string marked as bytes), the pool checks each string as it leaves, and a failure names the language and the byte position. An R string in latin1 or another native encoding is translated to UTF-8. Text read from outside the program (a file, standard input, a packet, a MessagePack argument) is checked as it is read. For binary data, use `[U8]`.
+
+An output form never turns a string it cannot carry into an empty one: raw output (a `@render` action) writes the bytes as they are, and JSON output fails, naming the byte position.
+
+The check of strings that leave a pool costs time. When you know your program builds only text, you can opt out:
+
+-   `morloc make --unsafe-skip-utf8-check` builds the program with the check off.
+-   `MORLOC_SKIP_UTF8_CHECK=1` turns it off for one run.
+
+Either way, only the strings your program builds go unchecked; data read from outside is always checked. The opt-out is unsafe: bytes that are not text pass through raw output unchanged and fail later, far from where they were made, in JSON output or in a language that decodes text.
+
 
 ---
 
@@ -2690,34 +2711,42 @@ record Person where
   age :: Int
 ```
 
-Records map to whatever each language uses for the job: a `dict` in Python, a `list` in R, a `struct` in C++. Internally the layout is positional, but the surface language always binds by name.
+That declaration is all a record needs. Every language gets a native form of it without your saying anything: a `dict` in Python, a named `list` in R, and a `struct` the compiler writes for you in C++ and Rust. Internally the layout is positional, but the surface language always binds by name.
 
 ## 3.9.1. Native representations
 
-The concrete forms must share the general record’s field names and types, so those are not repeated. You only name the container:
+The forms Morloc gives a record, and how code you source names it:
 
-```morloc
-record Py => Person = "dict"
-record R => Person = "list"
-record Cpp => Person = "person_t"
-```
+| Language | The record is | A sourced function names it as |
+| --- | --- | --- |
+| Python | a `dict` keyed by field name | a `dict`; nothing to import |
+| R | a named `list` | a `list`; nothing to import |
+| C++ | a generated `struct` with one member per field | `mlc::types::_local::recs::Person`, from `#include "mlc/types/_local/recs.hpp"` |
+| Rust | a generated `struct` with one `pub` field per field | `crate::mlc::types::_local::recs::Person` |
 
-Python and R need nothing further — `dict` and `list` hold arbitrary fields already. C++ needs the struct to exist:
+The generated name follows the module that declares the record. `recs` is that module here, and `_local` marks it as one of your program’s own modules; a module of an installed package sits under its package’s name instead. The compiler writes the C++ header and the Rust module before it compiles your sources, so a source can include or `use` them like any other file.
 
 **foo.hpp**
 
 ```cpp
 #pragma once
-#include <string>
+#include "mlc/types/_local/recs.hpp"
 
-struct person_t {
-    std::string name;
-    int age;
-};
+using mlc::types::_local::recs::Person;
 
-person_t incAge(person_t person){
+Person incAge(Person person){
     person.age++;
     return person;
+}
+```
+
+**foo.rs**
+
+```rust
+use crate::mlc::types::_local::recs::Person;
+
+pub fn inc_age(person: &Person) -> Person {
+    Person { name: person.name.clone(), age: person.age + 1 }
 }
 ```
 
@@ -2738,6 +2767,98 @@ incAge <- function(person){
 def incAge(person):
     return {**person, "age": person["age"] + 1}
 ```
+
+### Python classes
+
+In Python a record can instead be an instance of a class the compiler writes. You choose this with a **kind**, a bare word after the `=>`:
+
+**people.loc**
+
+```morloc
+module people (older)
+
+import root-py
+
+record Person where
+  name :: Str
+  age :: Int
+
+record Py => Person = dataclass
+
+source Py from "older.py" ("incAge" as older)
+older :: Person -> Person
+```
+
+`dataclass` gives a frozen, slotted dataclass, and `pydantic` a frozen pydantic model; `dict` is the default. Code written for the `dict` form keeps working, because a field can be read by subscript as well as by attribute. Since the instance is frozen, return a changed copy:
+
+**older.py**
+
+```python
+import dataclasses
+
+def incAge(person):
+    print(type(person).__qualname__, person.name, person["age"])
+    return dataclasses.replace(person, age=person.age + 1)
+```
+
+```console
+$ ./people older '{"name":"Bob","age":40}'
+Person Bob 40
+{"name":"Bob","age":41}
+```
+
+A source that needs the class itself imports it from the generated package, here `from mlc_types._local.people import Person`. Only the package that declares a record may give it a class kind. A word the language does not define is an error that lists the ones it does:
+
+```console
+bad.loc:9:1: py has no record kind `pydantik`; its kinds are dataclass, dict, pydantic (a string names a type you write instead)
+    |
+  9 | record Py => Person = pydantik
+    | ^
+```
+
+### Writing the type yourself
+
+A quoted string after the `=>` names a type you write instead of the generated one. It is how you hand a record to an existing C++ or Rust type:
+
+```morloc
+record Cpp => Person = "person_t"
+```
+
+Field names and types still come from the general declaration, so they are not repeated. Your type must hold exactly the record’s fields, under the same names, because Morloc builds a value of it from those fields and nothing else. A type parameter that no field uses, a phantom like the `k` of `record Loc k where pos :: Int`, is best not passed to your type at all (`record Rust ⇒ Loc k = "LocT"`): Rust refuses a struct that does not use its parameter, and a marker field would be a field the record lacks.
+
+Python has no such form yet. A record mapped to a Python class name you wrote is still passed as a `dict`; classes you write yourself are a planned feature.
+
+The strings `"dict"`, `"list"`, `"struct"` and `"OrderedDict"` are older spellings of the default kinds. They still work, with a warning:
+
+```console
+warning: legacy.loc:9:1: "dict" is the old spelling of the py record kind `dict`; write `= dict` instead
+```
+
+### Recursive records
+
+A record whose fields refer to the record itself needs no special treatment in Python or R. In C++ and Rust the generated type is a **handle**: a small value that shares an immutable struct of the fields, so that copying a tree copies one pointer. Read a field through `→` in C++; Rust’s handle dereferences to the fields:
+
+```morloc
+record Tree where
+  label :: Str
+  kids :: [Tree]
+```
+
+```cpp
+inline int count(const Tree& t) {
+    int n = 1;
+    for (const auto& k : t->kids) n += count(k);
+    return n;
+}
+```
+
+```rust
+pub fn count_rs(t: &Tree) -> i64 {
+    1 + t.kids.iter().map(count_rs).sum::<i64>()
+}
+```
+
+To build one, give the handle a struct of its fields: `Tree(Tree_fields{…​})` in C++, `Tree::new(TreeFields { …​ })` in Rust.
 
 ## 3.9.2. Record literals match by field name
 
@@ -2802,20 +2923,15 @@ Because the record has a native form in each language, a function that operates 
 **recs.loc**
 
 ```morloc
-module recs (foo)
+module recs (foo, alice)
 
 import root-r
 import root-py
 import root-cpp
 
-record Person = Person
-    { name :: Str
-    , age :: Int
-    }
-
-record Py => Person = "dict"
-record R => Person = "list"
-record Cpp => Person = "person_t"
+record Person where
+  name :: Str
+  age :: Int
 
 source R from "foo.R" ("incAge" as rinc)
 source Py from "foo.py" ("incAge" as pinc)
@@ -2829,9 +2945,12 @@ foo :: Str -> Int -> Person
 foo name age
     = (rinc . pinc . cinc)
       { name = name, age = age }
+
+alice :: Person
+alice = { name = "Alice", age = 30 }
 ```
 
-`foo` builds a `Person` and then increments its age three times, once in each language, passing the record across two process boundaries on the way:
+`foo` builds a `Person` and then increments its age three times, once in each language, passing the record across two process boundaries on the way. The sources are the `foo.R`, the first `foo.py` and the `foo.hpp` shown above:
 
 ```console
 $ ./recs foo Bob 40
@@ -2839,6 +2958,35 @@ $ ./recs foo Bob 40
 ```
 
 Nothing in `foo.R`, `foo.py`, or `foo.hpp` knows the others exist. Each sees only its own language’s ordinary data structure.
+
+## 3.9.4. Using the generated types outside Morloc
+
+`morloc types` writes the generated files for a program to a directory of your choice, so that a program that is not built by Morloc can use the same types:
+
+```console
+$ morloc types recs.loc -o gen
+$ find gen -type f | sort
+gen/cpp/mlc/types/_local/recs.hpp
+gen/py/mlc_types/__init__.py
+gen/py/mlc_types/_builtin/__init__.py
+```
+
+There is one directory per language the program uses. For Rust it writes a crate, with a `Cargo.toml`, that a Rust project can depend on.
+
+A field may hold a type from a library your module depends on. The generated file then has to include or import that library, so the dependency’s entry in `package.yaml` says where its types live: the `namespace` its names start with and, in C++, the headers to include. A Rust crate’s namespace defaults to the crate’s name, and the crate becomes a dependency of the written crate:
+
+**package.yaml**
+
+```yaml
+cpp-deps:
+  nlohmann_json:
+    version: "*"
+    source: conda
+    namespace: nlohmann
+    import: nlohmann/json.hpp
+rust-deps:
+  ndarray: "0.16"
+```
 
 
 ---
@@ -2960,8 +3108,6 @@ Record fields may be optional, which is what you want for data with missing or u
 record Person where
   name :: Str
   age :: ?Int
-
-record Py => Person = "dict"
 
 source Py from "foo.py" ("makePerson")
 makePerson :: Str -> ?Int -> Person
@@ -4181,9 +4327,9 @@ $ ./ast eval '{"Add":[{"Lit":[1.5]},{"Neg":[{"Wrap":[{"Lit":[2.0]}]}]}]}'
 -0.5
 ```
 
-A record may sit on such a cycle too, as long as a `data` is on it as well — with one caveat. A record on a cycle is a recursive record, and in C and Rust a recursive record still has to be a type you write yourself; the compiler does not yet generate one (\`+record Cpp => Node = "struct"+\` on a cycle fails at build time). In C that leaves no way through at all, since a header you write is included before the `data` type it would have to name. Python and R take the shape as it is.
+A record may sit on such a cycle too, as long as a `data` is on it as well. A record on a cycle is a recursive record, which C++ and Rust hold through a handle ([Records](https://morloc-project.github.io/docs/features/records.md)).
 
-What may not close a cycle is a set of records or aliases alone:
+What may not close a cycle is a set of records or aliases alone. The one exception is an alias that refers only to itself, and only under `?` or a list, as in `type T = (Int, ?T)`. Two aliases that refer to each other are refused:
 
 **mutual.loc**
 
@@ -4252,38 +4398,19 @@ The alias is the only qualifier there is. A module’s own name is not one —
 
 ## 3.15.7. Native representations
 
-Every language gets a representation of a `data` type, and by default the compiler writes it: an `enum class` in C++, a `#[repr(u8)]` enum in Rust, an ordinal in Python, an ordered factor in R. You declare nothing, and functions written in Morloc work across all four.
+Every language gets a representation of a `data` type, and the compiler writes it: an `enum class` in C++, a `#[repr(u8)]` enum in Rust, an `enum.Enum` in Python and an ordered factor in R for a type whose constructors take nothing; for one with fields, a class per constructor in C++ and Python, an enum in Rust and a list in R. You declare nothing, and functions written in Morloc work across all four.
 
-Native code you **source** is a different matter, because it has to name the type to take it apart. Rust can name a generated type directly. C++ cannot: a sourced header is included before the compiler’s own declarations, so a header that mentions `Shape` must declare `Shape` itself, and you tell Morloc that with a per-language declaration — the same `=>` form records already use:
-
-```morloc
-data Cpp => Shape = "Shape"
-```
-
-The mapping says only which native name to use. The constructors and their field types are not repeated, and the native declaration has to match the layout Morloc expects: a wrapper `Shape`, one `Shape_<Constructor>` struct per arm, and fields named `f0`, `f1` and so on. The foldout at the end of this section gives that layout for each language.
+Native code you **source** names the generated type the way it names a generated record ([Records](https://morloc-project.github.io/docs/features/records.md)): a C++ source includes the header the compiler writes for the declaring module, a Rust source uses its module path, and a Python source imports its class from the generated package. In C++ a value with fields is a wrapper `Shape` around a `std::variant` of one `Shape_<Constructor>` struct per constructor, whose fields are `f0`, `f1` and so on:
 
 **shapes.hpp**
 
 ```cpp
 #pragma once
-#include <memory>
-#include <variant>
+#include "mlc/types/_local/main.hpp"
 
-struct Shape_Circle;
-struct Shape_Rect;
-struct Shape_Dot;
+using namespace mlc::types::_local::main;
 
-struct Shape {
-    std::variant<std::shared_ptr<const Shape_Circle>,
-                 std::shared_ptr<const Shape_Rect>,
-                 std::shared_ptr<const Shape_Dot>> v;
-};
-
-struct Shape_Circle { double f0; };
-struct Shape_Rect   { double f0; double f1; };
-struct Shape_Dot    { };
-
-inline double area(Shape s) {
+inline double area(const Shape& s) {
     if (auto p = std::get_if<std::shared_ptr<const Shape_Circle>>(&s.v))
         return 3.14159 * (*p)->f0 * (*p)->f0;
     if (auto p = std::get_if<std::shared_ptr<const Shape_Rect>>(&s.v))
@@ -4292,41 +4419,49 @@ inline double area(Shape s) {
 }
 ```
 
-Python needs no declaration. A value with fields arrives as a pair of the constructor’s name and a tuple of its fields:
+In Python a constructor is an attribute of its type’s class: `Shape.Circle(r)` builds a value, `case Shape.Circle(r):` matches one, and a constructor without fields is a single value, `Shape.Dot`. A type whose constructors all take nothing is an `enum.Enum`, so its values are members such as `Color.Red`:
 
 **shapes.py**
 
 ```python
+from mlc_types._local.main import Shape, Color
+
 def grow(k, s):
     match s:
-        case ("Circle", (r,)):
-            return ("Circle", (k * r,))
-        case ("Rect", (w, h)):
-            return ("Rect", (k * w, k * h))
+        case Shape.Circle(r):
+            return Shape.Circle(k * r)
+        case Shape.Rect(w, h):
+            return Shape.Rect(k * w, k * h)
         case _:
             return s
+
+def warm(c):
+    return c is Color.Red
 ```
 
 **crossing.loc**
 
 ```morloc
-module main (areaCpp, growPy, bigArea)
+module main (areaCpp, growPy, bigArea, colors)
 
 import root-py
 import root-cpp
 
 data Shape = Circle Real | Rect Real Real | Dot
+data Color = Red | Green | Blue
 
-data Cpp => Shape = "Shape"
-
-source Py  from "shapes.py"  ("grow" as growPy)
+source Py  from "shapes.py"  ("grow" as growPy, "warm" as warmPy)
 source Cpp from "shapes.hpp" ("area" as areaCpp)
 
 growPy  :: Real -> Shape -> Shape
+warmPy  :: Color -> Bool
 areaCpp :: Shape -> Real
 
 bigArea :: Shape -> Real
 bigArea s = areaCpp (growPy 2.0 s)
+
+colors :: [Color] -> [Bool]
+colors xs = map warmPy xs
 ```
 
 ```console
@@ -4334,11 +4469,15 @@ $ ./crossing growPy 1.5 '{"Circle":[2.5]}'
 {"Circle":[3.75]}
 $ ./crossing bigArea '{"Rect":[1.5,2.25]}'
 13.5
+$ ./crossing colors '["Red","Blue"]'
+[true,false]
 ```
 
 `bigArea` grew the shape in Python and measured it in C++. One declaration, two native representations, and a wire form both agree on.
 
-Forget the mapping and the C++ compiler reports `error: redefinition of 'struct Shape'` against the generated pool source. It means the mapping is missing, not that your header is wrong.
+A Python constructor named like a Python keyword takes a trailing underscore: in `data Opt = Some Int | None`, the second constructor is `Opt.None_`. A Python source must return a value of exactly these classes; any other form, such as a tuple, is refused when the value leaves Python.
+
+In C++ and Rust you can still write the type yourself and map it with `data Cpp => Shape = "Shape"`; your declaration then has to match the layout in the foldout at the end of this section. In Python a mapping is ignored, with a warning, since the value is always the generated class.
 
 ## 3.15.8. Comparing values
 
@@ -4347,8 +4486,6 @@ Forget the mapping and the C++ compiler reports `error: redefinition of 'struct 
 The ordering operators use the same order the declaration does. `Red < Green` is `True` because `Red` is declared first, and so is `Circle 1.0 < Dot`. Two values of the same constructor are ordered by their fields, so `Circle 1.0 < Circle 2.0`.
 
 The answer does not depend on where the comparison runs. Which pool the compiler picks for an expression is its choice rather than yours, so a comparison that meant one thing in Python and another in R would be a bug you could not see in the source.
-
-One gap to know about: the Python and R representations shown above are an interim form, to be replaced by a generated class per arm. Treat the pair shape as something to match on rather than something to build a library around.
 
 **How a data value is encoded**
 
@@ -4391,10 +4528,10 @@ For the reader writing native code against a Morloc `data` type. Each row is wha
 
 | Language | Constructors without fields | Constructors with fields |
 | --- | --- | --- |
-| Python | The ordinal, as an `int`. A list of them is a `list` of ints, as every list is in Python; `Vector n T` gives a compact numpy `uint8` array. | `("Circle", (2.0,))` — the constructor’s name and a tuple of its fields. |
+| Python | A member of a generated `enum.Enum`, such as `Color.Red`, whose value is the wire tag. `Vector n T` gives a compact numpy `uint8` array of tags. | `Shape.Circle(2.0)` — an instance of a frozen class nested in the type’s class, with fields `f0`, `f1` and so on. A constructor without fields is one shared instance, `Shape.Dot`. |
 | R | An ordered `factor`, so `<` compares in declaration order. Codes are 1-based, so a code is the wire tag plus one; the levels are the constructor names in declaration order. | `list("Circle", list(2.0))` — the name and a list of fields. |
 | C++ | `enum class Color : uint8_t` with explicit discriminants, so the native value and the wire tag are the same byte. | A wrapper struct holding a `std::variant` of `std::shared_ptr<const …​>` to one struct per arm. A copy shares the arms, and nothing changes an arm once it is built: to change a value, copy the arm, change the copy and wrap it in a new `std::make_shared<…​>`, which converts to the const pointer. Never build an arm as a const object (`std::make_shared<const …​>`): Morloc may move a field out of an arm only it holds. A type you map yourself is written the same way; an arm that is not `std::shared_ptr<const …​>` does not build. |
-| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | Generated: an enum whose arms each hold one `::rustmorloc::RecBox` of a tuple of their fields. A `RecBox` is reference-counted: cloning it shares the fields instead of copying them, and dropping a long chain does not recurse. Build an arm with `RecBox::new..,` and read its fields through `Deref`; `into_inner` moves the tuple out when the box has a single owner. A type you map yourself with `data Rust =>` declares its arms with `Box` instead (`Link(Box<(i64, Chain)>)`); a mapped type with `RecBox` arms does not compile. Not `Copy`. |
+| Rust | `#[repr(u8)]` enum with explicit discriminants, deriving `Clone`, `Copy`, `PartialEq`, `Eq`, `PartialOrd`, `Ord` and `Debug`, so it compares in declaration order. | Generated: an enum whose arm for constructor `C` holds one value of the generated arm type `Shape_C`, a reference-counted node holding a tuple of the arm’s fields. Cloning it shares the fields instead of copying them, and in a pool dropping a long chain does not recurse. Build an arm with `Shape_C::new..,` or `(..,).into()` and read its fields through `Deref` (`c.0`); `into_inner` moves the tuple out when the arm has a single owner. Every name is in your program’s own generated types; nothing comes from morloc’s runtime. A type you map yourself with `data Rust =>` is written the way Rust code usually is: each arm a tuple variant with one field per morloc field, each field holding its morloc type as is, in a `Box` or in an `Arc` (an optional field in an `Option` of one of those), so a self reference is `Link(i64, Box<Chain>)`. Not `Copy`. |
 
 The generated C++ and Rust declarations, for the `Shape` of this section:
 
@@ -4417,10 +4554,12 @@ struct Shape_Dot {
 ```
 
 ```rust
+pub type Shape_Circle = crate::mlc::Node<(f64,)>;
+pub type Shape_Rect = crate::mlc::Node<(f64, f64)>;
 #[derive(Clone)]
 pub enum Shape {
-    Circle(::rustmorloc::RecBox<(f64,)>),
-    Rect(::rustmorloc::RecBox<(f64, f64)>),
+    Circle(Shape_Circle),
+    Rect(Shape_Rect),
     Dot,
 }
 ```
@@ -4457,13 +4596,11 @@ template <typename T> struct MyBox_Full { T f0; };
 #[derive(Clone)]
 pub enum MyBox<T> {
     Empty,
-    Full(::std::boxed::Box<(T,)>),
+    Full(T),
 }
 ```
 
-The same holds for a `record` with parameters: `record Rust ⇒ (Wrap a) = "MyWrap<$1>" a` names a `struct MyWrap<T>`. Python and R still declare nothing; a mapping there is a hint carried on the wire and the value keeps its structural shape.
-
-In Python and R, the pair shape is a structural interim representation, chosen because it needs nothing the generic marshaller cannot already build; a generated class per arm is the intended end state. The cost of the interim form is that neither language’s compiler — and neither has one — checks that you built an arm correctly, so a field order swapped between two same-typed fields is silently wrong in Python and R where C++ and Rust would reject it.
+The same holds for a `record` with parameters: `record Rust ⇒ (Wrap a) = "MyWrap<$1>" a` names a `struct MyWrap<T>`. Python and R declare nothing. In Python a `data` value is always an instance of the generated classes, and a value of any other form is refused when it leaves Python. R keeps the structural `list(name, fields)` shape.
 
 
 ---
@@ -5197,7 +5334,13 @@ $ ./people walk people.dat
 
 ## 3.18.4. Standard input and output
 
-`@stdin` opens standard input as an `IStream`; `@stdout` and `@stderr` open the other two standard streams as `OStream` handles. They take their element type from an annotation, like `@open`, and use the same `@next`, `@write` and `@close`. This lets one Morloc program pipe typed data into another:
+`@stdin` opens standard input as an `IStream`, and `@stderr` opens standard error as an `OStream` handle; both take their element type from an annotation, like `@open`, and use the same `@next`, `@write` and `@close`. `@stdout` hands a body the standard output stream, and the command returns `Collect a`, so its signature says what it writes:
+
+```morloc
+@stdout :: (OStream a -> <IO, e> b) -> <IO, e> (Collect a)
+```
+
+`@stdout` closes the handle when the body returns. Like `@collect`, it ends a command whose signature returns `Collect` ([Streaming output with `@collect`](https://morloc-project.github.io/docs/clis/streaming-output.md)). This lets one Morloc program pipe typed data into another:
 
 **pipe.loc**
 
@@ -5206,23 +5349,19 @@ module pipe (produce, double)
 
 import root-py
 
-produce :: <IO> ()
-produce = do
-  o <- @stdout :: <IO> (OStream Int)
-  @write 0 o [1, 2, 3]
-  @write 0 o [4, 5, 6]
-  @close o
+produce :: <IO> (Collect Int)
+produce = @stdout (\o -> do
+  _ <- @write 0 o [1, 2, 3]
+  @write 0 o [4, 5, 6])
 
-double :: <IO> ()
-double = do
+double :: <IO> (Collect Int)
+double = @stdout (\o -> do
   Ok s <- @stdin :: <IO> (Try Str (IStream Int))
-  o <- @stdout :: <IO> (OStream Int)
   Ok xs <- @next s
-  @write 0 o (map (\x -> x * 2) xs)
+  _ <- @write 0 o (map (\x -> x * 2) xs)
   Ok ys <- @next s
-  @write 0 o (map (\x -> x * 2) ys)
-  @close o
-  @close s
+  _ <- @write 0 o (map (\x -> x * 2) ys)
+  @close s)
 ```
 
 ```console
@@ -5243,7 +5382,22 @@ Each batch is compressed on its own, so any batch can be read without the others
 
 `@concat` copies the batches byte for byte, with no decoding. It builds the result beside `dest` and renames it into place, which is why `dest` may also be a source and why a failure leaves the old `dest` intact.
 
-## 3.18.5. Environment variables
+## 3.18.5. A stream its writer did not finish
+
+A stream file ends with a footer that records how its writer stopped. A reader refuses a stream whose writer failed rather than hand over part of it as if it were whole: `@load`, an `IStream`, an `IFile`, `@concat` and `@append` all do. A stream read from a pipe also fails when the input ends before its final footer. A run that fails after it began streaming packet output ends that output with a footer that says it failed. A file with no footer may still be being written, so an `IStream` reads the batches it holds; an `IFile` needs a final footer and refuses it.
+
+`morloc-nexus file` shows how a stream ended, and `--validate` fails on one that did not finish. To read what such a file holds, repair it: the repair keeps every complete batch and marks the file repaired, which readers accept.
+
+```console
+$ morloc-nexus file cut.pkt
+cut.pkt: stream-packet schema="aj" state=missing subpackets=2 elements=3 ...
+$ morloc-nexus file --repair cut.pkt
+cut.pkt: repaired: 2 sub-packets, 3 elements
+```
+
+A repaired file may hold fewer batches than its writer meant to write. `@concat` keeps the mark on any file it builds from one, and `@append` will not extend it.
+
+## 3.18.6. Environment variables
 
 | Variable | Effect |
 | --- | --- |
@@ -5285,9 +5439,9 @@ Intrinsics are compiler-generated special functions. They are prefixed with `@` 
 | `@next` | `IStream a -> <IO> (Try Str [a])` | Pull the next sub-packet’s elements from an `IStream`. Yields `Ok []` at EOF. Mid-stream decode failures are an `Err` arm. |
 | `@stream` | `IFile [a] -> <IO> (IStream a)` | Derive a forward-walking `IStream` from an open `IFile`. The two share the underlying file but have independent cursors. Unrelated to the `@stream` modifier on CLI output actions. |
 | `@stdin` | `<IO> (Try Str (IStream a))` | Open process stdin as a typed `IStream` of morloc binary packets. Element type set by inline ascription. See [Random access and streaming](https://morloc-project.github.io/docs/features/random-access-and-streaming.md). A second `@stdin` in the same nexus gives an `Err` arm via the uniqueness guard; read-time failures surface at `@next`. |
-| `@stdout` | `<IO> (OStream a)` | Open process stdout as a typed `OStream` of morloc binary packets. Element type set by inline ascription. |
+| `@stdout` | `(OStream a -> <IO, e> b) -> <IO, e> (Collect a)` | Hand a body the process stdout as a typed `OStream`, and close it when the body returns. Ends a streaming command, like `@collect` (see [Streaming output with `@collect`](https://morloc-project.github.io/docs/clis/streaming-output.md)). |
 | `@stderr` | `<IO> (OStream a)` | Open process stderr as a typed `OStream` of morloc binary packets. Element type set by inline ascription. Useful for structured diagnostics that downstream tools can parse. |
-| `@collect` | `(([a] -> <IO, e> ()) -> <IO, e> ()) -> <IO, e> ()` | Drive a streaming-output command. Takes a producer that is handed a *sink* (`[a] -> <IO, e> ()`); `@collect` supplies the default sink — write each batch to the nexus-formatted `@stdout` — and manages the stream lifecycle. Formatter directives (`@with` / `@render`, with the `@stream` modifier for per-batch application) rewrite the sink to transform or gather the stream per CLI flag. |
+| `@collect` | `(([a] -> <IO, e> ()) -> <IO, e> ()) -> <IO, e> (Collect a)` | Drive a streaming-output command. Takes a producer that is handed a *sink* (`[a] -> <IO, e> ()`); `@collect` supplies the default sink — write each batch to the nexus-formatted `@stdout` — and manages the stream lifecycle. Formatter directives (`@with` / `@render`, with the `@stream` modifier for per-batch application) rewrite the sink to transform or gather the stream per CLI flag. |
 | `@tell` | `<IO> U64` | The number of elements written so far to the current output stream. Lets an offset-form formatter handler (`U64 -> [a] -> ...`) annotate each batch with its running position in the stream. |
 | `@eq` | `a -> a -> Bool` | Whether two values of one type are equal as wire values, in any language. Pure. |
 | `@le` | `a -> a -> Bool` | Whether the first value is at most the second in the order of wire values (fields left to right, lists lexicographically). Pure. |
@@ -5301,7 +5455,7 @@ Intrinsics are compiler-generated special functions. They are prefixed with `@` 
 | `@throw` | `Str -> a` | Raise a `MorlocException` with the given message. Emits a native `raise`/`throw`/`stop` in the target language and never returns; the return type is polymorphic so `@throw` can inhabit any branch of a conditional. It has no effect row, because a computation that does not return has nothing for one to describe. |
 | `@try` | `<e> a -> <e> (Try Str a)` | Evaluate the expression under a language-native try/catch. A completed evaluation is `Ok`, an escaping exception is `Err` carrying its message. The argument’s effect row passes through unchanged; the argument may be pure, in which case so is the result. |
 
-Several intrinsics are polymorphic in their data argument: `@save`, `@savej`, `@write`, `@hash`, `@show`, `@schema`, and `@typeof` accept a value of any type. `@load`, `@read`, and `@next` return a value of any type, inferred from context. `@stdin`, `@stdout`, `@stderr`, `@open`, and `@append` are polymorphic in their handle’s element type, which is resolved by inline ascription at the open site. `@collect` is polymorphic in the stream element type `a`, read off the sink its producer is handed. `@throw` is polymorphic in its return type because it never returns (see [Failure and recovery](#failure-and-recovery)).
+Several intrinsics are polymorphic in their data argument: `@save`, `@savej`, `@write`, `@hash`, `@show`, `@schema`, and `@typeof` accept a value of any type. `@load`, `@read`, and `@next` return a value of any type, inferred from context. `@stdin`, `@stderr`, `@open`, and `@append` are polymorphic in their handle’s element type, which is resolved by inline ascription at the open site. `@collect` and `@stdout` are polymorphic in the stream element type `a`, which the command’s `Collect a` signature fixes. `@throw` is polymorphic in its return type because it never returns (see [Failure and recovery](#failure-and-recovery)).
 
 Two patterns run through the table. Anything that touches the world carries `<IO>`, and anything that can fail returns a `Try` (see [Failure is not an effect](https://morloc-project.github.io/docs/features/effects.md#failure-is-not-an-effect)): a missing file, a full disk, a broken pipe or a decode mismatch arrives as an `Err` arm rather than as an effect label. Most entries have both. The exceptions on the failure side are `@close`, `@tell`, `@stream`, `@stdout` and `@stderr`, which do setup, teardown or bookkeeping with no failure mode addressable from morloc code; `@read` is the exception on the other side, fallible but pure, because parsing a string touches nothing. The remaining intrinsics (`@version`, `@compiled`, `@lang`, `@datafile`) are compile-time constants, and `@hash`, `@show`, `@schema` and `@typeof` are pure functions of their argument’s type or serialized bytes.
 
@@ -8379,8 +8533,6 @@ record Hit where
   line :: Int
   text :: Str
 
-record Py => Hit = "dict"
-
 --' How to search
 --' @unroll
 --' @arg --options
@@ -8393,8 +8545,6 @@ record Options where
   --' @arg -m/--max-count
   --' @default 0
   maxCount :: Int
-
-record Py => Options = "dict"
 
 source Py from "sift.py"
   ( "scan"      as scanPy
@@ -8486,7 +8636,7 @@ stream ::
   --' @check.path r
   Str ->
   Options ->
-  <IO> ()
+  <IO> (Collect Hit)
 stream pat root opts = @collect (producePy pat root opts)
 ```
 
@@ -8566,13 +8716,17 @@ Examples:
 A command’s signature preamble takes the same block, and it renders at the foot of that subcommand’s help alone. Blank lines and `#` comments inside the block are kept, so each example can say what it is for:
 
 ```morloc
---' Count matches of a needle in one file
+--' Add up a stream of per-file counts
 --' @epilogue
 --' Examples:
 --'
---' # count in a single file
---' sift total needle ./notes/today.md
-total :: Str -> Str -> Int
+--' # total the counts of a search
+--' sift -f packet summarize hits.json | sift total
+total ::
+  --' A file of counts; standard input when omitted
+  --' @stdin
+  Str ->
+  <IO> Int
 ```
 
 
@@ -9888,7 +10042,7 @@ $ ./sift -f csv summarize hits.json
 Error: --format=csv|tsv requires a Table or a list of records whose fields are table cells
 ```
 
-Two more nexus options shape the output. `-o` writes to a file instead of stdout; output actions can also write files of their own, several in one run (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)). `-p` pretty-prints: JSON gets indentation, and a top-level `Str` is printed as text rather than as a quoted JSON string.
+Two more nexus options shape the output. `-o` writes to a file instead of stdout, and replaces that file only when the run succeeds: a failed run leaves it as it was. Output actions can also write files of their own, several in one run (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)). `-p` pretty-prints: JSON gets indentation, and a top-level `Str` is printed as text rather than as a quoted JSON string.
 
 ```console
 $ ./sift -p summarize hits.json
@@ -10283,14 +10437,14 @@ Each file holds exactly what the action writes when run alone, `-f` and `-z` inc
 
 Only `=` attaches a path. `--json rows.json` is still the flag followed by a positional argument, and a short flag (`-j`) always means stdout, as does `--json=-`.
 
-What makes this possible is that the run saves the command’s output, and the actions read it back. Two things follow. An action that writes to stdout in such a run does so after the command finishes, not as it streams. And an action on a streaming command that can stream from more than one `@collect` in a run, or from one in a where-binding, or that has a branch streaming nothing, runs only on saved output, so the daemon and MCP servers, which run one action per call, do not offer it. A command whose branches (guard or `match` arms) each end in one `@collect` is not such a command: its actions run directly.
+What makes this possible is that the run saves the command’s output, and the actions read it back. Two things follow. An action that writes to stdout in such a run does so after the command finishes, not as it streams. And an action on a command that streams through `@stdout` runs only on saved output, so the daemon and MCP servers, which run one action per call, do not offer it. A `@collect` command’s actions run directly, composed into its sink.
 
 A `-f` that one of the outputs cannot take — `csv` for a value that is not a table, or `mpk` for a stream — is refused before the command runs.
 
 ## 5.10.6. Rules and rejections
 
 -   At most one action writes to stdout. Two bare action flags, or a bare one with `--no-stdout`, are rejected, as are one path given to two actions, a path that is also ``-o’s, and an empty `--act=``.
--   A streaming command with actions must return `()`: its actions apply to what it streams.
+-   A streaming command returns `Collect a` ([Streaming output with `@collect`](https://morloc-project.github.io/docs/clis/streaming-output.md)): its actions apply to what it streams.
 -   An action cannot refer with `$N` to a streamed `@parse` argument: the command consumes that stream as it reads it.
 -   Action directives belong in the signature preamble — the `--'` lines directly above `name ::` — not on argument docstrings, record fields, or type aliases.
 -   The command needs an explicit signature.
@@ -10309,13 +10463,15 @@ Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/strea
 
 Everything so far has treated a command’s output as one value: compute it, serialize it, write it. That breaks down when the result is larger than memory, or when the caller wants to see the first rows before the last ones exist.
 
-A streaming command returns `()` and hands its data out in batches. The `@collect` intrinsic drives it:
+A streaming command hands its data out in batches and returns `Collect a`, where `a` is the type of each element it writes. The `@collect` intrinsic drives it:
 
 ```morloc
-@collect :: (([a] -> <IO, e> ()) -> <IO, e> ()) -> <IO, e> ()
+@collect :: (([a] -> <IO, e> ()) -> <IO, e> ()) -> <IO, e> (Collect a)
 ```
 
-`@collect` takes a **producer**: a function that is given a sink and calls it once per batch. `@collect` supplies the sink, manages the stream, and writes each batch out in whatever form `-f` selects. The element type rides on the sink, so the compiler knows the stream’s type with no extra annotation.
+`@collect` takes a **producer**: a function that is given a sink and calls it once per batch. `@collect` supplies the sink, manages the stream, and writes each batch out in whatever form `-f` selects.
+
+`Collect a` is declared in the standard library as `newtype Collect a = Unit`: a unit value whose parameter `a` is a phantom, appearing only in the type. It holds no data. It stands for the list of every element written, `[a]`, before any output action, so the command’s signature says what it writes even though the elements never pass through its return value. Only `@collect` and `@stdout` produce one, and the typechecker gives it no special rule: the arms of a streaming command agree on `a` as any arms agree on a type. Outside morloc code the output is simply `[a]`, which is what help and the API show.
 
 ``sift’s `stream`` searches the same tree as `scan` but emits one batch per file:
 
@@ -10328,7 +10484,7 @@ stream ::
   --' @check.path r
   Str ->
   Options ->
-  <IO> ()
+  <IO> (Collect Hit)
 stream pat root opts = @collect (producePy pat root opts)
 ```
 
@@ -10362,8 +10518,8 @@ The output actions of [Output actions](https://morloc-project.github.io/docs/cli
 | --- | --- | --- |
 | `@with` | `[a] -> b` (or `IFile [a] -> b`) | Gather the whole stream, apply once; `b` is serialized by `-f`. |
 | `@with ... @stream` | `[a] -> [b]` | Apply to each batch as it arrives, at constant memory; the `b` elements are serialized by `-f`. |
-| `@render` | `[a] -> Str` / `[a] -> [U8]` (or `IFile [a] -> ...`) | Gather the whole stream, apply once, write the bytes verbatim. |
-| `@render ... @stream` | `[a] -> Str` / `[a] -> [U8]` | Apply to each batch, write each result’s bytes verbatim. |
+| `@render` | `[a] -> Str` / `[a] -> [Str]` / `[a] -> [U8]` / `[a] -> [[U8]]` (or `IFile [a] -> ...`) | Gather the whole stream, apply once, write the bytes verbatim. |
+| `@render ... @stream` | `[a] -> Str` / `[a] -> [Str]` / `[a] -> [U8]` / `[a] -> [[U8]]` | Apply to each batch, write each result’s bytes verbatim. |
 | `@with`/`@render ... @fold=` | as above, with `b` in place of `[a]` | Fold the stream into one accumulator, apply once to it. See [`@fold`: one accumulator instead of a list](#stream-fold). |
 
 ``sift’s `stream`` declares four actions, drawing on three of those rows:
@@ -10486,16 +10642,25 @@ The producer must drive its sink from a worker pool rather than a thread per bat
 
 The rules in [Rules and rejections](https://morloc-project.github.io/docs/clis/output-actions.md#action-rules) all apply. More are specific to streaming:
 
--   An action applies to everything the command streams, whatever the shape of its body: a command with several \`@collect\`s, or one in a branch or a where-binding, gives each action the whole output, in order. Such a command’s actions run on its saved output (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)), and so does any action combined with others.
--   The producer needs a signature with a concrete batch type when its `@collect` is anywhere but the tail of the body.
+-   Every path through a streaming command ends in exactly one `@collect` or `@stdout`, in tail position: the last statement of a `do` block, an arm of a guard or `match`, or the body of a `let`. A path may end in `@throw` instead. Anything else, such as two ``@collect`s in a row or a `@collect`` in a where-binding, is a build error. To stream from several producers, call them on one sink inside a single `@collect`:
+    
+    ```morloc
+    both :: <IO> (Collect Int)
+    both = @collect (\sink -> do
+      _ <- first sink
+      second sink)
+    ```
+    
+-   `@collect` and `@stdout` appear only in a command whose signature returns `Collect`, and morloc code never calls such a command. Share its producer instead.
+-   A command’s actions run on a fresh run of the command, composed into its sink. Any action combined with others runs on its saved output (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)), as do the actions of a `@stdout` command.
 -   A `@stream` handler must return a list; its elements are what reach the wire.
--   `@render` under `@stream` writes each batch’s bytes as they are produced, with nothing added between batches — no separator, no trailing newline beyond what the handler itself emits.
+-   `@render` under `@stream` writes each batch’s bytes as they are produced, with nothing added between batches — no separator, no trailing newline beyond what the handler itself emits. A handler that returns a list (`[Str]` or ) has each element written in order, also with nothing between them, so it can build a large batch’s output as many pieces rather than one string.
 -   `@fold` and `@stream` are mutually exclusive: `@stream` emits one result per batch, `@fold` one for the whole stream.
 -   `@fold` requires a reachable `@collect`, and all three of `@fold`, `@init` and `@combine`.
 
 ## 5.11.6. What the help says a stream produces
 
-A streaming command’s `Return:` block describes **standard output**, not the `()` the function returns. The two coincide for every other command and come apart here, so the block is worth reading closely:
+A streaming command’s `Return:` block describes **standard output**. The command returns `Collect Hit`, and help shows it as what reaches standard output, the list `[Hit]`:
 
 ```console
 $ ./sift stream -h
@@ -10512,7 +10677,7 @@ Return:
 
 Five rows, five different things on stdout. `type` is the batch element the sink writes; `-c` and `-n` gather and return a single value; `-N` transforms each batch and streams the result; and `(raw bytes)` marks the one row where `-f` no longer applies, because a `@render` action writes its handler’s bytes verbatim.
 
-The compiler works the element type out from the producer’s signature: a `@collect` argument takes exactly one parameter, the sink, so the sink is the last parameter of the producer’s declared type and the sink’s own parameter is what reaches standard output. A producer with no reachable signature — an inline lambda — leaves the row falling back to the return type; the help never claims `()` for a command that streams.
+The element type comes from the command’s signature, and the typechecker checks it against the producer’s sink: a producer that writes `[Str]` batches cannot stand in a `Collect Hit` command. `Collect` means nothing outside morloc code, so `--json-help` and the API also show the output as `[Hit]`.
 
 
 ---
@@ -11753,6 +11918,8 @@ The 0-9 range is deliberately algorithm-agnostic: it spans "no compression" thro
 
 A stream sub-packet is cut into zstd frames of a fixed size, 2 MiB at levels 1-6 and 16 MiB at levels 7-9, and each frame is compressed as its own job. Frames are compressed, and decompressed, in parallel on up to `MORLOC_FRAME_WORKERS` threads (default: the number of cores, capped at 16).
 
+Reading a compressed stream is different: the reader decodes ahead of your code on at most two of those threads, so a stream read item by item uses about the CPU of one decode, not of every core.
+
 ## 6.6.4. Algorithm-agnostic surface
 
 The compression level is an *abstract* knob. The morloc nexus produces and consumes its own compressed packets, so the underlying algorithm is an implementation detail. zstd is the current choice (modern Pareto winner on speed vs. ratio), but a future release may switch to a different codec without changing the `-z 0..9` semantics or the `@write` signature. The packet header records the algorithm it was written with, so old packets remain readable across algorithm changes.
@@ -11907,7 +12074,7 @@ Morloc Manual | https://morloc-project.github.io/docs/modules/ | prev: https://m
 
 Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/installing-modules.html | prev: https://morloc-project.github.io/docs/modules/index.md | next: https://morloc-project.github.io/docs/modules/universal-library.md
 
-The default Morloc modules are hosted on GitHub under the [morloclib](https://github.com/morloclib) organization. Modules can be installed with the `morloc install` command:
+Every installed module belongs to a **library**. The standard library, `std`, is hosted on GitHub under the [morloclib](https://github.com/morloclib) organization, and the bioinformatics library, `bio`, under [morloc-bio](https://github.com/morloc-bio). A module you publish yourself belongs to a library you name, usually your GitHub user name. Modules are installed with the `morloc install` command:
 
 ```console
 $ morloc install internal
@@ -11917,34 +12084,41 @@ $ morloc install root-py
 $ morloc install root-r
 ```
 
-The positional arguments to `morloc install` are **install strings**. Each describes one module to install and optionally pins it to a specific commit, branch, or release tag. The same shape is used in the `morloc-deps` entries of a `package.yaml`. More than one install string may be passed in a single invocation, in which case each is installed in turn (any transitive dependencies are also installed automatically).
+The positional arguments to `morloc install` are **install strings**. Each describes one module to install and optionally pins it to a specific commit, branch, or release tag. More than one install string may be passed in a single invocation, in which case each is installed in turn (any transitive dependencies are also installed automatically).
 
 ```text
-INSTALL  := [REMOTE ":"] NAME [ "@" [FORM ":"] REF ]
+INSTALL  := TARGET [ "@" [FORM ":"] REF ]
+TARGET   := <name>                    # a standard library module
+          | <library>/<name>          # a module of a known library
+          | REMOTE ":" <owner>/<repo> # a repository on a host
+          | <local-path>              # must start with '.', '/', or '~'
 REMOTE   := "github" | "gitlab" | "bitbucket" | "codeberg" | "azure"
-NAME     := <repo>           # core module on the default org (morloclib)
-          | <owner>/<repo>   # repository under the chosen remote
-          | <local-path>     # must start with '.', '/', or '~'
 FORM     := "hash" | "branch" | "version" | "tag"   # 'tag' is an alias of 'version'
 REF      := <hexhash>        # seven or more hex digits
           | <semver>         # [v]M.m[.p][-prerelease][+build]
           | <branch>         # a valid git branch name
 ```
 
-Without an explicit `FORM:` prefix the `REF` is auto-detected by trying hash first, then version, then branch. If no `@REF` is given the default branch is used. The default `REMOTE` is `github`, the default core organization is `morloclib`, and clones use HTTPS unless `--ssh` is passed.
+Without an explicit `FORM:` prefix the `REF` is auto-detected by trying hash first, then version, then branch. If no `@REF` is given the default branch is used. Clones use HTTPS unless `--ssh` is passed.
 
-A bare name like `root` resolves to `morloclib/root` on github.com. An `owner/repo` form resolves to `github.com/owner/repo`. Adding a remote prefix selects a different host: `gitlab:` is gitlab.com, `codeberg:` is codeberg.org, `bitbucket:` is bitbucket.org. Local paths must begin with `.`, `/`, or `~`; everything from the path start to the first `@` is the path, and any `@REF` that follows is honored only when the local directory is itself a git repository — otherwise the working tree is copied verbatim (filtering `.git` and gitignored files) and the ref is silently dropped.
+The module’s `package.yaml` must give its `name` and its `library`, and the repository must be named after the module. Where the module comes from depends on the form:
 
-If the optional `registry` field is set in `~/.morloc/config.yaml`, bare names and bare `owner/name` strings (containing none of `:`, `@`, `.`, `~`) are resolved against the registry before falling back to a git clone from GitHub. Refs are not supported in registry mode — the registry’s latest version is always installed.
+-   A bare name like `root` is the standard library’s `root`, from `github.com/morloclib/root`.
+-   `library/name` fetches from the library’s **origin**, the host and owner its modules live under: `bio/convert` is `github.com/morloc-bio/convert`.
+-   `github:weena/calendar` fetches that repository. If its `package.yaml` says `library: weena` and no library `weena` is known yet, Morloc records `weena` as coming from `github:weena`, so `weena/<name>` works from then on. `gitlab:` is gitlab.com, `codeberg:` is codeberg.org, `bitbucket:` is bitbucket.org.
+-   A local path must begin with `.`, `/`, or `~`. Everything from the path start to the first `@` is the path, and any `@REF` that follows is honored only when the local directory is itself a git repository — otherwise the working tree is copied verbatim (filtering `.git` and gitignored files) and the ref is silently dropped. A local install records no origin.
+
+The origins of `std` and `bio` are built in and cannot be changed. A library named something other than its owner is recorded with `morloc library add <library> <host>:<owner>`, and `morloc library list` shows every known library. A package fetched from anywhere but its library’s origin is refused.
 
 **Table 11. Install string examples**
 
 | Install string | Effect |
 | --- | --- |
-| `root` | stdlib `root` from `morloclib/root` on GitHub (default branch) |
+| `root` | `root` from `morloclib/root` on GitHub (default branch) |
 | `root root-py math` | install three modules in one invocation |
-| `weena/calendar` | `weena/calendar` on GitHub (default branch) |
-| `github:weena/calendar` | same as above, with the remote stated explicitly |
+| `bio/convert` | `convert` from the `bio` library’s origin, `morloc-bio/convert` |
+| `github:weena/calendar` | `weena/calendar` on GitHub (default branch) |
+| `weena/calendar` | the same, once the library `weena` is known |
 | `gitlab:weena/calendar` | `weena/calendar` on gitlab.com |
 | `codeberg:weena/foo` | `weena/foo` on codeberg.org |
 | `weena/calendar@1.0` | release tag `1.0` (semver auto-detected) |
@@ -11965,7 +12139,7 @@ If the optional `registry` field is set in `~/.morloc/config.yaml`, bare names a
 
 The `morloc install -h` help screen carries a shorter example block for quick reference.
 
-Installed modules are stored in `~/.local/share/morloc/src/morloc/plane/default/` (under `$MORLOC_STATE` instead of `~/.local/share/morloc` when that is set) and can be imported in any Morloc program, as [Importing modules](https://morloc-project.github.io/docs/features/importing-modules.md) describes.
+Installed modules are stored in `~/.local/share/morloc/src/morloc/plane/<library>/<module>/` (under `$MORLOC_STATE` instead of `~/.local/share/morloc` when that is set) and can be imported in any Morloc program, as [Importing modules](https://morloc-project.github.io/docs/features/importing-modules.md) describes.
 
 To view the modules that are currently installed, you can run `morloc list`. This will list all installed modules, their version, and their short descriptions. Adding the `-v` option additionally prints the types of all exported terms.
 
@@ -11982,7 +12156,7 @@ Modules:
 
 ## 7.1.1. Configuring the C++ build
 
-When a Morloc program contains C++ sources, the compiler invokes `g++` (or whatever `$CXX` resolves to) to build the C++ side of the program. Three optional `package.yaml` fields tune that build: two structured fields (`cpp-version` and `dependencies`) that translate into specific flag patterns, and one verbatim field (`cxx-flags`) that passes arbitrary flags through unchanged. For build steps that go beyond flag-tweaking, a fourth field — `setup` — runs a shell script at install time.
+When a Morloc program contains C++ sources, the compiler invokes `g++` (or whatever `$CXX` resolves to) to build the C++ side of the program. Three optional `package.yaml` fields tune that build: two structured fields (`cpp-version` and `cpp-deps`) that translate into specific flag patterns, and one verbatim field (`cxx-flags`) that passes arbitrary flags through unchanged. For build steps that go beyond flag-tweaking, a fourth field — `setup` — runs a shell script at install time.
 
 **`cpp-version: 20`**
 
@@ -11992,19 +12166,18 @@ Selects the C++ standard. Translates directly into a `-std=c++NN` flag (default 
 cpp-version: 20
 ```
 
-**`dependencies: [foo, bar]`**
+**`cpp-deps`**
 
-Names shared libraries the C++ code links against. For each entry `name`, Morloc looks for `lib<name>.so` under `~/.local/share/morloc/lib` and a `<name>.h` / `.hpp` / `.hxx` under `~/.local/share/morloc/include`, then emits the matching `-l`, `-I`, `-L`, and `-Wl,-rpath` flags. Use this when your C++ code does `#include <foo.hpp>` and links against a `libfoo.so` that another Morloc module installed.
+Names the libraries the C++ code uses. The environment provisions each one, and an entry may list the headers your code includes (`import`) and the names the pool links (`libs`, each `hts` becoming `-lhts`). Morloc refuses to build when a listed header cannot be found, and in a managed environment it puts the environment’s headers and libraries on the compile line itself. [C++](https://morloc-project.github.io/docs/languages/cpp.md) covers the details.
 
 ```yaml
-dependencies:
-  - eigen-cppmorloc
-  - jsoncpp
+cpp-deps:
+  htslib: {version: ">=1.20", import: htslib/sam.h, libs: [hts]}
 ```
 
 **`cxx-flags: [-O3, -DENABLE_FAST_PATH]`**
 
-A free-form list of flags appended verbatim to the compile command. Use this for anything the structured fields above don’t cover — optimization levels, architecture targeting, preprocessor defines, warning controls, and so on. Each list element is one shell argument, so no quoting or word-splitting is needed.
+A free-form list of flags appended verbatim to the compile command. Use this for anything the structured fields above don’t cover — optimization levels, architecture targeting, preprocessor defines, warning controls, and so on. Each list element is one argument, so no quoting or word-splitting is needed. Repeated elements are merged, so write a flag that takes a value as one element (`-Wl,-rpath,DIR`, not `-Xlinker` twice). A library the environment does not provide, such as the system’s zlib or one a `setup` script builds, is linked here (`-lz`).
 
 ```yaml
 cxx-flags:
@@ -12019,14 +12192,15 @@ The three fields combine:
 name: vector-ops
 version: 0.1.0
 cpp-version: 20
-dependencies: [eigen-cppmorloc]
+cpp-deps:
+  eigen: {version: "*", import: Eigen/Dense}
 cxx-flags:
   - -O3
   - -march=native
   - -DEIGEN_NO_DEBUG
 ```
 
-When one module depends on another, the downstream module inherits all three fields from its dependencies: a consumer of `vector-ops` above will automatically get `-leigen-cppmorloc` and the listed `cxx-flags` on its own C++ compile line.
+When one module depends on another, the downstream module inherits all three fields from its dependencies: a consumer of `vector-ops` above gets Eigen provisioned and its header checked, and the listed `cxx-flags` on its own C++ compile line.
 
 For build steps that go beyond what these flags can express — running `cmake`, building a vendored library from source, fetching pre-built artifacts, or installing a Python or R package — use the more general `setup` field, which names a shell script that runs once at install time:
 
@@ -12041,17 +12215,17 @@ The script runs after the module’s source has been laid down on disk and after
 
 Morloc’s install root (default `~/.local/share/morloc`).
 
-**`MORLOC_MODULE_NAME`, `MORLOC_MODULE_VERSION`**
+**`MORLOC_MODULE_NAME`, `MORLOC_MODULE_LIBRARY`, `MORLOC_MODULE_VERSION`**
 
-name and version from this `package.yaml`.
+name, library and version from this `package.yaml`.
 
 **`MORLOC_MODULE_DIR`**
 
 absolute path to the installed module’s directory; also the script’s working directory.
 
-**`MORLOC_PLANE`, `MORLOC_PLANE_DIR`**
+**`MORLOC_PLANE_DIR`**
 
-the active plane name and its directory.
+the directory of installed modules, one subdirectory per library.
 
 A non-zero exit fails the install. The path must be relative to the module root and must not contain `..` segments. Prefer the three structured fields above when they suffice — a setup script is more powerful but also more code to maintain.
 
@@ -12077,7 +12251,7 @@ In the future, when hundreds of languages are supported, and when possibly some 
 
 Morloc Manual > Modules and Libraries | https://morloc-project.github.io/docs/modules/exposing-native-resources.html | prev: https://morloc-project.github.io/docs/modules/universal-library.md | next: https://morloc-project.github.io/docs/modules/data-transfer.md
 
-A module’s `package.yaml` can link against shared libraries through its `dependencies` field ([Configuring the C++ build](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build)). The `expose` field handles a different need: a module that defines a C++ struct, a Python class, or an R helper whose definition downstream foreign code needs to `#include` (or `import`, or `source`) by name. On install, listed files are copied to per-language well-known paths under `$MORLOC_HOME`, namespaced by module name. Downstream code then refers to them through a stable path that is the same for every consumer.
+A module’s `package.yaml` can link against shared libraries through its `cpp-deps` and `cxx-flags` fields ([Configuring the C++ build](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build)). The `expose` field handles a different need: a module that defines a C++ struct, a Python class, or an R helper whose definition downstream foreign code needs to `#include` (or `import`, or `source`) by name. On install, listed files are copied to per-language well-known paths under `$MORLOC_HOME`, namespaced by module name. Downstream code then refers to them through a stable path that is the same for every consumer.
 
 ```yaml
 expose:
@@ -12090,11 +12264,11 @@ Each key is optional. Paths are relative to the module root; glob patterns ( **w
 
 | Language | Destination | Consumer code |
 | --- | --- | --- |
-| C++ | `$MORLOC_HOME/include/<module>/...` | `#include "<module>/foo.hpp"` |
-| Python | `$MORLOC_HOME/lib/python/<py_module>/...` | `import <py_module>.foo` |
-| R | `$MORLOC_HOME/lib/R/<module>/...` | `.morloc.source("<module>/foo.R")` |
+| C++ | `$MORLOC_STATE/modules/include/<lib>/<module>/...` | `#include "<lib>/<module>/foo.hpp"` |
+| Python | `$MORLOC_STATE/modules/python/mlc_lib/<lib>/<py_module>/...` | `import mlc_lib.<lib>.<py_module>.foo` |
+| R | `$MORLOC_STATE/modules/R/<lib>/<module>/...` | `.morloc.source("<lib>/<module>/foo.R")` |
 
-For Python, hyphens in the module name are converted to underscores so the destination is a legal Python identifier (a module `tensor-cpp` becomes `tensor_cpp`). The C++ subtree `$MORLOC_HOME/include` is already on every C++ pool’s `-I` path, so no compile flags need tweaking; consumers write the namespaced `#include`. `morloc uninstall` symmetrically removes the exposed copies alongside the install dir.
+`<lib>` is the module’s library: `std` for the standard library (`#include "std/tensor-cpp/tensor.hpp"`). For Python, hyphens in the library and module names are converted to underscores so the destination is a legal Python identifier (a module `tensor-cpp` becomes `tensor_cpp`). The C++ subtree `$MORLOC_STATE/modules/include` is already on every C++ pool’s `-I` path, so no compile flags need tweaking; consumers write the namespaced `#include`. `morloc uninstall` symmetrically removes the exposed copies alongside the install dir.
 
 A worked example. The `people` module declares a Morloc type backed by a C++ struct and exposes the header that defines it:
 
@@ -12105,7 +12279,10 @@ module people (Person, makePerson)
 
 import root-cpp
 
-type Cpp => Person = "person_t"
+record Person where
+  name :: Str
+  age :: Int
+record Cpp => Person = "person_t"
 
 source Cpp from "person.hpp" ("make_person" as makePerson)
 
@@ -12116,6 +12293,7 @@ makePerson :: Str -> Int -> Person
 
 ```yaml
 name: people
+library: weena
 version: 0.1.0
 expose:
   cpp: [person.hpp]
@@ -12141,14 +12319,14 @@ inline person_t make_person(const std::string& name, int age) {
 #endif
 ```
 
-Install with `morloc install ./people`. The exposed header now lives at `$MORLOC_HOME/include/people/person.hpp`. A downstream program imports the Morloc type and uses the underlying C++ struct directly in its own foreign code:
+Install with `morloc install ./people`. The exposed header now lives at `$MORLOC_STATE/modules/include/weena/people/person.hpp`, under the module’s library and name. A downstream program imports the Morloc type and uses the underlying C++ struct directly in its own foreign code:
 
 **main.loc**
 
 ```morloc
 module main (greeting)
 
-import people (Person, makePerson)
+import weena/people (Person, makePerson)
 import root-cpp
 
 source Cpp from "src.hpp" ("greet")
@@ -12162,7 +12340,7 @@ greeting = greet (makePerson "Alice" 30)
 **src.hpp**
 
 ```cpp
-#include "people/person.hpp"
+#include "weena/people/person.hpp"
 #include <string>
 
 inline std::string greet(const person_t& p) {
@@ -12170,7 +12348,7 @@ inline std::string greet(const person_t& p) {
 }
 ```
 
-The same exposed header is discoverable from non-Morloc C++ programs too: compile with `g++ -I$MORLOC_HOME/include` and `#include "people/person.hpp"` works identically.
+The same exposed header is discoverable from non-Morloc C++ programs too: compile with `g++ -I$MORLOC_STATE/modules/include` and `#include "weena/people/person.hpp"` works identically.
 
 
 ---
@@ -12502,7 +12680,6 @@ name: smiles
 version: 0.1.0
 synopsis: "Chemical structures in SMILES format"
 license: MIT
-dependencies: []
 py-deps:
   rdkit: { version: "*", source: "conda" }
 ```
@@ -12531,9 +12708,18 @@ tool-deps:
 
 A tool is always a conda package, from conda-forge or from the channel you name. The environment’s solve installs it with everything else, and its executables are on the environment’s `PATH`, so your code calls the program by its executable’s name, which need not be the package’s: the `star` package installs `STAR`.
 
+Name the executables under `bin`, and the build checks that each one exists before it compiles anything, refusing with the dependency and the executable it could not find:
+
+```yaml
+tool-deps:
+  star: { version: "==2.7.11b", channel: "bioconda", bin: [STAR] }
+```
+
+An entry without `bin` is installed but not checked, since Morloc cannot tell an executable’s name from the package’s.
+
 Tools belong to the module, not to one of its languages. A Rust module that runs STAR declares it here, since `rust-deps` names only crates; so does a Python module that starts a program with `subprocess`. Like any dependency, a tool comes along with the module that declares it. A program only your tests run, such as a reference tool you compare results with, belongs in the `package.yaml` beside the test program, so that nothing importing your module installs it.
 
-Run the program inside its environment, as `mim run` does. Started from a shell whose `PATH` lacks the environment’s `bin` directory, it finds whatever executable of that name comes first on your `PATH`, or none.
+A program built in an environment remembers it. Its pools start with the environment’s `bin` directory first on `PATH`, so they find the declared tools even when you start the program from a shell outside the environment. A program built outside any environment uses the `PATH` it was started with.
 
 ## 8.2.4. Installing the program
 
@@ -12817,7 +13003,7 @@ An eval expression is code written by whoever can reach the server, so it runs u
 
 Each request is typechecked and compiled from scratch before it runs, so even a small expression takes a moment. Nothing about one request is kept for the next.
 
-The token rule is stricter for eval than for the rest of the server. On the default loopback bind, eval needs no token. On an exposed server, eval runs only for callers presenting the token, even if you started the server with `--allow-no-auth`; without a token it is **locked**: not listed among the MCP tools, reported as locked by `/discover`, and refused: with `403` over HTTP, with a JSON-RPC error over MCP. `--eval-allow-no-auth` lifts this, for a deployment where something in front of the server already checks callers. When a token is set, `mim eval` sends the one in `MORLOC_MCP_TOKEN`, or the one given with `--auth-token`.
+The token rule is stricter for eval than for the rest of the server. Eval needs a token whatever the bind address, even if you started the server with `--allow-no-auth`; without one it is **locked**: not listed among the MCP tools, reported as locked by `/discover`, and refused: with `403` over HTTP, with a JSON-RPC error over MCP. `--eval-allow-no-auth` lifts this, for a deployment where something in front of the server already checks callers. When a token is set, `mim eval` sends the one in `MORLOC_MCP_TOKEN`, or the one given with `--auth-token`.
 
 ## 8.4.4. Trying expressions locally
 
@@ -13071,7 +13257,7 @@ A non-default `rust:lto` or `rust:opt-level` compiles its own copy of the pool�
 
 ## 9.1.5. Build parameters vs. `package.yaml`
 
-A project’s `package.yaml` is for **hard build requirements** — libraries the code cannot compile without (`dependencies`), a required C++ standard (`cpp-version`), or fixed compiler flags (`cxx-flags`). These are committed with the project and apply on every machine.
+A project’s `package.yaml` is for **hard build requirements** — libraries the code cannot compile without (`cpp-deps`), a required C++ standard (`cpp-version`), or fixed compiler flags (`cxx-flags`). These are committed with the project and apply on every machine.
 
 Build parameters are for **per-machine, per-invocation variance** — which Futhark backend this host’s hardware supports, a tuning flag like `-march=native` that is specific to the build machine. Keep these out of committed source: choose them on the command line, or set a per-machine default with `morloc config`. A `flags` passthrough is appended after the `package.yaml` flags, so the two compose.
 
@@ -13099,21 +13285,50 @@ cpp-deps:
 
 A `cpp-deps` entry may also name a conda `channel` other than conda-forge (see [Dependencies (`py-deps`)](https://morloc-project.github.io/docs/languages/python.md#py-deps) for the full rules), for a library that lives on a subordinate channel. A program your C++ code runs, rather than a library it links, is declared under `tool-deps` ([Command-line tools (`tool-deps`)](https://morloc-project.github.io/docs/apis/deploy-dependencies.md#tool-deps)).
 
-## 9.2.2. Link flags (`dependencies`)
+## 9.2.2. Headers and link names (`import`, `libs`)
 
-Provisioning a library makes its headers available, but linking against a compiled component also needs a linker flag. List the link names under `dependencies` (a bare list); each entry `foo` becomes `-lfoo` on the pool’s compile line:
+An entry can also name the headers your code includes and the libraries the pool links against:
 
 ```yaml
 cpp-deps:
-  boost: ">=1.80"
-dependencies:
-  - boost_filesystem
-  - boost_system
+  htslib:
+    version: ">=1.20"
+    import: htslib/sam.h
+    libs: [hts]
 ```
 
-A header-only library (or a header-only part of a larger one) needs only `cpp-deps` and no `-l` flag. For any other compiler flags — extra include paths, `-DFOO`, `-O3`, `-march=native` — use `cxx-flags`, a bare list appended verbatim to the compile line. All three fields propagate transitively through a module’s dependencies.
+Each name under `libs` becomes a linker flag: `hts` becomes `-lhts`. Write the bare name, without `-l`, a `lib` prefix or a file suffix. The link name sits on the package that provides it because the two names often differ: the `htslib` package provides `libhts`, and `boost` provides `boost_filesystem` and `boost_system`. A header-only library needs no `libs`.
 
-The `local-deps` section that Python and Rust use for in-project packages ([Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)) is not available for C++, which has no package manager to track such an install; a library you build yourself is linked through `dependencies` and `cxx-flags` like any other.
+`import` takes one header or a list. Morloc checks that every header a program’s modules declare can be found, and a missing one stops the build with an error that names the package and the header, such as `C++ dependency htslib (header htslib/sam.h) not found`. This check covers headers only. A missing library still fails at link time, with the linker’s `cannot find -lhts`.
+
+In a managed environment, Morloc adds the environment’s `include` and `lib` directories to every C++ pool build and records the `lib` directory as the pool’s run path. The build does not depend on the compiler’s own search paths, and the program runs from any shell, as long as the environment stays where it was built.
+
+For any other compiler flags — `-DFOO`, `-O3`, `-march=native` — use `cxx-flags`. Each entry reaches the compiler as one argument, so `'-DMSG="a b"'` stays one define. A library the environment does not provide, such as the system’s zlib or one your setup script builds, is linked through `cxx-flags` too: `cxx-flags: ["-lz"]`. These fields propagate transitively through a module’s dependencies.
+
+Older modules listed link names under a `dependencies` field. That field is gone, and Morloc refuses a `package.yaml` that still has it.
+
+The `local-deps` section that Python and Rust use for in-project packages ([Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)) is not available for C++, which has no package manager to track such an install; a library you build yourself is linked through `cxx-flags`.
+
+## 9.2.3. Runtime helpers (`cppmorloc_api.hpp`)
+
+The C++ binding’s helpers ([Calling the runtime from sourced code](https://morloc-project.github.io/docs/features/foreign-functions.md#runtime-helpers)) are declared in `cppmorloc_api.hpp`, which every C++ pool includes before your headers. Each helper defines a feature macro; test it, so the header also builds outside a pool.
+
+`mlc::give(f, std::move(x)…​)` calls the function value `f` and hands it ownership of its arguments, which you must not read again. Calling `f(x)` directly lends `x`, so a function value that keeps or reshapes its argument copies it; `give` lets one that can take the value, such as a lambda passing it on at its last use, move it instead. A loop that pulls a batch from a stream and passes it to a function value is the usual place for it:
+
+```cpp
+template <class F>
+inline auto giveTo(F f, int n) {
+    std::vector<int> b;
+    for (int i = 1; i <= n; ++i) b.push_back(i);
+#ifdef MLC_GIVE
+    return mlc::give(f, std::move(b));
+#else
+    return f(std::move(b));
+#endif
+}
+```
+
+Where `f` has no such form, `give` calls it as usual and the argument is lent.
 
 
 ---
@@ -13299,7 +13514,44 @@ The pool’s release profile is set by the `rust:lto` and `rust:opt-level` build
 
 Morloc Manual > Language Support | https://morloc-project.github.io/docs/languages/futhark.html | prev: https://morloc-project.github.io/docs/languages/rust.md | next: https://morloc-project.github.io/docs/utilities/index.md
 
-## 9.6.1. Futhark backends and GPU devices
+## 9.6.1. Sourcing Futhark functions
+
+Futhark has no pool of its own. Morloc compiles each sourced `.fut` file with the Futhark compiler and links it into the C++ pool, so a call between Futhark and C++ code does not cross a pool. You source a Futhark `entry` the way you source any other function:
+
+**main.loc**
+
+```morloc
+module main (scaledSum)
+
+import root-cpp
+import vector
+
+source Futhark from "kernels.fut" ("scaled_sum" as scaledSum)
+
+scaledSum :: F32 -> Vector n F32 -> F32
+```
+
+**kernels.fut**
+
+```
+entry scaled_sum [n] (s: f32) (v: [n]f32) : f32 =
+  f32.sum (map (\x -> s * x) v)
+```
+
+```console
+$ morloc make -o demo main.loc
+...
+$ ./demo scaledSum 2.0 '[1,2,3,4]'
+20
+```
+
+A Futhark signature may use only fixed-width numeric scalars, `Vector` and `Matrix` of them, and tuples of those that do not nest. The build checks each signature against the entry the Futhark compiler reports, so declaring `F64` for this `f32` entry fails before anything runs:
+
+```
+Futhark entry scaled_sum: morloc signature implies f64 rank-0 but the entry has f32 rank-0
+```
+
+## 9.6.2. Futhark backends and GPU devices
 
 Futhark code is compiled for a backend chosen with two build parameters ([Build parameters](https://morloc-project.github.io/docs/languages/build-parameters.md)):
 
@@ -13572,7 +13824,7 @@ The compiler and `mim` are coupled only across process boundaries: files the com
 `-- rust/          the runtime's source, kept for building Rust pools
 
 <state>/
-|-- src/morloc/plane/<plane>/<module>/   installed module source
+|-- src/morloc/plane/<library>/<module>/ installed module source
 |-- fdb/           one record per installed module, and install locks
 |-- modules/       files that modules expose to foreign code
 |-- exe/<program>/ installed programs: source copy and build directory
@@ -13813,55 +14065,62 @@ Morloc Manual > Ecosystem Architecture | https://morloc-project.github.io/docs/e
 
 An import names a module by dotted path. A leading dot makes it **local**: `import .foo.bar` is looked up only under the **project root**, the directory of the file being compiled, as `foo/bar.loc` and then `foo/bar/main.loc`. A program read from standard input has no project root and may not use local imports, and neither may an eval expression ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)).
 
-Without the leading dot the import is **bare**, and it names an installed module only. The search covers the installed modules of the active **plane** (a named namespace of installed modules; `default` unless configured), its core subdirectory (`morloclib`) first:
+Without the leading dot the import names an installed module. Installed modules belong to **libraries**: `import bits` is the standard library’s `bits`, and `import weena/bits` is module `bits` of library `weena`. Each names exactly one place in the environment’s module plane:
 
-1.  `<plane>/morloclib/foo/bar/main.loc`
-2.  `<plane>/morloclib/foo/bar.loc`
-3.  `<plane>/foo/bar.loc`
-4.  `<plane>/foo/bar/main.loc`
-5.  the same two forms directly under the module tree, outside any plane
+1.  `import bits` is `<plane>/std/bits/main.loc`
+2.  `import weena/bits` is `<plane>/weena/bits/main.loc`
+3.  `import weena/bits.extra` is `<plane>/weena/bits/extra.loc` or `<plane>/weena/bits/extra/main.loc`
 
-The first candidate that exists is taken; a local file of the same name is never used. A bare import that matches nothing is an error. When a local file of that name exists, the error names it and says to write `import .foo.bar`, and `morloc make` does not download a registry package of that name in its place. Otherwise the error lists every path tried and suggests `morloc install`.
-
-A module named `owner/name` searches only the plane: `owner/name/main.loc`, `owner/name.loc`, then `name/main.loc` and `name.loc`.
+There is no other search path. `import std/bits` is an error: a standard-library module has one spelling. A local file of the same name is never used. A bare import that matches nothing is an error. When a local file of that name exists, the error names it and says to write `import .foo.bar`, and `morloc make` does not download a package of that name in its place. Otherwise the error names the path and suggests `morloc install`.
 
 The last three components of a matched path must have the exact spelling of the import, so a module resolves the same way on case-insensitive and case-sensitive file systems.
 
+A file may declare several modules. An import reaches the one named by its last component (or the file’s only module when it has no header); the others are local modules of the same package, imported as `.name`.
+
 ## 11.6.2. Identity
 
-A module is a directory. Its entry file is `main.loc`, or its only `.loc` file. The entry file declares exactly one named module, and that name must equal the directory’s name (for an installed module, the repository’s name). A name is ASCII letters, digits and `-`, beginning with a letter or digit.
+A module is a directory. Its entry file is `main.loc`, or its only `.loc` file. The entry file declares exactly one named module, and that name must equal the module’s `name`. An installed module is identified by its `library` and `name`, both given in its `package.yaml` and never taken from a directory or repository name; its repository must be named after it. Library and module names are lower-case ASCII letters, digits and `-`, beginning with a letter. `std` is reserved for the standard library.
 
 A module’s metadata is the `package.yaml` beside its entry file. The fields the ecosystem reads:
 
 | Field | Meaning |
 | --- | --- |
+| `name` | The module’s name. Required to install. |
+| `library` | The library the module belongs to, e.g. `std`, `bio` or a GitHub user name. Required to install. |
 | `version` | The module’s own version. |
 | `morloc-version` | The range of compiler versions the module accepts. A compiler outside it refuses to load the module. |
-| `morloc-deps` | Pins for imported modules, each a name and a git hash. |
-| `py-deps`, `r-deps`, `cpp-deps`, `rust-deps` | Foreign packages, each with a version constraint and a source ([Dependencies (`py-deps`)](https://morloc-project.github.io/docs/languages/python.md#py-deps)). |
-| `tool-deps` | conda packages whose executables the module runs as programs, whatever its languages ([Command-line tools (`tool-deps`)](https://morloc-project.github.io/docs/apis/deploy-dependencies.md#tool-deps)). |
+| `morloc-deps` | Pins for imported modules: each a `name`, a `library` (default `std`), a git hash and optionally a `source` such as `github:weena/bits`. |
+| `py-deps`, `r-deps`, `cpp-deps`, `rust-deps` | Foreign packages, each with a version constraint and a source ([Dependencies (`py-deps`)](https://morloc-project.github.io/docs/languages/python.md#py-deps)). A `cpp-deps` entry may also name its headers and link names ([C++](https://morloc-project.github.io/docs/languages/cpp.md)). |
+| `tool-deps` | conda packages whose executables the module runs as programs, whatever its languages, optionally naming those executables ([Command-line tools (`tool-deps`)](https://morloc-project.github.io/docs/apis/deploy-dependencies.md#tool-deps)). |
 | `local-deps` | Packages kept inside the project tree ([Local packages (`local-deps`)](https://morloc-project.github.io/docs/languages/python.md#local-deps)). Allowed only in the program being built, not in an imported module. |
 | `lang-versions` | Constraints on the language runtimes themselves. |
-| `dependencies` | System libraries. |
 | `expose` | Files copied where foreign code can include or import them ([Exposing native resources](https://morloc-project.github.io/docs/modules/exposing-native-resources.md)). |
 | `setup` | A script run after the module is installed. |
 
 ## 11.6.3. Installing
 
-`morloc install` fetches a module into `<plane>/<name>` in the Morloc state. Each install:
+`morloc install` fetches a module into `<plane>/<library>/<name>` in the Morloc state. The module is named in one of three ways:
 
-1.  takes a lock for that module name, so two installs of one module never interleave;
+-   `bits` or `weena/bits`: fetched from the library’s **origin**;
+-   `github:weena/bits`: fetched from that repository;
+-   a path starting with `.`, `/` or `~`: copied from a local directory.
+
+Every library has one origin, a host and an owner such as `github:weena`; module `bits` of the library lives at `github:weena/bits`. The origins of `std` (`github:morloclib`) and `bio` (`github:morloc-bio`) ship with morloc and cannot be changed. Installing `github:weena/bits` whose `package.yaml` says `library: weena` records `weena` as coming from `github:weena`, first come, first served; a library named other than its owner is recorded with `morloc library add <library> <host:owner>`, and `morloc library list` shows them all. A package fetched from anywhere but its library’s origin is refused. A local install records nothing.
+
+Each install:
+
+1.  takes a lock for that module, so two installs of one module never interleave;
 2.  fetches into a temporary directory beside the destination;
-3.  checks that the module’s declared name matches and that its `morloc-version` admits this compiler;
+3.  checks that the fetched `package.yaml` gives the expected library and name, that the entry file declares that name, and that its `morloc-version` admits this compiler;
 4.  replaces the previous copy in one rename, so a failed install leaves the old one intact;
-5.  installs every module it imports that is not already present, the same way;
-6.  copies its `expose` files and runs its `setup` script, with the module’s name, version and directory in the environment;
+5.  installs every module that the entry file and the local modules it reaches import, when not already present, the same way;
+6.  copies its `expose` files and runs its `setup` script, with the module’s library, name, version and directory in the environment;
 7.  typechecks it, unless told not to;
-8.  writes a record of the install: name, version, source and pinned hash.
+8.  writes a record of the install: library, name, version, source and pinned hash.
 
 A module that is already installed is left alone unless the install is forced. `morloc make` installs missing imports the same way before it compiles.
 
-**Pins.** A pin fixes an imported module to a git hash. Pins come from the `morloc-deps` of the modules being installed (a pin closer to the program wins; two different pins at the same depth are an error) and from snapshot files in the state, which list `name hash` pairs for a whole installation. An installed module whose recorded hash differs from its pin is an error until it is reinstalled.
+**Pins.** A pin fixes an imported module to a git hash. Pins come from the `morloc-deps` of the modules being installed (a pin closer to the program wins; two different pins at the same depth are an error) and from snapshot files in the state, whose lines are `name hash` for the standard library and `library/name hash [host:owner/name]` otherwise; the source is required for a library that does not ship with morloc. A pin’s `source` names where to fetch one module without recording an origin, so a module of a single repository can be a dependency with no setup; a source that disagrees with a recorded origin is an error. An installed module whose recorded hash differs from its pin is an error until it is reinstalled.
 
 ## 11.6.4. Foreign dependencies
 
@@ -14140,7 +14399,7 @@ Compiled languages (C++, Rust) are built into a pool binary. Interpreted languag
 
 **Rebuilds** assemble the new tree in a sibling staging directory and move it into place only after every pool compiles. A failed build leaves the previous build in place. A rebuild deletes an existing `<key>-build` directory only if it carries the marker file, so a user directory that happens to have the same name is never removed.
 
-**Launchers.** Each launcher records the manifest path on a comment line (`# morloc-manifest: demo-build/manifest.json`), resolves its own location, and execs the nexus with a mode and the manifest:
+**Launchers.** Each launcher records the manifest path on a comment line (`# morloc-manifest: demo-build/manifest.json`), resolves its own location, following symbolic links, so a link to the launcher from any directory works, and execs the nexus with a mode and the manifest:
 
 | Launcher | Created by | Runs |
 | --- | --- | --- |
@@ -14192,11 +14451,13 @@ Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build
 3.  Creates the run’s shared memory: the first volume and the stream registry ([Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md)).
 4.  Installs its signal handlers.
 
+Before any of this, the nexus checks that the runtime library it loaded was built from the same runtime sources as itself, and every pool checks the library it loads against the nexus’s build (and, for Python and R, the binding loaded from the installation against the library). A mismatch means Morloc was upgraded while the program was starting; the process says so, asks for the program to be run again, and the run exits with status 75. Whether an already built program works with a newer runtime is decided by the runtime’s ABI version alone, so an upgrade never forces a rebuild.
+
 It then starts each pool the request needs ([Runtime overview](https://morloc-project.github.io/docs/build-architecture/build-overview.md)):
 
 1.  It starts a **pin**: a tiny process that leads a new process group, ignores termination signals, and exits only when the nexus closes a pipe to it. The pin holds the group’s id, so the id cannot be reissued to an unrelated process while the nexus may still signal the group.
 2.  It records the group in the run directory, then starts the pool inside that group. The pool’s command line is the manifest’s command for it followed by three arguments: its socket path, the run directory, and the shared-memory base name. The pool inherits the nexus’s standard input, output and error unchanged.
-3.  It pings each pool on its socket until one answers with a ping packet ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)). Retries back off exponentially. If the pool process exits first, startup fails at once and reports its exit status.
+3.  It pings each pool on its socket until one answers with a ping packet ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)). Retries back off exponentially, the pause capped at 2 ms. If the pool process exits first, startup fails at once and reports its exit status.
 
 **The lifeline.** The nexus holds the only write end of a pipe; every pool receives the read end. The kernel closes the write end when the nexus exits for any reason, including `SIGKILL`, so a pool always learns that its nexus is gone. It then ends its own process group (`SIGTERM`, 200 ms, `SIGKILL`) and starts a detached **sweeper** that removes the run’s shared memory and directory once every recorded group has ended. Without the lifeline, a killed nexus would leave pools and shared memory behind indefinitely.
 
@@ -14211,7 +14472,7 @@ It then starts each pool the request needs ([Runtime overview](https://morloc-pr
 | Internal error (panic) | The nexus kills its pool groups and removes what it registered before exiting. |
 | `SIGKILL` or power loss of the nexus | Each pool’s sweeper, after its lifeline closes; failing that, the next run’s startup sweep. |
 
-A long-running daemon additionally recovers from a pool crash by stopping every pool, waiting for running requests, discarding the shared memory and starting fresh; that is specified with the daemon in [Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md).
+A long-running daemon additionally recovers from a pool crash by stopping every pool, waiting for running requests, discarding the shared memory and starting fresh; that is specified with the daemon in [Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md). A pool that refuses to start because Morloc was upgraded ends the daemon with status 75 instead, since restarting cannot help.
 
 **Exit status** of a one-shot run:
 
@@ -14221,6 +14482,7 @@ A long-running daemon additionally recovers from a pool crash by stopping every 
 | 1 | The call failed: an error raised by user code, a pool that died, an argument that could not be read, or a runtime error. |
 | 2 | Usage error: an unknown command or option. |
 | 70 | Internal error: an invariant inside Morloc itself was broken (a panic). Only a panic exits with 70. |
+| 75 | Morloc was upgraded while the program was starting (its nexus, runtime library or a binding come from different builds). Running it again works. |
 | 128 + *N* | Ended by signal *N* (130 for `SIGINT`, 143 for `SIGTERM`). |
 | 141 | Standard output was a closed pipe (128 + `SIGPIPE`), as when the output is piped to `head`. |
 
@@ -14246,6 +14508,8 @@ Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build
 | R | Forked processes. Idle workers accept on the pool’s socket directly. |
 
 Forked workers are created only from a process with a single thread, because a forked child inherits only the thread that forked it, and any lock another thread held at that moment would stay locked forever. Loading user code after the fork keeps libraries that start their own threads out of the coordinator.
+
+**Parallel spans in C++.** A parallel list call in a C++ pool (a `pmap`, say) splits its list into spans and runs them on the calling thread and on a set of **helper** threads that the runtime keeps for the life of the process, so a call pays no thread start. The caller works through its spans from one end while helpers take them from the other, so it is never idle while work is left. Helpers are woken about 10 microseconds after a call begins, so a call that finishes sooner never involves another thread, and a longer one gains helpers one after another, each waking the next. A call takes at most its worker count less one helpers. A helper idle for a millisecond retires if there are more helpers than the available CPUs less one, and otherwise after the pool workers' idle timeout (below); a forked child starts with no helpers. A failure in any span is reported on the calling thread.
 
 **The no-deadlock rule.** A pool never leaves an incoming call waiting while every one of its workers is blocked on another pool. Cross-language calls can nest in any pattern: a Python function calls C++, which calls back into Python. If the only Python worker were waiting on C++, the callback would wait forever. So:
 
@@ -14537,14 +14801,14 @@ A reader finds the footer from the end of the file through the tail, so random a
 ![Diagram](https://morloc-project.github.io/docs/static/img/mermaid-575da0c868de8571b65f511c685c406a.svg)
 
 1.  `@open` and `@append` ask the nexus to open the file. It takes an exclusive lock on the file, writes the head (or, for `@append`, finds the end of the last complete batch), registers the stream and starts its writer.
-2.  A `@write` from any process appends its elements to the stream’s buffer in shared memory, holding the stream’s lock only for the copy. One \`@write’s elements stay together; writes from different processes interleave only between writes, in the order they took the lock.
+2.  A `@write` from any process appends its elements to the stream’s buffer in shared memory. A C++, Python or R pool writing to a file or to standard output or error encodes the batch straight into the buffer, inside one transaction on the stream’s lock that it commits or aborts whole; an element that is a string or a byte or number list is copied and checked in one pass, and in C++ so is a list of them. Otherwise the batch is encoded first and the lock is held only for the copy. One \`@write’s elements stay together; writes from different processes interleave only between writes, in the order they took the lock.
 3.  A full buffer is moved onto the stream’s queue and replaced by an empty one, still under the lock and without touching the file. The writer takes buffers off the queue in order, compresses them on several threads (as under Compression above), and appends them to the file in queue order, so compression never reorders elements.
 4.  The queue holds a bounded number of buffers (for a compressed stream, the number of compression threads clamped to 2-4, at most 7, and lowered as more streams are written; 1 for an uncompressed one). A writer that finds it full waits for the nexus, never for another pool, so streams add no way for pools to deadlock.
 5.  `@flush` queues the buffered elements and returns once the nexus has written them, so a reader opened afterwards sees them. `@close` does the same and also waits for the final footer, so when it returns the file is complete, its lock is released and its path can be opened again at once.
 
 A process that exits or dies after its `@write` returned loses nothing: its elements are already in shared memory, and the nexus writes them when the stream is flushed or closed. A process that dies while holding the stream’s lock may leave the buffer half updated; the stream is then failed, the batches queued before it are still written, and the footer says `failed`. A stream the program never closes is discarded when its index is dropped or the run ends: what was queued is written, the unflushed elements are dropped, and the file keeps its temporary footer, the sign that its writer did not finish. A daemon recovering from a pool crash ([Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md)) stops every writer before it discards shared memory, and each file ends with a `failed` status.
 
-**Readers.** An `IFile` maps the file and locates an element through the batch index. A batch stored uncompressed and 8-byte aligned is read where it lies in the mapping; any other batch is decompressed or copied into shared memory first. An `IStream` reads forward from the shared cursor. A reader that opens a stream still being written sees the batches written before it opened, up to the temporary footer; reading past the end yields an empty batch.
+**Readers.** An `IFile` maps the file and locates an element through the batch index. A batch stored uncompressed and 8-byte aligned is read where it lies in the mapping; any other batch is decompressed or copied into shared memory first. An `IStream` reads forward from the shared cursor. A reader that opens a stream still being written sees the batches written before it opened, up to the temporary footer; reading past the end yields an empty batch. Reading a compressed stream forward, the runtime decodes the next batches ahead of the reader on at most two threads, so a reader costs about the CPU of one decode however many cores the machine has.
 
 **Rewriting a file.** Opening an `OStream` on a file that already has data writes a new file and renames it into place, so a reader that still has the old file mapped keeps a consistent view. Where a rename is impossible (the directory is not writable, say) and nothing in the program is reading the file, it is truncated in place instead. The runtime never deletes a stream file; only a half-written temporary file is removed on failure.
 
@@ -14633,7 +14897,7 @@ A `@render` handler returns bytes (`Str`, `[Str]`, `Vector U8` or a list of `Vec
 ![Diagram](https://morloc-project.github.io/docs/static/img/mermaid-f89fe193bc4902f592b5ac41682092b7.svg)
 
 1.  A stage process runs the command once and saves its value, its collected stream and its arguments as packet files. If standard output wants the command’s own output, the stage also writes it there as it runs.
-2.  Each action is replayed in its own process on the saved output, writing to a temporary file beside its target.
+2.  Each action is replayed in its own process on the saved output, writing to a temporary file beside its target. A replay reads the saved output as a value the program built, so the checks Morloc applies only to data from outside (text that must be valid UTF-8, for instance) are not repeated, but only for the file its nexus made: one in the run’s private stage directory, owned by the user, writable by no one else and not a link. Any other packet file, and every argument of a call packet read from a file, is read as data from outside.
 3.  Only when every process has succeeded are the temporary files renamed into place. A failure removes them and ends the run with the failing process’s status, so a named output is either complete or untouched.
 
 The command body runs once however many outputs are requested, so a slow or effectful command is never repeated per output. Output formats are checked against every destination before anything runs, and conflicting destinations (two claims on standard output, two outputs to one file) are a usage error with status 2.
@@ -15152,10 +15416,10 @@ The ids in the dispatch tables are the `mid` values the manifest records for eac
 
 | Language | Record | `data` type with payloads |
 | --- | --- | --- |
-| Python | An ordered `dict` keyed by field name. | Nothing is generated; the binding builds the value from its wire form. |
+| Python | A `dict` keyed by field name by default, or a generated frozen dataclass or pydantic model when the record names that kind. | Generated: a base class with one frozen class per constructor nested in it. A type with no payloads is a generated `enum.Enum` whose values are the wire tags. |
 | R | A named `list`. | Nothing is generated; the binding builds the value from its wire form. |
-| C++ | A struct the user defines and links with `record Cpp ⇒ R = "R"`. The compiler generates its marshalling code, which reads and writes each field by its morloc name. | Generated: a struct holding a `std::variant` of `std::shared_ptr<const Arm>`, one alternative per constructor in declaration order. A type with no payloads is a generated enum. |
-| Rust | A struct the user defines and links with `record Rust ⇒ R`. The compiler generates its marshalling code. | Generated, with its marshalling code. |
+| C++ | Generated: a struct named by the declaring module’s path, unless the user maps the record to a type of their own. A recursive record is a handle sharing an immutable struct of its fields. | Generated: a struct holding a `std::variant` of `std::shared_ptr<const Arm>`, one alternative per constructor in declaration order. A type with no payloads is a generated enum. |
+| Rust | Generated, as in C++, with its marshalling code. | Generated, with its marshalling code. |
 
 In C++ the declarations follow what holds what by value: enums first, then variant wrappers (which hold their arms through pointers), then records, then arm bodies, and every marshaller is declared before any is defined.
 
@@ -15679,11 +15943,11 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_MODULE_NAME` | Name of the module being installed. | *(per module)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
 | `MORLOC_MODULE_VERSION` | Version of the module being installed. | *(per module)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
 | `MORLOC_MODULE_DIR` | Absolute path to the installed module directory; also the script’s working directory. | *(per module)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
-| `MORLOC_PLANE` | Active plane name. | *(config)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
-| `MORLOC_PLANE_DIR` | Directory of the active plane’s library path. | *(config)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
-| `MORLOC_EXPOSE_CPP_DIR` | Destination directory a `setup` script should copy exposed C++ resources into. | *(derived from plane/module)* | (pending) |
-| `MORLOC_EXPOSE_PY_DIR` | Destination directory a `setup` script should copy exposed Python resources into. | *(derived from plane/module)* | (pending) |
-| `MORLOC_EXPOSE_R_DIR` | Destination directory a `setup` script should copy exposed R resources into. | *(derived from plane/module)* | (pending) |
+| `MORLOC_MODULE_LIBRARY` | Library of the module being installed. | *(per module)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
+| `MORLOC_PLANE_DIR` | Directory of the environment’s installed modules, one subdirectory per library. | *(derived from the state)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
+| `MORLOC_EXPOSE_CPP_DIR` | Destination directory a `setup` script should copy exposed C++ resources into. | *(derived from library/module)* | (pending) |
+| `MORLOC_EXPOSE_PY_DIR` | Destination directory a `setup` script should copy exposed Python resources into. | *(derived from library/module)* | (pending) |
+| `MORLOC_EXPOSE_R_DIR` | Destination directory a `setup` script should copy exposed R resources into. | *(derived from library/module)* | (pending) |
 
 ## 16.3. Run directory, logging, and reporting
 
@@ -15764,11 +16028,21 @@ Set by the nexus and read by the pools it launches.
 | `MORLOC_FILE_MAX_SCAN_SUBPACKETS` | Cap on sub-packets scanned when classifying a footer-less stream file. | `10000` | [Stream packets](https://morloc-project.github.io/docs/utilities/nexus-file.md#stream-packets) |
 | `MORLOC_CSV_SNIFF_ROWS` | Data rows `morloc-nexus file` scans to report the column types of a CSV file. `0` reports every column as text; a non-numeric value falls back to the default. The whole file is never scanned. Reading a table argument infers nothing: undeclared columns are text. | `100` | (pending) |
 
-## 16.11. String safety
+## 16.11. Parallel lists
+
+Read by the stdlib `parallel` modules and the runtime they call.
+
+| Variable | Description | Default | Introduced in |
+| --- | --- | --- | --- |
+| `MORLOC_THREADS` | Worker count for a parallel list call whose options give none (or a count below 1). Must be a positive integer, optionally with spaces around it; any other value is ignored. | *(the CPUs the process may use: its affinity mask, limited by cgroup CPU quotas)* | (pending) |
+| `MORLOC_PAR_POOL` | `0` makes each C++ parallel call start and join threads of its own instead of using the runtime’s shared helper threads. Kept for one release, as a fallback; it will then be removed. | *(helpers on)* | (pending) |
+
+## 16.12. String safety
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
 | `MORLOC_SKIP_NULL_CHECK` | Skip the interior-NUL scan on strings crossing into a pool (unsafe). Set to `1`/`true`/`yes`. | off | [Null strings](https://morloc-project.github.io/docs/features/strings.md#nul-bytes) |
+| `MORLOC_SKIP_UTF8_CHECK` | Skip the UTF-8 check of strings the program builds (unsafe); data read from outside is still checked. Set to `1`. | off | [Strings are UTF-8 text](https://morloc-project.github.io/docs/features/strings.md#str-utf8) |
 
 
 ---

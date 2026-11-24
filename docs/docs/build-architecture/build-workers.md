@@ -16,6 +16,8 @@ Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build
 
 Forked workers are created only from a process with a single thread, because a forked child inherits only the thread that forked it, and any lock another thread held at that moment would stay locked forever. Loading user code after the fork keeps libraries that start their own threads out of the coordinator.
 
+**Parallel spans in C++.** A parallel list call in a C++ pool (a `pmap`, say) splits its list into spans and runs them on the calling thread and on a set of **helper** threads that the runtime keeps for the life of the process, so a call pays no thread start. The caller works through its spans from one end while helpers take them from the other, so it is never idle while work is left. Helpers are woken about 10 microseconds after a call begins, so a call that finishes sooner never involves another thread, and a longer one gains helpers one after another, each waking the next. A call takes at most its worker count less one helpers. A helper idle for a millisecond retires if there are more helpers than the available CPUs less one, and otherwise after the pool workers' idle timeout (below); a forked child starts with no helpers. A failure in any span is reported on the calling thread.
+
 **The no-deadlock rule.** A pool never leaves an incoming call waiting while every one of its workers is blocked on another pool. Cross-language calls can nest in any pattern: a Python function calls C++, which calls back into Python. If the only Python worker were waiting on C++, the callback would wait forever. So:
 
 -   A thread pool starts a new worker whenever a call arrives and no worker is free.

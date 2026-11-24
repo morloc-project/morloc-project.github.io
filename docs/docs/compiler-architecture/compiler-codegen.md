@@ -42,10 +42,10 @@ The ids in the dispatch tables are the `mid` values the manifest records for eac
 
 | Language | Record | `data` type with payloads |
 | --- | --- | --- |
-| Python | An ordered `dict` keyed by field name. | Nothing is generated; the binding builds the value from its wire form. |
+| Python | A `dict` keyed by field name by default, or a generated frozen dataclass or pydantic model when the record names that kind. | Generated: a base class with one frozen class per constructor nested in it. A type with no payloads is a generated `enum.Enum` whose values are the wire tags. |
 | R | A named `list`. | Nothing is generated; the binding builds the value from its wire form. |
-| C++ | A struct the user defines and links with `record Cpp ⇒ R = "R"`. The compiler generates its marshalling code, which reads and writes each field by its morloc name. | Generated: a struct holding a `std::variant` of `std::shared_ptr<const Arm>`, one alternative per constructor in declaration order. A type with no payloads is a generated enum. |
-| Rust | A struct the user defines and links with `record Rust ⇒ R`. The compiler generates its marshalling code. | Generated, with its marshalling code. |
+| C++ | Generated: a struct named by the declaring module’s path, unless the user maps the record to a type of their own. A recursive record is a handle sharing an immutable struct of its fields. | Generated: a struct holding a `std::variant` of `std::shared_ptr<const Arm>`, one alternative per constructor in declaration order. A type with no payloads is a generated enum. |
+| Rust | Generated, as in C++, with its marshalling code. | Generated, with its marshalling code. |
 
 In C++ the declarations follow what holds what by value: enums first, then variant wrappers (which hold their arms through pointers), then records, then arm bodies, and every marshaller is declared before any is defined.
 

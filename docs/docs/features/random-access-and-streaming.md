@@ -112,7 +112,13 @@ $ ./people walk people.dat
 
 ## 3.18.4. Standard input and output
 
-`@stdin` opens standard input as an `IStream`; `@stdout` and `@stderr` open the other two standard streams as `OStream` handles. They take their element type from an annotation, like `@open`, and use the same `@next`, `@write` and `@close`. This lets one Morloc program pipe typed data into another:
+`@stdin` opens standard input as an `IStream`, and `@stderr` opens standard error as an `OStream` handle; both take their element type from an annotation, like `@open`, and use the same `@next`, `@write` and `@close`. `@stdout` hands a body the standard output stream, and the command returns `Collect a`, so its signature says what it writes:
+
+```morloc
+@stdout :: (OStream a -> <IO, e> b) -> <IO, e> (Collect a)
+```
+
+`@stdout` closes the handle when the body returns. Like `@collect`, it ends a command whose signature returns `Collect` ([Streaming output with `@collect`](https://morloc-project.github.io/docs/clis/streaming-output.md)). This lets one Morloc program pipe typed data into another:
 
 **pipe.loc**
 
@@ -121,23 +127,19 @@ module pipe (produce, double)
 
 import root-py
 
-produce :: <IO> ()
-produce = do
-  o <- @stdout :: <IO> (OStream Int)
-  @write 0 o [1, 2, 3]
-  @write 0 o [4, 5, 6]
-  @close o
+produce :: <IO> (Collect Int)
+produce = @stdout (\o -> do
+  _ <- @write 0 o [1, 2, 3]
+  @write 0 o [4, 5, 6])
 
-double :: <IO> ()
-double = do
+double :: <IO> (Collect Int)
+double = @stdout (\o -> do
   Ok s <- @stdin :: <IO> (Try Str (IStream Int))
-  o <- @stdout :: <IO> (OStream Int)
   Ok xs <- @next s
-  @write 0 o (map (\x -> x * 2) xs)
+  _ <- @write 0 o (map (\x -> x * 2) xs)
   Ok ys <- @next s
-  @write 0 o (map (\x -> x * 2) ys)
-  @close o
-  @close s
+  _ <- @write 0 o (map (\x -> x * 2) ys)
+  @close s)
 ```
 
 ```console
@@ -158,7 +160,22 @@ Each batch is compressed on its own, so any batch can be read without the others
 
 `@concat` copies the batches byte for byte, with no decoding. It builds the result beside `dest` and renames it into place, which is why `dest` may also be a source and why a failure leaves the old `dest` intact.
 
-## 3.18.5. Environment variables
+## 3.18.5. A stream its writer did not finish
+
+A stream file ends with a footer that records how its writer stopped. A reader refuses a stream whose writer failed rather than hand over part of it as if it were whole: `@load`, an `IStream`, an `IFile`, `@concat` and `@append` all do. A stream read from a pipe also fails when the input ends before its final footer. A run that fails after it began streaming packet output ends that output with a footer that says it failed. A file with no footer may still be being written, so an `IStream` reads the batches it holds; an `IFile` needs a final footer and refuses it.
+
+`morloc-nexus file` shows how a stream ended, and `--validate` fails on one that did not finish. To read what such a file holds, repair it: the repair keeps every complete batch and marks the file repaired, which readers accept.
+
+```console
+$ morloc-nexus file cut.pkt
+cut.pkt: stream-packet schema="aj" state=missing subpackets=2 elements=3 ...
+$ morloc-nexus file --repair cut.pkt
+cut.pkt: repaired: 2 sub-packets, 3 elements
+```
+
+A repaired file may hold fewer batches than its writer meant to write. `@concat` keeps the mark on any file it builds from one, and `@append` will not extend it.
+
+## 3.18.6. Environment variables
 
 | Variable | Effect |
 | --- | --- |

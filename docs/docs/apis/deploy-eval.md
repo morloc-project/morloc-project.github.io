@@ -72,7 +72,7 @@ An eval expression is code written by whoever can reach the server, so it runs u
 
 Each request is typechecked and compiled from scratch before it runs, so even a small expression takes a moment. Nothing about one request is kept for the next.
 
-The token rule is stricter for eval than for the rest of the server. On the default loopback bind, eval needs no token. On an exposed server, eval runs only for callers presenting the token, even if you started the server with `--allow-no-auth`; without a token it is **locked**: not listed among the MCP tools, reported as locked by `/discover`, and refused: with `403` over HTTP, with a JSON-RPC error over MCP. `--eval-allow-no-auth` lifts this, for a deployment where something in front of the server already checks callers. When a token is set, `mim eval` sends the one in `MORLOC_MCP_TOKEN`, or the one given with `--auth-token`.
+The token rule is stricter for eval than for the rest of the server. Eval needs a token whatever the bind address, even if you started the server with `--allow-no-auth`; without one it is **locked**: not listed among the MCP tools, reported as locked by `/discover`, and refused: with `403` over HTTP, with a JSON-RPC error over MCP. `--eval-allow-no-auth` lifts this, for a deployment where something in front of the server already checks callers. When a token is set, `mim eval` sends the one in `MORLOC_MCP_TOKEN`, or the one given with `--auth-token`.
 
 ## 8.4.4. Trying expressions locally
 

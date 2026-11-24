@@ -29,11 +29,11 @@ Set by the compiler for a module’s `setup` script child process and read by th
 | `MORLOC_MODULE_NAME` | Name of the module being installed. | *(per module)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
 | `MORLOC_MODULE_VERSION` | Version of the module being installed. | *(per module)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
 | `MORLOC_MODULE_DIR` | Absolute path to the installed module directory; also the script’s working directory. | *(per module)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
-| `MORLOC_PLANE` | Active plane name. | *(config)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
-| `MORLOC_PLANE_DIR` | Directory of the active plane’s library path. | *(config)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
-| `MORLOC_EXPOSE_CPP_DIR` | Destination directory a `setup` script should copy exposed C++ resources into. | *(derived from plane/module)* | (pending) |
-| `MORLOC_EXPOSE_PY_DIR` | Destination directory a `setup` script should copy exposed Python resources into. | *(derived from plane/module)* | (pending) |
-| `MORLOC_EXPOSE_R_DIR` | Destination directory a `setup` script should copy exposed R resources into. | *(derived from plane/module)* | (pending) |
+| `MORLOC_MODULE_LIBRARY` | Library of the module being installed. | *(per module)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
+| `MORLOC_PLANE_DIR` | Directory of the environment’s installed modules, one subdirectory per library. | *(derived from the state)* | [Module setup scripts](https://morloc-project.github.io/docs/modules/installing-modules.md#configuring-cpp-build) |
+| `MORLOC_EXPOSE_CPP_DIR` | Destination directory a `setup` script should copy exposed C++ resources into. | *(derived from library/module)* | (pending) |
+| `MORLOC_EXPOSE_PY_DIR` | Destination directory a `setup` script should copy exposed Python resources into. | *(derived from library/module)* | (pending) |
+| `MORLOC_EXPOSE_R_DIR` | Destination directory a `setup` script should copy exposed R resources into. | *(derived from library/module)* | (pending) |
 
 ## 16.3. Run directory, logging, and reporting
 
@@ -114,8 +114,18 @@ Set by the nexus and read by the pools it launches.
 | `MORLOC_FILE_MAX_SCAN_SUBPACKETS` | Cap on sub-packets scanned when classifying a footer-less stream file. | `10000` | [Stream packets](https://morloc-project.github.io/docs/utilities/nexus-file.md#stream-packets) |
 | `MORLOC_CSV_SNIFF_ROWS` | Data rows `morloc-nexus file` scans to report the column types of a CSV file. `0` reports every column as text; a non-numeric value falls back to the default. The whole file is never scanned. Reading a table argument infers nothing: undeclared columns are text. | `100` | (pending) |
 
-## 16.11. String safety
+## 16.11. Parallel lists
+
+Read by the stdlib `parallel` modules and the runtime they call.
+
+| Variable | Description | Default | Introduced in |
+| --- | --- | --- | --- |
+| `MORLOC_THREADS` | Worker count for a parallel list call whose options give none (or a count below 1). Must be a positive integer, optionally with spaces around it; any other value is ignored. | *(the CPUs the process may use: its affinity mask, limited by cgroup CPU quotas)* | (pending) |
+| `MORLOC_PAR_POOL` | `0` makes each C++ parallel call start and join threads of its own instead of using the runtime’s shared helper threads. Kept for one release, as a fallback; it will then be removed. | *(helpers on)* | (pending) |
+
+## 16.12. String safety
 
 | Variable | Description | Default | Introduced in |
 | --- | --- | --- | --- |
 | `MORLOC_SKIP_NULL_CHECK` | Skip the interior-NUL scan on strings crossing into a pool (unsafe). Set to `1`/`true`/`yes`. | off | [Null strings](https://morloc-project.github.io/docs/features/strings.md#nul-bytes) |
+| `MORLOC_SKIP_UTF8_CHECK` | Skip the UTF-8 check of strings the program builds (unsafe); data read from outside is still checked. Set to `1`. | off | [Strings are UTF-8 text](https://morloc-project.github.io/docs/features/strings.md#str-utf8) |

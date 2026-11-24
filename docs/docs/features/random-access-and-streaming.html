@@ -125,6 +125,7 @@
 <li><a href="foreign-functions.html#_sourcing_builtins_and_other_non_exports">3.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="foreign-functions.html#_keyword_shaped_foreign_operators">3.2.5. Keyword-shaped foreign operators</a></li>
 <li><a href="foreign-functions.html#sourced-values">3.2.6. What sourced code may do with values</a></li>
+<li><a href="foreign-functions.html#runtime-helpers">3.2.7. Calling the runtime from sourced code</a></li>
 </ul>
 </li>
 <li><a href="importing-modules.html">3.3. Importing modules</a>
@@ -174,6 +175,7 @@
 <li><a href="strings.html#_escapes">3.7.2. Escapes</a></li>
 <li><a href="strings.html#_triple_quoted_strings">3.7.3. Triple-quoted strings</a></li>
 <li><a href="strings.html#nul-bytes">3.7.4. NUL bytes in strings</a></li>
+<li><a href="strings.html#str-utf8">3.7.5. Strings are UTF-8 text</a></li>
 </ul>
 </li>
 <li><a href="tuples-and-lists.html">3.8. Tuples and Lists</a>
@@ -187,6 +189,7 @@
 <li><a href="records.html#_native_representations">3.9.1. Native representations</a></li>
 <li><a href="records.html#_record_literals_match_by_field_name">3.9.2. Record literals match by field name</a></li>
 <li><a href="records.html#_one_record_across_three_languages">3.9.3. One record across three languages</a></li>
+<li><a href="records.html#_using_the_generated_types_outside_morloc">3.9.4. Using the generated types outside Morloc</a></li>
 </ul>
 </li>
 <li><a href="optionals.html">3.10. Optional types</a>
@@ -265,7 +268,8 @@
 <li><a href="random-access-and-streaming.html#_random_access_with_ifile">3.18.2. Random access with IFile</a></li>
 <li><a href="random-access-and-streaming.html#_sequential_reading_with_istream">3.18.3. Sequential reading with IStream</a></li>
 <li><a href="random-access-and-streaming.html#_standard_input_and_output">3.18.4. Standard input and output</a></li>
-<li><a href="random-access-and-streaming.html#stream-env-vars">3.18.5. Environment variables</a></li>
+<li><a href="random-access-and-streaming.html#_a_stream_its_writer_did_not_finish">3.18.5. A stream its writer did not finish</a></li>
+<li><a href="random-access-and-streaming.html#stream-env-vars">3.18.6. Environment variables</a></li>
 </ul>
 </li>
 <li><a href="intrinsics.html">3.19. Intrinsics</a>
@@ -611,7 +615,8 @@
 <li><a href="../languages/cpp.html">9.2. C++</a>
 <ul class="sectlevel3">
 <li><a href="../languages/cpp.html#_library_dependencies_cpp_deps">9.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
-<li><a href="../languages/cpp.html#_link_flags_dependencies">9.2.2. Link flags (<code>dependencies</code>)</a></li>
+<li><a href="../languages/cpp.html#_headers_and_link_names_import_libs">9.2.2. Headers and link names (<code>import</code>, <code>libs</code>)</a></li>
+<li><a href="../languages/cpp.html#cpp-runtime-helpers">9.2.3. Runtime helpers (<code>cppmorloc_api.hpp</code>)</a></li>
 </ul>
 </li>
 <li><a href="../languages/python.html">9.3. Python</a>
@@ -635,7 +640,8 @@
 </li>
 <li><a href="../languages/futhark.html">9.6. Futhark</a>
 <ul class="sectlevel3">
-<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.1. Futhark backends and GPU devices</a></li>
+<li><a href="../languages/futhark.html#_sourcing_futhark_functions">9.6.1. Sourcing Futhark functions</a></li>
+<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.2. Futhark backends and GPU devices</a></li>
 </ul>
 </li>
 </ul>
@@ -779,7 +785,8 @@
 <li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
 <li><a href="../env/index.html#env-serving">16.9. Serving</a></li>
 <li><a href="../env/index.html#env-inspection-tools">16.10. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
-<li><a href="../env/index.html#env-string-safety">16.11. String safety</a></li>
+<li><a href="../env/index.html#env-parallel">16.11. Parallel lists</a></li>
+<li><a href="../env/index.html#env-string-safety">16.12. String safety</a></li>
 </ul>
 </li>
 <li><a href="../ai-policy/index.html">17. AI Policy</a></li>
@@ -979,10 +986,21 @@ unrelated.)</p>
 <div class="sect3">
 <h4 id="_standard_input_and_output"><a class="anchor" href="#_standard_input_and_output"></a>3.18.4. Standard input and output</h4>
 <div class="paragraph">
-<p><code>@stdin</code> opens standard input as an <code>IStream</code>; <code>@stdout</code> and <code>@stderr</code> open
-the other two standard streams as <code>OStream</code> handles. They take their element
-type from an annotation, like <code>@open</code>, and use the same <code>@next</code>, <code>@write</code> and
-<code>@close</code>. This lets one Morloc program pipe typed data into another:</p>
+<p><code>@stdin</code> opens standard input as an <code>IStream</code>, and <code>@stderr</code> opens standard
+error as an <code>OStream</code> handle; both take their element type from an
+annotation, like <code>@open</code>, and use the same <code>@next</code>, <code>@write</code> and <code>@close</code>.
+<code>@stdout</code> hands a body the standard output stream, and the command returns
+<code>Collect a</code>, so its signature says what it writes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-nb">@stdout</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-n">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">e</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Collect</span><span class="tok-w"> </span><span class="tok-n">a</span><span class="tok-p">)</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p><code>@stdout</code> closes the handle when the body returns. Like <code>@collect</code>, it ends a
+command whose signature returns <code>Collect</code> (<a href="../clis/streaming-output.html">Streaming output with <code>@collect</code></a>). This lets one
+Morloc program pipe typed data into another:</p>
 </div>
 <div class="listingblock">
 <div class="title">pipe.loc</div>
@@ -991,23 +1009,19 @@ type from an annotation, like <code>@open</code>, and use the same <code>@next</
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
 
-<span class="tok-n">produce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
-<span class="tok-n">produce</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
-<span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@stdout</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-p">]</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">4</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">6</span><span class="tok-p">]</span>
-<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span>
+<span class="tok-n">produce</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Collect</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">produce</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@stdout</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-w">  </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">1</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-p">]</span>
+<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-mi">4</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-mi">6</span><span class="tok-p">])</span>
 
-<span class="tok-n">double</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">()</span>
-<span class="tok-n">double</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-kr">do</span>
+<span class="tok-n">double</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Collect</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
+<span class="tok-n">double</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nb">@stdout</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-kr">do</span>
 <span class="tok-w">  </span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">s</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@stdin</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">Try</span><span class="tok-w"> </span><span class="tok-nc">Str</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">IStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">))</span>
-<span class="tok-w">  </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@stdout</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-o">&lt;</span><span class="tok-nc">IO</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nc">OStream</span><span class="tok-w"> </span><span class="tok-nc">Int</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@next</span><span class="tok-w"> </span><span class="tok-n">s</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-p">)</span>
 <span class="tok-w">  </span><span class="tok-nc">Ok</span><span class="tok-w"> </span><span class="tok-n">ys</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@next</span><span class="tok-w"> </span><span class="tok-n">s</span>
-<span class="tok-w">  </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">ys</span><span class="tok-p">)</span>
-<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">o</span>
-<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">s</span></code></pre>
+<span class="tok-w">  </span><span class="tok-bp">_</span><span class="tok-w"> </span><span class="tok-o">&lt;-</span><span class="tok-w"> </span><span class="tok-nb">@write</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-w"> </span><span class="tok-n">o</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">\</span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-n">x</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-n">ys</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-nb">@close</span><span class="tok-w"> </span><span class="tok-n">s</span><span class="tok-p">)</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="listingblock">
@@ -1067,7 +1081,38 @@ a source and why a failure leaves the old <code>dest</code> intact.</p>
 </details>
 </div>
 <div class="sect3">
-<h4 id="stream-env-vars"><a class="anchor" href="#stream-env-vars"></a>3.18.5. Environment variables</h4>
+<h4 id="_a_stream_its_writer_did_not_finish"><a class="anchor" href="#_a_stream_its_writer_did_not_finish"></a>3.18.5. A stream its writer did not finish</h4>
+<div class="paragraph">
+<p>A stream file ends with a footer that records how its writer stopped. A
+reader refuses a stream whose writer failed rather than hand over part of it
+as if it were whole: <code>@load</code>, an <code>IStream</code>, an <code>IFile</code>, <code>@concat</code> and
+<code>@append</code> all do. A stream read from a pipe also fails when the input ends
+before its final footer. A run that fails after it began streaming packet
+output ends that output with a footer that says it failed. A file with no
+footer may still be being written, so an <code>IStream</code> reads the batches it
+holds; an <code>IFile</code> needs a final footer and refuses it.</p>
+</div>
+<div class="paragraph">
+<p><code>morloc-nexus file</code> shows how a stream ended, and <code>--validate</code> fails on one
+that did not finish. To read what such a file holds, repair it: the repair
+keeps every complete batch and marks the file repaired, which readers accept.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>file<span class="tok-w"> </span>cut.pkt
+<span class="tok-go">cut.pkt: stream-packet schema="aj" state=missing subpackets=2 elements=3 ...</span>
+<span class="tok-gp">$ </span>morloc-nexus<span class="tok-w"> </span>file<span class="tok-w"> </span>--repair<span class="tok-w"> </span>cut.pkt
+<span class="tok-go">cut.pkt: repaired: 2 sub-packets, 3 elements</span></code></pre>
+<button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
+</div>
+<div class="paragraph">
+<p>A repaired file may hold fewer batches than its writer meant to write.
+<code>@concat</code> keeps the mark on any file it builds from one, and <code>@append</code> will
+not extend it.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="stream-env-vars"><a class="anchor" href="#stream-env-vars"></a>3.18.6. Environment variables</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">

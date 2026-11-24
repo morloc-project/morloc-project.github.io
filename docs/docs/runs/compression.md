@@ -59,6 +59,8 @@ The 0-9 range is deliberately algorithm-agnostic: it spans "no compression" thro
 
 A stream sub-packet is cut into zstd frames of a fixed size, 2 MiB at levels 1-6 and 16 MiB at levels 7-9, and each frame is compressed as its own job. Frames are compressed, and decompressed, in parallel on up to `MORLOC_FRAME_WORKERS` threads (default: the number of cores, capped at 16).
 
+Reading a compressed stream is different: the reader decodes ahead of your code on at most two of those threads, so a stream read item by item uses about the CPU of one decode, not of every core.
+
 ## 6.6.4. Algorithm-agnostic surface
 
 The compression level is an *abstract* knob. The morloc nexus produces and consumes its own compressed packets, so the underlying algorithm is an implementation detail. zstd is the current choice (modern Pareto winner on speed vs. ratio), but a future release may switch to a different codec without changing the `-z 0..9` semantics or the `@write` signature. The packet header records the algorithm it was written with, so old packets remain readable across algorithm changes.

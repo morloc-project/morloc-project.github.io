@@ -77,6 +77,6 @@ A non-default `rust:lto` or `rust:opt-level` compiles its own copy of the pool�
 
 ## 9.1.5. Build parameters vs. `package.yaml`
 
-A project’s `package.yaml` is for **hard build requirements** — libraries the code cannot compile without (`dependencies`), a required C++ standard (`cpp-version`), or fixed compiler flags (`cxx-flags`). These are committed with the project and apply on every machine.
+A project’s `package.yaml` is for **hard build requirements** — libraries the code cannot compile without (`cpp-deps`), a required C++ standard (`cpp-version`), or fixed compiler flags (`cxx-flags`). These are committed with the project and apply on every machine.
 
 Build parameters are for **per-machine, per-invocation variance** — which Futhark backend this host’s hardware supports, a tuning flag like `-march=native` that is specific to the build machine. Keep these out of committed source: choose them on the command line, or set a per-machine default with `morloc config`. A `flags` passthrough is appended after the `package.yaml` flags, so the two compose.

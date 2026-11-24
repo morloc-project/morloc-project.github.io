@@ -85,8 +85,6 @@ record Hit where
   line :: Int
   text :: Str
 
-record Py => Hit = "dict"
-
 --' How to search
 --' @unroll
 --' @arg --options
@@ -99,8 +97,6 @@ record Options where
   --' @arg -m/--max-count
   --' @default 0
   maxCount :: Int
-
-record Py => Options = "dict"
 
 source Py from "sift.py"
   ( "scan"      as scanPy
@@ -192,7 +188,7 @@ stream ::
   --' @check.path r
   Str ->
   Options ->
-  <IO> ()
+  <IO> (Collect Hit)
 stream pat root opts = @collect (producePy pat root opts)
 ```
 
@@ -272,11 +268,15 @@ Examples:
 A command’s signature preamble takes the same block, and it renders at the foot of that subcommand’s help alone. Blank lines and `#` comments inside the block are kept, so each example can say what it is for:
 
 ```morloc
---' Count matches of a needle in one file
+--' Add up a stream of per-file counts
 --' @epilogue
 --' Examples:
 --'
---' # count in a single file
---' sift total needle ./notes/today.md
-total :: Str -> Str -> Int
+--' # total the counts of a search
+--' sift -f packet summarize hits.json | sift total
+total ::
+  --' A file of counts; standard input when omitted
+  --' @stdin
+  Str ->
+  <IO> Int
 ```

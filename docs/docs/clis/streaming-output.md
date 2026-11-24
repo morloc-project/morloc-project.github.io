@@ -4,13 +4,15 @@ Morloc Manual > Building CLIs | https://morloc-project.github.io/docs/clis/strea
 
 Everything so far has treated a command’s output as one value: compute it, serialize it, write it. That breaks down when the result is larger than memory, or when the caller wants to see the first rows before the last ones exist.
 
-A streaming command returns `()` and hands its data out in batches. The `@collect` intrinsic drives it:
+A streaming command hands its data out in batches and returns `Collect a`, where `a` is the type of each element it writes. The `@collect` intrinsic drives it:
 
 ```morloc
-@collect :: (([a] -> <IO, e> ()) -> <IO, e> ()) -> <IO, e> ()
+@collect :: (([a] -> <IO, e> ()) -> <IO, e> ()) -> <IO, e> (Collect a)
 ```
 
-`@collect` takes a **producer**: a function that is given a sink and calls it once per batch. `@collect` supplies the sink, manages the stream, and writes each batch out in whatever form `-f` selects. The element type rides on the sink, so the compiler knows the stream’s type with no extra annotation.
+`@collect` takes a **producer**: a function that is given a sink and calls it once per batch. `@collect` supplies the sink, manages the stream, and writes each batch out in whatever form `-f` selects.
+
+`Collect a` is declared in the standard library as `newtype Collect a = Unit`: a unit value whose parameter `a` is a phantom, appearing only in the type. It holds no data. It stands for the list of every element written, `[a]`, before any output action, so the command’s signature says what it writes even though the elements never pass through its return value. Only `@collect` and `@stdout` produce one, and the typechecker gives it no special rule: the arms of a streaming command agree on `a` as any arms agree on a type. Outside morloc code the output is simply `[a]`, which is what help and the API show.
 
 ``sift’s `stream`` searches the same tree as `scan` but emits one batch per file:
 
@@ -23,7 +25,7 @@ stream ::
   --' @check.path r
   Str ->
   Options ->
-  <IO> ()
+  <IO> (Collect Hit)
 stream pat root opts = @collect (producePy pat root opts)
 ```
 
@@ -57,8 +59,8 @@ The output actions of [Output actions](https://morloc-project.github.io/docs/cli
 | --- | --- | --- |
 | `@with` | `[a] -> b` (or `IFile [a] -> b`) | Gather the whole stream, apply once; `b` is serialized by `-f`. |
 | `@with ... @stream` | `[a] -> [b]` | Apply to each batch as it arrives, at constant memory; the `b` elements are serialized by `-f`. |
-| `@render` | `[a] -> Str` / `[a] -> [U8]` (or `IFile [a] -> ...`) | Gather the whole stream, apply once, write the bytes verbatim. |
-| `@render ... @stream` | `[a] -> Str` / `[a] -> [U8]` | Apply to each batch, write each result’s bytes verbatim. |
+| `@render` | `[a] -> Str` / `[a] -> [Str]` / `[a] -> [U8]` / `[a] -> [[U8]]` (or `IFile [a] -> ...`) | Gather the whole stream, apply once, write the bytes verbatim. |
+| `@render ... @stream` | `[a] -> Str` / `[a] -> [Str]` / `[a] -> [U8]` / `[a] -> [[U8]]` | Apply to each batch, write each result’s bytes verbatim. |
 | `@with`/`@render ... @fold=` | as above, with `b` in place of `[a]` | Fold the stream into one accumulator, apply once to it. See [`@fold`: one accumulator instead of a list](#stream-fold). |
 
 ``sift’s `stream`` declares four actions, drawing on three of those rows:
@@ -181,16 +183,25 @@ The producer must drive its sink from a worker pool rather than a thread per bat
 
 The rules in [Rules and rejections](https://morloc-project.github.io/docs/clis/output-actions.md#action-rules) all apply. More are specific to streaming:
 
--   An action applies to everything the command streams, whatever the shape of its body: a command with several \`@collect\`s, or one in a branch or a where-binding, gives each action the whole output, in order. Such a command’s actions run on its saved output (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)), and so does any action combined with others.
--   The producer needs a signature with a concrete batch type when its `@collect` is anywhere but the tail of the body.
+-   Every path through a streaming command ends in exactly one `@collect` or `@stdout`, in tail position: the last statement of a `do` block, an arm of a guard or `match`, or the body of a `let`. A path may end in `@throw` instead. Anything else, such as two ``@collect`s in a row or a `@collect`` in a where-binding, is a build error. To stream from several producers, call them on one sink inside a single `@collect`:
+    
+    ```morloc
+    both :: <IO> (Collect Int)
+    both = @collect (\sink -> do
+      _ <- first sink
+      second sink)
+    ```
+    
+-   `@collect` and `@stdout` appear only in a command whose signature returns `Collect`, and morloc code never calls such a command. Share its producer instead.
+-   A command’s actions run on a fresh run of the command, composed into its sink. Any action combined with others runs on its saved output (see [Several outputs in one run](https://morloc-project.github.io/docs/clis/output-actions.md#action-files)), as do the actions of a `@stdout` command.
 -   A `@stream` handler must return a list; its elements are what reach the wire.
--   `@render` under `@stream` writes each batch’s bytes as they are produced, with nothing added between batches — no separator, no trailing newline beyond what the handler itself emits.
+-   `@render` under `@stream` writes each batch’s bytes as they are produced, with nothing added between batches — no separator, no trailing newline beyond what the handler itself emits. A handler that returns a list (`[Str]` or ) has each element written in order, also with nothing between them, so it can build a large batch’s output as many pieces rather than one string.
 -   `@fold` and `@stream` are mutually exclusive: `@stream` emits one result per batch, `@fold` one for the whole stream.
 -   `@fold` requires a reachable `@collect`, and all three of `@fold`, `@init` and `@combine`.
 
 ## 5.11.6. What the help says a stream produces
 
-A streaming command’s `Return:` block describes **standard output**, not the `()` the function returns. The two coincide for every other command and come apart here, so the block is worth reading closely:
+A streaming command’s `Return:` block describes **standard output**. The command returns `Collect Hit`, and help shows it as what reaches standard output, the list `[Hit]`:
 
 ```console
 $ ./sift stream -h
@@ -207,4 +218,4 @@ Return:
 
 Five rows, five different things on stdout. `type` is the batch element the sink writes; `-c` and `-n` gather and return a single value; `-N` transforms each batch and streams the result; and `(raw bytes)` marks the one row where `-f` no longer applies, because a `@render` action writes its handler’s bytes verbatim.
 
-The compiler works the element type out from the producer’s signature: a `@collect` argument takes exactly one parameter, the sink, so the sink is the last parameter of the producer’s declared type and the sink’s own parameter is what reaches standard output. A producer with no reachable signature — an inline lambda — leaves the row falling back to the return type; the help never claims `()` for a command that streams.
+The element type comes from the command’s signature, and the typechecker checks it against the producer’s sink: a producer that writes `[Str]` batches cannot stand in a `Collect Hit` command. `Collect` means nothing outside morloc code, so `--json-help` and the API also show the output as `[Hit]`.

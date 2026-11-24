@@ -11,11 +11,13 @@ Morloc Manual > Build Architecture | https://morloc-project.github.io/docs/build
 3.  Creates the run’s shared memory: the first volume and the stream registry ([Shared memory layout](https://morloc-project.github.io/docs/build-architecture/build-shm.md)).
 4.  Installs its signal handlers.
 
+Before any of this, the nexus checks that the runtime library it loaded was built from the same runtime sources as itself, and every pool checks the library it loads against the nexus’s build (and, for Python and R, the binding loaded from the installation against the library). A mismatch means Morloc was upgraded while the program was starting; the process says so, asks for the program to be run again, and the run exits with status 75. Whether an already built program works with a newer runtime is decided by the runtime’s ABI version alone, so an upgrade never forces a rebuild.
+
 It then starts each pool the request needs ([Runtime overview](https://morloc-project.github.io/docs/build-architecture/build-overview.md)):
 
 1.  It starts a **pin**: a tiny process that leads a new process group, ignores termination signals, and exits only when the nexus closes a pipe to it. The pin holds the group’s id, so the id cannot be reissued to an unrelated process while the nexus may still signal the group.
 2.  It records the group in the run directory, then starts the pool inside that group. The pool’s command line is the manifest’s command for it followed by three arguments: its socket path, the run directory, and the shared-memory base name. The pool inherits the nexus’s standard input, output and error unchanged.
-3.  It pings each pool on its socket until one answers with a ping packet ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)). Retries back off exponentially. If the pool process exits first, startup fails at once and reports its exit status.
+3.  It pings each pool on its socket until one answers with a ping packet ([Packet protocol](https://morloc-project.github.io/docs/build-architecture/build-packets.md)). Retries back off exponentially, the pause capped at 2 ms. If the pool process exits first, startup fails at once and reports its exit status.
 
 **The lifeline.** The nexus holds the only write end of a pipe; every pool receives the read end. The kernel closes the write end when the nexus exits for any reason, including `SIGKILL`, so a pool always learns that its nexus is gone. It then ends its own process group (`SIGTERM`, 200 ms, `SIGKILL`) and starts a detached **sweeper** that removes the run’s shared memory and directory once every recorded group has ended. Without the lifeline, a killed nexus would leave pools and shared memory behind indefinitely.
 
@@ -30,7 +32,7 @@ It then starts each pool the request needs ([Runtime overview](https://morloc-pr
 | Internal error (panic) | The nexus kills its pool groups and removes what it registered before exiting. |
 | `SIGKILL` or power loss of the nexus | Each pool’s sweeper, after its lifeline closes; failing that, the next run’s startup sweep. |
 
-A long-running daemon additionally recovers from a pool crash by stopping every pool, waiting for running requests, discarding the shared memory and starting fresh; that is specified with the daemon in [Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md).
+A long-running daemon additionally recovers from a pool crash by stopping every pool, waiting for running requests, discarding the shared memory and starting fresh; that is specified with the daemon in [Serving](https://morloc-project.github.io/docs/ecosystem-architecture/eco-serving.md). A pool that refuses to start because Morloc was upgraded ends the daemon with status 75 instead, since restarting cannot help.
 
 **Exit status** of a one-shot run:
 
@@ -40,5 +42,6 @@ A long-running daemon additionally recovers from a pool crash by stopping every 
 | 1 | The call failed: an error raised by user code, a pool that died, an argument that could not be read, or a runtime error. |
 | 2 | Usage error: an unknown command or option. |
 | 70 | Internal error: an invariant inside Morloc itself was broken (a panic). Only a panic exits with 70. |
+| 75 | Morloc was upgraded while the program was starting (its nexus, runtime library or a binding come from different builds). Running it again works. |
 | 128 + *N* | Ended by signal *N* (130 for `SIGINT`, 143 for `SIGTERM`). |
 | 141 | Standard output was a closed pipe (128 + `SIGPIPE`), as when the output is piped to `head`. |

@@ -125,6 +125,7 @@
 <li><a href="foreign-functions.html#_sourcing_builtins_and_other_non_exports">3.2.4. Sourcing builtins and other non-exports</a></li>
 <li><a href="foreign-functions.html#_keyword_shaped_foreign_operators">3.2.5. Keyword-shaped foreign operators</a></li>
 <li><a href="foreign-functions.html#sourced-values">3.2.6. What sourced code may do with values</a></li>
+<li><a href="foreign-functions.html#runtime-helpers">3.2.7. Calling the runtime from sourced code</a></li>
 </ul>
 </li>
 <li><a href="importing-modules.html">3.3. Importing modules</a>
@@ -174,6 +175,7 @@
 <li><a href="strings.html#_escapes">3.7.2. Escapes</a></li>
 <li><a href="strings.html#_triple_quoted_strings">3.7.3. Triple-quoted strings</a></li>
 <li><a href="strings.html#nul-bytes">3.7.4. NUL bytes in strings</a></li>
+<li><a href="strings.html#str-utf8">3.7.5. Strings are UTF-8 text</a></li>
 </ul>
 </li>
 <li><a href="tuples-and-lists.html">3.8. Tuples and Lists</a>
@@ -187,6 +189,7 @@
 <li><a href="records.html#_native_representations">3.9.1. Native representations</a></li>
 <li><a href="records.html#_record_literals_match_by_field_name">3.9.2. Record literals match by field name</a></li>
 <li><a href="records.html#_one_record_across_three_languages">3.9.3. One record across three languages</a></li>
+<li><a href="records.html#_using_the_generated_types_outside_morloc">3.9.4. Using the generated types outside Morloc</a></li>
 </ul>
 </li>
 <li><a href="optionals.html">3.10. Optional types</a>
@@ -265,7 +268,8 @@
 <li><a href="random-access-and-streaming.html#_random_access_with_ifile">3.18.2. Random access with IFile</a></li>
 <li><a href="random-access-and-streaming.html#_sequential_reading_with_istream">3.18.3. Sequential reading with IStream</a></li>
 <li><a href="random-access-and-streaming.html#_standard_input_and_output">3.18.4. Standard input and output</a></li>
-<li><a href="random-access-and-streaming.html#stream-env-vars">3.18.5. Environment variables</a></li>
+<li><a href="random-access-and-streaming.html#_a_stream_its_writer_did_not_finish">3.18.5. A stream its writer did not finish</a></li>
+<li><a href="random-access-and-streaming.html#stream-env-vars">3.18.6. Environment variables</a></li>
 </ul>
 </li>
 <li><a href="intrinsics.html">3.19. Intrinsics</a>
@@ -611,7 +615,8 @@
 <li><a href="../languages/cpp.html">9.2. C++</a>
 <ul class="sectlevel3">
 <li><a href="../languages/cpp.html#_library_dependencies_cpp_deps">9.2.1. Library dependencies (<code>cpp-deps</code>)</a></li>
-<li><a href="../languages/cpp.html#_link_flags_dependencies">9.2.2. Link flags (<code>dependencies</code>)</a></li>
+<li><a href="../languages/cpp.html#_headers_and_link_names_import_libs">9.2.2. Headers and link names (<code>import</code>, <code>libs</code>)</a></li>
+<li><a href="../languages/cpp.html#cpp-runtime-helpers">9.2.3. Runtime helpers (<code>cppmorloc_api.hpp</code>)</a></li>
 </ul>
 </li>
 <li><a href="../languages/python.html">9.3. Python</a>
@@ -635,7 +640,8 @@
 </li>
 <li><a href="../languages/futhark.html">9.6. Futhark</a>
 <ul class="sectlevel3">
-<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.1. Futhark backends and GPU devices</a></li>
+<li><a href="../languages/futhark.html#_sourcing_futhark_functions">9.6.1. Sourcing Futhark functions</a></li>
+<li><a href="../languages/futhark.html#_futhark_backends_and_gpu_devices">9.6.2. Futhark backends and GPU devices</a></li>
 </ul>
 </li>
 </ul>
@@ -779,7 +785,8 @@
 <li><a href="../env/index.html#env-nexus-wiring">16.8. Nexus and inter-process wiring</a></li>
 <li><a href="../env/index.html#env-serving">16.9. Serving</a></li>
 <li><a href="../env/index.html#env-inspection-tools">16.10. Nexus inspection tools (<code>view</code> / <code>file</code>)</a></li>
-<li><a href="../env/index.html#env-string-safety">16.11. String safety</a></li>
+<li><a href="../env/index.html#env-parallel">16.11. Parallel lists</a></li>
+<li><a href="../env/index.html#env-string-safety">16.12. String safety</a></li>
 </ul>
 </li>
 <li><a href="../ai-policy/index.html">17. AI Policy</a></li>
@@ -1216,15 +1223,15 @@ syntax tree takes: an expression holds a term and a term holds an expression.</p
 <button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
-<p>A record may sit on such a cycle too, as long as a <code>data</code> is on it as well — with one caveat. A record on a cycle is a recursive record, and in C and
-Rust a recursive record still has to be a type you write yourself; the
-compiler does not yet generate one (`+record Cpp =&gt; Node = "struct"+` on a
-cycle fails at build time). In C that leaves no way through at all, since a
-header you write is included before the <code>data</code> type it would have to name.
-Python and R take the shape as it is.</p>
+<p>A record may sit on such a cycle too, as long as a <code>data</code> is on it as well. A
+record on a cycle is a recursive record, which C++ and Rust hold through a
+handle (<a href="records.html">Records</a>).</p>
 </div>
 <div class="paragraph">
-<p>What may not close a cycle is a set of records or aliases alone:</p>
+<p>What may not close a cycle is a set of records or aliases alone. The one
+exception is an alias that refers only to itself, and only under <code>?</code> or a
+list, as in <code>type T = (Int, ?T)</code>. Two aliases that refer to each other are
+refused:</p>
 </div>
 <div class="listingblock">
 <div class="title">mutual.loc</div>
@@ -1321,52 +1328,30 @@ from a third by giving at least one of them an alias; two <code>data</code> type
 <div class="sect3">
 <h4 id="_native_representations_2"><a class="anchor" href="#_native_representations_2"></a>3.15.7. Native representations</h4>
 <div class="paragraph">
-<p>Every language gets a representation of a <code>data</code> type, and by default the
-compiler writes it: an <code>enum class</code> in C++, a <code>#[repr(u8)]</code> enum in Rust, an
-ordinal in Python, an ordered factor in R. You declare nothing, and functions
-written in Morloc work across all four.</p>
+<p>Every language gets a representation of a <code>data</code> type, and the compiler writes
+it: an <code>enum class</code> in C++, a <code>#[repr(u8)]</code> enum in Rust, an <code>enum.Enum</code> in
+Python and an ordered factor in R for a type whose constructors take nothing;
+for one with fields, a class per constructor in C++ and Python, an enum in
+Rust and a list in R. You declare nothing, and functions written in Morloc work across all
+four.</p>
 </div>
 <div class="paragraph">
-<p>Native code you <strong>source</strong> is a different matter, because it has to name the type
-to take it apart. Rust can name a generated type directly. C++ cannot: a
-sourced header is included before the compiler’s own declarations, so a header
-that mentions <code>Shape</code> must declare <code>Shape</code> itself, and you tell Morloc that with
-a per-language declaration — the same <code>=&gt;</code> form records already use:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-n">data</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Shape</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"Shape"</span></code></pre>
-<button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
-</div>
-<div class="paragraph">
-<p>The mapping says only which native name to use. The constructors and their
-field types are not repeated, and the native declaration has to match the layout
-Morloc expects: a wrapper <code>Shape</code>, one <code>Shape_&lt;Constructor&gt;</code> struct per arm, and
-fields named <code>f0</code>, <code>f1</code> and so on. The foldout at the end of this section gives
-that layout for each language.</p>
+<p>Native code you <strong>source</strong> names the generated type the way it names a generated
+record (<a href="records.html">Records</a>): a C++ source includes the header the compiler writes
+for the declaring module, a Rust source uses its module path, and a Python
+source imports its class from the generated package. In C++ a value with
+fields is a wrapper <code>Shape</code> around a <code>std::variant</code> of one <code>Shape_&lt;Constructor&gt;</code>
+struct per constructor, whose fields are <code>f0</code>, <code>f1</code> and so on:</p>
 </div>
 <div class="listingblock">
 <div class="title">shapes.hpp</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="cpp"><span></span><span class="tok-cp">#pragma once</span>
-<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;memory&gt;</span>
-<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">&lt;variant&gt;</span>
+<span class="tok-cp">#include</span><span class="tok-w"> </span><span class="tok-cpf">"mlc/types/_local/main.hpp"</span>
 
-<span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">Shape_Circle</span><span class="tok-p">;</span>
-<span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">Shape_Rect</span><span class="tok-p">;</span>
-<span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">Shape_Dot</span><span class="tok-p">;</span>
+<span class="tok-k">using</span><span class="tok-w"> </span><span class="tok-k">namespace</span><span class="tok-w"> </span><span class="tok-nn">mlc</span><span class="tok-o">::</span><span class="tok-nn">types</span><span class="tok-o">::</span><span class="tok-nn">_local</span><span class="tok-o">::</span><span class="tok-nn">main</span><span class="tok-p">;</span>
 
-<span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">Shape</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">variant</span><span class="tok-o">&lt;</span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">shared_ptr</span><span class="tok-o">&lt;</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">Shape_Circle</span><span class="tok-o">&gt;</span><span class="tok-p">,</span>
-<span class="tok-w">                 </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">shared_ptr</span><span class="tok-o">&lt;</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">Shape_Rect</span><span class="tok-o">&gt;</span><span class="tok-p">,</span>
-<span class="tok-w">                 </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">shared_ptr</span><span class="tok-o">&lt;</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">Shape_Dot</span><span class="tok-o">&gt;&gt;</span><span class="tok-w"> </span><span class="tok-n">v</span><span class="tok-p">;</span>
-<span class="tok-p">};</span>
-
-<span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">Shape_Circle</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-kt">double</span><span class="tok-w"> </span><span class="tok-n">f0</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-p">};</span>
-<span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">Shape_Rect</span><span class="tok-w">   </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-kt">double</span><span class="tok-w"> </span><span class="tok-n">f0</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-kt">double</span><span class="tok-w"> </span><span class="tok-n">f1</span><span class="tok-p">;</span><span class="tok-w"> </span><span class="tok-p">};</span>
-<span class="tok-k">struct</span><span class="tok-w"> </span><span class="tok-nc">Shape_Dot</span><span class="tok-w">    </span><span class="tok-p">{</span><span class="tok-w"> </span><span class="tok-p">};</span>
-
-<span class="tok-kr">inline</span><span class="tok-w"> </span><span class="tok-kt">double</span><span class="tok-w"> </span><span class="tok-nf">area</span><span class="tok-p">(</span><span class="tok-n">Shape</span><span class="tok-w"> </span><span class="tok-n">s</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-kr">inline</span><span class="tok-w"> </span><span class="tok-kt">double</span><span class="tok-w"> </span><span class="tok-nf">area</span><span class="tok-p">(</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">Shape</span><span class="tok-o">&amp;</span><span class="tok-w"> </span><span class="tok-n">s</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">{</span>
 <span class="tok-w">    </span><span class="tok-k">if</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">auto</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">get_if</span><span class="tok-o">&lt;</span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">shared_ptr</span><span class="tok-o">&lt;</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">Shape_Circle</span><span class="tok-o">&gt;&gt;</span><span class="tok-p">(</span><span class="tok-o">&amp;</span><span class="tok-n">s</span><span class="tok-p">.</span><span class="tok-n">v</span><span class="tok-p">))</span>
 <span class="tok-w">        </span><span class="tok-k">return</span><span class="tok-w"> </span><span class="tok-mf">3.14159</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-n">p</span><span class="tok-p">)</span><span class="tok-o">-&gt;</span><span class="tok-n">f0</span><span class="tok-w"> </span><span class="tok-o">*</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-o">*</span><span class="tok-n">p</span><span class="tok-p">)</span><span class="tok-o">-&gt;</span><span class="tok-n">f0</span><span class="tok-p">;</span>
 <span class="tok-w">    </span><span class="tok-k">if</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">auto</span><span class="tok-w"> </span><span class="tok-n">p</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">get_if</span><span class="tok-o">&lt;</span><span class="tok-n">std</span><span class="tok-o">::</span><span class="tok-n">shared_ptr</span><span class="tok-o">&lt;</span><span class="tok-k">const</span><span class="tok-w"> </span><span class="tok-n">Shape_Rect</span><span class="tok-o">&gt;&gt;</span><span class="tok-p">(</span><span class="tok-o">&amp;</span><span class="tok-n">s</span><span class="tok-p">.</span><span class="tok-n">v</span><span class="tok-p">))</span>
@@ -1376,42 +1361,52 @@ that layout for each language.</p>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
-<p>Python needs no declaration. A value with fields arrives as a pair of the
-constructor’s name and a tuple of its fields:</p>
+<p>In Python a constructor is an attribute of its type’s class: <code>Shape.Circle(r)</code>
+builds a value, <code>case Shape.Circle(r):</code> matches one, and a constructor without
+fields is a single value, <code>Shape.Dot</code>. A type whose constructors all take
+nothing is an <code>enum.Enum</code>, so its values are members such as <code>Color.Red</code>:</p>
 </div>
 <div class="listingblock">
 <div class="title">shapes.py</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">grow</span><span class="tok-p">(</span><span class="tok-n">k</span><span class="tok-p">,</span> <span class="tok-n">s</span><span class="tok-p">):</span>
+<pre class="pygments highlight"><code data-lang="python"><span></span><span class="tok-kn">from</span><span class="tok-w"> </span><span class="tok-nn">mlc_types._local.main</span><span class="tok-w"> </span><span class="tok-kn">import</span> <span class="tok-n">Shape</span><span class="tok-p">,</span> <span class="tok-n">Color</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">grow</span><span class="tok-p">(</span><span class="tok-n">k</span><span class="tok-p">,</span> <span class="tok-n">s</span><span class="tok-p">):</span>
     <span class="tok-k">match</span> <span class="tok-n">s</span><span class="tok-p">:</span>
-        <span class="tok-k">case</span> <span class="tok-p">(</span><span class="tok-s2">"Circle"</span><span class="tok-p">,</span> <span class="tok-p">(</span><span class="tok-n">r</span><span class="tok-p">,)):</span>
-            <span class="tok-k">return</span> <span class="tok-p">(</span><span class="tok-s2">"Circle"</span><span class="tok-p">,</span> <span class="tok-p">(</span><span class="tok-n">k</span> <span class="tok-o">*</span> <span class="tok-n">r</span><span class="tok-p">,))</span>
-        <span class="tok-k">case</span> <span class="tok-p">(</span><span class="tok-s2">"Rect"</span><span class="tok-p">,</span> <span class="tok-p">(</span><span class="tok-n">w</span><span class="tok-p">,</span> <span class="tok-n">h</span><span class="tok-p">)):</span>
-            <span class="tok-k">return</span> <span class="tok-p">(</span><span class="tok-s2">"Rect"</span><span class="tok-p">,</span> <span class="tok-p">(</span><span class="tok-n">k</span> <span class="tok-o">*</span> <span class="tok-n">w</span><span class="tok-p">,</span> <span class="tok-n">k</span> <span class="tok-o">*</span> <span class="tok-n">h</span><span class="tok-p">))</span>
+        <span class="tok-k">case</span> <span class="tok-n">Shape</span><span class="tok-o">.</span><span class="tok-n">Circle</span><span class="tok-p">(</span><span class="tok-n">r</span><span class="tok-p">):</span>
+            <span class="tok-k">return</span> <span class="tok-n">Shape</span><span class="tok-o">.</span><span class="tok-n">Circle</span><span class="tok-p">(</span><span class="tok-n">k</span> <span class="tok-o">*</span> <span class="tok-n">r</span><span class="tok-p">)</span>
+        <span class="tok-k">case</span> <span class="tok-n">Shape</span><span class="tok-o">.</span><span class="tok-n">Rect</span><span class="tok-p">(</span><span class="tok-n">w</span><span class="tok-p">,</span> <span class="tok-n">h</span><span class="tok-p">):</span>
+            <span class="tok-k">return</span> <span class="tok-n">Shape</span><span class="tok-o">.</span><span class="tok-n">Rect</span><span class="tok-p">(</span><span class="tok-n">k</span> <span class="tok-o">*</span> <span class="tok-n">w</span><span class="tok-p">,</span> <span class="tok-n">k</span> <span class="tok-o">*</span> <span class="tok-n">h</span><span class="tok-p">)</span>
         <span class="tok-k">case</span><span class="tok-w"> </span><span class="tok-k">_</span><span class="tok-p">:</span>
-            <span class="tok-k">return</span> <span class="tok-n">s</span></code></pre>
+            <span class="tok-k">return</span> <span class="tok-n">s</span>
+
+<span class="tok-k">def</span><span class="tok-w"> </span><span class="tok-nf">warm</span><span class="tok-p">(</span><span class="tok-n">c</span><span class="tok-p">):</span>
+    <span class="tok-k">return</span> <span class="tok-n">c</span> <span class="tok-ow">is</span> <span class="tok-n">Color</span><span class="tok-o">.</span><span class="tok-n">Red</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="listingblock">
 <div class="title">crossing.loc</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">areaCpp</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">growPy</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bigArea</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="morloc"><span></span><span class="tok-kr">module</span><span class="tok-w"> </span><span class="tok-n">main</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">areaCpp</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">growPy</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">bigArea</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-n">colors</span><span class="tok-p">)</span>
 
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">py</span>
 <span class="tok-kr">import</span><span class="tok-w"> </span><span class="tok-n">root</span><span class="tok-o">-</span><span class="tok-n">cpp</span>
 
 <span class="tok-n">data</span><span class="tok-w"> </span><span class="tok-nc">Shape</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Circle</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-nc">Rect</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-nc">Dot</span>
+<span class="tok-n">data</span><span class="tok-w"> </span><span class="tok-nc">Color</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-nc">Red</span><span class="tok-w"> </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-nc">Green</span><span class="tok-w"> </span><span class="tok-o">|</span><span class="tok-w"> </span><span class="tok-nc">Blue</span>
 
-<span class="tok-n">data</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-o">=&gt;</span><span class="tok-w"> </span><span class="tok-nc">Shape</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-s">"Shape"</span>
-
-<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w">  </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"shapes.py"</span><span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-s">"grow"</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">growPy</span><span class="tok-p">)</span>
+<span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Py</span><span class="tok-w">  </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"shapes.py"</span><span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-s">"grow"</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">growPy</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-s">"warm"</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">warmPy</span><span class="tok-p">)</span>
 <span class="tok-kr">source</span><span class="tok-w"> </span><span class="tok-nc">Cpp</span><span class="tok-w"> </span><span class="tok-kr">from</span><span class="tok-w"> </span><span class="tok-s">"shapes.hpp"</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-s">"area"</span><span class="tok-w"> </span><span class="tok-kr">as</span><span class="tok-w"> </span><span class="tok-n">areaCpp</span><span class="tok-p">)</span>
 
 <span class="tok-n">growPy</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Real</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Shape</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Shape</span>
+<span class="tok-n">warmPy</span><span class="tok-w">  </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Color</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Bool</span>
 <span class="tok-n">areaCpp</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Shape</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
 
 <span class="tok-n">bigArea</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-nc">Shape</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-nc">Real</span>
-<span class="tok-n">bigArea</span><span class="tok-w"> </span><span class="tok-n">s</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">areaCpp</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">growPy</span><span class="tok-w"> </span><span class="tok-mf">2.0</span><span class="tok-w"> </span><span class="tok-n">s</span><span class="tok-p">)</span></code></pre>
+<span class="tok-n">bigArea</span><span class="tok-w"> </span><span class="tok-n">s</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">areaCpp</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-n">growPy</span><span class="tok-w"> </span><span class="tok-mf">2.0</span><span class="tok-w"> </span><span class="tok-n">s</span><span class="tok-p">)</span>
+
+<span class="tok-n">colors</span><span class="tok-w"> </span><span class="tok-o">::</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Color</span><span class="tok-p">]</span><span class="tok-w"> </span><span class="tok-o">-&gt;</span><span class="tok-w"> </span><span class="tok-p">[</span><span class="tok-nc">Bool</span><span class="tok-p">]</span>
+<span class="tok-n">colors</span><span class="tok-w"> </span><span class="tok-n">xs</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-n">map</span><span class="tok-w"> </span><span class="tok-n">warmPy</span><span class="tok-w"> </span><span class="tok-n">xs</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="listingblock">
@@ -1419,7 +1414,9 @@ constructor’s name and a tuple of its fields:</p>
 <pre class="pygments highlight"><code data-lang="console"><span></span><span class="tok-gp">$ </span>./crossing<span class="tok-w"> </span>growPy<span class="tok-w"> </span><span class="tok-m">1</span>.5<span class="tok-w"> </span><span class="tok-s1">'{"Circle":[2.5]}'</span>
 <span class="tok-go">{"Circle":[3.75]}</span>
 <span class="tok-gp">$ </span>./crossing<span class="tok-w"> </span>bigArea<span class="tok-w"> </span><span class="tok-s1">'{"Rect":[1.5,2.25]}'</span>
-<span class="tok-go">13.5</span></code></pre>
+<span class="tok-go">13.5</span>
+<span class="tok-gp">$ </span>./crossing<span class="tok-w"> </span>colors<span class="tok-w"> </span><span class="tok-s1">'["Red","Blue"]'</span>
+<span class="tok-go">[true,false]</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code" data-strip-prompt="true"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
@@ -1427,9 +1424,16 @@ constructor’s name and a tuple of its fields:</p>
 two native representations, and a wire form both agree on.</p>
 </div>
 <div class="paragraph">
-<p>Forget the mapping and the C++ compiler reports
-<code>error: redefinition of 'struct Shape'</code> against the generated pool source. It
-means the mapping is missing, not that your header is wrong.</p>
+<p>A Python constructor named like a Python keyword takes a trailing underscore:
+in <code>data Opt = Some Int | None</code>, the second constructor is <code>Opt.None_</code>. A Python
+source must return a value of exactly these classes; any other form, such as a
+tuple, is refused when the value leaves Python.</p>
+</div>
+<div class="paragraph">
+<p>In C++ and Rust you can still write the type yourself and map it with
+<code>data Cpp =&gt; Shape = "Shape"</code>; your declaration then has to match the layout
+in the foldout at the end of this section. In Python a mapping is ignored, with
+a warning, since the value is always the generated class.</p>
 </div>
 </div>
 <div class="sect3">
@@ -1450,11 +1454,6 @@ values of the same constructor are ordered by their fields, so
 compiler picks for an expression is its choice rather than yours, so a
 comparison that meant one thing in Python and another in R would be a bug you
 could not see in the source.</p>
-</div>
-<div class="paragraph">
-<p>One gap to know about: the Python and R representations shown above are an
-interim form, to be replaced by a generated class per arm. Treat the pair shape
-as something to match on rather than something to build a library around.</p>
 </div>
 <details>
 <summary class="title">How a <code>data</code> value is encoded</summary>
@@ -1588,9 +1587,11 @@ in which case your file declares it and must match the layout below.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Python</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The ordinal, as an <code>int</code>. A list of them is a <code>list</code> of ints, as every list
-  is in Python; <code>Vector n T</code> gives a compact numpy <code>uint8</code> array.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>("Circle", (2.0,))</code> — the constructor’s name and a tuple of its fields.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A member of a generated <code>enum.Enum</code>, such as <code>Color.Red</code>, whose value is the
+  wire tag. <code>Vector n T</code> gives a compact numpy <code>uint8</code> array of tags.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Shape.Circle(2.0)</code> — an instance of a frozen class nested in the type’s
+  class, with fields <code>f0</code>, <code>f1</code> and so on. A constructor without fields is one
+  shared instance, <code>Shape.Dot</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">R</p></td>
@@ -1617,14 +1618,18 @@ in which case your file declares it and must match the layout below.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>#[repr(u8)]</code> enum with explicit discriminants, deriving <code>Clone</code>, <code>Copy</code>,
   <code>PartialEq</code>, <code>Eq</code>, <code>PartialOrd</code>, <code>Ord</code> and <code>Debug</code>, so it compares in
   declaration order.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Generated: an enum whose arms each hold one <code>::rustmorloc::RecBox</code> of a tuple
-  of their fields. A <code>RecBox</code> is reference-counted: cloning it shares the fields
-  instead of copying them, and dropping a long chain does not recurse. Build an
-  arm with <code>RecBox::new..,</code> and read its fields through <code>Deref</code>;
-  <code>into_inner</code> moves the tuple out when the box has a single owner. A type you
-  map yourself with <code>data Rust =&gt;</code> declares its arms with <code>Box</code> instead
-  (<code>Link(Box&lt;(i64, Chain)&gt;)</code>); a mapped type with <code>RecBox</code> arms does not
-  compile. Not <code>Copy</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generated: an enum whose arm for constructor <code>C</code> holds one value of the
+  generated arm type <code>Shape_C</code>, a reference-counted node holding a tuple of
+  the arm’s fields. Cloning it shares the fields instead of copying them, and
+  in a pool dropping a long chain does not recurse. Build an arm with
+  <code>Shape_C::new..,</code> or <code>(..,).into()</code> and read its fields through <code>Deref</code>
+  (<code>c.0</code>); <code>into_inner</code> moves the tuple out when the arm has a single owner.
+  Every name is in your program’s own generated types; nothing comes from
+  morloc’s runtime. A type you map yourself with <code>data Rust =&gt;</code> is written
+  the way Rust code usually is: each arm a tuple variant with one field per
+  morloc field, each field holding its morloc type as is, in a <code>Box</code> or in an
+  <code>Arc</code> (an optional field in an <code>Option</code> of one of those), so a self
+  reference is <code>Link(i64, Box&lt;Chain&gt;)</code>. Not <code>Copy</code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1652,10 +1657,12 @@ in which case your file declares it and must match the layout below.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="rust"><span></span><span class="tok-cp">#[derive(Clone)]</span>
+<pre class="pygments highlight"><code data-lang="rust"><span></span><span class="tok-k">pub</span><span class="tok-w"> </span><span class="tok-k">type</span><span class="tok-w"> </span><span class="tok-nc">Shape_Circle</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-k">crate</span><span class="tok-p">::</span><span class="tok-n">mlc</span><span class="tok-p">::</span><span class="tok-n">Node</span><span class="tok-o">&lt;</span><span class="tok-p">(</span><span class="tok-kt">f64</span><span class="tok-p">,)</span><span class="tok-o">&gt;</span><span class="tok-p">;</span>
+<span class="tok-k">pub</span><span class="tok-w"> </span><span class="tok-k">type</span><span class="tok-w"> </span><span class="tok-nc">Shape_Rect</span><span class="tok-w"> </span><span class="tok-o">=</span><span class="tok-w"> </span><span class="tok-k">crate</span><span class="tok-p">::</span><span class="tok-n">mlc</span><span class="tok-p">::</span><span class="tok-n">Node</span><span class="tok-o">&lt;</span><span class="tok-p">(</span><span class="tok-kt">f64</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">f64</span><span class="tok-p">)</span><span class="tok-o">&gt;</span><span class="tok-p">;</span>
+<span class="tok-cp">#[derive(Clone)]</span>
 <span class="tok-k">pub</span><span class="tok-w"> </span><span class="tok-k">enum</span><span class="tok-w"> </span><span class="tok-nc">Shape</span><span class="tok-w"> </span><span class="tok-p">{</span>
-<span class="tok-w">    </span><span class="tok-n">Circle</span><span class="tok-p">(::</span><span class="tok-n">rustmorloc</span><span class="tok-p">::</span><span class="tok-n">RecBox</span><span class="tok-o">&lt;</span><span class="tok-p">(</span><span class="tok-kt">f64</span><span class="tok-p">,)</span><span class="tok-o">&gt;</span><span class="tok-p">),</span>
-<span class="tok-w">    </span><span class="tok-n">Rect</span><span class="tok-p">(::</span><span class="tok-n">rustmorloc</span><span class="tok-p">::</span><span class="tok-n">RecBox</span><span class="tok-o">&lt;</span><span class="tok-p">(</span><span class="tok-kt">f64</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-kt">f64</span><span class="tok-p">)</span><span class="tok-o">&gt;</span><span class="tok-p">),</span>
+<span class="tok-w">    </span><span class="tok-n">Circle</span><span class="tok-p">(</span><span class="tok-n">Shape_Circle</span><span class="tok-p">),</span>
+<span class="tok-w">    </span><span class="tok-n">Rect</span><span class="tok-p">(</span><span class="tok-n">Shape_Rect</span><span class="tok-p">),</span>
 <span class="tok-w">    </span><span class="tok-n">Dot</span><span class="tok-p">,</span>
 <span class="tok-p">}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
@@ -1709,23 +1716,16 @@ same arguments — <code>MyBox&lt;$1&gt;</code> has the arms <code>MyBox_Emp
 <pre class="pygments highlight"><code data-lang="rust"><span></span><span class="tok-cp">#[derive(Clone)]</span>
 <span class="tok-k">pub</span><span class="tok-w"> </span><span class="tok-k">enum</span><span class="tok-w"> </span><span class="tok-nc">MyBox</span><span class="tok-o">&lt;</span><span class="tok-n">T</span><span class="tok-o">&gt;</span><span class="tok-w"> </span><span class="tok-p">{</span>
 <span class="tok-w">    </span><span class="tok-n">Empty</span><span class="tok-p">,</span>
-<span class="tok-w">    </span><span class="tok-n">Full</span><span class="tok-p">(::</span><span class="tok-n">std</span><span class="tok-p">::</span><span class="tok-n">boxed</span><span class="tok-p">::</span><span class="tok-nb">Box</span><span class="tok-o">&lt;</span><span class="tok-p">(</span><span class="tok-n">T</span><span class="tok-p">,)</span><span class="tok-o">&gt;</span><span class="tok-p">),</span>
+<span class="tok-w">    </span><span class="tok-n">Full</span><span class="tok-p">(</span><span class="tok-n">T</span><span class="tok-p">),</span>
 <span class="tok-p">}</span></code></pre>
 <button class="copy-button" type="button" aria-label="Copy code"><svg class="copy-icon" width="16" height="16" aria-hidden="true"><use href="#copy-glyph"></use></svg></button></div>
 </div>
 <div class="paragraph">
 <p>The same holds for a <code>record</code> with parameters: <code>record Rust ⇒ (Wrap a) =
-"MyWrap&lt;$1&gt;" a</code> names a <code>struct MyWrap&lt;T&gt;</code>. Python and R still declare
-nothing; a mapping there is a hint carried on the wire and the value keeps
-its structural shape.</p>
-</div>
-<div class="paragraph">
-<p>In Python and R, the pair shape is a structural interim
-representation, chosen because it needs nothing the generic marshaller cannot
-already build; a generated class per arm is the intended end state. The cost of
-the interim form is that neither language’s compiler — and neither has one — checks that you built an arm correctly, so a field order swapped between two
-same-typed fields is silently wrong in Python and R where C++ and Rust would
-reject it.</p>
+"MyWrap&lt;$1&gt;" a</code> names a <code>struct MyWrap&lt;T&gt;</code>. Python and R declare nothing.
+In Python a <code>data</code> value is always an instance of the generated classes, and
+a value of any other form is refused when it leaves Python. R keeps the
+structural <code>list(name, fields)</code> shape.</p>
 </div>
 </div>
 </details>
